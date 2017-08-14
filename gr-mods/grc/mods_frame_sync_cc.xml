@@ -1,0 +1,72 @@
+<?xml version="1.0"?>
+<block>
+  <name>frame_sync_cc</name>
+  <key>mods_frame_sync_cc</key>
+  <category>Synchronizers</category>
+  <import>import mods</import>
+  <make>mods.frame_sync_cc($threshold, $barker_len, $barker_rep, $payload_len, $n_init_peaks, $equalize)</make>
+  <!-- Make one 'param' node for every Parameter you want settable from the GUI.
+       Sub-nodes:
+       * name
+       * key (makes the value accessible as $keyname, e.g. in the make node)
+       * type -->
+  <param>
+    <name>Threshold</name>
+    <key>threshold</key>
+    <type>float</type>
+  </param>
+  <param>
+    <name>Barker Length</name>
+    <key>barker_len</key>
+    <type>int</type>
+  </param>
+  <param>
+    <name>No. Barker Code Repetitions</name>
+    <key>barker_rep</key>
+    <type>int</type>
+  </param>
+  <param>
+    <name>Payload Length</name>
+    <key>payload_len</key>
+    <type>int</type>
+  </param>
+  <param>
+    <name>Number of Initial Peaks</name>
+    <key>n_init_peaks</key>
+    <type>int</type>
+  </param>
+  <param>
+    <name>Equalize</name>
+    <key>equalize</key>
+    <type>int</type>
+  </param>
+
+
+  <!-- Make one 'sink' node per input. Sub-nodes:
+       * name (an identifier for the GUI)
+       * type
+       * vlen
+       * optional (set to 1 for optional inputs) -->
+  <sink>
+    <name>sym_in</name>
+    <type>complex</type>
+  </sink>
+  <sink>
+    <name>mag_pmf</name>
+    <type>float</type>
+  </sink>
+
+  <!-- Make one 'source' node per output. Sub-nodes:
+       * name (an identifier for the GUI)
+       * type
+       * vlen
+       * optional (set to 1 for optional inputs) -->
+  <source>
+    <name>sym_out</name>
+    <type>complex</type>
+  </source>
+  <source>
+    <name>is_peak</name>
+    <type>byte</type>
+  </source>
+</block>

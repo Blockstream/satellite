@@ -1,0 +1,77 @@
+<?xml version="1.0"?>
+<block>
+  <name>frame_sync_fast</name>
+  <key>mods_frame_sync_fast</key>
+  <category>Synchronizers</category>
+  <import>import mods</import>
+  <make>mods.frame_sync_fast($treshold, $preamble_len, $payload_len, $n_init_peak, $equalize, $fix_phase, $const_order)</make>
+  <!-- Make one 'param' node for every Parameter you want settable from the GUI.
+       Sub-nodes:
+       * name
+       * key (makes the value accessible as $keyname, e.g. in the make node)
+       * type -->
+  <param>
+    <name>Threshold</name>
+    <key>treshold</key>
+    <type>float</type>
+  </param>
+  <param>
+    <name>Preamble Length</name>
+    <key>preamble_len</key>
+    <type>int</type>
+  </param>
+  <param>
+    <name>Payload Length</name>
+    <key>payload_len</key>
+    <type>int</type>
+  </param>
+  <param>
+    <name>Number of Initial Peaks</name>
+    <key>n_init_peak</key>
+    <type>int</type>
+  </param>
+  <param>
+    <name>Equalize</name>
+    <key>equalize</key>
+    <type>int</type>
+  </param>
+  <param>
+    <name>Fix Phase</name>
+    <key>fix_phase</key>
+    <type>int</type>
+  </param>
+  <param>
+    <name>Constellation Order</name>
+    <key>const_order</key>
+    <type>int</type>
+  </param>
+
+
+  <!-- Make one 'sink' node per input. Sub-nodes:
+       * name (an identifier for the GUI)
+       * type
+       * vlen
+       * optional (set to 1 for optional inputs) -->
+  <sink>
+    <name>sym_in</name>
+    <type>complex</type>
+  </sink>
+  <sink>
+    <name>timing_metric</name>
+    <type>float</type>
+  </sink>
+  <sink>
+    <name>norm_c_corr</name>
+    <type>complex</type>
+  </sink>
+
+  <!-- Make one 'source' node per output. Sub-nodes:
+       * name (an identifier for the GUI)
+       * type
+       * vlen
+       * optional (set to 1 for optional inputs) -->
+  <source>
+    <name>sym_out</name>
+    <type>complex</type>
+  </source>
+</block>
