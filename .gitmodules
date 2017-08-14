@@ -1,0 +1,6 @@
+[submodule "gr-mods/aff3ct"]
+	path = gr-mods/aff3ct
+	url = https://github.com/aff3ct/aff3ct.git
+[submodule "bitcoinfibre"]
+	path = bitcoinfibre
+	url = https://github.com/bitcoinfibre/bitcoinfibre.git
