@@ -1,7 +1,7 @@
 # Blockstream Satellite Receiver
 
 This repository contains the development source of the GNU Radio-based 
-satellite receiver.  See the Wiki for setup and configuration information. 
+satellite receiver.  
 
 Go to the #blockstream-satellite IRC channel on freenode for additional help.
 
