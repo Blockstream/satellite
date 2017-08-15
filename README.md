@@ -5,6 +5,7 @@ satellite receiver.  See the Wiki for setup and configuration information.
 
 Go to the #blockstream-satellite IRC channel on freenode for additional help.
 
+This is an initial release and regular improvements will be made to make Blockstream Satellite more user friendly and less technically complex.
 
 # Hardware Required
 
