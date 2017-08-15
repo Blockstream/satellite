@@ -1,15 +1,13 @@
 # Blockstream Satellite Receiver
 
 This repository contains the development source of the GNU Radio-based 
-satellite receiver. 
-
-The main files are the `.grc` flowgraphs organized within the `grc` folder.
+satellite receiver.  See the Wiki for setup and configuration information. 
 
 ## Running from a Fresh Installation
 
-This transceiver have been developed and tested for GNU Radio version 3.7.10 or higher.
+This receiver has been developed and tested for GNU Radio version 3.7.10 or higher.
 
-In order to run the transceiver flowgraphs from a fresh GNU radio installation,
+In order to run the receiver from a fresh GNU radio installation,
 first of all the custom modules have to be installed. To do so, run:
 
 ```
