@@ -73,7 +73,7 @@ Blockstream Satellite requires the LNB have at stability measurement of <= +/- 2
 
 ## 3. LNB Power Supply
 
-Most LNBs require anywhere from 13 vdc to 30vdc to be injected on the coaxial port to power the LNB.  As this is a common requirement, many power injectors exists for this purpose.  
+Most LNBs require anywhere from 13 vdc to 30vdc to be injected on the coaxial port to power the LNB.  As this is a common requirement, many power injectors exist for this purpose.  
 
 Be sure to check the power requirement of your LNB and ensure that your power injector matches.
 
