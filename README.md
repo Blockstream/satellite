@@ -192,13 +192,14 @@ Ensure RTL SDR is connected to the LNB power supply and the powered output of th
 
 2. Very slowly move the antenna side to side (azimuth), until you begin to see a pattern that looks like this:
 
-[[https://github.com/Blockstream/satellite/blob/master/doc/img/fll_in.png|alt=fll_in]]
+![FLL_IN](doc/img/fll_in.png?raw=true "FLL IN")
 
 >Notice the wide peak that is above the noise floor.
 
 If you increase the average value on the right side of the graph, this peak can be easier to see, however, you'll have to make slower movements of your antenna to allow the graph to update.
 
-[[https://github.com/Blockstream/satellite/blob/master/doc/img/fll_in_avg.png|alt=fll_in]]
+![FLL_IN Average](doc/img/fll_in_avg.png?raw=true "FLL IN Average")
+
 
 >If after moving your antenna left and right across a wide range of azimuth that you expect to see the signal, you may need to adjust your elevation.  Increase your elevation by 1 degree, and then sweep the antenna left and right through a wide azimuth range again.  You may need to repeat this increasing by several degrees and decreasing by several degrees of elevation before you are able to find the signal.  
 >
