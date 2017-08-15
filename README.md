@@ -214,7 +214,7 @@ The `Abs PMF Out` screen should have one very strong peak and it should remain i
 
 Finally, look at the `Costas Sym Out` tab and you should see a constellation of 4 point clouds.  The more compact the point clouds are, the better your signal quality:
 
-[[https://github.com/Blockstream/satellite/blob/master/doc/img/constellation.png|alt=constellation]]
+![constellation](/docs/imgconstellation.png?raw=true "Constellation")
 
 
 
