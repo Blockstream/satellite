@@ -142,7 +142,7 @@ The elevation is the up and down adjustment of your antenna.  The antenna aiming
 ### Polarization
 The polarization parameter is how many degrees your LNB will need to be rotated. Many LNBs will provide a scale of degrees to assist in setting the LNB skew.
 
-Once you have your azimuth, elevation, and polarization,  you can identify the general direction your antenna must point.  Using a compass or smartphone, visually check the general direction your antenna must point.  Ensure that there are no obstacles such as trees or building in the path between your antenna location that the area of the sky that your antenna will point.  It is important that you have clear line of sight to that area of the sky.
+Once you have your azimuth, elevation, and polarization,  you can identify the general direction your antenna must point.  Using a compass or smartphone, visually check the general direction your antenna must point.  Ensure that there are no obstacles such as trees or buildings in the path between your antenna location and the area of the sky that your antenna will point.  It is important that you have clear line of sight to that area of the sky.
 
 >There are many useful smartphone apps available for android and ios that will aid in pointing your antenna.  Some even have augmented reality features that allow you to see the satellite in the sky so that you can ensure you have good line of sight.  
 
