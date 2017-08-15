@@ -49,7 +49,7 @@ The type of LNB used is critical.  There are 3 parameters of an LNB that must be
 
 ### LNB Frequency Range.
 
-First you must verify that the Blockstream Satellite coverage in your area operates within the LNB frequency range. You can check the coverage area and satellite frequencies here (link to network status).
+First you must verify that the Blockstream Satellite coverage in your area operates within the LNB frequency range. You can check the coverage area and satellite frequencies on our [Network Status](http://www.blockstream.com/satellite/satellite) page.
 
 For example, if you are located in North America and are using the Galaxy 18 satellite, your frequency is 12.178 GHz.  Thus an LNB that operates from 11.7 GHz to 12.2 GHz would work.  However, if your LNB operates from 10.7 GHz to 11.7 GHz would NOT work.
 
