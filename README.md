@@ -7,6 +7,10 @@ Go to the #blockstream-satellite IRC channel on freenode for additional help.
 
 This is an initial release and regular improvements will be made to make Blockstream Satellite more user friendly and less technically complex.
 
+# Coverage Area
+
+Blockstream Satellite currently covers nearly 2/3rds of the Earth's landmass.  To see if you are in the coverage area, use our [Interactive Coverage Map](http://www.blockstream.com/satellite/satellite)
+
 # Hardware Required
 
 To utilize the Blockstream Satellite network, you must have the following hardware at a minimum.  These items are available from resellers around the world and we are currently working with a vendor to provide complete kits and components.
