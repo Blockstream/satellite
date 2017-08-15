@@ -1741,7 +1741,7 @@ of unit energy syms)</value>
     </param>
     <param>
       <key>w</key>
-      <value>2*pi/800</value>
+      <value>2*pi/loopbw</value>
     </param>
     <param>
       <key>maxoutbuf</key>
@@ -1847,7 +1847,7 @@ of unit energy syms)</value>
     </param>
     <param>
       <key>w</key>
-      <value>0.002</value>
+      <value>fllbw</value>
     </param>
     <param>
       <key>maxoutbuf</key>
@@ -2036,6 +2036,49 @@ of unit energy syms)</value>
     </param>
   </block>
   <block>
+    <key>parameter</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(1336, 44)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>fllbw</value>
+    </param>
+    <param>
+      <key>label</key>
+      <value></value>
+    </param>
+    <param>
+      <key>short_id</key>
+      <value></value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>eng_float</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>0.002</value>
+    </param>
+  </block>
+  <block>
     <key>framers_gr_hdlc_deframer_b</key>
     <param>
       <key>alias</key>
@@ -2114,7 +2157,7 @@ of unit energy syms)</value>
     </param>
     <param>
       <key>type</key>
-      <value></value>
+      <value>intx</value>
     </param>
     <param>
       <key>value</key>
@@ -2137,7 +2180,7 @@ of unit energy syms)</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1160, 68)</value>
+      <value>(1160, 44)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -2157,7 +2200,7 @@ of unit energy syms)</value>
     </param>
     <param>
       <key>type</key>
-      <value></value>
+      <value>intx</value>
     </param>
     <param>
       <key>value</key>
@@ -2368,6 +2411,92 @@ of unit energy syms)</value>
     </param>
   </block>
   <block>
+    <key>parameter</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(344, 184)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>loopbw</value>
+    </param>
+    <param>
+      <key>label</key>
+      <value></value>
+    </param>
+    <param>
+      <key>short_id</key>
+      <value></value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>intx</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>100</value>
+    </param>
+  </block>
+  <block>
+    <key>parameter</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(1248, 44)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>loopbw_0</value>
+    </param>
+    <param>
+      <key>label</key>
+      <value></value>
+    </param>
+    <param>
+      <key>short_id</key>
+      <value></value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>intx</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>100</value>
+    </param>
+  </block>
+  <block>
     <key>mods_fifo_async_sink</key>
     <param>
       <key>alias</key>
@@ -2548,7 +2677,7 @@ of unit energy syms)</value>
     </param>
     <param>
       <key>gui_hint</key>
-      <value>tabs@9</value>
+      <value>tabs@8</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -2895,7 +3024,7 @@ of unit energy syms)</value>
     </param>
     <param>
       <key>gui_hint</key>
-      <value>tabs@10</value>
+      <value>tabs@9</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -3262,7 +3391,7 @@ of unit energy syms)</value>
     </param>
     <param>
       <key>gui_hint</key>
-      <value>tabs@3</value>
+      <value>tabs@2</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -3549,7 +3678,7 @@ of unit energy syms)</value>
     </param>
     <param>
       <key>gui_hint</key>
-      <value>tabs@6</value>
+      <value>tabs@5</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -3648,7 +3777,7 @@ of unit energy syms)</value>
     </param>
     <param>
       <key>gui_hint</key>
-      <value>tabs@3</value>
+      <value>tabs@2</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -3747,7 +3876,7 @@ of unit energy syms)</value>
     </param>
     <param>
       <key>gui_hint</key>
-      <value>tabs@4</value>
+      <value>tabs@3</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -3846,7 +3975,7 @@ of unit energy syms)</value>
     </param>
     <param>
       <key>gui_hint</key>
-      <value>tabs@2</value>
+      <value>tabs@1</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -4209,7 +4338,7 @@ of unit energy syms)</value>
     </param>
     <param>
       <key>gui_hint</key>
-      <value>tabs@7</value>
+      <value>tabs@6</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -4572,7 +4701,7 @@ of unit energy syms)</value>
     </param>
     <param>
       <key>gui_hint</key>
-      <value>tabs@5</value>
+      <value>tabs@4</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -4935,7 +5064,7 @@ of unit energy syms)</value>
     </param>
     <param>
       <key>gui_hint</key>
-      <value>tabs@8</value>
+      <value>tabs@7</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -5286,7 +5415,7 @@ of unit energy syms)</value>
     </param>
     <param>
       <key>entags</key>
-      <value>True</value>
+      <value>False</value>
     </param>
     <param>
       <key>_enabled</key>
@@ -5298,7 +5427,7 @@ of unit energy syms)</value>
     </param>
     <param>
       <key>gui_hint</key>
-      <value>tabs@8</value>
+      <value>tabs@7</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -5661,7 +5790,7 @@ of unit energy syms)</value>
     </param>
     <param>
       <key>gui_hint</key>
-      <value>tabs@1</value>
+      <value>tabs@0</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -7423,15 +7552,15 @@ of unit energy syms)</value>
     </param>
     <param>
       <key>label0</key>
-      <value>Tx Signal</value>
-    </param>
-    <param>
-      <key>label1</key>
       <value>PMF Out</value>
     </param>
     <param>
+      <key>label1</key>
+      <value>Abs PMF Out</value>
+    </param>
+    <param>
       <key>label10</key>
-      <value>Payload Symbols</value>
+      <value></value>
     </param>
     <param>
       <key>label11</key>
@@ -7471,39 +7600,39 @@ of unit energy syms)</value>
     </param>
     <param>
       <key>label2</key>
-      <value>Abs PMF Out</value>
-    </param>
-    <param>
-      <key>label3</key>
       <value>FLL In</value>
     </param>
     <param>
-      <key>label4</key>
+      <key>label3</key>
       <value>FLL Out</value>
     </param>
     <param>
-      <key>label5</key>
+      <key>label4</key>
       <value>FLL State</value>
     </param>
     <param>
-      <key>label6</key>
+      <key>label5</key>
       <value>PFB Sync Out</value>
     </param>
     <param>
-      <key>label7</key>
+      <key>label6</key>
       <value>Costas State</value>
     </param>
     <param>
-      <key>label8</key>
+      <key>label7</key>
       <value>Demod Bits</value>
     </param>
     <param>
-      <key>label9</key>
+      <key>label8</key>
       <value>Costas  Sym Out</value>
     </param>
     <param>
+      <key>label9</key>
+      <value>Payload Symbols</value>
+    </param>
+    <param>
       <key>num_tabs</key>
-      <value>11</value>
+      <value>10</value>
     </param>
   </block>
   <block>

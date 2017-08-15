@@ -3,7 +3,7 @@
 ##################################################
 # GNU Radio Python Flow Graph
 # Title: Rx Gui
-# Generated: Mon Aug 14 15:24:21 2017
+# Generated: Mon Aug 14 22:28:48 2017
 ##################################################
 
 if __name__ == '__main__':
@@ -40,7 +40,7 @@ import time
 
 class rx_gui(gr.top_block, Qt.QWidget):
 
-    def __init__(self, freq=0, gain=40):
+    def __init__(self, freq=0, gain=40, loopbw=100, loopbw_0=100, fllbw=0.002):
         gr.top_block.__init__(self, "Rx Gui")
         Qt.QWidget.__init__(self)
         self.setWindowTitle("Rx Gui")
@@ -68,6 +68,9 @@ class rx_gui(gr.top_block, Qt.QWidget):
         ##################################################
         self.freq = freq
         self.gain = gain
+        self.loopbw = loopbw
+        self.loopbw_0 = loopbw_0
+        self.fllbw = fllbw
 
         ##################################################
         # Variables
@@ -115,57 +118,52 @@ class rx_gui(gr.top_block, Qt.QWidget):
         self.tabs_layout_0 = Qt.QBoxLayout(Qt.QBoxLayout.TopToBottom, self.tabs_widget_0)
         self.tabs_grid_layout_0 = Qt.QGridLayout()
         self.tabs_layout_0.addLayout(self.tabs_grid_layout_0)
-        self.tabs.addTab(self.tabs_widget_0, 'Tx Signal')
+        self.tabs.addTab(self.tabs_widget_0, 'PMF Out')
         self.tabs_widget_1 = Qt.QWidget()
         self.tabs_layout_1 = Qt.QBoxLayout(Qt.QBoxLayout.TopToBottom, self.tabs_widget_1)
         self.tabs_grid_layout_1 = Qt.QGridLayout()
         self.tabs_layout_1.addLayout(self.tabs_grid_layout_1)
-        self.tabs.addTab(self.tabs_widget_1, 'PMF Out')
+        self.tabs.addTab(self.tabs_widget_1, 'Abs PMF Out')
         self.tabs_widget_2 = Qt.QWidget()
         self.tabs_layout_2 = Qt.QBoxLayout(Qt.QBoxLayout.TopToBottom, self.tabs_widget_2)
         self.tabs_grid_layout_2 = Qt.QGridLayout()
         self.tabs_layout_2.addLayout(self.tabs_grid_layout_2)
-        self.tabs.addTab(self.tabs_widget_2, 'Abs PMF Out')
+        self.tabs.addTab(self.tabs_widget_2, 'FLL In')
         self.tabs_widget_3 = Qt.QWidget()
         self.tabs_layout_3 = Qt.QBoxLayout(Qt.QBoxLayout.TopToBottom, self.tabs_widget_3)
         self.tabs_grid_layout_3 = Qt.QGridLayout()
         self.tabs_layout_3.addLayout(self.tabs_grid_layout_3)
-        self.tabs.addTab(self.tabs_widget_3, 'FLL In')
+        self.tabs.addTab(self.tabs_widget_3, 'FLL Out')
         self.tabs_widget_4 = Qt.QWidget()
         self.tabs_layout_4 = Qt.QBoxLayout(Qt.QBoxLayout.TopToBottom, self.tabs_widget_4)
         self.tabs_grid_layout_4 = Qt.QGridLayout()
         self.tabs_layout_4.addLayout(self.tabs_grid_layout_4)
-        self.tabs.addTab(self.tabs_widget_4, 'FLL Out')
+        self.tabs.addTab(self.tabs_widget_4, 'FLL State')
         self.tabs_widget_5 = Qt.QWidget()
         self.tabs_layout_5 = Qt.QBoxLayout(Qt.QBoxLayout.TopToBottom, self.tabs_widget_5)
         self.tabs_grid_layout_5 = Qt.QGridLayout()
         self.tabs_layout_5.addLayout(self.tabs_grid_layout_5)
-        self.tabs.addTab(self.tabs_widget_5, 'FLL State')
+        self.tabs.addTab(self.tabs_widget_5, 'PFB Sync Out')
         self.tabs_widget_6 = Qt.QWidget()
         self.tabs_layout_6 = Qt.QBoxLayout(Qt.QBoxLayout.TopToBottom, self.tabs_widget_6)
         self.tabs_grid_layout_6 = Qt.QGridLayout()
         self.tabs_layout_6.addLayout(self.tabs_grid_layout_6)
-        self.tabs.addTab(self.tabs_widget_6, 'PFB Sync Out')
+        self.tabs.addTab(self.tabs_widget_6, 'Costas State')
         self.tabs_widget_7 = Qt.QWidget()
         self.tabs_layout_7 = Qt.QBoxLayout(Qt.QBoxLayout.TopToBottom, self.tabs_widget_7)
         self.tabs_grid_layout_7 = Qt.QGridLayout()
         self.tabs_layout_7.addLayout(self.tabs_grid_layout_7)
-        self.tabs.addTab(self.tabs_widget_7, 'Costas State')
+        self.tabs.addTab(self.tabs_widget_7, 'Demod Bits')
         self.tabs_widget_8 = Qt.QWidget()
         self.tabs_layout_8 = Qt.QBoxLayout(Qt.QBoxLayout.TopToBottom, self.tabs_widget_8)
         self.tabs_grid_layout_8 = Qt.QGridLayout()
         self.tabs_layout_8.addLayout(self.tabs_grid_layout_8)
-        self.tabs.addTab(self.tabs_widget_8, 'Demod Bits')
+        self.tabs.addTab(self.tabs_widget_8, 'Costas  Sym Out')
         self.tabs_widget_9 = Qt.QWidget()
         self.tabs_layout_9 = Qt.QBoxLayout(Qt.QBoxLayout.TopToBottom, self.tabs_widget_9)
         self.tabs_grid_layout_9 = Qt.QGridLayout()
         self.tabs_layout_9.addLayout(self.tabs_grid_layout_9)
-        self.tabs.addTab(self.tabs_widget_9, 'Costas  Sym Out')
-        self.tabs_widget_10 = Qt.QWidget()
-        self.tabs_layout_10 = Qt.QBoxLayout(Qt.QBoxLayout.TopToBottom, self.tabs_widget_10)
-        self.tabs_grid_layout_10 = Qt.QGridLayout()
-        self.tabs_layout_10.addLayout(self.tabs_grid_layout_10)
-        self.tabs.addTab(self.tabs_widget_10, 'Payload Symbols')
+        self.tabs.addTab(self.tabs_widget_9, 'Payload Symbols')
         self.top_layout.addWidget(self.tabs)
         self.rtlsdr_source_0 = osmosdr.source( args="numchan=" + str(1) + " " + '' )
         self.rtlsdr_source_0.set_sample_rate(samp_rate)
@@ -229,7 +227,7 @@ class rx_gui(gr.top_block, Qt.QWidget):
             self.qtgui_time_sink_x_2.set_line_alpha(i, alphas[i])
         
         self._qtgui_time_sink_x_2_win = sip.wrapinstance(self.qtgui_time_sink_x_2.pyqwidget(), Qt.QWidget)
-        self.tabs_layout_1.addWidget(self._qtgui_time_sink_x_2_win)
+        self.tabs_layout_0.addWidget(self._qtgui_time_sink_x_2_win)
         self.qtgui_time_sink_x_1_0_0 = qtgui.time_sink_f(
         	1024, #size
         	samp_rate, #samp_rate
@@ -241,7 +239,7 @@ class rx_gui(gr.top_block, Qt.QWidget):
         
         self.qtgui_time_sink_x_1_0_0.set_y_label('Amplitude', "")
         
-        self.qtgui_time_sink_x_1_0_0.enable_tags(-1, True)
+        self.qtgui_time_sink_x_1_0_0.enable_tags(-1, False)
         self.qtgui_time_sink_x_1_0_0.set_trigger_mode(qtgui.TRIG_MODE_FREE, qtgui.TRIG_SLOPE_POS, 0.0, 0, 0, "")
         self.qtgui_time_sink_x_1_0_0.enable_autoscale(False)
         self.qtgui_time_sink_x_1_0_0.enable_grid(False)
@@ -276,7 +274,7 @@ class rx_gui(gr.top_block, Qt.QWidget):
             self.qtgui_time_sink_x_1_0_0.set_line_alpha(i, alphas[i])
         
         self._qtgui_time_sink_x_1_0_0_win = sip.wrapinstance(self.qtgui_time_sink_x_1_0_0.pyqwidget(), Qt.QWidget)
-        self.tabs_layout_8.addWidget(self._qtgui_time_sink_x_1_0_0_win)
+        self.tabs_layout_7.addWidget(self._qtgui_time_sink_x_1_0_0_win)
         self.qtgui_time_sink_x_1_0 = qtgui.time_sink_f(
         	1024, #size
         	samp_rate, #samp_rate
@@ -323,7 +321,7 @@ class rx_gui(gr.top_block, Qt.QWidget):
             self.qtgui_time_sink_x_1_0.set_line_alpha(i, alphas[i])
         
         self._qtgui_time_sink_x_1_0_win = sip.wrapinstance(self.qtgui_time_sink_x_1_0.pyqwidget(), Qt.QWidget)
-        self.tabs_layout_8.addWidget(self._qtgui_time_sink_x_1_0_win)
+        self.tabs_layout_7.addWidget(self._qtgui_time_sink_x_1_0_win)
         self.qtgui_time_sink_x_1 = qtgui.time_sink_f(
         	8192, #size
         	samp_rate, #samp_rate
@@ -370,7 +368,7 @@ class rx_gui(gr.top_block, Qt.QWidget):
             self.qtgui_time_sink_x_1.set_line_alpha(i, alphas[i])
         
         self._qtgui_time_sink_x_1_win = sip.wrapinstance(self.qtgui_time_sink_x_1.pyqwidget(), Qt.QWidget)
-        self.tabs_layout_5.addWidget(self._qtgui_time_sink_x_1_win)
+        self.tabs_layout_4.addWidget(self._qtgui_time_sink_x_1_win)
         self.qtgui_time_sink_x_0_3 = qtgui.time_sink_f(
         	1024*4, #size
         	samp_rate, #samp_rate
@@ -417,7 +415,7 @@ class rx_gui(gr.top_block, Qt.QWidget):
             self.qtgui_time_sink_x_0_3.set_line_alpha(i, alphas[i])
         
         self._qtgui_time_sink_x_0_3_win = sip.wrapinstance(self.qtgui_time_sink_x_0_3.pyqwidget(), Qt.QWidget)
-        self.tabs_layout_7.addWidget(self._qtgui_time_sink_x_0_3_win)
+        self.tabs_layout_6.addWidget(self._qtgui_time_sink_x_0_3_win)
         self.qtgui_time_sink_x_0_0 = qtgui.time_sink_f(
         	preamble_size + payload_size, #size
         	samp_rate, #samp_rate
@@ -464,7 +462,7 @@ class rx_gui(gr.top_block, Qt.QWidget):
             self.qtgui_time_sink_x_0_0.set_line_alpha(i, alphas[i])
         
         self._qtgui_time_sink_x_0_0_win = sip.wrapinstance(self.qtgui_time_sink_x_0_0.pyqwidget(), Qt.QWidget)
-        self.tabs_layout_2.addWidget(self._qtgui_time_sink_x_0_0_win)
+        self.tabs_layout_1.addWidget(self._qtgui_time_sink_x_0_0_win)
         self.qtgui_sink_x_5 = qtgui.sink_c(
         	1024, #fftsize
         	firdes.WIN_BLACKMAN_hARRIS, #wintype
@@ -478,7 +476,7 @@ class rx_gui(gr.top_block, Qt.QWidget):
         )
         self.qtgui_sink_x_5.set_update_time(1.0/10)
         self._qtgui_sink_x_5_win = sip.wrapinstance(self.qtgui_sink_x_5.pyqwidget(), Qt.QWidget)
-        self.tabs_layout_4.addWidget(self._qtgui_sink_x_5_win)
+        self.tabs_layout_3.addWidget(self._qtgui_sink_x_5_win)
         
         self.qtgui_sink_x_5.enable_rf_freq(False)
         
@@ -497,7 +495,7 @@ class rx_gui(gr.top_block, Qt.QWidget):
         )
         self.qtgui_sink_x_1.set_update_time(1.0/10)
         self._qtgui_sink_x_1_win = sip.wrapinstance(self.qtgui_sink_x_1.pyqwidget(), Qt.QWidget)
-        self.tabs_layout_3.addWidget(self._qtgui_sink_x_1_win)
+        self.tabs_layout_2.addWidget(self._qtgui_sink_x_1_win)
         
         self.qtgui_sink_x_1.enable_rf_freq(False)
         
@@ -516,7 +514,7 @@ class rx_gui(gr.top_block, Qt.QWidget):
         )
         self.qtgui_sink_x_0.set_update_time(1.0/10)
         self._qtgui_sink_x_0_win = sip.wrapinstance(self.qtgui_sink_x_0.pyqwidget(), Qt.QWidget)
-        self.tabs_layout_6.addWidget(self._qtgui_sink_x_0_win)
+        self.tabs_layout_5.addWidget(self._qtgui_sink_x_0_win)
         
         self.qtgui_sink_x_0.enable_rf_freq(False)
         
@@ -564,7 +562,7 @@ class rx_gui(gr.top_block, Qt.QWidget):
             self.qtgui_freq_sink_x_0.set_line_alpha(i, alphas[i])
         
         self._qtgui_freq_sink_x_0_win = sip.wrapinstance(self.qtgui_freq_sink_x_0.pyqwidget(), Qt.QWidget)
-        self.tabs_layout_3.addWidget(self._qtgui_freq_sink_x_0_win)
+        self.tabs_layout_2.addWidget(self._qtgui_freq_sink_x_0_win)
         self.qtgui_const_sink_x_1 = qtgui.const_sink_c(
         	1024, #size
         	"", #name
@@ -605,7 +603,7 @@ class rx_gui(gr.top_block, Qt.QWidget):
             self.qtgui_const_sink_x_1.set_line_alpha(i, alphas[i])
         
         self._qtgui_const_sink_x_1_win = sip.wrapinstance(self.qtgui_const_sink_x_1.pyqwidget(), Qt.QWidget)
-        self.tabs_layout_10.addWidget(self._qtgui_const_sink_x_1_win)
+        self.tabs_layout_9.addWidget(self._qtgui_const_sink_x_1_win)
         self.qtgui_const_sink_x_0 = qtgui.const_sink_c(
         	1024, #size
         	"", #name
@@ -646,7 +644,7 @@ class rx_gui(gr.top_block, Qt.QWidget):
             self.qtgui_const_sink_x_0.set_line_alpha(i, alphas[i])
         
         self._qtgui_const_sink_x_0_win = sip.wrapinstance(self.qtgui_const_sink_x_0.pyqwidget(), Qt.QWidget)
-        self.tabs_layout_9.addWidget(self._qtgui_const_sink_x_0_win)
+        self.tabs_layout_8.addWidget(self._qtgui_const_sink_x_0_win)
         self.mods_turbo_decoder_0 = mods.turbo_decoder(codeword_len, dataword_len)
         self.mods_frame_sync_fast_0 = mods.frame_sync_fast(pmf_peak_threshold, preamble_size, payload_size, 0, 1, 1, int(const_order))
         self.mods_fifo_async_sink_0 = mods.fifo_async_sink('/tmp/async_rx')
@@ -657,9 +655,9 @@ class rx_gui(gr.top_block, Qt.QWidget):
         self.framers_gr_hdlc_deframer_b_0 = framers.gr_hdlc_deframer_b(0)
         self.digital_pfb_clock_sync_xxx_0 = digital.pfb_clock_sync_ccf(sps, 2*pi/50, (rrc_taps), nfilts, nfilts/2, pi/8, 1)
         self.digital_map_bb_0_0_0 = digital.map_bb(([1,- 1]))
-        self.digital_fll_band_edge_cc_1 = digital.fll_band_edge_cc(sps, excess_bw, rrc_delay * int(sps) + 1, 0.002)
+        self.digital_fll_band_edge_cc_1 = digital.fll_band_edge_cc(sps, excess_bw, rrc_delay * int(sps) + 1, fllbw)
         self.digital_descrambler_bb_0 = digital.descrambler_bb(0x21, 0x7F, 16)
-        self.digital_costas_loop_cc_0 = digital.costas_loop_cc(2*pi/800, 2**constellation.bits_per_symbol(), False)
+        self.digital_costas_loop_cc_0 = digital.costas_loop_cc(2*pi/loopbw, 2**constellation.bits_per_symbol(), False)
         self.digital_constellation_decoder_cb_0 = digital.constellation_decoder_cb(constellation.base())
         self.blocks_unpack_k_bits_bb_0 = blocks.unpack_k_bits_bb(constellation.bits_per_symbol())
         self.blocks_rms_xx_1 = blocks.rms_cf(0.0001)
@@ -741,6 +739,26 @@ class rx_gui(gr.top_block, Qt.QWidget):
     def set_gain(self, gain):
         self.gain = gain
         self.rtlsdr_source_0.set_gain(self.gain, 0)
+
+    def get_loopbw(self):
+        return self.loopbw
+
+    def set_loopbw(self, loopbw):
+        self.loopbw = loopbw
+        self.digital_costas_loop_cc_0.set_loop_bandwidth(2*pi/self.loopbw)
+
+    def get_loopbw_0(self):
+        return self.loopbw_0
+
+    def set_loopbw_0(self, loopbw_0):
+        self.loopbw_0 = loopbw_0
+
+    def get_fllbw(self):
+        return self.fllbw
+
+    def set_fllbw(self, fllbw):
+        self.fllbw = fllbw
+        self.digital_fll_band_edge_cc_1.set_loop_bandwidth(self.fllbw)
 
     def get_sps(self):
         return self.sps
@@ -968,6 +986,21 @@ class rx_gui(gr.top_block, Qt.QWidget):
 
 def argument_parser():
     parser = OptionParser(usage="%prog: [options]", option_class=eng_option)
+    parser.add_option(
+        "", "--freq", dest="freq", type="intx", default=0,
+        help="Set freq [default=%default]")
+    parser.add_option(
+        "", "--gain", dest="gain", type="intx", default=40,
+        help="Set gain [default=%default]")
+    parser.add_option(
+        "", "--loopbw", dest="loopbw", type="intx", default=100,
+        help="Set loopbw [default=%default]")
+    parser.add_option(
+        "", "--loopbw-0", dest="loopbw_0", type="intx", default=100,
+        help="Set loopbw_0 [default=%default]")
+    parser.add_option(
+        "", "--fllbw", dest="fllbw", type="eng_float", default=eng_notation.num_to_str(0.002),
+        help="Set fllbw [default=%default]")
     return parser
 
 
@@ -981,7 +1014,7 @@ def main(top_block_cls=rx_gui, options=None):
         Qt.QApplication.setGraphicsSystem(style)
     qapp = Qt.QApplication(sys.argv)
 
-    tb = top_block_cls()
+    tb = top_block_cls(freq=options.freq, gain=options.gain, loopbw=options.loopbw, loopbw_0=options.loopbw_0, fllbw=options.fllbw)
     tb.start()
     tb.show()
 
