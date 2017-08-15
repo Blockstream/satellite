@@ -5,23 +5,6 @@ satellite receiver.  See the Wiki for setup and configuration information.
 
 Go to the #blockstream-satellite IRC channel on freenode for additional help.
 
-## Running from a Fresh Installation
-
-This receiver has been developed and tested for GNU Radio version 3.7.10 or higher.
-
-In order to run the receiver from a fresh GNU radio installation,
-first of all the custom modules have to be installed. To do so, run:
-
-```
-./install_mods.sh
-```
-
-Also some flow-graphs rely on gr-framers, to install them for the first time run:
-
-```
-./install_gr_framers.sh
-```
-
 
 # Hardware Required
 
@@ -221,7 +204,7 @@ If you increase the average value on the right side of the graph, this peak can 
 >
 >Remember, even though a single degree may seem like a minuscule movement, each degree is tens of thousands of kilometers over the 36,000 kilometers to geosynchronous orbit.
 
-## 6. Peak Signal
+## 7. Peak Signal
 
 Once you have located the signal, adjust the azimuth, elevation, and rotation of your LNB until you the peak is at its maximum.  You can confirm you have a good signal by looking at the `Abs PMF Out` tab and `Costas Sym Out` tab.  
 
