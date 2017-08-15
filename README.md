@@ -210,11 +210,11 @@ Once you have located the signal, adjust the azimuth, elevation, and rotation of
 
 The `Abs PMF Out` screen should have one very strong peak and it should remain in place.  It can be in any position, but it must remain in the same position for the system to be reliable.
 
-![Frame Lock](/docs/img/frame_lock.png?raw=true "Frame Lock")
+![Frame Lock](docs/img/frame_lock.png?raw=true "Frame Lock")
 
 Finally, look at the `Costas Sym Out` tab and you should see a constellation of 4 point clouds.  The more compact the point clouds are, the better your signal quality:
 
-![Constellation Diagram](/docs/img/constellation.png?raw=true "Constellation")
+![Constellation Diagram](docs/img/constellation.png?raw=true "Constellation")
 
 
 
