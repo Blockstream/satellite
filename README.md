@@ -33,11 +33,11 @@ Other than size, the only other requirement is that the antenna will work with K
 
 Blockstream Satellite operates in Ku band.
 
-C band:     3.4 GHZ - 4.2 GHz
-
-Ku band: 11.7 GHz to 12.7 GHz
-
-Ka band:  17.7 GHz - 21.2 GHz
+>C band:     3.4 GHZ - 4.2 GHz
+>
+>Ku band: 11.7 GHz to 12.7 GHz
+>
+>Ka band:  17.7 GHz - 21.2 GHz
 
 You can always use antennas designed for higher frequencies.  For example, an antenna designed for Ka band will work as it is designed for higher frequencies than Blockstream Satellite which operated in Ku band.
 
