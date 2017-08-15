@@ -19,7 +19,7 @@ Following is a list of all the hardware required:
 5. Software Defined Radio interface
 6. Cables, Connectors, and Mounting Hardware
 
-## 1. 45cm Satellite Dish
+## 1. Minimum 45cm Satellite Dish (bigger is better)
 Blockstream Satellite is designed to work with small antennas only 45cm or larger in diameter.  However, a larger antenna is always better.  When possible, we recommend installing an antenna larger than 45cm if one is readily available.  60cm, 90cm, and 1.2m antennas are readily available.
 
 Other than size, the only other requirement is that the antenna will work with Ku band and higher frequencies.
