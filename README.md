@@ -49,7 +49,7 @@ The type of LNB used is critical.  There are 3 parameters of an LNB that must be
 
 ### LNB Frequency Range.
 
-First you must verify that the Blockstream Satellite coverage in your area operates within the LNB frequency range. You can check the coverage area and satellite frequencies here (link to network status).
+First you must verify that the Blockstream Satellite coverage in your area operates within the LNB frequency range. You can check the coverage area and satellite frequencies on our [Network Status](http://www.blockstream.com/satellite/satellite) page.
 
 For example, if you are located in North America and are using the Galaxy 18 satellite, your frequency is 12.178 GHz.  Thus an LNB that operates from 11.7 GHz to 12.2 GHz would work.  However, if your LNB operates from 10.7 GHz to 11.7 GHz would NOT work.
 
@@ -104,7 +104,7 @@ Three software components are needed to utilize Blockstream Satellite:
 
 >Bitcoin Fibre: http://bitcoinfibre.org
 >
->GNUradio: http://gnuradio.org
+>GNUradio: http://gnuradio.org (Version 3.7.10 or greater)
 >
 >Blockstream Satellite Receiver: https://github.com/Blockstream/satellite
 
@@ -129,7 +129,7 @@ Aligning a satellite antenna is a precise procedure.  Remember that the satellit
 ## 1.Ideal Mounting Location
 Before mounting your satellite antenna, it is important to ensure you find the ideal mounting location.
 
-To find the ideal location to place your antenna, first use the following tool to find the correct azimuth and elevation. [embed dish alignment tool].
+To find the ideal location to place your antenna, first use the following tool to find the correct azimuth and elevation. http://blockstream.com/satellite/satellite (click on the satellite dish icon in the upper right).
 
 After entering your address or latitude/longitude, this tool will give you three parameters:
 
