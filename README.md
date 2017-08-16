@@ -106,11 +106,13 @@ Three software components are needed to utilize Blockstream Satellite:
 >
 >GNUradio: http://gnuradio.org (Version 3.7.10 or greater)
 >
+>gr-osmosdr: https://github.com/osmocom/gr-osmosdr
+>
 >Blockstream Satellite Receiver: https://github.com/Blockstream/satellite
 
 # Blockstream Satellite Receiver Installation
 
-After building and installing Bitcoin Fibre and GNUradio, using this repository, run the following:
+After building and installing Bitcoin Fibre, GNUradio and the gr-osmosdr, using this repository, run the following:
 
 1. Install the gr-framers gnuradio modules:
 
