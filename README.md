@@ -104,7 +104,7 @@ Three software components are needed to utilize Blockstream Satellite:
 
 >Bitcoin Fibre: http://bitcoinfibre.org
 >
->GNUradio: http://gnuradio.org
+>GNUradio: http://gnuradio.org (Version 3.7.10 or greater)
 >
 >Blockstream Satellite Receiver: https://github.com/Blockstream/satellite
 
@@ -129,7 +129,7 @@ Aligning a satellite antenna is a precise procedure.  Remember that the satellit
 ## 1.Ideal Mounting Location
 Before mounting your satellite antenna, it is important to ensure you find the ideal mounting location.
 
-To find the ideal location to place your antenna, first use the following tool to find the correct azimuth and elevation. [embed dish alignment tool].
+To find the ideal location to place your antenna, first use the following tool to find the correct azimuth and elevation. http://blockstream.com/satellite/satellite (click on the satellite dish icon in the upper right).
 
 After entering your address or latitude/longitude, this tool will give you three parameters:
 
