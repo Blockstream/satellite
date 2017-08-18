@@ -123,6 +123,7 @@ After building and installing Bitcoin Fibre, GNUradio and the gr-osmosdr, using 
     `./install_mods.sh`
 
 >Possible Issues:
+>
 >Ensure that your PYTHONPATH environment variable is set to the installed location of gr-framers and gr-mods.  Usually >/usr/local/lib64/python2.7/site-packages on redhat/fedora or /usr/local/lib64/python2.7/dist-packages on ubuntu.
 >
 >Ensure your LD_LIBRARY_PATH environment variable is set.  Typically /usr/local/lib64
