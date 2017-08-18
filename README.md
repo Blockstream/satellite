@@ -192,6 +192,13 @@ Ensure RTL SDR is connected to the LNB power supply and the powered output of th
 python rx_gui.py --freq 1276150000 --gain 40
 ```
 
+>Possible Issues:
+>
+>Ensure that your PYTHONPATH environment variable is set to the installed location of gr-framers and gr-mods.  Usually >/usr/local/lib64/python2.7/site-packages on redhat/fedora or /usr/local/lib64/python2.7/dist-packages on ubuntu.
+>
+>Ensure your LD_LIBRARY_PATH environment variable is set.  Typically /usr/local/lib64
+>
+
 
 ### Frequency
 >The frequency should be your satellite's frequency - LNB's LO frequency.  For example, if your LNB has an LO frequency of 10750 MHz and you're connecting to Eutelsat 113 at 12026.15 MHz, the frequency is 12026.15 - 10750 = 1276.15 MHz.
