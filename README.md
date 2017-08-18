@@ -203,7 +203,7 @@ python rx_gui.py --freq 1276150000 --gain 40
 ### Frequency
 >The frequency should be your satellite's frequency - LNB's LO frequency.  
 >
->To find your frequenty, first go to http://blockstream.com/satellite/satellite and find your satellite.  You should see the frequency listed in MHz.
+>To find your frequency, first go to http://blockstream.com/satellite/satellite and find your satellite.  You should see the frequency listed in MHz.
 >
 >Then adjust for your LNB LO frequency.  For example, if your LNB has an LO frequency of 10750 MHz and you're connecting to Eutelsat 113 at 12026.15 MHz, the frequency is 12026.15 - 10750 = 1276.15 MHz.
 >
