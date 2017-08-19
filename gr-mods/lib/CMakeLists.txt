@@ -40,6 +40,7 @@ list(APPEND mods_sources
 		Decoder_turbo_fast.cpp
 		Decoder_turbo.cpp
 		Decoder_NO.cpp
+		mer_measurement_impl.cc
 )
 #		bash_tools.cpp
 #		cannot_allocate.cpp
@@ -101,4 +102,3 @@ GR_ADD_TEST(test_mods test-mods)
 ########################################################################
 message(STATUS "Using install prefix: ${CMAKE_INSTALL_PREFIX}")
 message(STATUS "Building for version: ${VERSION} / ${LIBVER}")
-

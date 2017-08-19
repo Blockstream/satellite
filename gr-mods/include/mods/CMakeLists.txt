@@ -24,5 +24,6 @@ install(FILES
     api.h
     frame_sync_fast.h
     turbo_encoder.h
-    turbo_decoder.h DESTINATION include/mods
+    turbo_decoder.h
+    mer_measurement.h DESTINATION include/mods
 )
