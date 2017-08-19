@@ -91,4 +91,8 @@
     <name>sym_out</name>
     <type>complex</type>
   </source>
+  <source>
+    <name>peak_out</name>
+    <type>float</type>
+  </source>
 </block>

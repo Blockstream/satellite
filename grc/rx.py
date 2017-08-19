@@ -3,7 +3,7 @@
 ##################################################
 # GNU Radio Python Flow Graph
 # Title: Rx
-# Generated: Sat Aug 19 21:00:00 2017
+# Generated: Sat Aug 19 21:03:50 2017
 ##################################################
 
 from gnuradio import blocks
@@ -107,6 +107,7 @@ class rx(gr.top_block):
         self.digital_constellation_decoder_cb_0 = digital.constellation_decoder_cb(constellation.base())
         self.blocks_unpack_k_bits_bb_0 = blocks.unpack_k_bits_bb(constellation.bits_per_symbol())
         self.blocks_rms_xx_1 = blocks.rms_cf(0.0001)
+        self.blocks_null_sink_0 = blocks.null_sink(gr.sizeof_float*1)
         self.blocks_multiply_xx_0 = blocks.multiply_vff(1)
         self.blocks_multiply_const_vxx_1_1 = blocks.multiply_const_vcc((1.0/sqrt(2), ))
         self.blocks_multiply_const_vxx_1 = blocks.multiply_const_vcc((1.0/(preamble_size*sqrt(2)), ))
@@ -142,6 +143,7 @@ class rx(gr.top_block):
         self.connect((self.interp_fir_filter_xxx_0, 0), (self.blocks_multiply_const_vxx_1, 0))
         self.connect((self.interp_fir_filter_xxx_0, 0), (self.blocks_multiply_const_vxx_1_1, 0))
         self.connect((self.interp_fir_filter_xxx_0_0, 0), (self.blocks_divide_xx_1, 1))
+        self.connect((self.mods_frame_sync_fast_0, 1), (self.blocks_null_sink_0, 0))
         self.connect((self.mods_frame_sync_fast_0, 0), (self.digital_constellation_decoder_cb_0, 0))
         self.connect((self.mods_turbo_decoder_0, 0), (self.digital_descrambler_bb_0, 0))
         self.connect((self.rtlsdr_source_0, 0), (self.blocks_divide_xx_0, 0))

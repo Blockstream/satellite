@@ -40,6 +40,7 @@ namespace gr {
       float d_eq_gain;
       gr_complex d_phase_rot;
       float d_last_max;
+      float d_last_mag_peak;
       gr_complex d_pmf_at_last_max;
       int d_i_last_max;
       int d_i_after_peak;

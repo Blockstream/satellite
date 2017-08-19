@@ -3,7 +3,7 @@
 ##################################################
 # GNU Radio Python Flow Graph
 # Title: Rx Gui
-# Generated: Sat Aug 19 20:27:46 2017
+# Generated: Sat Aug 19 20:47:05 2017
 ##################################################
 
 if __name__ == '__main__':
@@ -81,10 +81,11 @@ class rx_gui(gr.top_block, Qt.QWidget):
         self.sps = sps = 8
         self.excess_bw = excess_bw = 0.25
         self.target_samp_rate = target_samp_rate = sps*(200e3/(1 + excess_bw))
+        self.dsp_rate = dsp_rate = 100e6
 
         self.qpsk_const = qpsk_const = digital.constellation_qpsk().base()
 
-        self.dsp_rate = dsp_rate = 100e6
+        self.dec_factor = dec_factor = ceil(dsp_rate/target_samp_rate)
         self.const_choice = const_choice = "qpsk"
 
         self.bpsk_const = bpsk_const = digital.constellation_bpsk().base()
@@ -94,17 +95,17 @@ class rx_gui(gr.top_block, Qt.QWidget):
         self.rrc_delay = rrc_delay = int(round(-44*excess_bw + 33))
         self.nfilts = nfilts = 32
         self.n_barker_rep = n_barker_rep = 10
-        self.dec_factor = dec_factor = ceil(dsp_rate/target_samp_rate)
+        self.even_dec_factor = even_dec_factor = dec_factor if (dec_factor % 1 == 1) else (dec_factor+1)
         self.constellation = constellation = qpsk_const if (const_choice=="qpsk") else bpsk_const
         self.barker_code = barker_code = barker_code_two_dim if (const_choice == "qpsk") else barker_code_one_dim
+        self.samp_rate = samp_rate = dsp_rate/even_dec_factor
         self.preamble_syms = preamble_syms = numpy.matlib.repmat(barker_code, 1, n_barker_rep)[0]
         self.n_rrc_taps = n_rrc_taps = rrc_delay * int(sps*nfilts)
         self.n_codewords = n_codewords = 1
-        self.even_dec_factor = even_dec_factor = dec_factor if (dec_factor % 1 == 1) else (dec_factor+1)
         self.const_order = const_order = pow(2,constellation.bits_per_symbol())
         self.codeword_len = codeword_len = 18444
         self.usrp_rx_addr = usrp_rx_addr = "192.168.10.2"
-        self.samp_rate = samp_rate = dsp_rate/even_dec_factor
+        self.sym_rate = sym_rate = samp_rate / sps
         self.rrc_taps = rrc_taps = firdes.root_raised_cosine(nfilts, nfilts*sps, 1.0, excess_bw, n_rrc_taps)
         self.rf_center_freq = rf_center_freq = 1428.4309e6
         self.preamble_size = preamble_size = len(preamble_syms)
@@ -188,7 +189,7 @@ class rx_gui(gr.top_block, Qt.QWidget):
 
         self.qtgui_time_sink_x_2 = qtgui.time_sink_c(
         	preamble_size + payload_size, #size
-        	samp_rate, #samp_rate
+        	sym_rate, #samp_rate
         	"", #name
         	1 #number of inputs
         )
@@ -379,7 +380,7 @@ class rx_gui(gr.top_block, Qt.QWidget):
         self.tabs_layout_4.addWidget(self._qtgui_time_sink_x_1_win)
         self.qtgui_time_sink_x_0_3 = qtgui.time_sink_f(
         	1024*4, #size
-        	samp_rate, #samp_rate
+        	sym_rate, #samp_rate
         	"Error", #name
         	1 #number of inputs
         )
@@ -424,9 +425,56 @@ class rx_gui(gr.top_block, Qt.QWidget):
 
         self._qtgui_time_sink_x_0_3_win = sip.wrapinstance(self.qtgui_time_sink_x_0_3.pyqwidget(), Qt.QWidget)
         self.tabs_layout_6.addWidget(self._qtgui_time_sink_x_0_3_win)
+        self.qtgui_time_sink_x_0_1 = qtgui.time_sink_f(
+        	8*(preamble_size + payload_size), #size
+        	sym_rate, #samp_rate
+        	"", #name
+        	1 #number of inputs
+        )
+        self.qtgui_time_sink_x_0_1.set_update_time(0.10)
+        self.qtgui_time_sink_x_0_1.set_y_axis(0, 1.1)
+
+        self.qtgui_time_sink_x_0_1.set_y_label('Frame Sync Peak Amplitude', "")
+
+        self.qtgui_time_sink_x_0_1.enable_tags(-1, True)
+        self.qtgui_time_sink_x_0_1.set_trigger_mode(qtgui.TRIG_MODE_FREE, qtgui.TRIG_SLOPE_POS, 0.0, 0, 0, "")
+        self.qtgui_time_sink_x_0_1.enable_autoscale(False)
+        self.qtgui_time_sink_x_0_1.enable_grid(False)
+        self.qtgui_time_sink_x_0_1.enable_axis_labels(True)
+        self.qtgui_time_sink_x_0_1.enable_control_panel(False)
+
+        if not True:
+          self.qtgui_time_sink_x_0_1.disable_legend()
+
+        labels = ['', 'Post-eq', '', '', '',
+                  '', '', '', '', '']
+        widths = [1, 1, 1, 1, 1,
+                  1, 1, 1, 1, 1]
+        colors = ["blue", "red", "green", "black", "cyan",
+                  "magenta", "yellow", "dark red", "dark green", "blue"]
+        styles = [1, 1, 1, 1, 1,
+                  1, 1, 1, 1, 1]
+        markers = [-1, -1, -1, -1, -1,
+                   -1, -1, -1, -1, -1]
+        alphas = [1.0, 1.0, 1.0, 1.0, 1.0,
+                  1.0, 1.0, 1.0, 1.0, 1.0]
+
+        for i in xrange(1):
+            if len(labels[i]) == 0:
+                self.qtgui_time_sink_x_0_1.set_line_label(i, "Data {0}".format(i))
+            else:
+                self.qtgui_time_sink_x_0_1.set_line_label(i, labels[i])
+            self.qtgui_time_sink_x_0_1.set_line_width(i, widths[i])
+            self.qtgui_time_sink_x_0_1.set_line_color(i, colors[i])
+            self.qtgui_time_sink_x_0_1.set_line_style(i, styles[i])
+            self.qtgui_time_sink_x_0_1.set_line_marker(i, markers[i])
+            self.qtgui_time_sink_x_0_1.set_line_alpha(i, alphas[i])
+
+        self._qtgui_time_sink_x_0_1_win = sip.wrapinstance(self.qtgui_time_sink_x_0_1.pyqwidget(), Qt.QWidget)
+        self.tabs_layout_10.addWidget(self._qtgui_time_sink_x_0_1_win)
         self.qtgui_time_sink_x_0_0 = qtgui.time_sink_f(
         	preamble_size + payload_size, #size
-        	samp_rate, #samp_rate
+        	sym_rate, #samp_rate
         	"", #name
         	1 #number of inputs
         )
@@ -473,7 +521,7 @@ class rx_gui(gr.top_block, Qt.QWidget):
         self.tabs_layout_1.addWidget(self._qtgui_time_sink_x_0_0_win)
         self.qtgui_time_sink_x_0 = qtgui.time_sink_f(
         	1024, #size
-        	samp_rate, #samp_rate
+        	sym_rate, #samp_rate
         	"", #name
         	1 #number of inputs
         )
@@ -773,6 +821,7 @@ class rx_gui(gr.top_block, Qt.QWidget):
         self.connect((self.interp_fir_filter_xxx_0_0, 0), (self.blocks_divide_xx_1, 1))
         self.connect((self.mods_frame_sync_fast_0, 0), (self.digital_constellation_decoder_cb_0, 0))
         self.connect((self.mods_frame_sync_fast_0, 0), (self.qtgui_const_sink_x_1, 0))
+        self.connect((self.mods_frame_sync_fast_0, 1), (self.qtgui_time_sink_x_0_1, 0))
         self.connect((self.mods_mer_measurement_0, 0), (self.qtgui_time_sink_x_0, 0))
         self.connect((self.mods_turbo_decoder_0, 0), (self.digital_descrambler_bb_0, 0))
         self.connect((self.rtlsdr_source_0, 0), (self.blocks_divide_xx_0, 0))
@@ -829,6 +878,7 @@ class rx_gui(gr.top_block, Qt.QWidget):
 
     def set_sps(self, sps):
         self.sps = sps
+        self.set_sym_rate(self.samp_rate / self.sps)
         self.set_rrc_taps(firdes.root_raised_cosine(self.nfilts, self.nfilts*self.sps, 1.0, self.excess_bw, self.n_rrc_taps))
         self.set_target_samp_rate(self.sps*(200e3/(1 + self.excess_bw)))
         self.set_n_rrc_taps(self.rrc_delay * int(self.sps*self.nfilts))
@@ -849,13 +899,6 @@ class rx_gui(gr.top_block, Qt.QWidget):
         self.target_samp_rate = target_samp_rate
         self.set_dec_factor(ceil(self.dsp_rate/self.target_samp_rate))
 
-    def get_qpsk_const(self):
-        return self.qpsk_const
-
-    def set_qpsk_const(self, qpsk_const):
-        self.qpsk_const = qpsk_const
-        self.set_constellation(self.qpsk_const if (self.const_choice=="qpsk") else self.bpsk_const)
-
     def get_dsp_rate(self):
         return self.dsp_rate
 
@@ -863,6 +906,20 @@ class rx_gui(gr.top_block, Qt.QWidget):
         self.dsp_rate = dsp_rate
         self.set_samp_rate(self.dsp_rate/self.even_dec_factor)
         self.set_dec_factor(ceil(self.dsp_rate/self.target_samp_rate))
+
+    def get_qpsk_const(self):
+        return self.qpsk_const
+
+    def set_qpsk_const(self, qpsk_const):
+        self.qpsk_const = qpsk_const
+        self.set_constellation(self.qpsk_const if (self.const_choice=="qpsk") else self.bpsk_const)
+
+    def get_dec_factor(self):
+        return self.dec_factor
+
+    def set_dec_factor(self, dec_factor):
+        self.dec_factor = dec_factor
+        self.set_even_dec_factor(self.dec_factor if (self.dec_factor % 1 == 1) else (self.dec_factor+1))
 
     def get_const_choice(self):
         return self.const_choice
@@ -916,12 +973,12 @@ class rx_gui(gr.top_block, Qt.QWidget):
         self.set_preamble_syms(numpy.matlib.repmat(self.barker_code, 1, self.n_barker_rep)[0])
         self.interp_fir_filter_xxx_0_0.set_taps(( numpy.ones(self.n_barker_rep*self.barker_len)))
 
-    def get_dec_factor(self):
-        return self.dec_factor
+    def get_even_dec_factor(self):
+        return self.even_dec_factor
 
-    def set_dec_factor(self, dec_factor):
-        self.dec_factor = dec_factor
-        self.set_even_dec_factor(self.dec_factor if (self.dec_factor % 1 == 1) else (self.dec_factor+1))
+    def set_even_dec_factor(self, even_dec_factor):
+        self.even_dec_factor = even_dec_factor
+        self.set_samp_rate(self.dsp_rate/self.even_dec_factor)
 
     def get_constellation(self):
         return self.constellation
@@ -935,6 +992,21 @@ class rx_gui(gr.top_block, Qt.QWidget):
     def set_barker_code(self, barker_code):
         self.barker_code = barker_code
         self.set_preamble_syms(numpy.matlib.repmat(self.barker_code, 1, self.n_barker_rep)[0])
+
+    def get_samp_rate(self):
+        return self.samp_rate
+
+    def set_samp_rate(self, samp_rate):
+        self.samp_rate = samp_rate
+        self.set_sym_rate(self.samp_rate / self.sps)
+        self.rtlsdr_source_0.set_sample_rate(self.samp_rate)
+        self.qtgui_time_sink_x_1_0_0.set_samp_rate(self.samp_rate)
+        self.qtgui_time_sink_x_1_0.set_samp_rate(self.samp_rate)
+        self.qtgui_time_sink_x_1.set_samp_rate(self.samp_rate)
+        self.qtgui_sink_x_5.set_frequency_range(0, self.samp_rate)
+        self.qtgui_sink_x_1.set_frequency_range(0, self.samp_rate)
+        self.qtgui_sink_x_0.set_frequency_range(0, self.samp_rate)
+        self.qtgui_freq_sink_x_0.set_frequency_range(0, self.samp_rate)
 
     def get_preamble_syms(self):
         return self.preamble_syms
@@ -958,13 +1030,6 @@ class rx_gui(gr.top_block, Qt.QWidget):
         self.n_codewords = n_codewords
         self.set_payload_size(self.codeword_len*self.n_codewords/int(numpy.log2(self.const_order)))
 
-    def get_even_dec_factor(self):
-        return self.even_dec_factor
-
-    def set_even_dec_factor(self, even_dec_factor):
-        self.even_dec_factor = even_dec_factor
-        self.set_samp_rate(self.dsp_rate/self.even_dec_factor)
-
     def get_const_order(self):
         return self.const_order
 
@@ -985,23 +1050,16 @@ class rx_gui(gr.top_block, Qt.QWidget):
     def set_usrp_rx_addr(self, usrp_rx_addr):
         self.usrp_rx_addr = usrp_rx_addr
 
-    def get_samp_rate(self):
-        return self.samp_rate
+    def get_sym_rate(self):
+        return self.sym_rate
 
-    def set_samp_rate(self, samp_rate):
-        self.samp_rate = samp_rate
-        self.rtlsdr_source_0.set_sample_rate(self.samp_rate)
-        self.qtgui_time_sink_x_2.set_samp_rate(self.samp_rate)
-        self.qtgui_time_sink_x_1_0_0.set_samp_rate(self.samp_rate)
-        self.qtgui_time_sink_x_1_0.set_samp_rate(self.samp_rate)
-        self.qtgui_time_sink_x_1.set_samp_rate(self.samp_rate)
-        self.qtgui_time_sink_x_0_3.set_samp_rate(self.samp_rate)
-        self.qtgui_time_sink_x_0_0.set_samp_rate(self.samp_rate)
-        self.qtgui_time_sink_x_0.set_samp_rate(self.samp_rate)
-        self.qtgui_sink_x_5.set_frequency_range(0, self.samp_rate)
-        self.qtgui_sink_x_1.set_frequency_range(0, self.samp_rate)
-        self.qtgui_sink_x_0.set_frequency_range(0, self.samp_rate)
-        self.qtgui_freq_sink_x_0.set_frequency_range(0, self.samp_rate)
+    def set_sym_rate(self, sym_rate):
+        self.sym_rate = sym_rate
+        self.qtgui_time_sink_x_2.set_samp_rate(self.sym_rate)
+        self.qtgui_time_sink_x_0_3.set_samp_rate(self.sym_rate)
+        self.qtgui_time_sink_x_0_1.set_samp_rate(self.sym_rate)
+        self.qtgui_time_sink_x_0_0.set_samp_rate(self.sym_rate)
+        self.qtgui_time_sink_x_0.set_samp_rate(self.sym_rate)
 
     def get_rrc_taps(self):
         return self.rrc_taps

@@ -56,12 +56,12 @@ namespace gr {
     */
     static int is[] = {sizeof(gr_complex), sizeof(float), sizeof(gr_complex)};
     static std::vector<int> isig(is, is+sizeof(is)/sizeof(int));
-    static int os[] = {sizeof(gr_complex)};
+    static int os[] = {sizeof(gr_complex), sizeof(float)};
     static std::vector<int> osig(os, os+sizeof(os)/sizeof(int));
     frame_sync_fast_impl::frame_sync_fast_impl(float treshold, int preamble_len, int payload_len, int n_init_peak, int equalize, int fix_phase, int const_order, int verbosity)
     : gr::block("frame_sync_fast",
     gr::io_signature::makev(3, 3, isig),
-    gr::io_signature::makev(1, 1, osig)),
+    gr::io_signature::makev(2, 2, osig)),
 
     d_threshold(treshold),
     d_preamble_len(preamble_len),
@@ -74,6 +74,7 @@ namespace gr {
     d_const_order(const_order),
     d_eq_gain(0.0),
     d_last_max(0.0),
+    d_last_mag_peak(0.0),
     d_pmf_at_last_max(0.0),
     d_i_after_peak(0),
     d_i_sym(0),
@@ -133,9 +134,11 @@ namespace gr {
       // maximum was really the peak in the window
       if (offset_from_max > d_preamble_len) {
         is_peak = 1;
-        d_eq_gain = 1.0 / abs(d_pmf_at_last_max);
+        d_last_mag_peak = abs(d_pmf_at_last_max);
+        d_eq_gain = 1.0 / d_last_mag_peak;
         d_phase_rot = resolve_phase(d_pmf_at_last_max.real(), d_pmf_at_last_max.imag());
-        d_last_max = 0;
+        d_last_mag_peak = d_last_max;
+        d_last_max = 0.0;
         d_i_last_max = d_i_sym + d_frame_len;
         // printf("Eq gain:\t %f\n", d_eq_gain);
         // printf("Real:\t %f\t Imag:\t %f\n", d_pmf_at_last_max.real(), d_pmf_at_last_max.imag());
@@ -332,6 +335,7 @@ namespace gr {
         const float *timing_metric  = (const float*) input_items[1];
         const gr_complex *norm_c_corr = (const gr_complex*) input_items[2];
         gr_complex *rx_sym_out      = (gr_complex *) output_items[0];
+        float *peak_out             = (float *) output_items[1];
 
         int n_consumed = 0, n_produced = 0;
         gr_complex last_d_line_sym;
@@ -432,6 +436,10 @@ namespace gr {
               rx_sym_out[n_produced] = rx_sym_out[n_produced] * d_phase_rot;
             }
             __debug_log("Gen output (%f %f) at %d\n", last_d_line_sym.real(), last_d_line_sym.imag(), n_produced);
+
+            // Output the magnitude of the PMF peak
+            peak_out[n_produced] = d_last_mag_peak;
+
             n_produced ++;
           }
         }
