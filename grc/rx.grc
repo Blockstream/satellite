@@ -2070,6 +2070,10 @@ of unit energy syms)</value>
       <value></value>
     </param>
     <param>
+      <key>hide</key>
+      <value>none</value>
+    </param>
+    <param>
       <key>type</key>
       <value>eng_float</value>
     </param>
@@ -2156,6 +2160,10 @@ of unit energy syms)</value>
       <value></value>
     </param>
     <param>
+      <key>hide</key>
+      <value>none</value>
+    </param>
+    <param>
       <key>type</key>
       <value>intx</value>
     </param>
@@ -2197,6 +2205,10 @@ of unit energy syms)</value>
     <param>
       <key>short_id</key>
       <value></value>
+    </param>
+    <param>
+      <key>hide</key>
+      <value>none</value>
     </param>
     <param>
       <key>type</key>
@@ -2445,6 +2457,10 @@ of unit energy syms)</value>
       <value></value>
     </param>
     <param>
+      <key>hide</key>
+      <value>none</value>
+    </param>
+    <param>
       <key>type</key>
       <value>intx</value>
     </param>
@@ -2553,6 +2569,10 @@ of unit energy syms)</value>
     <param>
       <key>treshold</key>
       <value>pmf_peak_threshold</value>
+    </param>
+    <param>
+      <key>verbosity</key>
+      <value>0</value>
     </param>
   </block>
   <block>

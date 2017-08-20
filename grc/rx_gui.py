@@ -3,7 +3,7 @@
 ##################################################
 # GNU Radio Python Flow Graph
 # Title: Rx Gui
-# Generated: Mon Aug 14 22:28:48 2017
+# Generated: Sat Aug 19 21:00:05 2017
 ##################################################
 
 if __name__ == '__main__':
@@ -29,21 +29,23 @@ from math import *
 from optparse import OptionParser
 import framers
 import mods
-import numpy 
+import numpy
 import numpy.matlib
 import osmosdr
 import pmt
 import sip
 import sys
 import time
+from gnuradio import qtgui
 
 
 class rx_gui(gr.top_block, Qt.QWidget):
 
-    def __init__(self, freq=0, gain=40, loopbw=100, loopbw_0=100, fllbw=0.002):
+    def __init__(self, fllbw=0.002, frame_sync_verbosity=0, freq=0, gain=40, loopbw=100, loopbw_0=100):
         gr.top_block.__init__(self, "Rx Gui")
         Qt.QWidget.__init__(self)
         self.setWindowTitle("Rx Gui")
+        qtgui.util.check_set_qss()
         try:
             self.setWindowIcon(Qt.QIcon.fromTheme('gnuradio-grc'))
         except:
@@ -66,11 +68,12 @@ class rx_gui(gr.top_block, Qt.QWidget):
         ##################################################
         # Parameters
         ##################################################
+        self.fllbw = fllbw
+        self.frame_sync_verbosity = frame_sync_verbosity
         self.freq = freq
         self.gain = gain
         self.loopbw = loopbw
         self.loopbw_0 = loopbw_0
-        self.fllbw = fllbw
 
         ##################################################
         # Variables
@@ -78,14 +81,14 @@ class rx_gui(gr.top_block, Qt.QWidget):
         self.sps = sps = 8
         self.excess_bw = excess_bw = 0.25
         self.target_samp_rate = target_samp_rate = sps*(200e3/(1 + excess_bw))
-        
+
         self.qpsk_const = qpsk_const = digital.constellation_qpsk().base()
-        
+
         self.dsp_rate = dsp_rate = 100e6
         self.const_choice = const_choice = "qpsk"
-        
+
         self.bpsk_const = bpsk_const = digital.constellation_bpsk().base()
-        
+
         self.barker_code_two_dim = barker_code_two_dim = [-1.0000 - 1.0000j, -1.0000 - 1.0000j, -1.0000 - 1.0000j, -1.0000 - 1.0000j, -1.0000 - 1.0000j,  1.0000 + 1.0000j,  1.0000 + 1.0000j, -1.0000 - 1.0000j, -1.0000 - 1.0000j,  1.0000 + 1.0000j, -1.0000 - 1.0000j,  1.0000 + 1.0000j, -1.0000 - 1.0000j]
         self.barker_code_one_dim = barker_code_one_dim = sqrt(2)*numpy.real([-1.0000 - 1.0000j, -1.0000 - 1.0000j, -1.0000 - 1.0000j, -1.0000 - 1.0000j, -1.0000 - 1.0000j,  1.0000 + 1.0000j,  1.0000 + 1.0000j, -1.0000 - 1.0000j, -1.0000 - 1.0000j,  1.0000 + 1.0000j, -1.0000 - 1.0000j,  1.0000 + 1.0000j, -1.0000 - 1.0000j])
         self.rrc_delay = rrc_delay = int(round(-44*excess_bw + 33))
@@ -177,7 +180,7 @@ class rx_gui(gr.top_block, Qt.QWidget):
         self.rtlsdr_source_0.set_bb_gain(20, 0)
         self.rtlsdr_source_0.set_antenna('', 0)
         self.rtlsdr_source_0.set_bandwidth(0, 0)
-          
+
         self.qtgui_time_sink_x_2 = qtgui.time_sink_c(
         	preamble_size + payload_size, #size
         	samp_rate, #samp_rate
@@ -186,19 +189,19 @@ class rx_gui(gr.top_block, Qt.QWidget):
         )
         self.qtgui_time_sink_x_2.set_update_time(0.10)
         self.qtgui_time_sink_x_2.set_y_axis(-1, 1)
-        
+
         self.qtgui_time_sink_x_2.set_y_label('Amplitude', "")
-        
+
         self.qtgui_time_sink_x_2.enable_tags(-1, True)
         self.qtgui_time_sink_x_2.set_trigger_mode(qtgui.TRIG_MODE_FREE, qtgui.TRIG_SLOPE_POS, 0.0, 0, 0, "")
         self.qtgui_time_sink_x_2.enable_autoscale(True)
         self.qtgui_time_sink_x_2.enable_grid(False)
         self.qtgui_time_sink_x_2.enable_axis_labels(True)
         self.qtgui_time_sink_x_2.enable_control_panel(False)
-        
+
         if not True:
           self.qtgui_time_sink_x_2.disable_legend()
-        
+
         labels = ['', '', '', '', '',
                   '', '', '', '', '']
         widths = [1, 1, 1, 1, 1,
@@ -211,8 +214,8 @@ class rx_gui(gr.top_block, Qt.QWidget):
                    -1, -1, -1, -1, -1]
         alphas = [1.0, 1.0, 1.0, 1.0, 1.0,
                   1.0, 1.0, 1.0, 1.0, 1.0]
-        
-        for i in xrange(2*1):
+
+        for i in xrange(2):
             if len(labels[i]) == 0:
                 if(i % 2 == 0):
                     self.qtgui_time_sink_x_2.set_line_label(i, "Re{{Data {0}}}".format(i/2))
@@ -225,7 +228,7 @@ class rx_gui(gr.top_block, Qt.QWidget):
             self.qtgui_time_sink_x_2.set_line_style(i, styles[i])
             self.qtgui_time_sink_x_2.set_line_marker(i, markers[i])
             self.qtgui_time_sink_x_2.set_line_alpha(i, alphas[i])
-        
+
         self._qtgui_time_sink_x_2_win = sip.wrapinstance(self.qtgui_time_sink_x_2.pyqwidget(), Qt.QWidget)
         self.tabs_layout_0.addWidget(self._qtgui_time_sink_x_2_win)
         self.qtgui_time_sink_x_1_0_0 = qtgui.time_sink_f(
@@ -236,19 +239,19 @@ class rx_gui(gr.top_block, Qt.QWidget):
         )
         self.qtgui_time_sink_x_1_0_0.set_update_time(0.10)
         self.qtgui_time_sink_x_1_0_0.set_y_axis(-128, 128)
-        
+
         self.qtgui_time_sink_x_1_0_0.set_y_label('Amplitude', "")
-        
+
         self.qtgui_time_sink_x_1_0_0.enable_tags(-1, False)
         self.qtgui_time_sink_x_1_0_0.set_trigger_mode(qtgui.TRIG_MODE_FREE, qtgui.TRIG_SLOPE_POS, 0.0, 0, 0, "")
         self.qtgui_time_sink_x_1_0_0.enable_autoscale(False)
         self.qtgui_time_sink_x_1_0_0.enable_grid(False)
         self.qtgui_time_sink_x_1_0_0.enable_axis_labels(True)
         self.qtgui_time_sink_x_1_0_0.enable_control_panel(False)
-        
+
         if not True:
           self.qtgui_time_sink_x_1_0_0.disable_legend()
-        
+
         labels = ['', '', '', '', '',
                   '', '', '', '', '']
         widths = [1, 1, 1, 1, 1,
@@ -261,7 +264,7 @@ class rx_gui(gr.top_block, Qt.QWidget):
                    -1, -1, -1, -1, -1]
         alphas = [1.0, 1.0, 1.0, 1.0, 1.0,
                   1.0, 1.0, 1.0, 1.0, 1.0]
-        
+
         for i in xrange(1):
             if len(labels[i]) == 0:
                 self.qtgui_time_sink_x_1_0_0.set_line_label(i, "Data {0}".format(i))
@@ -272,7 +275,7 @@ class rx_gui(gr.top_block, Qt.QWidget):
             self.qtgui_time_sink_x_1_0_0.set_line_style(i, styles[i])
             self.qtgui_time_sink_x_1_0_0.set_line_marker(i, markers[i])
             self.qtgui_time_sink_x_1_0_0.set_line_alpha(i, alphas[i])
-        
+
         self._qtgui_time_sink_x_1_0_0_win = sip.wrapinstance(self.qtgui_time_sink_x_1_0_0.pyqwidget(), Qt.QWidget)
         self.tabs_layout_7.addWidget(self._qtgui_time_sink_x_1_0_0_win)
         self.qtgui_time_sink_x_1_0 = qtgui.time_sink_f(
@@ -283,19 +286,19 @@ class rx_gui(gr.top_block, Qt.QWidget):
         )
         self.qtgui_time_sink_x_1_0.set_update_time(0.10)
         self.qtgui_time_sink_x_1_0.set_y_axis(-1, 1)
-        
+
         self.qtgui_time_sink_x_1_0.set_y_label('Amplitude', "")
-        
+
         self.qtgui_time_sink_x_1_0.enable_tags(-1, True)
         self.qtgui_time_sink_x_1_0.set_trigger_mode(qtgui.TRIG_MODE_FREE, qtgui.TRIG_SLOPE_POS, 0.0, 0, 0, "")
         self.qtgui_time_sink_x_1_0.enable_autoscale(False)
         self.qtgui_time_sink_x_1_0.enable_grid(False)
         self.qtgui_time_sink_x_1_0.enable_axis_labels(True)
         self.qtgui_time_sink_x_1_0.enable_control_panel(False)
-        
+
         if not True:
           self.qtgui_time_sink_x_1_0.disable_legend()
-        
+
         labels = ['', '', '', '', '',
                   '', '', '', '', '']
         widths = [1, 1, 1, 1, 1,
@@ -308,7 +311,7 @@ class rx_gui(gr.top_block, Qt.QWidget):
                    -1, -1, -1, -1, -1]
         alphas = [1.0, 1.0, 1.0, 1.0, 1.0,
                   1.0, 1.0, 1.0, 1.0, 1.0]
-        
+
         for i in xrange(1):
             if len(labels[i]) == 0:
                 self.qtgui_time_sink_x_1_0.set_line_label(i, "Data {0}".format(i))
@@ -319,7 +322,7 @@ class rx_gui(gr.top_block, Qt.QWidget):
             self.qtgui_time_sink_x_1_0.set_line_style(i, styles[i])
             self.qtgui_time_sink_x_1_0.set_line_marker(i, markers[i])
             self.qtgui_time_sink_x_1_0.set_line_alpha(i, alphas[i])
-        
+
         self._qtgui_time_sink_x_1_0_win = sip.wrapinstance(self.qtgui_time_sink_x_1_0.pyqwidget(), Qt.QWidget)
         self.tabs_layout_7.addWidget(self._qtgui_time_sink_x_1_0_win)
         self.qtgui_time_sink_x_1 = qtgui.time_sink_f(
@@ -330,19 +333,19 @@ class rx_gui(gr.top_block, Qt.QWidget):
         )
         self.qtgui_time_sink_x_1.set_update_time(0.10)
         self.qtgui_time_sink_x_1.set_y_axis(-1, 1)
-        
+
         self.qtgui_time_sink_x_1.set_y_label('Amplitude', "")
-        
+
         self.qtgui_time_sink_x_1.enable_tags(-1, True)
         self.qtgui_time_sink_x_1.set_trigger_mode(qtgui.TRIG_MODE_FREE, qtgui.TRIG_SLOPE_POS, 0.0, 0, 0, "")
         self.qtgui_time_sink_x_1.enable_autoscale(False)
         self.qtgui_time_sink_x_1.enable_grid(False)
         self.qtgui_time_sink_x_1.enable_axis_labels(True)
         self.qtgui_time_sink_x_1.enable_control_panel(False)
-        
+
         if not True:
           self.qtgui_time_sink_x_1.disable_legend()
-        
+
         labels = ['FLL Freq (PI Output)', 'FLL Phase Accum', 'FLL Error', '', '',
                   '', '', '', '', '']
         widths = [1, 1, 1, 1, 1,
@@ -355,7 +358,7 @@ class rx_gui(gr.top_block, Qt.QWidget):
                    -1, -1, -1, -1, -1]
         alphas = [1.0, 1.0, 1.0, 1.0, 1.0,
                   1.0, 1.0, 1.0, 1.0, 1.0]
-        
+
         for i in xrange(3):
             if len(labels[i]) == 0:
                 self.qtgui_time_sink_x_1.set_line_label(i, "Data {0}".format(i))
@@ -366,7 +369,7 @@ class rx_gui(gr.top_block, Qt.QWidget):
             self.qtgui_time_sink_x_1.set_line_style(i, styles[i])
             self.qtgui_time_sink_x_1.set_line_marker(i, markers[i])
             self.qtgui_time_sink_x_1.set_line_alpha(i, alphas[i])
-        
+
         self._qtgui_time_sink_x_1_win = sip.wrapinstance(self.qtgui_time_sink_x_1.pyqwidget(), Qt.QWidget)
         self.tabs_layout_4.addWidget(self._qtgui_time_sink_x_1_win)
         self.qtgui_time_sink_x_0_3 = qtgui.time_sink_f(
@@ -377,19 +380,19 @@ class rx_gui(gr.top_block, Qt.QWidget):
         )
         self.qtgui_time_sink_x_0_3.set_update_time(0.10)
         self.qtgui_time_sink_x_0_3.set_y_axis(-1, 1)
-        
+
         self.qtgui_time_sink_x_0_3.set_y_label('Amplitude', "")
-        
+
         self.qtgui_time_sink_x_0_3.enable_tags(-1, True)
         self.qtgui_time_sink_x_0_3.set_trigger_mode(qtgui.TRIG_MODE_FREE, qtgui.TRIG_SLOPE_POS, 0.0, 0, 0, "")
         self.qtgui_time_sink_x_0_3.enable_autoscale(False)
         self.qtgui_time_sink_x_0_3.enable_grid(False)
         self.qtgui_time_sink_x_0_3.enable_axis_labels(True)
         self.qtgui_time_sink_x_0_3.enable_control_panel(False)
-        
+
         if not True:
           self.qtgui_time_sink_x_0_3.disable_legend()
-        
+
         labels = ['', '', '', '', '',
                   '', '', '', '', '']
         widths = [1, 1, 1, 1, 1,
@@ -402,7 +405,7 @@ class rx_gui(gr.top_block, Qt.QWidget):
                    -1, -1, -1, -1, -1]
         alphas = [1.0, 1.0, 1.0, 1.0, 1.0,
                   1.0, 1.0, 1.0, 1.0, 1.0]
-        
+
         for i in xrange(1):
             if len(labels[i]) == 0:
                 self.qtgui_time_sink_x_0_3.set_line_label(i, "Data {0}".format(i))
@@ -413,7 +416,7 @@ class rx_gui(gr.top_block, Qt.QWidget):
             self.qtgui_time_sink_x_0_3.set_line_style(i, styles[i])
             self.qtgui_time_sink_x_0_3.set_line_marker(i, markers[i])
             self.qtgui_time_sink_x_0_3.set_line_alpha(i, alphas[i])
-        
+
         self._qtgui_time_sink_x_0_3_win = sip.wrapinstance(self.qtgui_time_sink_x_0_3.pyqwidget(), Qt.QWidget)
         self.tabs_layout_6.addWidget(self._qtgui_time_sink_x_0_3_win)
         self.qtgui_time_sink_x_0_0 = qtgui.time_sink_f(
@@ -424,19 +427,19 @@ class rx_gui(gr.top_block, Qt.QWidget):
         )
         self.qtgui_time_sink_x_0_0.set_update_time(0.10)
         self.qtgui_time_sink_x_0_0.set_y_axis(-1, 1)
-        
+
         self.qtgui_time_sink_x_0_0.set_y_label('Amplitude', "")
-        
+
         self.qtgui_time_sink_x_0_0.enable_tags(-1, True)
         self.qtgui_time_sink_x_0_0.set_trigger_mode(qtgui.TRIG_MODE_FREE, qtgui.TRIG_SLOPE_POS, 0.0, 0, 0, "")
         self.qtgui_time_sink_x_0_0.enable_autoscale(True)
         self.qtgui_time_sink_x_0_0.enable_grid(False)
         self.qtgui_time_sink_x_0_0.enable_axis_labels(True)
         self.qtgui_time_sink_x_0_0.enable_control_panel(False)
-        
+
         if not True:
           self.qtgui_time_sink_x_0_0.disable_legend()
-        
+
         labels = ['Mag Sq', 'Mag', '', '', '',
                   '', '', '', '', '']
         widths = [1, 1, 1, 1, 1,
@@ -449,7 +452,7 @@ class rx_gui(gr.top_block, Qt.QWidget):
                    -1, -1, -1, -1, -1]
         alphas = [1.0, 1.0, 1.0, 1.0, 1.0,
                   1.0, 1.0, 1.0, 1.0, 1.0]
-        
+
         for i in xrange(1):
             if len(labels[i]) == 0:
                 self.qtgui_time_sink_x_0_0.set_line_label(i, "Data {0}".format(i))
@@ -460,7 +463,7 @@ class rx_gui(gr.top_block, Qt.QWidget):
             self.qtgui_time_sink_x_0_0.set_line_style(i, styles[i])
             self.qtgui_time_sink_x_0_0.set_line_marker(i, markers[i])
             self.qtgui_time_sink_x_0_0.set_line_alpha(i, alphas[i])
-        
+
         self._qtgui_time_sink_x_0_0_win = sip.wrapinstance(self.qtgui_time_sink_x_0_0.pyqwidget(), Qt.QWidget)
         self.tabs_layout_1.addWidget(self._qtgui_time_sink_x_0_0_win)
         self.qtgui_sink_x_5 = qtgui.sink_c(
@@ -477,11 +480,11 @@ class rx_gui(gr.top_block, Qt.QWidget):
         self.qtgui_sink_x_5.set_update_time(1.0/10)
         self._qtgui_sink_x_5_win = sip.wrapinstance(self.qtgui_sink_x_5.pyqwidget(), Qt.QWidget)
         self.tabs_layout_3.addWidget(self._qtgui_sink_x_5_win)
-        
+
         self.qtgui_sink_x_5.enable_rf_freq(False)
-        
-        
-          
+
+
+
         self.qtgui_sink_x_1 = qtgui.sink_c(
         	1024, #fftsize
         	firdes.WIN_BLACKMAN_hARRIS, #wintype
@@ -496,11 +499,11 @@ class rx_gui(gr.top_block, Qt.QWidget):
         self.qtgui_sink_x_1.set_update_time(1.0/10)
         self._qtgui_sink_x_1_win = sip.wrapinstance(self.qtgui_sink_x_1.pyqwidget(), Qt.QWidget)
         self.tabs_layout_2.addWidget(self._qtgui_sink_x_1_win)
-        
+
         self.qtgui_sink_x_1.enable_rf_freq(False)
-        
-        
-          
+
+
+
         self.qtgui_sink_x_0 = qtgui.sink_c(
         	1024, #fftsize
         	firdes.WIN_BLACKMAN_hARRIS, #wintype
@@ -515,11 +518,11 @@ class rx_gui(gr.top_block, Qt.QWidget):
         self.qtgui_sink_x_0.set_update_time(1.0/10)
         self._qtgui_sink_x_0_win = sip.wrapinstance(self.qtgui_sink_x_0.pyqwidget(), Qt.QWidget)
         self.tabs_layout_5.addWidget(self._qtgui_sink_x_0_win)
-        
+
         self.qtgui_sink_x_0.enable_rf_freq(False)
-        
-        
-          
+
+
+
         self.qtgui_freq_sink_x_0 = qtgui.freq_sink_c(
         	1024, #size
         	firdes.WIN_BLACKMAN_hARRIS, #wintype
@@ -537,13 +540,13 @@ class rx_gui(gr.top_block, Qt.QWidget):
         self.qtgui_freq_sink_x_0.set_fft_average(1.0)
         self.qtgui_freq_sink_x_0.enable_axis_labels(True)
         self.qtgui_freq_sink_x_0.enable_control_panel(False)
-        
+
         if not True:
           self.qtgui_freq_sink_x_0.disable_legend()
-        
+
         if "complex" == "float" or "complex" == "msg_float":
           self.qtgui_freq_sink_x_0.set_plot_pos_half(not True)
-        
+
         labels = ['', '', '', '', '',
                   '', '', '', '', '']
         widths = [1, 1, 1, 1, 1,
@@ -560,7 +563,7 @@ class rx_gui(gr.top_block, Qt.QWidget):
             self.qtgui_freq_sink_x_0.set_line_width(i, widths[i])
             self.qtgui_freq_sink_x_0.set_line_color(i, colors[i])
             self.qtgui_freq_sink_x_0.set_line_alpha(i, alphas[i])
-        
+
         self._qtgui_freq_sink_x_0_win = sip.wrapinstance(self.qtgui_freq_sink_x_0.pyqwidget(), Qt.QWidget)
         self.tabs_layout_2.addWidget(self._qtgui_freq_sink_x_0_win)
         self.qtgui_const_sink_x_1 = qtgui.const_sink_c(
@@ -575,10 +578,10 @@ class rx_gui(gr.top_block, Qt.QWidget):
         self.qtgui_const_sink_x_1.enable_autoscale(False)
         self.qtgui_const_sink_x_1.enable_grid(False)
         self.qtgui_const_sink_x_1.enable_axis_labels(True)
-        
+
         if not True:
           self.qtgui_const_sink_x_1.disable_legend()
-        
+
         labels = ['', '', '', '', '',
                   '', '', '', '', '']
         widths = [1, 1, 1, 1, 1,
@@ -601,7 +604,7 @@ class rx_gui(gr.top_block, Qt.QWidget):
             self.qtgui_const_sink_x_1.set_line_style(i, styles[i])
             self.qtgui_const_sink_x_1.set_line_marker(i, markers[i])
             self.qtgui_const_sink_x_1.set_line_alpha(i, alphas[i])
-        
+
         self._qtgui_const_sink_x_1_win = sip.wrapinstance(self.qtgui_const_sink_x_1.pyqwidget(), Qt.QWidget)
         self.tabs_layout_9.addWidget(self._qtgui_const_sink_x_1_win)
         self.qtgui_const_sink_x_0 = qtgui.const_sink_c(
@@ -616,10 +619,10 @@ class rx_gui(gr.top_block, Qt.QWidget):
         self.qtgui_const_sink_x_0.enable_autoscale(False)
         self.qtgui_const_sink_x_0.enable_grid(False)
         self.qtgui_const_sink_x_0.enable_axis_labels(True)
-        
+
         if not True:
           self.qtgui_const_sink_x_0.disable_legend()
-        
+
         labels = ['', '', '', '', '',
                   '', '', '', '', '']
         widths = [1, 1, 1, 1, 1,
@@ -642,11 +645,11 @@ class rx_gui(gr.top_block, Qt.QWidget):
             self.qtgui_const_sink_x_0.set_line_style(i, styles[i])
             self.qtgui_const_sink_x_0.set_line_marker(i, markers[i])
             self.qtgui_const_sink_x_0.set_line_alpha(i, alphas[i])
-        
+
         self._qtgui_const_sink_x_0_win = sip.wrapinstance(self.qtgui_const_sink_x_0.pyqwidget(), Qt.QWidget)
         self.tabs_layout_8.addWidget(self._qtgui_const_sink_x_0_win)
         self.mods_turbo_decoder_0 = mods.turbo_decoder(codeword_len, dataword_len)
-        self.mods_frame_sync_fast_0 = mods.frame_sync_fast(pmf_peak_threshold, preamble_size, payload_size, 0, 1, 1, int(const_order))
+        self.mods_frame_sync_fast_0 = mods.frame_sync_fast(pmf_peak_threshold, preamble_size, payload_size, 0, 1, 1, int(const_order), frame_sync_verbosity)
         self.mods_fifo_async_sink_0 = mods.fifo_async_sink('/tmp/async_rx')
         self.interp_fir_filter_xxx_0_0 = filter.interp_fir_filter_fff(1, ( numpy.ones(n_barker_rep*barker_len)))
         self.interp_fir_filter_xxx_0_0.declare_sample_delay(0)
@@ -676,55 +679,68 @@ class rx_gui(gr.top_block, Qt.QWidget):
         ##################################################
         # Connections
         ##################################################
-        self.msg_connect((self.framers_gr_hdlc_deframer_b_0, 'pdu'), (self.mods_fifo_async_sink_0, 'async_pdu'))    
-        self.connect((self.blocks_char_to_float_0_0, 0), (self.qtgui_time_sink_x_1_0, 0))    
-        self.connect((self.blocks_char_to_float_0_1, 0), (self.qtgui_time_sink_x_1_0_0, 0))    
-        self.connect((self.blocks_complex_to_mag_1, 0), (self.blocks_divide_xx_1, 0))    
-        self.connect((self.blocks_complex_to_mag_squared_0, 0), (self.interp_fir_filter_xxx_0_0, 0))    
-        self.connect((self.blocks_divide_xx_0, 0), (self.digital_fll_band_edge_cc_1, 0))    
-        self.connect((self.blocks_divide_xx_0, 0), (self.qtgui_sink_x_1, 0))    
-        self.connect((self.blocks_divide_xx_1, 0), (self.blocks_multiply_xx_0, 0))    
-        self.connect((self.blocks_divide_xx_1, 0), (self.blocks_multiply_xx_0, 1))    
-        self.connect((self.blocks_float_to_complex_0, 0), (self.blocks_divide_xx_0, 1))    
-        self.connect((self.blocks_multiply_const_vxx_1, 0), (self.mods_frame_sync_fast_0, 2))    
-        self.connect((self.blocks_multiply_const_vxx_1, 0), (self.qtgui_time_sink_x_2, 0))    
-        self.connect((self.blocks_multiply_const_vxx_1_1, 0), (self.blocks_complex_to_mag_1, 0))    
-        self.connect((self.blocks_multiply_xx_0, 0), (self.mods_frame_sync_fast_0, 1))    
-        self.connect((self.blocks_multiply_xx_0, 0), (self.qtgui_time_sink_x_0_0, 0))    
-        self.connect((self.blocks_pack_k_bits_bb_1, 0), (self.blocks_char_to_float_0_1, 0))    
-        self.connect((self.blocks_rms_xx_1, 0), (self.blocks_float_to_complex_0, 0))    
-        self.connect((self.blocks_unpack_k_bits_bb_0, 0), (self.digital_map_bb_0_0_0, 0))    
-        self.connect((self.digital_constellation_decoder_cb_0, 0), (self.blocks_unpack_k_bits_bb_0, 0))    
-        self.connect((self.digital_costas_loop_cc_0, 0), (self.blocks_complex_to_mag_squared_0, 0))    
-        self.connect((self.digital_costas_loop_cc_0, 0), (self.interp_fir_filter_xxx_0, 0))    
-        self.connect((self.digital_costas_loop_cc_0, 0), (self.mods_frame_sync_fast_0, 0))    
-        self.connect((self.digital_costas_loop_cc_0, 0), (self.qtgui_const_sink_x_0, 0))    
-        self.connect((self.digital_costas_loop_cc_0, 1), (self.qtgui_time_sink_x_0_3, 0))    
-        self.connect((self.digital_descrambler_bb_0, 0), (self.blocks_char_to_float_0_0, 0))    
-        self.connect((self.digital_descrambler_bb_0, 0), (self.blocks_pack_k_bits_bb_1, 0))    
-        self.connect((self.digital_descrambler_bb_0, 0), (self.framers_gr_hdlc_deframer_b_0, 0))    
-        self.connect((self.digital_fll_band_edge_cc_1, 0), (self.digital_pfb_clock_sync_xxx_0, 0))    
-        self.connect((self.digital_fll_band_edge_cc_1, 0), (self.qtgui_sink_x_5, 0))    
-        self.connect((self.digital_fll_band_edge_cc_1, 3), (self.qtgui_time_sink_x_1, 2))    
-        self.connect((self.digital_fll_band_edge_cc_1, 1), (self.qtgui_time_sink_x_1, 0))    
-        self.connect((self.digital_fll_band_edge_cc_1, 2), (self.qtgui_time_sink_x_1, 1))    
-        self.connect((self.digital_map_bb_0_0_0, 0), (self.mods_turbo_decoder_0, 0))    
-        self.connect((self.digital_pfb_clock_sync_xxx_0, 0), (self.digital_costas_loop_cc_0, 0))    
-        self.connect((self.digital_pfb_clock_sync_xxx_0, 0), (self.qtgui_sink_x_0, 0))    
-        self.connect((self.interp_fir_filter_xxx_0, 0), (self.blocks_multiply_const_vxx_1, 0))    
-        self.connect((self.interp_fir_filter_xxx_0, 0), (self.blocks_multiply_const_vxx_1_1, 0))    
-        self.connect((self.interp_fir_filter_xxx_0_0, 0), (self.blocks_divide_xx_1, 1))    
-        self.connect((self.mods_frame_sync_fast_0, 0), (self.digital_constellation_decoder_cb_0, 0))    
-        self.connect((self.mods_frame_sync_fast_0, 0), (self.qtgui_const_sink_x_1, 0))    
-        self.connect((self.mods_turbo_decoder_0, 0), (self.digital_descrambler_bb_0, 0))    
-        self.connect((self.rtlsdr_source_0, 0), (self.blocks_divide_xx_0, 0))    
-        self.connect((self.rtlsdr_source_0, 0), (self.blocks_rms_xx_1, 0))    
-        self.connect((self.rtlsdr_source_0, 0), (self.qtgui_freq_sink_x_0, 0))    
+        self.msg_connect((self.framers_gr_hdlc_deframer_b_0, 'pdu'), (self.mods_fifo_async_sink_0, 'async_pdu'))
+        self.connect((self.blocks_char_to_float_0_0, 0), (self.qtgui_time_sink_x_1_0, 0))
+        self.connect((self.blocks_char_to_float_0_1, 0), (self.qtgui_time_sink_x_1_0_0, 0))
+        self.connect((self.blocks_complex_to_mag_1, 0), (self.blocks_divide_xx_1, 0))
+        self.connect((self.blocks_complex_to_mag_squared_0, 0), (self.interp_fir_filter_xxx_0_0, 0))
+        self.connect((self.blocks_divide_xx_0, 0), (self.digital_fll_band_edge_cc_1, 0))
+        self.connect((self.blocks_divide_xx_0, 0), (self.qtgui_sink_x_1, 0))
+        self.connect((self.blocks_divide_xx_1, 0), (self.blocks_multiply_xx_0, 0))
+        self.connect((self.blocks_divide_xx_1, 0), (self.blocks_multiply_xx_0, 1))
+        self.connect((self.blocks_float_to_complex_0, 0), (self.blocks_divide_xx_0, 1))
+        self.connect((self.blocks_multiply_const_vxx_1, 0), (self.mods_frame_sync_fast_0, 2))
+        self.connect((self.blocks_multiply_const_vxx_1, 0), (self.qtgui_time_sink_x_2, 0))
+        self.connect((self.blocks_multiply_const_vxx_1_1, 0), (self.blocks_complex_to_mag_1, 0))
+        self.connect((self.blocks_multiply_xx_0, 0), (self.mods_frame_sync_fast_0, 1))
+        self.connect((self.blocks_multiply_xx_0, 0), (self.qtgui_time_sink_x_0_0, 0))
+        self.connect((self.blocks_pack_k_bits_bb_1, 0), (self.blocks_char_to_float_0_1, 0))
+        self.connect((self.blocks_rms_xx_1, 0), (self.blocks_float_to_complex_0, 0))
+        self.connect((self.blocks_unpack_k_bits_bb_0, 0), (self.digital_map_bb_0_0_0, 0))
+        self.connect((self.digital_constellation_decoder_cb_0, 0), (self.blocks_unpack_k_bits_bb_0, 0))
+        self.connect((self.digital_costas_loop_cc_0, 0), (self.blocks_complex_to_mag_squared_0, 0))
+        self.connect((self.digital_costas_loop_cc_0, 0), (self.interp_fir_filter_xxx_0, 0))
+        self.connect((self.digital_costas_loop_cc_0, 0), (self.mods_frame_sync_fast_0, 0))
+        self.connect((self.digital_costas_loop_cc_0, 0), (self.qtgui_const_sink_x_0, 0))
+        self.connect((self.digital_costas_loop_cc_0, 1), (self.qtgui_time_sink_x_0_3, 0))
+        self.connect((self.digital_descrambler_bb_0, 0), (self.blocks_char_to_float_0_0, 0))
+        self.connect((self.digital_descrambler_bb_0, 0), (self.blocks_pack_k_bits_bb_1, 0))
+        self.connect((self.digital_descrambler_bb_0, 0), (self.framers_gr_hdlc_deframer_b_0, 0))
+        self.connect((self.digital_fll_band_edge_cc_1, 0), (self.digital_pfb_clock_sync_xxx_0, 0))
+        self.connect((self.digital_fll_band_edge_cc_1, 0), (self.qtgui_sink_x_5, 0))
+        self.connect((self.digital_fll_band_edge_cc_1, 3), (self.qtgui_time_sink_x_1, 2))
+        self.connect((self.digital_fll_band_edge_cc_1, 1), (self.qtgui_time_sink_x_1, 0))
+        self.connect((self.digital_fll_band_edge_cc_1, 2), (self.qtgui_time_sink_x_1, 1))
+        self.connect((self.digital_map_bb_0_0_0, 0), (self.mods_turbo_decoder_0, 0))
+        self.connect((self.digital_pfb_clock_sync_xxx_0, 0), (self.digital_costas_loop_cc_0, 0))
+        self.connect((self.digital_pfb_clock_sync_xxx_0, 0), (self.qtgui_sink_x_0, 0))
+        self.connect((self.interp_fir_filter_xxx_0, 0), (self.blocks_multiply_const_vxx_1, 0))
+        self.connect((self.interp_fir_filter_xxx_0, 0), (self.blocks_multiply_const_vxx_1_1, 0))
+        self.connect((self.interp_fir_filter_xxx_0_0, 0), (self.blocks_divide_xx_1, 1))
+        self.connect((self.mods_frame_sync_fast_0, 0), (self.digital_constellation_decoder_cb_0, 0))
+        self.connect((self.mods_frame_sync_fast_0, 0), (self.qtgui_const_sink_x_1, 0))
+        self.connect((self.mods_turbo_decoder_0, 0), (self.digital_descrambler_bb_0, 0))
+        self.connect((self.rtlsdr_source_0, 0), (self.blocks_divide_xx_0, 0))
+        self.connect((self.rtlsdr_source_0, 0), (self.blocks_rms_xx_1, 0))
+        self.connect((self.rtlsdr_source_0, 0), (self.qtgui_freq_sink_x_0, 0))
 
     def closeEvent(self, event):
         self.settings = Qt.QSettings("GNU Radio", "rx_gui")
         self.settings.setValue("geometry", self.saveGeometry())
         event.accept()
+
+    def get_fllbw(self):
+        return self.fllbw
+
+    def set_fllbw(self, fllbw):
+        self.fllbw = fllbw
+        self.digital_fll_band_edge_cc_1.set_loop_bandwidth(self.fllbw)
+
+    def get_frame_sync_verbosity(self):
+        return self.frame_sync_verbosity
+
+    def set_frame_sync_verbosity(self, frame_sync_verbosity):
+        self.frame_sync_verbosity = frame_sync_verbosity
 
     def get_freq(self):
         return self.freq
@@ -752,13 +768,6 @@ class rx_gui(gr.top_block, Qt.QWidget):
 
     def set_loopbw_0(self, loopbw_0):
         self.loopbw_0 = loopbw_0
-
-    def get_fllbw(self):
-        return self.fllbw
-
-    def set_fllbw(self, fllbw):
-        self.fllbw = fllbw
-        self.digital_fll_band_edge_cc_1.set_loop_bandwidth(self.fllbw)
 
     def get_sps(self):
         return self.sps
@@ -987,6 +996,12 @@ class rx_gui(gr.top_block, Qt.QWidget):
 def argument_parser():
     parser = OptionParser(usage="%prog: [options]", option_class=eng_option)
     parser.add_option(
+        "", "--fllbw", dest="fllbw", type="eng_float", default=eng_notation.num_to_str(0.002),
+        help="Set fllbw [default=%default]")
+    parser.add_option(
+        "", "--frame-sync-verbosity", dest="frame_sync_verbosity", type="intx", default=0,
+        help="Set Frame Sync Verbosity [default=%default]")
+    parser.add_option(
         "", "--freq", dest="freq", type="intx", default=0,
         help="Set freq [default=%default]")
     parser.add_option(
@@ -998,9 +1013,6 @@ def argument_parser():
     parser.add_option(
         "", "--loopbw-0", dest="loopbw_0", type="intx", default=100,
         help="Set loopbw_0 [default=%default]")
-    parser.add_option(
-        "", "--fllbw", dest="fllbw", type="eng_float", default=eng_notation.num_to_str(0.002),
-        help="Set fllbw [default=%default]")
     return parser
 
 
@@ -1014,7 +1026,7 @@ def main(top_block_cls=rx_gui, options=None):
         Qt.QApplication.setGraphicsSystem(style)
     qapp = Qt.QApplication(sys.argv)
 
-    tb = top_block_cls(freq=options.freq, gain=options.gain, loopbw=options.loopbw, loopbw_0=options.loopbw_0, fllbw=options.fllbw)
+    tb = top_block_cls(fllbw=options.fllbw, frame_sync_verbosity=options.frame_sync_verbosity, freq=options.freq, gain=options.gain, loopbw=options.loopbw, loopbw_0=options.loopbw_0)
     tb.start()
     tb.show()
 

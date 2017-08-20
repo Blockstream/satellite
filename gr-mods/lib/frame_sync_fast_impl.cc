@@ -45,10 +45,10 @@ namespace gr {
   namespace mods {
 
     frame_sync_fast::sptr
-    frame_sync_fast::make(float treshold, int preamble_len, int payload_len, int n_init_peak, int equalize, int fix_phase, int const_order)
+    frame_sync_fast::make(float treshold, int preamble_len, int payload_len, int n_init_peak, int equalize, int fix_phase, int const_order, int verbosity)
     {
       return gnuradio::get_initial_sptr
-      (new frame_sync_fast_impl(treshold, preamble_len, payload_len, n_init_peak, equalize, fix_phase, const_order));
+      (new frame_sync_fast_impl(treshold, preamble_len, payload_len, n_init_peak, equalize, fix_phase, const_order, verbosity));
     }
 
     /*
@@ -58,7 +58,7 @@ namespace gr {
     static std::vector<int> isig(is, is+sizeof(is)/sizeof(int));
     static int os[] = {sizeof(gr_complex)};
     static std::vector<int> osig(os, os+sizeof(os)/sizeof(int));
-    frame_sync_fast_impl::frame_sync_fast_impl(float treshold, int preamble_len, int payload_len, int n_init_peak, int equalize, int fix_phase, int const_order)
+    frame_sync_fast_impl::frame_sync_fast_impl(float treshold, int preamble_len, int payload_len, int n_init_peak, int equalize, int fix_phase, int const_order, int verbosity)
     : gr::block("frame_sync_fast",
     gr::io_signature::makev(3, 3, isig),
     gr::io_signature::makev(1, 1, osig)),
@@ -70,6 +70,7 @@ namespace gr {
     d_n_init_peaks(n_init_peak),
     d_equalize(equalize),
     d_fix_phase(fix_phase),
+    d_verbosity(verbosity),
     d_const_order(const_order),
     d_eq_gain(0.0),
     d_last_max(0.0),
@@ -214,7 +215,9 @@ namespace gr {
         } // Peak detected, but wrong frame distance:
         else if (!is_peak_in & offset_prev_peak == rounded_avg_peak_dist) {
           is_peak_out = 1;
-          printf("Peak timeout triggered at offset %d\n", offset_prev_peak);
+          if (d_verbosity > 1) {
+            printf("Peak timeout triggered at offset %d\n", offset_prev_peak);
+          }
         } // No peak
         else{
           is_peak_out = 0;
@@ -282,7 +285,9 @@ namespace gr {
       // Check frame timing acquisition
       if (d_correct_dist_peak_cnt == FRAME_ACQUIRED_CNT) {
         is_frame_time_acquired = 1;
-        printf("##### Frame synchronization acquired #####\n");
+        if (d_verbosity > 0) {
+          printf("##### Frame synchronization acquired #####\n");
+        }
       } else {
         is_frame_time_acquired = 0;
       }
@@ -305,7 +310,9 @@ namespace gr {
       // Check frame timing loss
       if (d_unmatched_pmf_peak_cnt == FRAME_ACQUIRED_CNT) {
         frame_lock_loss = 1;
-        printf("##### Frame synchronization lost #####\n");
+        if (d_verbosity > 0) {
+          printf("##### Frame synchronization lost #####\n");
+        }
       } else {
         frame_lock_loss = 0;
       }
@@ -379,7 +386,7 @@ namespace gr {
             }
 
             // Check a frame distance error
-            if (offset_prev_peak != d_frame_len) {
+            if ((d_verbosity > 1) && (offset_prev_peak != d_frame_len)) {
               printf("[work] Error in distance btw peak %d and %d:\t %d", d_peak_cnt-1, d_peak_cnt, offset_prev_peak);
               printf("(expected %d)\n", d_frame_len);
               printf("[work] Avg peak distance:\t %f\n", d_avg_peak_dist);

@@ -36,6 +36,7 @@ namespace gr {
       int d_n_init_peaks;
       int d_equalize;
       int d_fix_phase;
+      int d_verbosity;
       float d_eq_gain;
       gr_complex d_phase_rot;
       float d_last_max;
@@ -59,7 +60,7 @@ namespace gr {
 
 
     public:
-      frame_sync_fast_impl(float treshold,int preamble_len,int payload_len,int n_init_peak, int equalize, int fix_phase, int const_order);
+      frame_sync_fast_impl(float treshold,int preamble_len,int payload_len,int n_init_peak, int equalize, int fix_phase, int const_order, int verbosity);
       ~frame_sync_fast_impl();
 
       // Where all the action really happens

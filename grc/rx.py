@@ -3,7 +3,7 @@
 ##################################################
 # GNU Radio Python Flow Graph
 # Title: Rx
-# Generated: Mon Aug 14 22:28:46 2017
+# Generated: Sat Aug 19 21:00:00 2017
 ##################################################
 
 from gnuradio import blocks
@@ -17,7 +17,7 @@ from math import *
 from optparse import OptionParser
 import framers
 import mods
-import numpy 
+import numpy
 import numpy.matlib
 import osmosdr
 import pmt
@@ -26,16 +26,16 @@ import time
 
 class rx(gr.top_block):
 
-    def __init__(self, freq=0, gain=0, loopbw=100, fllbw=0.002):
+    def __init__(self, fllbw=0.002, freq=0, gain=0, loopbw=100):
         gr.top_block.__init__(self, "Rx")
 
         ##################################################
         # Parameters
         ##################################################
+        self.fllbw = fllbw
         self.freq = freq
         self.gain = gain
         self.loopbw = loopbw
-        self.fllbw = fllbw
 
         ##################################################
         # Variables
@@ -43,14 +43,14 @@ class rx(gr.top_block):
         self.sps = sps = 8
         self.excess_bw = excess_bw = 0.25
         self.target_samp_rate = target_samp_rate = sps*(200e3/(1 + excess_bw))
-        
+
         self.qpsk_const = qpsk_const = digital.constellation_qpsk().base()
-        
+
         self.dsp_rate = dsp_rate = 100e6
         self.const_choice = const_choice = "qpsk"
-        
+
         self.bpsk_const = bpsk_const = digital.constellation_bpsk().base()
-        
+
         self.barker_code_two_dim = barker_code_two_dim = [-1.0000 - 1.0000j, -1.0000 - 1.0000j, -1.0000 - 1.0000j, -1.0000 - 1.0000j, -1.0000 - 1.0000j,  1.0000 + 1.0000j,  1.0000 + 1.0000j, -1.0000 - 1.0000j, -1.0000 - 1.0000j,  1.0000 + 1.0000j, -1.0000 - 1.0000j,  1.0000 + 1.0000j, -1.0000 - 1.0000j]
         self.barker_code_one_dim = barker_code_one_dim = sqrt(2)*numpy.real([-1.0000 - 1.0000j, -1.0000 - 1.0000j, -1.0000 - 1.0000j, -1.0000 - 1.0000j, -1.0000 - 1.0000j,  1.0000 + 1.0000j,  1.0000 + 1.0000j, -1.0000 - 1.0000j, -1.0000 - 1.0000j,  1.0000 + 1.0000j, -1.0000 - 1.0000j,  1.0000 + 1.0000j, -1.0000 - 1.0000j])
         self.rrc_delay = rrc_delay = int(round(-44*excess_bw + 33))
@@ -90,9 +90,9 @@ class rx(gr.top_block):
         self.rtlsdr_source_0.set_bb_gain(20, 0)
         self.rtlsdr_source_0.set_antenna('', 0)
         self.rtlsdr_source_0.set_bandwidth(0, 0)
-          
+
         self.mods_turbo_decoder_0 = mods.turbo_decoder(codeword_len, dataword_len)
-        self.mods_frame_sync_fast_0 = mods.frame_sync_fast(pmf_peak_threshold, preamble_size, payload_size, 0, 1, 1, int(const_order))
+        self.mods_frame_sync_fast_0 = mods.frame_sync_fast(pmf_peak_threshold, preamble_size, payload_size, 0, 1, 1, int(const_order), 0)
         self.mods_fifo_async_sink_0 = mods.fifo_async_sink('/tmp/async_rx')
         self.interp_fir_filter_xxx_0_0 = filter.interp_fir_filter_fff(1, ( numpy.ones(n_barker_rep*barker_len)))
         self.interp_fir_filter_xxx_0_0.declare_sample_delay(0)
@@ -119,33 +119,40 @@ class rx(gr.top_block):
         ##################################################
         # Connections
         ##################################################
-        self.msg_connect((self.framers_gr_hdlc_deframer_b_0, 'pdu'), (self.mods_fifo_async_sink_0, 'async_pdu'))    
-        self.connect((self.blocks_complex_to_mag_1, 0), (self.blocks_divide_xx_1, 0))    
-        self.connect((self.blocks_complex_to_mag_squared_0, 0), (self.interp_fir_filter_xxx_0_0, 0))    
-        self.connect((self.blocks_divide_xx_0, 0), (self.digital_fll_band_edge_cc_1, 0))    
-        self.connect((self.blocks_divide_xx_1, 0), (self.blocks_multiply_xx_0, 0))    
-        self.connect((self.blocks_divide_xx_1, 0), (self.blocks_multiply_xx_0, 1))    
-        self.connect((self.blocks_float_to_complex_0, 0), (self.blocks_divide_xx_0, 1))    
-        self.connect((self.blocks_multiply_const_vxx_1, 0), (self.mods_frame_sync_fast_0, 2))    
-        self.connect((self.blocks_multiply_const_vxx_1_1, 0), (self.blocks_complex_to_mag_1, 0))    
-        self.connect((self.blocks_multiply_xx_0, 0), (self.mods_frame_sync_fast_0, 1))    
-        self.connect((self.blocks_rms_xx_1, 0), (self.blocks_float_to_complex_0, 0))    
-        self.connect((self.blocks_unpack_k_bits_bb_0, 0), (self.digital_map_bb_0_0_0, 0))    
-        self.connect((self.digital_constellation_decoder_cb_0, 0), (self.blocks_unpack_k_bits_bb_0, 0))    
-        self.connect((self.digital_costas_loop_cc_0, 0), (self.blocks_complex_to_mag_squared_0, 0))    
-        self.connect((self.digital_costas_loop_cc_0, 0), (self.interp_fir_filter_xxx_0, 0))    
-        self.connect((self.digital_costas_loop_cc_0, 0), (self.mods_frame_sync_fast_0, 0))    
-        self.connect((self.digital_descrambler_bb_0, 0), (self.framers_gr_hdlc_deframer_b_0, 0))    
-        self.connect((self.digital_fll_band_edge_cc_1, 0), (self.digital_pfb_clock_sync_xxx_0, 0))    
-        self.connect((self.digital_map_bb_0_0_0, 0), (self.mods_turbo_decoder_0, 0))    
-        self.connect((self.digital_pfb_clock_sync_xxx_0, 0), (self.digital_costas_loop_cc_0, 0))    
-        self.connect((self.interp_fir_filter_xxx_0, 0), (self.blocks_multiply_const_vxx_1, 0))    
-        self.connect((self.interp_fir_filter_xxx_0, 0), (self.blocks_multiply_const_vxx_1_1, 0))    
-        self.connect((self.interp_fir_filter_xxx_0_0, 0), (self.blocks_divide_xx_1, 1))    
-        self.connect((self.mods_frame_sync_fast_0, 0), (self.digital_constellation_decoder_cb_0, 0))    
-        self.connect((self.mods_turbo_decoder_0, 0), (self.digital_descrambler_bb_0, 0))    
-        self.connect((self.rtlsdr_source_0, 0), (self.blocks_divide_xx_0, 0))    
-        self.connect((self.rtlsdr_source_0, 0), (self.blocks_rms_xx_1, 0))    
+        self.msg_connect((self.framers_gr_hdlc_deframer_b_0, 'pdu'), (self.mods_fifo_async_sink_0, 'async_pdu'))
+        self.connect((self.blocks_complex_to_mag_1, 0), (self.blocks_divide_xx_1, 0))
+        self.connect((self.blocks_complex_to_mag_squared_0, 0), (self.interp_fir_filter_xxx_0_0, 0))
+        self.connect((self.blocks_divide_xx_0, 0), (self.digital_fll_band_edge_cc_1, 0))
+        self.connect((self.blocks_divide_xx_1, 0), (self.blocks_multiply_xx_0, 0))
+        self.connect((self.blocks_divide_xx_1, 0), (self.blocks_multiply_xx_0, 1))
+        self.connect((self.blocks_float_to_complex_0, 0), (self.blocks_divide_xx_0, 1))
+        self.connect((self.blocks_multiply_const_vxx_1, 0), (self.mods_frame_sync_fast_0, 2))
+        self.connect((self.blocks_multiply_const_vxx_1_1, 0), (self.blocks_complex_to_mag_1, 0))
+        self.connect((self.blocks_multiply_xx_0, 0), (self.mods_frame_sync_fast_0, 1))
+        self.connect((self.blocks_rms_xx_1, 0), (self.blocks_float_to_complex_0, 0))
+        self.connect((self.blocks_unpack_k_bits_bb_0, 0), (self.digital_map_bb_0_0_0, 0))
+        self.connect((self.digital_constellation_decoder_cb_0, 0), (self.blocks_unpack_k_bits_bb_0, 0))
+        self.connect((self.digital_costas_loop_cc_0, 0), (self.blocks_complex_to_mag_squared_0, 0))
+        self.connect((self.digital_costas_loop_cc_0, 0), (self.interp_fir_filter_xxx_0, 0))
+        self.connect((self.digital_costas_loop_cc_0, 0), (self.mods_frame_sync_fast_0, 0))
+        self.connect((self.digital_descrambler_bb_0, 0), (self.framers_gr_hdlc_deframer_b_0, 0))
+        self.connect((self.digital_fll_band_edge_cc_1, 0), (self.digital_pfb_clock_sync_xxx_0, 0))
+        self.connect((self.digital_map_bb_0_0_0, 0), (self.mods_turbo_decoder_0, 0))
+        self.connect((self.digital_pfb_clock_sync_xxx_0, 0), (self.digital_costas_loop_cc_0, 0))
+        self.connect((self.interp_fir_filter_xxx_0, 0), (self.blocks_multiply_const_vxx_1, 0))
+        self.connect((self.interp_fir_filter_xxx_0, 0), (self.blocks_multiply_const_vxx_1_1, 0))
+        self.connect((self.interp_fir_filter_xxx_0_0, 0), (self.blocks_divide_xx_1, 1))
+        self.connect((self.mods_frame_sync_fast_0, 0), (self.digital_constellation_decoder_cb_0, 0))
+        self.connect((self.mods_turbo_decoder_0, 0), (self.digital_descrambler_bb_0, 0))
+        self.connect((self.rtlsdr_source_0, 0), (self.blocks_divide_xx_0, 0))
+        self.connect((self.rtlsdr_source_0, 0), (self.blocks_rms_xx_1, 0))
+
+    def get_fllbw(self):
+        return self.fllbw
+
+    def set_fllbw(self, fllbw):
+        self.fllbw = fllbw
+        self.digital_fll_band_edge_cc_1.set_loop_bandwidth(self.fllbw)
 
     def get_freq(self):
         return self.freq
@@ -167,13 +174,6 @@ class rx(gr.top_block):
     def set_loopbw(self, loopbw):
         self.loopbw = loopbw
         self.digital_costas_loop_cc_0.set_loop_bandwidth(2*pi/self.loopbw)
-
-    def get_fllbw(self):
-        return self.fllbw
-
-    def set_fllbw(self, fllbw):
-        self.fllbw = fllbw
-        self.digital_fll_band_edge_cc_1.set_loop_bandwidth(self.fllbw)
 
     def get_sps(self):
         return self.sps
@@ -392,6 +392,9 @@ class rx(gr.top_block):
 def argument_parser():
     parser = OptionParser(usage="%prog: [options]", option_class=eng_option)
     parser.add_option(
+        "", "--fllbw", dest="fllbw", type="eng_float", default=eng_notation.num_to_str(0.002),
+        help="Set fllbw [default=%default]")
+    parser.add_option(
         "", "--freq", dest="freq", type="intx", default=0,
         help="Set freq [default=%default]")
     parser.add_option(
@@ -400,9 +403,6 @@ def argument_parser():
     parser.add_option(
         "", "--loopbw", dest="loopbw", type="intx", default=100,
         help="Set loopbw [default=%default]")
-    parser.add_option(
-        "", "--fllbw", dest="fllbw", type="eng_float", default=eng_notation.num_to_str(0.002),
-        help="Set fllbw [default=%default]")
     return parser
 
 
@@ -410,7 +410,7 @@ def main(top_block_cls=rx, options=None):
     if options is None:
         options, _ = argument_parser().parse_args()
 
-    tb = top_block_cls(freq=options.freq, gain=options.gain, loopbw=options.loopbw, fllbw=options.fllbw)
+    tb = top_block_cls(fllbw=options.fllbw, freq=options.freq, gain=options.gain, loopbw=options.loopbw)
     tb.start()
     try:
         raw_input('Press Enter to quit: ')

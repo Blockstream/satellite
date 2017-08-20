@@ -4,7 +4,7 @@
   <key>mods_frame_sync_fast</key>
   <category>Synchronizers</category>
   <import>import mods</import>
-  <make>mods.frame_sync_fast($treshold, $preamble_len, $payload_len, $n_init_peak, $equalize, $fix_phase, $const_order)</make>
+  <make>mods.frame_sync_fast($treshold, $preamble_len, $payload_len, $n_init_peak, $equalize, $fix_phase, $const_order, $verbosity)</make>
   <!-- Make one 'param' node for every Parameter you want settable from the GUI.
        Sub-nodes:
        * name
@@ -44,6 +44,23 @@
     <name>Constellation Order</name>
     <key>const_order</key>
     <type>int</type>
+  </param>
+  <param>
+    <name>Verbosity</name>
+    <key>verbosity</key>
+    <type>int</type>
+    <option>
+      <name>None</name>
+      <key>0</key>
+    </option>
+    <option>
+      <name>Acquisition</name>
+      <key>1</key>
+    </option>
+    <option>
+      <name>Full</name>
+      <key>2</key>
+    </option>
   </param>
 
 

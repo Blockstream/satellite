@@ -46,7 +46,7 @@ namespace gr {
        * class. mods::frame_sync_fast::make is the public interface for
        * creating new instances.
        */
-      static sptr make(float treshold, int preamble_len, int payload_len, int n_init_peak, int equalize, int fix_phase, int const_order);
+      static sptr make(float treshold, int preamble_len, int payload_len, int n_init_peak, int equalize, int fix_phase, int const_order, int verbosity);
     };
 
   } // namespace mods
