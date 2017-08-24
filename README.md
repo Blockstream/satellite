@@ -53,7 +53,7 @@ First you must verify that the Blockstream Satellite coverage in your area opera
 
 For example, if you are located in North America and are using the Galaxy 18 satellite, your frequency is 12.178 GHz.  Thus an LNB that operates from 11.7 GHz to 12.2 GHz would work.  However, if your LNB operates from 10.7 GHz to 11.7 GHz would NOT work.
 
-Note on “Universal” LNB.  A Universal LNB supports multiple frequency bands, however it requires a 22kHz tone to be sent to the LNB to activate the switch.  If the default frequency band (without the 22khz tone) is the same frequency band that will work for your satellite, a universal lNB should work.  However, if the LNB requires the tone to activate the correct frequency band, then Blockstream Satellite will not work as it would require an SDR with transmit capability.
+Note on “Universal” LNB.  A Universal LNB supports multiple frequency bands, however it requires a 22kHz tone to be sent to the LNB to activate the switch.  If the default frequency band (without the 22khz tone) is the same frequency band that will work for your satellite, a universal LNB should work.  However, if the LNB requires the tone to activate the correct frequency band, then Blockstream Satellite will not work as it would require an SDR with transmit capability.
 
 ### Linear LNB Polarization
 
