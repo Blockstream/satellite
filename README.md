@@ -176,7 +176,7 @@ Note: This process is performed easiest with a laptop than can be watched while 
 
 ## 4. Connect equipment
 
-With power disconnected from the LNB power supply, connect the SDR to the non-powered port on the LNB power supply using the SMA to F connector cable.
+a. With power disconnected from the LNB power supply, connect the SDR to the non-powered port on the LNB power supply using the SMA to F connector cable.
 
 IMPORTANT: Do NOT connect the powered port of the LNB power supply to the SDR interface.  Permanent damage may occur to your SDR and/or your computer.
 
