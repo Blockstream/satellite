@@ -3,7 +3,7 @@
 ##################################################
 # GNU Radio Python Flow Graph
 # Title: Rx
-# Generated: Sat Aug 19 21:03:50 2017
+# Generated: Wed Aug 30 09:46:54 2017
 ##################################################
 
 from gnuradio import blocks
@@ -43,10 +43,11 @@ class rx(gr.top_block):
         self.sps = sps = 8
         self.excess_bw = excess_bw = 0.25
         self.target_samp_rate = target_samp_rate = sps*(200e3/(1 + excess_bw))
+        self.dsp_rate = dsp_rate = 100e6
 
         self.qpsk_const = qpsk_const = digital.constellation_qpsk().base()
 
-        self.dsp_rate = dsp_rate = 100e6
+        self.dec_factor = dec_factor = ceil(dsp_rate/target_samp_rate)
         self.const_choice = const_choice = "qpsk"
 
         self.bpsk_const = bpsk_const = digital.constellation_bpsk().base()
@@ -56,17 +57,17 @@ class rx(gr.top_block):
         self.rrc_delay = rrc_delay = int(round(-44*excess_bw + 33))
         self.nfilts = nfilts = 32
         self.n_barker_rep = n_barker_rep = 10
-        self.dec_factor = dec_factor = ceil(dsp_rate/target_samp_rate)
+        self.even_dec_factor = even_dec_factor = dec_factor if (dec_factor % 1 == 1) else (dec_factor+1)
         self.constellation = constellation = qpsk_const if (const_choice=="qpsk") else bpsk_const
         self.barker_code = barker_code = barker_code_two_dim if (const_choice == "qpsk") else barker_code_one_dim
+        self.samp_rate = samp_rate = dsp_rate/even_dec_factor
         self.preamble_syms = preamble_syms = numpy.matlib.repmat(barker_code, 1, n_barker_rep)[0]
         self.n_rrc_taps = n_rrc_taps = rrc_delay * int(sps*nfilts)
         self.n_codewords = n_codewords = 1
-        self.even_dec_factor = even_dec_factor = dec_factor if (dec_factor % 1 == 1) else (dec_factor+1)
         self.const_order = const_order = pow(2,constellation.bits_per_symbol())
         self.codeword_len = codeword_len = 18444
         self.usrp_rx_addr = usrp_rx_addr = "192.168.10.2"
-        self.samp_rate = samp_rate = dsp_rate/even_dec_factor
+        self.sym_rate = sym_rate = samp_rate/sps
         self.rrc_taps = rrc_taps = firdes.root_raised_cosine(nfilts, nfilts*sps, 1.0, excess_bw, n_rrc_taps)
         self.rf_center_freq = rf_center_freq = 1428.4309e6
         self.preamble_size = preamble_size = len(preamble_syms)
@@ -184,6 +185,7 @@ class rx(gr.top_block):
         self.sps = sps
         self.set_rrc_taps(firdes.root_raised_cosine(self.nfilts, self.nfilts*self.sps, 1.0, self.excess_bw, self.n_rrc_taps))
         self.set_target_samp_rate(self.sps*(200e3/(1 + self.excess_bw)))
+        self.set_sym_rate(self.samp_rate/self.sps)
         self.set_n_rrc_taps(self.rrc_delay * int(self.sps*self.nfilts))
 
     def get_excess_bw(self):
@@ -202,13 +204,6 @@ class rx(gr.top_block):
         self.target_samp_rate = target_samp_rate
         self.set_dec_factor(ceil(self.dsp_rate/self.target_samp_rate))
 
-    def get_qpsk_const(self):
-        return self.qpsk_const
-
-    def set_qpsk_const(self, qpsk_const):
-        self.qpsk_const = qpsk_const
-        self.set_constellation(self.qpsk_const if (self.const_choice=="qpsk") else self.bpsk_const)
-
     def get_dsp_rate(self):
         return self.dsp_rate
 
@@ -216,6 +211,20 @@ class rx(gr.top_block):
         self.dsp_rate = dsp_rate
         self.set_samp_rate(self.dsp_rate/self.even_dec_factor)
         self.set_dec_factor(ceil(self.dsp_rate/self.target_samp_rate))
+
+    def get_qpsk_const(self):
+        return self.qpsk_const
+
+    def set_qpsk_const(self, qpsk_const):
+        self.qpsk_const = qpsk_const
+        self.set_constellation(self.qpsk_const if (self.const_choice=="qpsk") else self.bpsk_const)
+
+    def get_dec_factor(self):
+        return self.dec_factor
+
+    def set_dec_factor(self, dec_factor):
+        self.dec_factor = dec_factor
+        self.set_even_dec_factor(self.dec_factor if (self.dec_factor % 1 == 1) else (self.dec_factor+1))
 
     def get_const_choice(self):
         return self.const_choice
@@ -269,12 +278,12 @@ class rx(gr.top_block):
         self.set_preamble_syms(numpy.matlib.repmat(self.barker_code, 1, self.n_barker_rep)[0])
         self.interp_fir_filter_xxx_0_0.set_taps(( numpy.ones(self.n_barker_rep*self.barker_len)))
 
-    def get_dec_factor(self):
-        return self.dec_factor
+    def get_even_dec_factor(self):
+        return self.even_dec_factor
 
-    def set_dec_factor(self, dec_factor):
-        self.dec_factor = dec_factor
-        self.set_even_dec_factor(self.dec_factor if (self.dec_factor % 1 == 1) else (self.dec_factor+1))
+    def set_even_dec_factor(self, even_dec_factor):
+        self.even_dec_factor = even_dec_factor
+        self.set_samp_rate(self.dsp_rate/self.even_dec_factor)
 
     def get_constellation(self):
         return self.constellation
@@ -288,6 +297,14 @@ class rx(gr.top_block):
     def set_barker_code(self, barker_code):
         self.barker_code = barker_code
         self.set_preamble_syms(numpy.matlib.repmat(self.barker_code, 1, self.n_barker_rep)[0])
+
+    def get_samp_rate(self):
+        return self.samp_rate
+
+    def set_samp_rate(self, samp_rate):
+        self.samp_rate = samp_rate
+        self.set_sym_rate(self.samp_rate/self.sps)
+        self.rtlsdr_source_0.set_sample_rate(self.samp_rate)
 
     def get_preamble_syms(self):
         return self.preamble_syms
@@ -311,13 +328,6 @@ class rx(gr.top_block):
         self.n_codewords = n_codewords
         self.set_payload_size(self.codeword_len*self.n_codewords/int(numpy.log2(self.const_order)))
 
-    def get_even_dec_factor(self):
-        return self.even_dec_factor
-
-    def set_even_dec_factor(self, even_dec_factor):
-        self.even_dec_factor = even_dec_factor
-        self.set_samp_rate(self.dsp_rate/self.even_dec_factor)
-
     def get_const_order(self):
         return self.const_order
 
@@ -338,12 +348,11 @@ class rx(gr.top_block):
     def set_usrp_rx_addr(self, usrp_rx_addr):
         self.usrp_rx_addr = usrp_rx_addr
 
-    def get_samp_rate(self):
-        return self.samp_rate
+    def get_sym_rate(self):
+        return self.sym_rate
 
-    def set_samp_rate(self, samp_rate):
-        self.samp_rate = samp_rate
-        self.rtlsdr_source_0.set_sample_rate(self.samp_rate)
+    def set_sym_rate(self, sym_rate):
+        self.sym_rate = sym_rate
 
     def get_rrc_taps(self):
         return self.rrc_taps
