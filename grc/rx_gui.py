@@ -41,7 +41,7 @@ from gnuradio import qtgui
 
 class rx_gui(gr.top_block, Qt.QWidget):
 
-    def __init__(self, fllbw=0.002, frame_sync_verbosity=0, freq=0, gain=40, loopbw=100, loopbw_0=100):
+    def __init__(self, fllbw=0.002, frame_sync_verbosity=1, freq=0, gain=40, loopbw=100, loopbw_0=100):
         gr.top_block.__init__(self, "Rx Gui")
         Qt.QWidget.__init__(self)
         self.setWindowTitle("Rx Gui")
@@ -999,7 +999,7 @@ def argument_parser():
         "", "--fllbw", dest="fllbw", type="eng_float", default=eng_notation.num_to_str(0.002),
         help="Set fllbw [default=%default]")
     parser.add_option(
-        "", "--frame-sync-verbosity", dest="frame_sync_verbosity", type="intx", default=0,
+        "", "--frame-sync-verbosity", dest="frame_sync_verbosity", type="intx", default=1,
         help="Set Frame Sync Verbosity [default=%default]")
     parser.add_option(
         "", "--freq", dest="freq", type="intx", default=0,
