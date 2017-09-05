@@ -32,6 +32,7 @@ GR_PYTHON_INSTALL(
     FILES
     __init__.py
     frame_sync_cc.py
+    ffw_coarse_freq_rec.py
     file_source_nonblock.py
     file_sink_nonblock.py
     fifo_async_source.py
@@ -53,3 +54,5 @@ GR_ADD_TEST(qa_fifo_async_source ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR
 GR_ADD_TEST(qa_fifo_async_sink ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_fifo_async_sink.py)
 GR_ADD_TEST(qa_turbo_encoder ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_turbo_encoder.py)
 GR_ADD_TEST(qa_turbo_decoder ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_turbo_decoder.py)
+GR_ADD_TEST(qa_mer_measurement ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_mer_measurement.py)
+GR_ADD_TEST(qa_da_carrier_phase_rec ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_da_carrier_phase_rec.py)

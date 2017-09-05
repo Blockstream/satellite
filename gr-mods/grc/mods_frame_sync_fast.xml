@@ -4,7 +4,7 @@
   <key>mods_frame_sync_fast</key>
   <category>Synchronizers</category>
   <import>import mods</import>
-  <make>mods.frame_sync_fast($treshold, $preamble_len, $payload_len, $n_init_peak, $equalize, $fix_phase, $const_order, $verbosity)</make>
+  <make>mods.frame_sync_fast($treshold, $preamble_len, $payload_len, $equalize, $fix_phase, $const_order, $fw_preamble, $verbosity)</make>
   <!-- Make one 'param' node for every Parameter you want settable from the GUI.
        Sub-nodes:
        * name
@@ -26,8 +26,8 @@
     <type>int</type>
   </param>
   <param>
-    <name>Number of Initial Peaks</name>
-    <key>n_init_peak</key>
+    <name>Constellation Order</name>
+    <key>const_order</key>
     <type>int</type>
   </param>
   <param>
@@ -41,8 +41,8 @@
     <type>int</type>
   </param>
   <param>
-    <name>Constellation Order</name>
-    <key>const_order</key>
+    <name>Foward Preamble</name>
+    <key>fw_preamble</key>
     <type>int</type>
   </param>
   <param>
@@ -94,5 +94,9 @@
   <source>
     <name>peak_out</name>
     <type>float</type>
+  </source>
+  <source>
+    <name>is_preamble</name>
+    <type>byte</type>
   </source>
 </block>

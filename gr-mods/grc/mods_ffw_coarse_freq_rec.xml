@@ -1,0 +1,59 @@
+<block>
+  <name>Coarse Freq. Rec.</name>
+  <key>mods_ffw_coarse_freq_rec</key>
+  <category>Synchronizers</category>
+  <import>import mods</import>
+  <make>mods.ffw_coarse_freq_rec(
+    alpha=$alpha,
+    fft_len=$fft_len,
+    samp_rate=$samp_rate,
+)</make>
+  <callback>set_alpha($alpha)</callback>
+  <callback>set_fft_len($fft_len)</callback>
+  <callback>set_samp_rate($samp_rate)</callback>
+  <param>
+    <name>Average Alpha</name>
+    <key>alpha</key>
+    <value>0.001</value>
+    <type>raw</type>
+    <hide>none</hide>
+  </param>
+  <param>
+    <name>FFT Size</name>
+    <key>fft_len</key>
+    <value>512</value>
+    <type>raw</type>
+    <hide>none</hide>
+  </param>
+  <param>
+    <name>Sample Rate</name>
+    <key>samp_rate</key>
+    <value>32e3</value>
+    <type>raw</type>
+    <hide>none</hide>
+  </param>
+  <sink>
+    <name>sym_in</name>
+    <type>complex</type>
+    <vlen>1</vlen>
+  </sink>
+  <source>
+    <name>logpwr_fft</name>
+    <type>float</type>
+    <vlen>$fft_len</vlen>
+    <optional>1</optional>
+  </source>
+  <source>
+    <name>peak_bin</name>
+    <type>float</type>
+    <vlen>1</vlen>
+    <optional>1</optional>
+  </source>
+  <source>
+    <name>sym_out</name>
+    <type>complex</type>
+    <vlen>1</vlen>
+  </source>
+  <doc>FFT-Based Feedforward Coarse Carrier Frequency Recovery</doc>
+  <grc_source>../../grc/hier_blocks/ffw_coarse_freq_rec.grc</grc_source>
+</block>

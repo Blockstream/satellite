@@ -26,5 +26,9 @@ install(FILES
     mods_fifo_async_sink.xml
     mods_turbo_encoder.xml
     mods_turbo_decoder.xml
-    mods_mer_measurement.xml DESTINATION share/gnuradio/grc/blocks
+    mods_mer_measurement.xml
+    mods_da_carrier_phase_rec.xml
+    mods_nco_cc.xml
+    mods_ffw_coarse_freq_rec.xml
+    mods_wrap_fft_index.xml DESTINATION share/gnuradio/grc/blocks
 )

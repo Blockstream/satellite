@@ -32,6 +32,7 @@ except ImportError:
 
 # import any pure python here
 from frame_sync_cc import frame_sync_cc
+from ffw_coarse_freq_rec import ffw_coarse_freq_rec
 from file_source_nonblock import file_source_nonblock
 from file_sink_nonblock import file_sink_nonblock
 from fifo_async_source import fifo_async_source

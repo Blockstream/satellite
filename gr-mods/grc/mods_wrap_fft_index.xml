@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<block>
+  <name>wrap_fft_index</name>
+  <key>mods_wrap_fft_index</key>
+  <category>Math</category>
+  <import>import mods</import>
+  <make>mods.wrap_fft_index($fft_size)</make>
+  <param>
+    <name>FFT Size</name>
+    <key>fft_size</key>
+    <type>short</type>
+  </param>
+  <sink>
+    <name>in</name>
+    <type>short</type>
+  </sink>
+  <source>
+    <name>out</name>
+    <type>short</type>
+  </source>
+</block>

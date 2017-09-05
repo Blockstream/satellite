@@ -25,5 +25,8 @@ install(FILES
     frame_sync_fast.h
     turbo_encoder.h
     turbo_decoder.h
-    mer_measurement.h DESTINATION include/mods
+    mer_measurement.h
+    da_carrier_phase_rec.h
+    nco_cc.h
+    wrap_fft_index.h DESTINATION include/mods
 )

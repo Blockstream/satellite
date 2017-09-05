@@ -41,6 +41,9 @@ list(APPEND mods_sources
 		Decoder_turbo.cpp
 		Decoder_NO.cpp
 		mer_measurement_impl.cc
+		da_carrier_phase_rec_impl.cc
+		nco_cc_impl.cc
+		wrap_fft_index_impl.cc
 )
 #		bash_tools.cpp
 #		cannot_allocate.cpp
