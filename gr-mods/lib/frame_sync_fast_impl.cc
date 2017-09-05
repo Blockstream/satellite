@@ -90,6 +90,8 @@ namespace gr {
     d_correct_dist_peak_cnt(0),
     d_unmatched_pmf_peak_cnt(0),
     d_frame_lock(0),
+    d_timing_metric_sum(0.0),
+    d_n_timing_metric(0.0),
     d_avg_peak_dist(0.0),
     d_var_peak_dist(0.0) // init with a high value
     {
@@ -111,6 +113,18 @@ namespace gr {
       unsigned ninputs = ninput_items_required.size();
       for(unsigned i = 0; i < ninputs; i++)
       ninput_items_required[i] = noutput_items;
+    }
+
+    float frame_sync_fast_impl::get_avg_timing_metric(){
+      float avg;
+      if(d_n_timing_metric != 0.0){
+        avg = d_timing_metric_sum/d_n_timing_metric;
+      }else
+        avg = 0;
+      d_timing_metric_sum = 0.0;
+      d_n_timing_metric = 0.0;
+      //printf("Cur avg %f\n", avg);
+      return avg;
     }
 
     /*
@@ -145,6 +159,11 @@ namespace gr {
 
       // Offset of the current symbol index relative to the last maximum:
       offset_from_max = d_i_sym - d_i_last_max;
+
+      // Hold peak information for external usage
+      // (see get_avg_timing_metric)
+      d_timing_metric_sum += abs(d_pmf_at_last_max);
+      d_n_timing_metric += 1.0;
 
       // Check whether the offset exceeds the preamble length, meaning the last
       // maximum was really the peak in the window, in case any peak was found

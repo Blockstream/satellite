@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<block>
+	<name>Tuning Control</name>
+  <key>variable_tuning_control_def</key>
+  <category>[mods]</category>
+  <import>import mods</import>
+  <var_make>self.$(id) = mods.tuning_control($min_freq, $max_freq, $freq_step, self)</var_make>
+  <make></make>
+  <param>
+    <name>Min Freq.</name>
+    <key>min_freq</key>
+    <type>float</type>
+  </param>
+  <param>
+    <name>Max Freq.</name>
+    <key>max_freq</key>
+    <type>float</type>
+  </param>
+  <param>
+    <name>Freq. Step</name>
+    <key>freq_step</key>
+    <type>float</type>
+  </param>
+
+
+
+</block>

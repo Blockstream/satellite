@@ -37,6 +37,7 @@ GR_PYTHON_INSTALL(
     file_source_nonblock.py
     file_sink_nonblock.py
     fifo_async_source.py
+    tuning_control.py
     fifo_async_sink.py DESTINATION ${GR_PYTHON_DIR}/mods
 )
 

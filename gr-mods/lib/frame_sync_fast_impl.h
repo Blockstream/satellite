@@ -56,6 +56,8 @@ namespace gr {
       int d_const_order;
       float d_avg_peak_dist;
       float d_var_peak_dist;
+      float d_timing_metric_sum;
+      float d_n_timing_metric;
       std::vector<gr_complex> d_delay_line;
       std::vector<int> d_peak_dist_hist;
       std::vector<float> d_central_diff;
@@ -73,6 +75,9 @@ namespace gr {
       int verify_frame_acquisition(int d_peak);
       int verify_frame_lock_loss(int is_pmf_peak);
       gr_complex resolve_phase(float pmf_peak_re, float pmf_peak_im);
+
+      /* Get timing metrict */
+      float get_avg_timing_metric();
 
       int general_work(int noutput_items,
         gr_vector_int &ninput_items,

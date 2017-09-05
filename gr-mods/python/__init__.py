@@ -38,4 +38,5 @@ from file_source_nonblock import file_source_nonblock
 from file_sink_nonblock import file_sink_nonblock
 from fifo_async_source import fifo_async_source
 from fifo_async_sink import fifo_async_sink
+from tuning_control import tuning_control
 #

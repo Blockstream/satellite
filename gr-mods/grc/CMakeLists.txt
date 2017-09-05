@@ -33,5 +33,8 @@ install(FILES
     mods_wrap_fft_index.xml
     mods_frame_synchronizer.xml
     mods_exponentiate_const_cci.xml
-    mods_runtime_cfo_ctrl.xml DESTINATION share/gnuradio/grc/blocks
+    mods_runtime_cfo_ctrl.xml
+    mods_exponentiate_const_cci.xml
+    mods_variable_tuning_control.xml
+    mods_wrap_fft_index.xml DESTINATION share/gnuradio/grc/blocks
 )
