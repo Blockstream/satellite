@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<?grc format='1' created='3.7.10'?>
+<?grc format='1' created='3.7.12'?>
 <flow_graph>
   <timestamp>Sat Jun 24 12:08:57 2017</timestamp>
   <block>
@@ -1377,7 +1377,7 @@ of unit energy syms)</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1088, 792)</value>
+      <value>(1064, 792)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1386,6 +1386,53 @@ of unit energy syms)</value>
     <param>
       <key>id</key>
       <value>blocks_null_sink_0</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>float</value>
+    </param>
+    <param>
+      <key>num_inputs</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>vlen</key>
+      <value>1</value>
+    </param>
+  </block>
+  <block>
+    <key>blocks_null_sink</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>bus_conns</key>
+      <value>[[0,],]</value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(1328, 768)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>blocks_null_sink_0_0</value>
     </param>
     <param>
       <key>type</key>
@@ -1695,65 +1742,6 @@ of unit energy syms)</value>
     </param>
   </block>
   <block>
-    <key>digital_fll_band_edge_cc</key>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>comment</key>
-      <value>Coarse Carrier Freq. Recovery</value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>1</value>
-    </param>
-    <param>
-      <key>rolloff</key>
-      <value>excess_bw</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(248, 480)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>digital_fll_band_edge_cc_1</value>
-    </param>
-    <param>
-      <key>w</key>
-      <value>fllbw</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>filter_size</key>
-      <value>rrc_delay * int(sps) + 1</value>
-    </param>
-    <param>
-      <key>samps_per_sym</key>
-      <value>sps</value>
-    </param>
-    <param>
-      <key>type</key>
-      <value>cc</value>
-    </param>
-  </block>
-  <block>
     <key>digital_map_bb</key>
     <param>
       <key>alias</key>
@@ -1820,7 +1808,7 @@ of unit energy syms)</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(488, 480)</value>
+      <value>(480, 480)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1865,6 +1853,53 @@ of unit energy syms)</value>
     <param>
       <key>type</key>
       <value>ccf</value>
+    </param>
+  </block>
+  <block>
+    <key>parameter</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(1152, 8)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>fft_len</value>
+    </param>
+    <param>
+      <key>label</key>
+      <value>Carrier Freq. Recovery FFT Size</value>
+    </param>
+    <param>
+      <key>short_id</key>
+      <value></value>
+    </param>
+    <param>
+      <key>hide</key>
+      <value>none</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>intx</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>2048</value>
     </param>
   </block>
   <block>
@@ -2002,6 +2037,53 @@ of unit energy syms)</value>
     <param>
       <key>value</key>
       <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>parameter</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(1312, 8)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>freq_rec_alpha</value>
+    </param>
+    <param>
+      <key>label</key>
+      <value>Carrier Freq. Recovery Averaging Alpha</value>
+    </param>
+    <param>
+      <key>short_id</key>
+      <value></value>
+    </param>
+    <param>
+      <key>hide</key>
+      <value>none</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>eng_float</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>0.001</value>
     </param>
   </block>
   <block>
@@ -2298,7 +2380,121 @@ of unit energy syms)</value>
     </param>
     <param>
       <key>value</key>
-      <value>100</value>
+      <value>800</value>
+    </param>
+  </block>
+  <block>
+    <key>mods_da_carrier_phase_rec</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>M</key>
+      <value>int(const_order)</value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>damp_factor</key>
+      <value>1/sqrt(2)</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(1088, 664)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>mods_da_carrier_phase_rec_0_0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>noise_bw</key>
+      <value>0.001</value>
+    </param>
+    <param>
+      <key>data_aided</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>preamble_syms</key>
+      <value>(1/sqrt(2))*preamble_syms</value>
+    </param>
+    <param>
+      <key>reset_per_frame</key>
+      <value>True</value>
+    </param>
+  </block>
+  <block>
+    <key>mods_ffw_coarse_freq_rec</key>
+    <param>
+      <key>alpha</key>
+      <value>0.0001</value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>fft_len</key>
+      <value>fft_len</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(264, 504)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>mods_ffw_coarse_freq_rec_0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>samp_rate</key>
+      <value>samp_rate</value>
     </param>
   </block>
   <block>
@@ -2367,6 +2563,10 @@ of unit energy syms)</value>
       <value>1</value>
     </param>
     <param>
+      <key>fw_preamble</key>
+      <value>1</value>
+    </param>
+    <param>
       <key>_coordinate</key>
       <value>(848, 668)</value>
     </param>
@@ -2387,10 +2587,6 @@ of unit energy syms)</value>
       <value>0</value>
     </param>
     <param>
-      <key>n_init_peak</key>
-      <value>0</value>
-    </param>
-    <param>
       <key>payload_len</key>
       <value>payload_size</value>
     </param>
@@ -2404,7 +2600,7 @@ of unit energy syms)</value>
     </param>
     <param>
       <key>verbosity</key>
-      <value>0</value>
+      <value>1</value>
     </param>
   </block>
   <block>
@@ -5293,7 +5489,7 @@ of unit energy syms)</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1088, 700)</value>
+      <value>(1312, 684)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -5343,11 +5539,11 @@ of unit energy syms)</value>
     </param>
     <param>
       <key>_enabled</key>
-      <value>1</value>
+      <value>True</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(32, 524)</value>
+      <value>(32, 532)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -5501,12 +5697,6 @@ of unit energy syms)</value>
     <sink_key>0</sink_key>
   </connection>
   <connection>
-    <source_block_id>digital_fll_band_edge_cc_1</source_block_id>
-    <sink_block_id>digital_pfb_clock_sync_xxx_0</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
-  </connection>
-  <connection>
     <source_block_id>digital_map_bb_0_0_0</source_block_id>
     <sink_block_id>mods_turbo_decoder_0</sink_block_id>
     <source_key>0</source_key>
@@ -5549,6 +5739,30 @@ of unit energy syms)</value>
     <sink_key>1</sink_key>
   </connection>
   <connection>
+    <source_block_id>mods_da_carrier_phase_rec_0_0</source_block_id>
+    <sink_block_id>blocks_null_sink_0_0</sink_block_id>
+    <source_key>1</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>mods_da_carrier_phase_rec_0_0</source_block_id>
+    <sink_block_id>virtual_sink_6</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>mods_ffw_coarse_freq_rec_0</source_block_id>
+    <sink_block_id>digital_pfb_clock_sync_xxx_0</sink_block_id>
+    <source_key>2</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>mods_frame_sync_fast_0</source_block_id>
+    <sink_block_id>mods_da_carrier_phase_rec_0_0</sink_block_id>
+    <source_key>2</source_key>
+    <sink_key>1</sink_key>
+  </connection>
+  <connection>
     <source_block_id>mods_frame_sync_fast_0</source_block_id>
     <sink_block_id>blocks_null_sink_0</sink_block_id>
     <source_key>1</source_key>
@@ -5556,7 +5770,7 @@ of unit energy syms)</value>
   </connection>
   <connection>
     <source_block_id>mods_frame_sync_fast_0</source_block_id>
-    <sink_block_id>virtual_sink_6</sink_block_id>
+    <sink_block_id>mods_da_carrier_phase_rec_0_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
@@ -5592,7 +5806,7 @@ of unit energy syms)</value>
   </connection>
   <connection>
     <source_block_id>virtual_source_1</source_block_id>
-    <sink_block_id>digital_fll_band_edge_cc_1</sink_block_id>
+    <sink_block_id>mods_ffw_coarse_freq_rec_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>

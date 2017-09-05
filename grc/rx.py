@@ -3,7 +3,7 @@
 ##################################################
 # GNU Radio Python Flow Graph
 # Title: Rx
-# Generated: Wed Aug 30 09:46:54 2017
+# Generated: Mon Sep  4 23:43:30 2017
 ##################################################
 
 from gnuradio import blocks
@@ -26,7 +26,7 @@ import time
 
 class rx(gr.top_block):
 
-    def __init__(self, fllbw=0.002, freq=0, gain=0, loopbw=100):
+    def __init__(self, fllbw=0.002, freq=0, gain=0, loopbw=800, freq_rec_alpha=0.001, fft_len=2048):
         gr.top_block.__init__(self, "Rx")
 
         ##################################################
@@ -36,6 +36,8 @@ class rx(gr.top_block):
         self.freq = freq
         self.gain = gain
         self.loopbw = loopbw
+        self.freq_rec_alpha = freq_rec_alpha
+        self.fft_len = fft_len
 
         ##################################################
         # Variables
@@ -93,8 +95,14 @@ class rx(gr.top_block):
         self.rtlsdr_source_0.set_bandwidth(0, 0)
 
         self.mods_turbo_decoder_0 = mods.turbo_decoder(codeword_len, dataword_len)
-        self.mods_frame_sync_fast_0 = mods.frame_sync_fast(pmf_peak_threshold, preamble_size, payload_size, 0, 1, 1, int(const_order), 0)
+        self.mods_frame_sync_fast_0 = mods.frame_sync_fast(pmf_peak_threshold, preamble_size, payload_size, 1, 1, int(const_order), 1, 1)
         self.mods_fifo_async_sink_0 = mods.fifo_async_sink('/tmp/async_rx')
+        self.mods_ffw_coarse_freq_rec_0 = mods.ffw_coarse_freq_rec(
+            alpha=0.0001,
+            fft_len=fft_len,
+            samp_rate=samp_rate,
+        )
+        self.mods_da_carrier_phase_rec_0_0 = mods.da_carrier_phase_rec(((1/sqrt(2))*preamble_syms), 0.001, 1/sqrt(2), int(const_order), True, True)
         self.interp_fir_filter_xxx_0_0 = filter.interp_fir_filter_fff(1, ( numpy.ones(n_barker_rep*barker_len)))
         self.interp_fir_filter_xxx_0_0.declare_sample_delay(0)
         self.interp_fir_filter_xxx_0 = filter.interp_fir_filter_ccc(1, ( numpy.flipud(numpy.conj(preamble_syms))))
@@ -102,12 +110,12 @@ class rx(gr.top_block):
         self.framers_gr_hdlc_deframer_b_0 = framers.gr_hdlc_deframer_b(0)
         self.digital_pfb_clock_sync_xxx_0 = digital.pfb_clock_sync_ccf(sps, 2*pi/50, (rrc_taps), nfilts, nfilts/2, pi/8, 1)
         self.digital_map_bb_0_0_0 = digital.map_bb(([1,- 1]))
-        self.digital_fll_band_edge_cc_1 = digital.fll_band_edge_cc(sps, excess_bw, rrc_delay * int(sps) + 1, fllbw)
         self.digital_descrambler_bb_0 = digital.descrambler_bb(0x21, 0x7F, 16)
         self.digital_costas_loop_cc_0 = digital.costas_loop_cc(2*pi/loopbw, 2**constellation.bits_per_symbol(), False)
         self.digital_constellation_decoder_cb_0 = digital.constellation_decoder_cb(constellation.base())
         self.blocks_unpack_k_bits_bb_0 = blocks.unpack_k_bits_bb(constellation.bits_per_symbol())
         self.blocks_rms_xx_1 = blocks.rms_cf(0.0001)
+        self.blocks_null_sink_0_0 = blocks.null_sink(gr.sizeof_float*1)
         self.blocks_null_sink_0 = blocks.null_sink(gr.sizeof_float*1)
         self.blocks_multiply_xx_0 = blocks.multiply_vff(1)
         self.blocks_multiply_const_vxx_1_1 = blocks.multiply_const_vcc((1.0/sqrt(2), ))
@@ -124,7 +132,7 @@ class rx(gr.top_block):
         self.msg_connect((self.framers_gr_hdlc_deframer_b_0, 'pdu'), (self.mods_fifo_async_sink_0, 'async_pdu'))
         self.connect((self.blocks_complex_to_mag_1, 0), (self.blocks_divide_xx_1, 0))
         self.connect((self.blocks_complex_to_mag_squared_0, 0), (self.interp_fir_filter_xxx_0_0, 0))
-        self.connect((self.blocks_divide_xx_0, 0), (self.digital_fll_band_edge_cc_1, 0))
+        self.connect((self.blocks_divide_xx_0, 0), (self.mods_ffw_coarse_freq_rec_0, 0))
         self.connect((self.blocks_divide_xx_1, 0), (self.blocks_multiply_xx_0, 0))
         self.connect((self.blocks_divide_xx_1, 0), (self.blocks_multiply_xx_0, 1))
         self.connect((self.blocks_float_to_complex_0, 0), (self.blocks_divide_xx_0, 1))
@@ -138,14 +146,17 @@ class rx(gr.top_block):
         self.connect((self.digital_costas_loop_cc_0, 0), (self.interp_fir_filter_xxx_0, 0))
         self.connect((self.digital_costas_loop_cc_0, 0), (self.mods_frame_sync_fast_0, 0))
         self.connect((self.digital_descrambler_bb_0, 0), (self.framers_gr_hdlc_deframer_b_0, 0))
-        self.connect((self.digital_fll_band_edge_cc_1, 0), (self.digital_pfb_clock_sync_xxx_0, 0))
         self.connect((self.digital_map_bb_0_0_0, 0), (self.mods_turbo_decoder_0, 0))
         self.connect((self.digital_pfb_clock_sync_xxx_0, 0), (self.digital_costas_loop_cc_0, 0))
         self.connect((self.interp_fir_filter_xxx_0, 0), (self.blocks_multiply_const_vxx_1, 0))
         self.connect((self.interp_fir_filter_xxx_0, 0), (self.blocks_multiply_const_vxx_1_1, 0))
         self.connect((self.interp_fir_filter_xxx_0_0, 0), (self.blocks_divide_xx_1, 1))
+        self.connect((self.mods_da_carrier_phase_rec_0_0, 1), (self.blocks_null_sink_0_0, 0))
+        self.connect((self.mods_da_carrier_phase_rec_0_0, 0), (self.digital_constellation_decoder_cb_0, 0))
+        self.connect((self.mods_ffw_coarse_freq_rec_0, 2), (self.digital_pfb_clock_sync_xxx_0, 0))
         self.connect((self.mods_frame_sync_fast_0, 1), (self.blocks_null_sink_0, 0))
-        self.connect((self.mods_frame_sync_fast_0, 0), (self.digital_constellation_decoder_cb_0, 0))
+        self.connect((self.mods_frame_sync_fast_0, 2), (self.mods_da_carrier_phase_rec_0_0, 1))
+        self.connect((self.mods_frame_sync_fast_0, 0), (self.mods_da_carrier_phase_rec_0_0, 0))
         self.connect((self.mods_turbo_decoder_0, 0), (self.digital_descrambler_bb_0, 0))
         self.connect((self.rtlsdr_source_0, 0), (self.blocks_divide_xx_0, 0))
         self.connect((self.rtlsdr_source_0, 0), (self.blocks_rms_xx_1, 0))
@@ -155,7 +166,6 @@ class rx(gr.top_block):
 
     def set_fllbw(self, fllbw):
         self.fllbw = fllbw
-        self.digital_fll_band_edge_cc_1.set_loop_bandwidth(self.fllbw)
 
     def get_freq(self):
         return self.freq
@@ -178,6 +188,19 @@ class rx(gr.top_block):
         self.loopbw = loopbw
         self.digital_costas_loop_cc_0.set_loop_bandwidth(2*pi/self.loopbw)
 
+    def get_freq_rec_alpha(self):
+        return self.freq_rec_alpha
+
+    def set_freq_rec_alpha(self, freq_rec_alpha):
+        self.freq_rec_alpha = freq_rec_alpha
+
+    def get_fft_len(self):
+        return self.fft_len
+
+    def set_fft_len(self, fft_len):
+        self.fft_len = fft_len
+        self.mods_ffw_coarse_freq_rec_0.set_fft_len(self.fft_len)
+
     def get_sps(self):
         return self.sps
 
@@ -194,8 +217,8 @@ class rx(gr.top_block):
     def set_excess_bw(self, excess_bw):
         self.excess_bw = excess_bw
         self.set_rrc_taps(firdes.root_raised_cosine(self.nfilts, self.nfilts*self.sps, 1.0, self.excess_bw, self.n_rrc_taps))
-        self.set_rrc_delay(int(round(-44*self.excess_bw + 33)))
         self.set_target_samp_rate(self.sps*(200e3/(1 + self.excess_bw)))
+        self.set_rrc_delay(int(round(-44*self.excess_bw + 33)))
 
     def get_target_samp_rate(self):
         return self.target_samp_rate
@@ -305,6 +328,7 @@ class rx(gr.top_block):
         self.samp_rate = samp_rate
         self.set_sym_rate(self.samp_rate/self.sps)
         self.rtlsdr_source_0.set_sample_rate(self.samp_rate)
+        self.mods_ffw_coarse_freq_rec_0.set_samp_rate(self.samp_rate)
 
     def get_preamble_syms(self):
         return self.preamble_syms
@@ -359,7 +383,6 @@ class rx(gr.top_block):
 
     def set_rrc_taps(self, rrc_taps):
         self.rrc_taps = rrc_taps
-        self.digital_pfb_clock_sync_xxx_0.update_taps((self.rrc_taps))
 
     def get_rf_center_freq(self):
         return self.rf_center_freq
@@ -412,8 +435,14 @@ def argument_parser():
         "", "--gain", dest="gain", type="intx", default=0,
         help="Set gain [default=%default]")
     parser.add_option(
-        "", "--loopbw", dest="loopbw", type="intx", default=100,
+        "", "--loopbw", dest="loopbw", type="intx", default=800,
         help="Set loopbw [default=%default]")
+    parser.add_option(
+        "", "--freq-rec-alpha", dest="freq_rec_alpha", type="eng_float", default=eng_notation.num_to_str(0.001),
+        help="Set Carrier Freq. Recovery Averaging Alpha [default=%default]")
+    parser.add_option(
+        "", "--fft-len", dest="fft_len", type="intx", default=2048,
+        help="Set Carrier Freq. Recovery FFT Size [default=%default]")
     return parser
 
 
@@ -421,7 +450,7 @@ def main(top_block_cls=rx, options=None):
     if options is None:
         options, _ = argument_parser().parse_args()
 
-    tb = top_block_cls(fllbw=options.fllbw, freq=options.freq, gain=options.gain, loopbw=options.loopbw)
+    tb = top_block_cls(fllbw=options.fllbw, freq=options.freq, gain=options.gain, loopbw=options.loopbw, freq_rec_alpha=options.freq_rec_alpha, fft_len=options.fft_len)
     tb.start()
     try:
         raw_input('Press Enter to quit: ')
