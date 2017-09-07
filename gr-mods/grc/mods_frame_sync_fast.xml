@@ -92,11 +92,13 @@
     <type>complex</type>
   </source>
   <source>
-    <name>peak_out</name>
-    <type>float</type>
-  </source>
-  <source>
     <name>is_preamble</name>
     <type>byte</type>
+    <optional>1</optional>
+  </source>
+  <source>
+    <name>peak_out</name>
+    <type>float</type>
+    <optional>1</optional>
   </source>
 </block>

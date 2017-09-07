@@ -1142,92 +1142,6 @@
     </param>
   </block>
   <block>
-    <key>blocks_complex_to_mag</key>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(648, 992)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>blocks_complex_to_mag_1</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>vlen</key>
-      <value>1</value>
-    </param>
-  </block>
-  <block>
-    <key>blocks_complex_to_mag_squared</key>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(264, 1128)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>blocks_complex_to_mag_squared_0</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>vlen</key>
-      <value>1</value>
-    </param>
-  </block>
-  <block>
     <key>blocks_divide_xx</key>
     <param>
       <key>alias</key>
@@ -1260,58 +1174,6 @@
     <param>
       <key>type</key>
       <value>complex</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>num_inputs</key>
-      <value>2</value>
-    </param>
-    <param>
-      <key>vlen</key>
-      <value>1</value>
-    </param>
-  </block>
-  <block>
-    <key>blocks_divide_xx</key>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>comment</key>
-      <value>Normalize by the Rx
-preamble energy</value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(688, 1048)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>blocks_divide_xx_1</value>
-    </param>
-    <param>
-      <key>type</key>
-      <value>float</value>
     </param>
     <param>
       <key>maxoutbuf</key>
@@ -1381,110 +1243,6 @@ preamble energy</value>
     </param>
     <param>
       <key>comment</key>
-      <value>Normalize the PMF
-(Preamble should be
-of unit energy syms)</value>
-    </param>
-    <param>
-      <key>const</key>
-      <value>1.0/(preamble_size*sqrt(2))</value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(464, 916)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>blocks_multiply_const_vxx_1</value>
-    </param>
-    <param>
-      <key>type</key>
-      <value>complex</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>vlen</key>
-      <value>1</value>
-    </param>
-  </block>
-  <block>
-    <key>blocks_multiply_const_vxx</key>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>comment</key>
-      <value>Normalize the PMF</value>
-    </param>
-    <param>
-      <key>const</key>
-      <value>1.0/sqrt(2)</value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(464, 1020)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>blocks_multiply_const_vxx_1_1</value>
-    </param>
-    <param>
-      <key>type</key>
-      <value>complex</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>vlen</key>
-      <value>1</value>
-    </param>
-  </block>
-  <block>
-    <key>blocks_multiply_const_vxx</key>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>comment</key>
       <value></value>
     </param>
     <param>
@@ -1501,7 +1259,7 @@ of unit energy syms)</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(504, 540)</value>
+      <value>(504, 596)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1522,57 +1280,6 @@ of unit energy syms)</value>
     <param>
       <key>minoutbuf</key>
       <value>0</value>
-    </param>
-    <param>
-      <key>vlen</key>
-      <value>1</value>
-    </param>
-  </block>
-  <block>
-    <key>blocks_multiply_xx</key>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(816, 1040)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>blocks_multiply_xx_0</value>
-    </param>
-    <param>
-      <key>type</key>
-      <value>float</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>num_inputs</key>
-      <value>2</value>
     </param>
     <param>
       <key>vlen</key>
@@ -1834,7 +1541,7 @@ of unit energy syms)</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(808, 592)</value>
+      <value>(808, 648)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1983,7 +1690,7 @@ of unit energy syms)</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(512, 592)</value>
+      <value>(512, 648)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -2046,7 +1753,7 @@ of unit energy syms)</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1392, 0)</value>
+      <value>(1224, 0)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -2140,7 +1847,7 @@ of unit energy syms)</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1224, 0)</value>
+      <value>(1544, 0)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -2156,7 +1863,7 @@ of unit energy syms)</value>
     </param>
     <param>
       <key>short_id</key>
-      <value></value>
+      <value>v</value>
     </param>
     <param>
       <key>hide</key>
@@ -2169,6 +1876,81 @@ of unit energy syms)</value>
     <param>
       <key>value</key>
       <value>1</value>
+    </param>
+  </block>
+  <block>
+    <key>frame_synchronizer</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>M</key>
+      <value>int(const_order)</value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>fw_preamble</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(264, 928)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>frame_synchronizer_0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>payload_size</key>
+      <value>payload_size</value>
+    </param>
+    <param>
+      <key>pmf_peak_threshold</key>
+      <value>pmf_peak_threshold</value>
+    </param>
+    <param>
+      <key>fix_phase</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>preamble_size</key>
+      <value>preamble_size</value>
+    </param>
+    <param>
+      <key>preamble_syms</key>
+      <value>preamble_syms</value>
+    </param>
+    <param>
+      <key>equalize</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>verbosity</key>
+      <value>frame_sync_verbosity</value>
     </param>
   </block>
   <block>
@@ -2277,7 +2059,7 @@ of unit energy syms)</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1552, 0)</value>
+      <value>(1384, 0)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -2449,116 +2231,6 @@ of unit energy syms)</value>
     </param>
   </block>
   <block>
-    <key>interp_fir_filter_xxx</key>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>comment</key>
-      <value>Preamble Matched Filter (PMF)</value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>1</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(264, 1012)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>interp_fir_filter_xxx_0</value>
-    </param>
-    <param>
-      <key>interp</key>
-      <value>1</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>samp_delay</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>taps</key>
-      <value> numpy.flipud(numpy.conj(preamble_syms))</value>
-    </param>
-    <param>
-      <key>type</key>
-      <value>ccc</value>
-    </param>
-  </block>
-  <block>
-    <key>interp_fir_filter_xxx</key>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>comment</key>
-      <value>Symbol Energy Accumulator</value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>1</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(448, 1116)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>interp_fir_filter_xxx_0_0</value>
-    </param>
-    <param>
-      <key>interp</key>
-      <value>1</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>samp_delay</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>taps</key>
-      <value> numpy.ones(n_barker_rep*barker_len)</value>
-    </param>
-    <param>
-      <key>type</key>
-      <value>fff</value>
-    </param>
-  </block>
-  <block>
     <key>parameter</key>
     <param>
       <key>alias</key>
@@ -2680,7 +2352,7 @@ of unit energy syms)</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1096, 856)</value>
+      <value>(584, 904)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -2743,7 +2415,7 @@ of unit energy syms)</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(296, 608)</value>
+      <value>(296, 664)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -2802,77 +2474,6 @@ of unit energy syms)</value>
     </param>
   </block>
   <block>
-    <key>mods_frame_sync_fast</key>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>const_order</key>
-      <value>int(const_order)</value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>equalize</key>
-      <value>1</value>
-    </param>
-    <param>
-      <key>fix_phase</key>
-      <value>1</value>
-    </param>
-    <param>
-      <key>fw_preamble</key>
-      <value>1</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(856, 860)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>mods_frame_sync_fast_0</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>payload_len</key>
-      <value>payload_size</value>
-    </param>
-    <param>
-      <key>preamble_len</key>
-      <value>preamble_size</value>
-    </param>
-    <param>
-      <key>treshold</key>
-      <value>pmf_peak_threshold</value>
-    </param>
-    <param>
-      <key>verbosity</key>
-      <value>frame_sync_verbosity</value>
-    </param>
-  </block>
-  <block>
     <key>mods_mer_measurement</key>
     <param>
       <key>N</key>
@@ -2900,7 +2501,7 @@ of unit energy syms)</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1056, 580)</value>
+      <value>(1056, 636)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -2994,7 +2595,7 @@ of unit energy syms)</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1056, 388)</value>
+      <value>(1056, 428)</value>
     </param>
     <param>
       <key>gui_hint</key>
@@ -3341,7 +2942,7 @@ of unit energy syms)</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(808, 484)</value>
+      <value>(808, 540)</value>
     </param>
     <param>
       <key>gui_hint</key>
@@ -3688,7 +3289,7 @@ of unit energy syms)</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1400, 812)</value>
+      <value>(856, 860)</value>
     </param>
     <param>
       <key>gui_hint</key>
@@ -4043,7 +3644,7 @@ of unit energy syms)</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1064, 720)</value>
+      <value>(1064, 776)</value>
     </param>
     <param>
       <key>gui_hint</key>
@@ -4717,7 +4318,7 @@ of unit energy syms)</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(16, 704)</value>
+      <value>(16, 760)</value>
     </param>
     <param>
       <key>gui_hint</key>
@@ -5004,7 +4605,7 @@ of unit energy syms)</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1280, 684)</value>
+      <value>(1280, 740)</value>
     </param>
     <param>
       <key>gui_hint</key>
@@ -5367,7 +4968,7 @@ of unit energy syms)</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1072, 984)</value>
+      <value>(640, 1152)</value>
     </param>
     <param>
       <key>gui_hint</key>
@@ -6093,7 +5694,7 @@ of unit energy syms)</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1352, 984)</value>
+      <value>(840, 1032)</value>
     </param>
     <param>
       <key>gui_hint</key>
@@ -6456,7 +6057,7 @@ of unit energy syms)</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(664, 1168)</value>
+      <value>(344, 1160)</value>
     </param>
     <param>
       <key>gui_hint</key>
@@ -6819,7 +6420,7 @@ of unit energy syms)</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(520, 424)</value>
+      <value>(520, 480)</value>
     </param>
     <param>
       <key>gui_hint</key>
@@ -7908,7 +7509,7 @@ of unit energy syms)</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(32, 924)</value>
+      <value>(72, 1088)</value>
     </param>
     <param>
       <key>gui_hint</key>
@@ -8263,7 +7864,7 @@ of unit energy syms)</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(232, 436)</value>
+      <value>(232, 492)</value>
     </param>
     <param>
       <key>gui_hint</key>
@@ -11433,7 +11034,7 @@ of unit energy syms)</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1056, 468)</value>
+      <value>(1056, 524)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -11460,7 +11061,7 @@ of unit energy syms)</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1400, 900)</value>
+      <value>(856, 948)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -11514,7 +11115,7 @@ of unit energy syms)</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(24, 636)</value>
+      <value>(24, 692)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -11541,7 +11142,7 @@ of unit energy syms)</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(40, 876)</value>
+      <value>(24, 988)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -11596,18 +11197,6 @@ of unit energy syms)</value>
     <sink_key>0</sink_key>
   </connection>
   <connection>
-    <source_block_id>blocks_complex_to_mag_1</source_block_id>
-    <sink_block_id>blocks_divide_xx_1</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>blocks_complex_to_mag_squared_0</source_block_id>
-    <sink_block_id>interp_fir_filter_xxx_0_0</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
-  </connection>
-  <connection>
     <source_block_id>blocks_divide_xx_0</source_block_id>
     <sink_block_id>qtgui_freq_sink_agc_in</sink_block_id>
     <source_key>0</source_key>
@@ -11620,56 +11209,14 @@ of unit energy syms)</value>
     <sink_key>0</sink_key>
   </connection>
   <connection>
-    <source_block_id>blocks_divide_xx_1</source_block_id>
-    <sink_block_id>blocks_multiply_xx_0</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>blocks_divide_xx_1</source_block_id>
-    <sink_block_id>blocks_multiply_xx_0</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>1</sink_key>
-  </connection>
-  <connection>
     <source_block_id>blocks_float_to_complex_0</source_block_id>
     <sink_block_id>blocks_divide_xx_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>1</sink_key>
   </connection>
   <connection>
-    <source_block_id>blocks_multiply_const_vxx_1</source_block_id>
-    <sink_block_id>mods_frame_sync_fast_0</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>2</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>blocks_multiply_const_vxx_1</source_block_id>
-    <sink_block_id>qtgui_time_sink_x_2</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>blocks_multiply_const_vxx_1_1</source_block_id>
-    <sink_block_id>blocks_complex_to_mag_1</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
-  </connection>
-  <connection>
     <source_block_id>blocks_multiply_const_vxx_2</source_block_id>
     <sink_block_id>qtgui_time_sink_x_1</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>blocks_multiply_xx_0</source_block_id>
-    <sink_block_id>mods_frame_sync_fast_0</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>1</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>blocks_multiply_xx_0</source_block_id>
-    <sink_block_id>qtgui_time_sink_x_0_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
@@ -11764,6 +11311,36 @@ of unit energy syms)</value>
     <sink_key>0</sink_key>
   </connection>
   <connection>
+    <source_block_id>frame_synchronizer_0</source_block_id>
+    <sink_block_id>mods_da_carrier_phase_rec_0_0</sink_block_id>
+    <source_key>1</source_key>
+    <sink_key>1</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>frame_synchronizer_0</source_block_id>
+    <sink_block_id>qtgui_time_sink_x_2</sink_block_id>
+    <source_key>4</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>frame_synchronizer_0</source_block_id>
+    <sink_block_id>qtgui_pmf_peak_vs_time</sink_block_id>
+    <source_key>2</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>frame_synchronizer_0</source_block_id>
+    <sink_block_id>mods_da_carrier_phase_rec_0_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>frame_synchronizer_0</source_block_id>
+    <sink_block_id>qtgui_time_sink_x_0_0</sink_block_id>
+    <source_key>3</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
     <source_block_id>framers_gr_hdlc_deframer_b_0</source_block_id>
     <sink_block_id>blocks_socket_pdu_0</sink_block_id>
     <source_key>pdu</source_key>
@@ -11774,24 +11351,6 @@ of unit energy syms)</value>
     <sink_block_id>mods_fifo_async_sink_0</sink_block_id>
     <source_key>pdu</source_key>
     <sink_key>async_pdu</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>interp_fir_filter_xxx_0</source_block_id>
-    <sink_block_id>blocks_multiply_const_vxx_1</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>interp_fir_filter_xxx_0</source_block_id>
-    <sink_block_id>blocks_multiply_const_vxx_1_1</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>interp_fir_filter_xxx_0_0</source_block_id>
-    <sink_block_id>blocks_divide_xx_1</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>1</sink_key>
   </connection>
   <connection>
     <source_block_id>mods_da_carrier_phase_rec_0_0</source_block_id>
@@ -11834,24 +11393,6 @@ of unit energy syms)</value>
     <sink_block_id>qtgui_freq_sink_fll_in_1</sink_block_id>
     <source_key>2</source_key>
     <sink_key>1</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>mods_frame_sync_fast_0</source_block_id>
-    <sink_block_id>mods_da_carrier_phase_rec_0_0</sink_block_id>
-    <source_key>2</source_key>
-    <sink_key>1</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>mods_frame_sync_fast_0</source_block_id>
-    <sink_block_id>qtgui_pmf_peak_vs_time</sink_block_id>
-    <source_key>1</source_key>
-    <sink_key>0</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>mods_frame_sync_fast_0</source_block_id>
-    <sink_block_id>mods_da_carrier_phase_rec_0_0</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
   </connection>
   <connection>
     <source_block_id>mods_mer_measurement_0</source_block_id>
@@ -11909,19 +11450,7 @@ of unit energy syms)</value>
   </connection>
   <connection>
     <source_block_id>virtual_source_3</source_block_id>
-    <sink_block_id>blocks_complex_to_mag_squared_0</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>virtual_source_3</source_block_id>
-    <sink_block_id>interp_fir_filter_xxx_0</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>virtual_source_3</source_block_id>
-    <sink_block_id>mods_frame_sync_fast_0</sink_block_id>
+    <sink_block_id>frame_synchronizer_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>

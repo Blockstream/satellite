@@ -1,0 +1,214 @@
+<block>
+  <name>Frame Synchronizer</name>
+  <key>frame_synchronizer</key>
+  <category>Synchronizers</category>
+  <import>import mods</import>
+  <make>mods.frame_synchronizer(
+    M=$M,
+    equalize=$equalize,
+    fix_phase=$fix_phase,
+    fw_preamble=$fw_preamble,
+    payload_size=$payload_size,
+    pmf_peak_threshold=$pmf_peak_threshold,
+    preamble_size=$preamble_size,
+    preamble_syms=$preamble_syms,
+    verbosity=$verbosity,
+)</make>
+  <callback>set_M($M)</callback>
+  <callback>set_equalize($equalize)</callback>
+  <callback>set_fix_phase($fix_phase)</callback>
+  <callback>set_fw_preamble($fw_preamble)</callback>
+  <callback>set_payload_size($payload_size)</callback>
+  <callback>set_pmf_peak_threshold($pmf_peak_threshold)</callback>
+  <callback>set_preamble_size($preamble_size)</callback>
+  <callback>set_preamble_syms($preamble_syms)</callback>
+  <callback>set_verbosity($verbosity)</callback>
+  <param>
+    <name>Constellation Order</name>
+    <key>M</key>
+    <value>4</value>
+    <type>raw</type>
+    <hide>none</hide>
+    <option>
+      <name>2 (e.g. BPSK)</name>
+      <key>2</key>
+    </option>
+    <option>
+      <name>4 (e.g. QPSK)</name>
+      <key>4</key>
+    </option>
+  </param>
+  <param>
+    <name>Single-tap Equalization</name>
+    <key>equalize</key>
+    <type>raw</type>
+    <hide>none</hide>
+    <option>
+      <name>Disabled</name>
+      <key>0</key>
+    </option>
+    <option>
+      <name>Enabled</name>
+      <key>1</key>
+    </option>
+  </param>
+  <param>
+    <name>Phase Correction</name>
+    <key>fix_phase</key>
+    <type>raw</type>
+    <hide>none</hide>
+    <option>
+      <name>Disabled</name>
+      <key>0</key>
+    </option>
+    <option>
+      <name>Enabled</name>
+      <key>1</key>
+    </option>
+  </param>
+  <param>
+    <name>Forward Preamble</name>
+    <key>fw_preamble</key>
+    <type>raw</type>
+    <hide>none</hide>
+    <option>
+      <name>No</name>
+      <key>0</key>
+    </option>
+    <option>
+      <name>Yes</name>
+      <key>1</key>
+    </option>
+  </param>
+  <param>
+    <name>Payload Size</name>
+    <key>payload_size</key>
+    <value>1</value>
+    <type>raw</type>
+    <hide>none</hide>
+  </param>
+  <param>
+    <name>Peak Detection Threshold</name>
+    <key>pmf_peak_threshold</key>
+    <value>0.7</value>
+    <type>raw</type>
+    <hide>none</hide>
+  </param>
+  <param>
+    <name>Preamble Size</name>
+    <key>preamble_size</key>
+    <value>1</value>
+    <type>raw</type>
+    <hide>none</hide>
+  </param>
+  <param>
+    <name>Preamble Vector</name>
+    <key>preamble_syms</key>
+    <value>[0+0j, 0 +0j]</value>
+    <type>raw</type>
+    <hide>none</hide>
+  </param>
+  <param>
+    <name>Verbosity</name>
+    <key>verbosity</key>
+    <type>int</type>
+    <option>
+      <name>None</name>
+      <key>0</key>
+    </option>
+    <option>
+      <name>Acquisition</name>
+      <key>1</key>
+    </option>
+    <option>
+      <name>Full</name>
+      <key>2</key>
+    </option>
+  </param>
+  <sink>
+    <name>sym_in</name>
+    <type>complex</type>
+    <vlen>1</vlen>
+  </sink>
+  <source>
+    <name>sym_out</name>
+    <type>complex</type>
+    <vlen>1</vlen>
+  </source>
+  <source>
+    <name>is_preamble</name>
+    <type>byte</type>
+    <vlen>1</vlen>
+    <optional>1</optional>
+  </source>
+  <source>
+    <name>pmf_peak</name>
+    <type>float</type>
+    <vlen>1</vlen>
+    <optional>1</optional>
+  </source>
+  <source>
+    <name>timing_metric</name>
+    <type>float</type>
+    <vlen>1</vlen>
+    <optional>1</optional>
+  </source>
+  <source>
+    <name>pmf_out</name>
+    <type>complex</type>
+    <vlen>1</vlen>
+    <optional>1</optional>
+  </source>
+  <doc>Continuous-transmission Correlation-based Frame Synchronization
+
+
+Frame synchronization algorithm that relies on a filter matched to the \
+preamble, known as "preamble matched filter" (PMF) in order to compute the \
+cross-correlation between the received symbols and the preamble symbols known \
+a priori.
+
+The block should be configured with a vector of preamble symbols that presents \
+good correlation performance, namely a sequence of symbols that is highly \
+correlated at lag 0 and presents negligible correlation for all other lags. \
+For example, a Barker code sequence.
+
+Internally the cross-correlation is constantly computed and the peaks are \
+inspected. All peaks exceeding the "Peak Detection Threshold" parameter are \
+deemed as peaks, but the internal logic searches for the highest peak in case \
+there are multiple peaks for one frame.\
+
+The block keeps track of a sequence of peaks and, because it is configured \
+with the frame length (given by both the preamble and payload lengths), it is \
+able to compare whether the interval between detected peaks matches the \
+expected interval (assuming continuous transmission). Once this is true for \
+sufficiently long, the block infers that frame synchronization has been \
+acquired.
+
+Finally, once frame synchronization lock is acquired, the block starts to \
+output symbols. It can be configured either to 1) output both preamble and \
+payload symbols or 2) solely payload symbols. The former alternative is used \
+when the downstream blocks rely on the preamble for any data-aided processing, \
+such as data-aided carrier phase correction.
+
+Note #1: \
+An important remark is that the PMF can also be used for channel estimation. \
+In fact, a single-tap channel estimator based on least-squares gives the exact \
+same solution as the result of the peak yielded by the PMF. Nevertheless, \
+note that, because there may be carrier frequency or phase offset affecting \
+the incoming symbols, this channel estimation can be unreliable in terms of \
+phase, although it may still be useful in order to obtain the channel gain. \
+Hence, when the "Single-tap Equalization" parameter is enabled, only magnitude \
+(channel gain) equalization is performed.
+
+Note #2: \
+When observing the complex-valued PMF peak, it can be seen that the peak may \
+be rotated in the complex plane. For example, when using two-dimensional \
+preamble symbols, the peak may result in the real component and be positive \
+(non-rotated case), but it may also appear for instance in the imaginary \
+component as a negative peak (due to rotation). This rotation is inspected \
+internally and can be used for phase correction, if the "Phase Correction" \
+parameter is enabled.
+
+
+</doc>
+</block>

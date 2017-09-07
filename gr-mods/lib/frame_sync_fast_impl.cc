@@ -60,12 +60,12 @@ namespace gr {
     */
     static int is[] = {sizeof(gr_complex), sizeof(float), sizeof(gr_complex)};
     static std::vector<int> isig(is, is+sizeof(is)/sizeof(int));
-    static int os[] = {sizeof(gr_complex), sizeof(float), sizeof(char)};
+    static int os[] = {sizeof(gr_complex), sizeof(char), sizeof(float)};
     static std::vector<int> osig(os, os+sizeof(os)/sizeof(int));
     frame_sync_fast_impl::frame_sync_fast_impl(float treshold, int preamble_len, int payload_len, int equalize, int fix_phase, int const_order, int fw_preamble, int verbosity)
     : gr::block("frame_sync_fast",
     gr::io_signature::makev(3, 3, isig),
-    gr::io_signature::makev(3, 3, osig)),
+    gr::io_signature::makev(1, 3, osig)),
 
     d_threshold(treshold),
     d_preamble_len(preamble_len),
@@ -375,8 +375,8 @@ namespace gr {
         const float *timing_metric  = (const float*) input_items[1];
         const gr_complex *norm_c_corr = (const gr_complex*) input_items[2];
         gr_complex *rx_sym_out      = (gr_complex *) output_items[0];
-        float *peak_out             = (float *) output_items[1];
-        char *is_preamble           = (char *) output_items[2];
+        char *is_preamble           = (char *) output_items[1];
+        float *peak_out             = (float *) output_items[2];
 
         int n_consumed = 0, n_produced = 0;
         gr_complex last_d_line_sym;

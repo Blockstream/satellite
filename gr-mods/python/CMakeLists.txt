@@ -33,6 +33,7 @@ GR_PYTHON_INSTALL(
     __init__.py
     frame_sync_cc.py
     ffw_coarse_freq_rec.py
+    frame_synchronizer.py
     file_source_nonblock.py
     file_sink_nonblock.py
     fifo_async_source.py

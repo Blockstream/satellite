@@ -30,5 +30,6 @@ install(FILES
     mods_da_carrier_phase_rec.xml
     mods_nco_cc.xml
     mods_ffw_coarse_freq_rec.xml
-    mods_wrap_fft_index.xml DESTINATION share/gnuradio/grc/blocks
+    mods_wrap_fft_index.xml
+    mods_frame_synchronizer.xml DESTINATION share/gnuradio/grc/blocks
 )
