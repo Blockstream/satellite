@@ -15,6 +15,7 @@
 #include "mods/da_carrier_phase_rec.h"
 #include "mods/nco_cc.h"
 #include "mods/wrap_fft_index.h"
+#include "mods/exponentiate_const_cci.h"
 %}
 
 
@@ -32,3 +33,5 @@ GR_SWIG_BLOCK_MAGIC2(mods, da_carrier_phase_rec);
 GR_SWIG_BLOCK_MAGIC2(mods, nco_cc);
 %include "mods/wrap_fft_index.h"
 GR_SWIG_BLOCK_MAGIC2(mods, wrap_fft_index);
+%include "mods/exponentiate_const_cci.h"
+GR_SWIG_BLOCK_MAGIC2(mods, exponentiate_const_cci);

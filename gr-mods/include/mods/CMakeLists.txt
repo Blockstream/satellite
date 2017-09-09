@@ -28,5 +28,6 @@ install(FILES
     mer_measurement.h
     da_carrier_phase_rec.h
     nco_cc.h
-    wrap_fft_index.h DESTINATION include/mods
+    wrap_fft_index.h
+    exponentiate_const_cci.h DESTINATION include/mods
 )

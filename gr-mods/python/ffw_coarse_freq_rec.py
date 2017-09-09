@@ -55,6 +55,7 @@ class ffw_coarse_freq_rec(gr.hier_block2):
         _fft_peak_bin_index_thread.start()
 
         self.mods_nco_cc_0 = mods.nco_cc((2*pi*fft_peak_bin_index/fft_len)/4)
+        self.mods_exponentiate_const_cci_0 = mods.exponentiate_const_cci(4, 1)
         self.logpwrfft_x_0 = logpwrfft.logpwrfft_c(
         	sample_rate=samp_rate,
         	fft_size=fft_len,
@@ -65,7 +66,6 @@ class ffw_coarse_freq_rec(gr.hier_block2):
         )
         self.blocks_short_to_float_0 = blocks.short_to_float(1, 1)
         self.blocks_null_sink_0 = blocks.null_sink(gr.sizeof_short*1)
-        self.blocks_exponentiate_const_cci_0 = blocks.exponentiate_const_cci(4, 1)
         self.blocks_argmax_xx_0 = blocks.argmax_fs(fft_len)
         self.mods_wrap_fft_index_0 = mods.wrap_fft_index(fft_len)
 
@@ -75,13 +75,13 @@ class ffw_coarse_freq_rec(gr.hier_block2):
         self.connect((self.blocks_argmax_xx_0, 1), (self.blocks_null_sink_0, 0))
         self.connect((self.blocks_argmax_xx_0, 0), (self.mods_wrap_fft_index_0, 0))
         self.connect((self.mods_wrap_fft_index_0, 0), (self.blocks_short_to_float_0, 0))
-        self.connect((self.blocks_exponentiate_const_cci_0, 0), (self.logpwrfft_x_0, 0))
+        self.connect((self.mods_exponentiate_const_cci_0, 0), (self.logpwrfft_x_0, 0))
         self.connect((self.blocks_short_to_float_0, 0), (self, 1))
         self.connect((self.blocks_short_to_float_0, 0), (self.probe, 0))
         self.connect((self.logpwrfft_x_0, 0), (self.blocks_argmax_xx_0, 0))
         self.connect((self.logpwrfft_x_0, 0), (self, 0))
         self.connect((self.mods_nco_cc_0, 0), (self, 2))
-        self.connect((self, 0), (self.blocks_exponentiate_const_cci_0, 0))
+        self.connect((self, 0), (self.mods_exponentiate_const_cci_0, 0))
         self.connect((self, 0), (self.mods_nco_cc_0, 0))
 
     def get_alpha(self):
