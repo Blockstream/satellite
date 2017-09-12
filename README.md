@@ -134,6 +134,8 @@ After building and installing Bitcoin Fibre, GNUradio and the gr-osmosdr, using 
 
 Aligning a satellite antenna is a precise procedure.  Remember that the satellites are over 35,000 km (22,000 mi) away.  A tenth of a degree of error will miss the satellite by more than 3500 km.
 
+There are some phone apps ([iOS](https://itunes.apple.com/us/app/dish-align/id520249397?mt=8), [Android](https://play.google.com/store/apps/details?id=com.smartconcept.dishaligner)) that help with the initial setup.
+
 ## 1.Ideal Mounting Location
 Before mounting your satellite antenna, it is important to ensure you find the ideal mounting location.
 
