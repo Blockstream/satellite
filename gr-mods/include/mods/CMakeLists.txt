@@ -29,5 +29,6 @@ install(FILES
     da_carrier_phase_rec.h
     nco_cc.h
     wrap_fft_index.h
-    exponentiate_const_cci.h DESTINATION include/mods
+    exponentiate_const_cci.h
+    runtime_cfo_ctrl.h DESTINATION include/mods
 )

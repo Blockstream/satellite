@@ -8,7 +8,7 @@
   <param>
     <name>FFT Size</name>
     <key>fft_size</key>
-    <type>short</type>
+    <type>int</type>
   </param>
   <sink>
     <name>in</name>

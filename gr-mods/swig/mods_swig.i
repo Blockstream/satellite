@@ -16,6 +16,7 @@
 #include "mods/nco_cc.h"
 #include "mods/wrap_fft_index.h"
 #include "mods/exponentiate_const_cci.h"
+#include "mods/runtime_cfo_ctrl.h"
 %}
 
 
@@ -35,3 +36,5 @@ GR_SWIG_BLOCK_MAGIC2(mods, nco_cc);
 GR_SWIG_BLOCK_MAGIC2(mods, wrap_fft_index);
 %include "mods/exponentiate_const_cci.h"
 GR_SWIG_BLOCK_MAGIC2(mods, exponentiate_const_cci);
+%include "mods/runtime_cfo_ctrl.h"
+GR_SWIG_BLOCK_MAGIC2(mods, runtime_cfo_ctrl);

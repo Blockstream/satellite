@@ -4,13 +4,24 @@
   <category>Synchronizers</category>
   <import>import mods</import>
   <make>mods.ffw_coarse_freq_rec(
+    abs_cfo_threshold=$abs_cfo_threshold,
     alpha=$alpha,
     fft_len=$fft_len,
     samp_rate=$samp_rate,
+    rf_center_freq=$rf_center_freq,
 )</make>
+  <callback>set_abs_cfo_threshold($abs_cfo_threshold)</callback>
   <callback>set_alpha($alpha)</callback>
   <callback>set_fft_len($fft_len)</callback>
   <callback>set_samp_rate($samp_rate)</callback>
+  <callback>set_rf_center_freq($rf_center_freq)</callback>
+  <param>
+    <name>Abs CFO Threshold</name>
+    <key>abs_cfo_threshold</key>
+    <value>1e6</value>
+    <type>raw</type>
+    <hide>none</hide>
+  </param>
   <param>
     <name>Average Alpha</name>
     <key>alpha</key>
@@ -32,6 +43,13 @@
     <type>raw</type>
     <hide>none</hide>
   </param>
+  <param>
+    <name>Starting RF Center Freq.</name>
+    <key>rf_center_freq</key>
+    <value>1e9</value>
+    <type>raw</type>
+    <hide>none</hide>
+  </param>
   <sink>
     <name>sym_in</name>
     <type>complex</type>
@@ -44,16 +62,76 @@
     <optional>1</optional>
   </source>
   <source>
-    <name>peak_bin</name>
+    <name>cfo_est</name>
     <type>float</type>
     <vlen>1</vlen>
     <optional>1</optional>
   </source>
   <source>
-    <name>sym_out</name>
-    <type>complex</type>
+    <name>target_rf_cfreq</name>
+    <type>float</type>
     <vlen>1</vlen>
+    <optional>1</optional>
   </source>
-  <doc>FFT-Based Feedforward Coarse Carrier Frequency Recovery</doc>
+  <doc>FFT-Based Feedforward Coarse Carrier Frequency Recovery
+
+This block estimates the carrier frequency offset (CFO) by first raising the \
+incoming fractionally spaced signal to a power of 4, then taking the FFT and \
+searching for the peak. The peak of the FFT is expected to appear at the \
+frequency corresponding to four times the CFO. Ultimately, then, \
+the frequency corresponding to the peak bin is extracted and divided by 4 to \
+yield the final CFO estimate.
+
+The algorithm is based on [1] and \
+is valid for QAM/QPSK transmissions. Furthermore, it is non-data-aided and \
+feedforward, meaning it does not require specific pilot data to be sent and \
+neither does it require feedback for the computations. The fact that it does \
+not rely on feedback is useful when the goal is to avoid fluctuations in the \
+CFO correction on a sample-by-sample basis.
+
+The CFO estimation is post-processed internally and becomes non-zero only \
+after the transitory of the averaging filter (used in the FFT bins) has \
+passed. This introduces an extra "acquisition time" during startup, which \
+increases proportionally to (1/alpha).
+
+This block also receives the nominal RF center frequency as a parameter and \
+constantly outputs a potentially adjusted RF center frequency value. \
+The CFO estimation is internally monitored and compared against a \
+threshold. In case the CFO exceeds the threshold, the block assumes the CFO \
+will need to be corrected by adjusting the RF center frequency in the receiver \
+hardware (e.g. in an RTL), instead of adjusting a software-based NCO block. \
+When this occurs, the block updates the carrer frequency output and resets \
+the internal CFO estimate back to 0, as if the RF center frequency adjustment \
+in hardware leaves no residual CFO. More importantly, by doing so, the CFO \
+estimate returns to the center of \
+the correctable range, which was the goal in the first place. Ultimately, \
+the receiver is expected to be able to track the CFO \
+even if it exceeds the algorithm range.
+
+
+Parameters:
+abs_cfo_threshold -> Threshold for the absolute value of the CFO,
+alpha -> Averaging alpha,
+fft_len -> FFT Size
+samp_rate -> Sample rate,
+rf_center_freq -> Nominal (or starting) RF center frequency
+
+Regarding the choice of the other parameters, note that:
+1) The resolution of the CFO estimation is given by samp_rate/fft_len.
+2) The method can only properly estimate CFOs within +- samp_rate/8, since the \
+FFT gives the CFO multiplied by 4.
+3) The FFT bins are independently averaged by IIR filters with Z-transform \
+H(z) = alpha*z/(z -(1-alpha)). Its step response reaches 99.9% at \
+approximately 7*(1/alpha).
+4) rf_center_freq can be the nominal carrier frequency or one initially \
+acquired by a spectrum scanning process.
+
+References:
+[1] Wang, Yan, Kai Shi, and Erchin Serpedin. "Non-data-aided feedforward \
+carrier frequency offset estimators for QAM constellations: \
+A nonlinear least-squares approach." EURASIP Journal on Advances in Signal \
+Processing 2004.13 (2004): 856139.
+
+  </doc>
   <grc_source>../../grc/hier_blocks/ffw_coarse_freq_rec.grc</grc_source>
 </block>
