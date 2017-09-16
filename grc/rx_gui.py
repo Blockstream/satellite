@@ -3,7 +3,7 @@
 ##################################################
 # GNU Radio Python Flow Graph
 # Title: Rx Gui
-# Generated: Thu Sep  7 14:23:43 2017
+# Generated: Sat Sep 16 17:01:44 2017
 ##################################################
 
 if __name__ == '__main__':
@@ -34,13 +34,14 @@ import osmosdr
 import pmt
 import sip
 import sys
+import threading
 import time
 from gnuradio import qtgui
 
 
 class rx_gui(gr.top_block, Qt.QWidget):
 
-    def __init__(self, fft_len=2048, fllbw=0.002, frame_sync_verbosity=1, freq=0, freq_rec_alpha=0.001, gain=40, loopbw=100, loopbw_0=100):
+    def __init__(self, fft_len=2048, fllbw=0.002, frame_sync_verbosity=1, freq=0, freq_rec_alpha=0.001, gain=40, loopbw=100, loopbw_0=100, poll_rate=100):
         gr.top_block.__init__(self, "Rx Gui")
         Qt.QWidget.__init__(self)
         self.setWindowTitle("Rx Gui")
@@ -75,6 +76,7 @@ class rx_gui(gr.top_block, Qt.QWidget):
         self.gain = gain
         self.loopbw = loopbw
         self.loopbw_0 = loopbw_0
+        self.poll_rate = poll_rate
 
         ##################################################
         # Variables
@@ -116,11 +118,14 @@ class rx_gui(gr.top_block, Qt.QWidget):
         self.rf_center_freq = rf_center_freq = 1428.4309e6
         self.pmf_peak_threshold = pmf_peak_threshold = 0.7
         self.phy_bit_rate = phy_bit_rate = sym_rate* ( constellation.bits_per_symbol() ) * (code_rate) * (1.-phy_preamble_overhead)
+        self.est_cfo_hz = est_cfo_hz = 0
         self.barker_len = barker_len = 13
 
         ##################################################
         # Blocks
         ##################################################
+        self.probe_cfo_est = blocks.probe_signal_f()
+        self.probe_rf_center_freq = blocks.probe_signal_f()
         self.tabs = Qt.QTabWidget()
         self.tabs_widget_0 = Qt.QWidget()
         self.tabs_layout_0 = Qt.QBoxLayout(Qt.QBoxLayout.TopToBottom, self.tabs_widget_0)
@@ -158,6 +163,21 @@ class rx_gui(gr.top_block, Qt.QWidget):
         self.tabs_layout_6.addLayout(self.tabs_grid_layout_6)
         self.tabs.addTab(self.tabs_widget_6, 'Auto. Gain Control')
         self.top_layout.addWidget(self.tabs)
+
+        def _est_cfo_hz_probe():
+            while True:
+                new_est_cfo_hz = self.probe_cfo_est.level()
+                new_rf_center_freq = self.probe_rf_center_freq.level()
+                try:
+                    self.set_est_cfo_hz(new_est_cfo_hz)
+                    self.set_rf_center_freq(new_rf_center_freq)
+                except AttributeError:
+                    pass
+                time.sleep(1.0 / (poll_rate))
+        _est_cfo_hz_thread = threading.Thread(target=_est_cfo_hz_probe)
+        _est_cfo_hz_thread.daemon = True
+        _est_cfo_hz_thread.start()
+
         self.rtlsdr_source_0 = osmosdr.source( args="numchan=" + str(1) + " " + '' )
         self.rtlsdr_source_0.set_sample_rate(samp_rate)
         self.rtlsdr_source_0.set_center_freq(freq, 0)
@@ -890,12 +910,15 @@ class rx_gui(gr.top_block, Qt.QWidget):
         self._qtgui_const_sink_costas_const_win = sip.wrapinstance(self.qtgui_const_sink_costas_const.pyqwidget(), Qt.QWidget)
         self.tabs_grid_layout_4.addWidget(self._qtgui_const_sink_costas_const_win, 1,0)
         self.mods_turbo_decoder_0 = mods.turbo_decoder(codeword_len, dataword_len)
+        self.mods_nco_cc_0 = mods.nco_cc((2*pi*(est_cfo_hz/samp_rate)))
         self.mods_mer_measurement_0 = mods.mer_measurement(1024, int(const_order))
         self.mods_fifo_async_sink_0 = mods.fifo_async_sink('/tmp/async_rx')
         self.mods_ffw_coarse_freq_rec_0 = mods.ffw_coarse_freq_rec(
+            abs_cfo_threshold=0.7*(samp_rate/8),
             alpha=freq_rec_alpha,
             fft_len=fft_len,
             samp_rate=samp_rate,
+            rf_center_freq=rf_center_freq,
         )
         self.mods_da_carrier_phase_rec_0_0 = mods.da_carrier_phase_rec(((1/sqrt(2))*preamble_syms), 0.001, 1/sqrt(2), int(const_order), True, True)
         self.framers_gr_hdlc_deframer_b_0 = framers.gr_hdlc_deframer_b(0)
@@ -918,7 +941,6 @@ class rx_gui(gr.top_block, Qt.QWidget):
         self.blocks_unpack_k_bits_bb_0 = blocks.unpack_k_bits_bb(constellation.bits_per_symbol())
         self.blocks_rms_xx_1 = blocks.rms_cf(0.0001)
         self.blocks_pack_k_bits_bb_1 = blocks.pack_k_bits_bb(8)
-        self.blocks_multiply_const_vxx_2 = blocks.multiply_const_vff((samp_rate/(fft_len*4*1e3), ))
         self.blocks_float_to_complex_0 = blocks.float_to_complex(1)
         self.blocks_divide_xx_0 = blocks.divide_cc(1)
         self.blocks_char_to_float_0_1 = blocks.char_to_float(1, 1)
@@ -931,10 +953,10 @@ class rx_gui(gr.top_block, Qt.QWidget):
         self.connect((self.blocks_char_to_float_0_0, 0), (self.qtgui_time_sink_x_1_0, 0))
         self.connect((self.blocks_char_to_float_0_1, 0), (self.qtgui_time_sink_x_1_0_0, 0))
         self.connect((self.blocks_divide_xx_0, 0), (self.mods_ffw_coarse_freq_rec_0, 0))
+        self.connect((self.blocks_divide_xx_0, 0), (self.mods_nco_cc_0, 0))
         self.connect((self.blocks_divide_xx_0, 0), (self.qtgui_freq_sink_agc_in, 0))
         self.connect((self.blocks_divide_xx_0, 0), (self.qtgui_freq_sink_fll_in_1, 0))
         self.connect((self.blocks_float_to_complex_0, 0), (self.blocks_divide_xx_0, 1))
-        self.connect((self.blocks_multiply_const_vxx_2, 0), (self.qtgui_time_sink_x_1, 0))
         self.connect((self.blocks_pack_k_bits_bb_1, 0), (self.blocks_char_to_float_0_1, 0))
         self.connect((self.blocks_rms_xx_1, 0), (self.blocks_float_to_complex_0, 0))
         self.connect((self.blocks_rms_xx_1, 0), (self.qtgui_time_agc_rms_val, 0))
@@ -958,11 +980,13 @@ class rx_gui(gr.top_block, Qt.QWidget):
         self.connect((self.mods_da_carrier_phase_rec_0_0, 0), (self.digital_constellation_decoder_cb_0, 0))
         self.connect((self.mods_da_carrier_phase_rec_0_0, 0), (self.qtgui_const_sink_x_1, 0))
         self.connect((self.mods_da_carrier_phase_rec_0_0, 1), (self.qtgui_time_sink_x_0, 0))
-        self.connect((self.mods_ffw_coarse_freq_rec_0, 1), (self.blocks_multiply_const_vxx_2, 0))
-        self.connect((self.mods_ffw_coarse_freq_rec_0, 2), (self.digital_pfb_clock_sync_xxx_0, 0))
-        self.connect((self.mods_ffw_coarse_freq_rec_0, 2), (self.qtgui_freq_sink_fll_in_1, 1))
+        self.connect((self.mods_ffw_coarse_freq_rec_0, 1), (self.probe_cfo_est, 0))
+        self.connect((self.mods_ffw_coarse_freq_rec_0, 2), (self.probe_rf_center_freq, 0))
+        self.connect((self.mods_ffw_coarse_freq_rec_0, 1), (self.qtgui_time_sink_x_1, 0))
         self.connect((self.mods_ffw_coarse_freq_rec_0, 0), (self.qtgui_vector_sink_f_0, 0))
         self.connect((self.mods_mer_measurement_0, 0), (self.qtgui_mer_measurement, 0))
+        self.connect((self.mods_nco_cc_0, 0), (self.digital_pfb_clock_sync_xxx_0, 0))
+        self.connect((self.mods_nco_cc_0, 0), (self.qtgui_freq_sink_fll_in_1, 1))
         self.connect((self.mods_turbo_decoder_0, 0), (self.digital_descrambler_bb_0, 0))
         self.connect((self.rtlsdr_source_0, 0), (self.blocks_divide_xx_0, 0))
         self.connect((self.rtlsdr_source_0, 0), (self.blocks_rms_xx_1, 0))
@@ -980,7 +1004,6 @@ class rx_gui(gr.top_block, Qt.QWidget):
         self.fft_len = fft_len
         self.qtgui_time_sink_x_1.set_samp_rate(self.samp_rate/self.fft_len)
         self.mods_ffw_coarse_freq_rec_0.set_fft_len(self.fft_len)
-        self.blocks_multiply_const_vxx_2.set_k((self.samp_rate/(self.fft_len*4*1e3), ))
 
     def get_fllbw(self):
         return self.fllbw
@@ -1028,6 +1051,12 @@ class rx_gui(gr.top_block, Qt.QWidget):
 
     def set_loopbw_0(self, loopbw_0):
         self.loopbw_0 = loopbw_0
+
+    def get_poll_rate(self):
+        return self.poll_rate
+
+    def set_poll_rate(self, poll_rate):
+        self.poll_rate = poll_rate
 
     def get_sps(self):
         return self.sps
@@ -1177,8 +1206,9 @@ class rx_gui(gr.top_block, Qt.QWidget):
         self.qtgui_time_agc_rms_val.set_samp_rate(self.samp_rate)
         self.qtgui_freq_sink_fll_in_1.set_frequency_range(0, self.samp_rate)
         self.qtgui_freq_sink_agc_in.set_frequency_range(0, self.samp_rate)
+        self.mods_nco_cc_0.set_phase_inc((2*pi*(self.est_cfo_hz/self.samp_rate)))
+        self.mods_ffw_coarse_freq_rec_0.set_abs_cfo_threshold(0.7*(self.samp_rate/8))
         self.mods_ffw_coarse_freq_rec_0.set_samp_rate(self.samp_rate)
-        self.blocks_multiply_const_vxx_2.set_k((self.samp_rate/(self.fft_len*4*1e3), ))
 
     def get_rrc_delay(self):
         return self.rrc_delay
@@ -1269,6 +1299,7 @@ class rx_gui(gr.top_block, Qt.QWidget):
 
     def set_rf_center_freq(self, rf_center_freq):
         self.rf_center_freq = rf_center_freq
+        self.mods_ffw_coarse_freq_rec_0.set_rf_center_freq(self.rf_center_freq)
 
     def get_pmf_peak_threshold(self):
         return self.pmf_peak_threshold
@@ -1284,6 +1315,13 @@ class rx_gui(gr.top_block, Qt.QWidget):
         self.phy_bit_rate = phy_bit_rate
         self.qtgui_time_sink_x_1_0_0.set_samp_rate(self.phy_bit_rate/8)
         self.qtgui_time_sink_x_1_0.set_samp_rate(self.phy_bit_rate)
+
+    def get_est_cfo_hz(self):
+        return self.est_cfo_hz
+
+    def set_est_cfo_hz(self, est_cfo_hz):
+        self.est_cfo_hz = est_cfo_hz
+        self.mods_nco_cc_0.set_phase_inc((2*pi*(self.est_cfo_hz/self.samp_rate)))
 
     def get_barker_len(self):
         return self.barker_len

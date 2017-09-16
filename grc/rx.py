@@ -3,7 +3,7 @@
 ##################################################
 # GNU Radio Python Flow Graph
 # Title: Rx
-# Generated: Thu Sep  7 14:46:19 2017
+# Generated: Sat Sep 16 17:05:51 2017
 ##################################################
 
 from gnuradio import blocks
@@ -20,12 +20,13 @@ import numpy
 import numpy.matlib
 import osmosdr
 import pmt
+import threading
 import time
 
 
 class rx(gr.top_block):
 
-    def __init__(self, fft_len=2048, fllbw=0.002, frame_sync_verbosity=1, freq=0, freq_rec_alpha=0.001, gain=0, loopbw=800):
+    def __init__(self, fft_len=2048, fllbw=0.002, frame_sync_verbosity=1, freq=0, freq_rec_alpha=0.001, gain=0, loopbw=800, poll_rate=100):
         gr.top_block.__init__(self, "Rx")
 
         ##################################################
@@ -38,6 +39,7 @@ class rx(gr.top_block):
         self.freq_rec_alpha = freq_rec_alpha
         self.gain = gain
         self.loopbw = loopbw
+        self.poll_rate = poll_rate
 
         ##################################################
         # Variables
@@ -75,12 +77,30 @@ class rx(gr.top_block):
         self.preamble_size = preamble_size = len(preamble_syms)
         self.pmf_peak_threshold = pmf_peak_threshold = 0.6
         self.payload_size = payload_size = codeword_len*n_codewords/int(numpy.log2(const_order))
+        self.est_cfo_hz = est_cfo_hz = 0
         self.dataword_len = dataword_len = 6144
         self.barker_len = barker_len = 13
 
         ##################################################
         # Blocks
         ##################################################
+        self.probe_cfo_est = blocks.probe_signal_f()
+        self.probe_rf_center_freq = blocks.probe_signal_f()
+
+        def _est_cfo_hz_probe():
+            while True:
+                new_est_cfo_hz = self.probe_cfo_est.level()
+                new_rf_center_freq = self.probe_rf_center_freq.level()
+                try:
+                    self.set_est_cfo_hz(new_est_cfo_hz)
+                    self.set_rf_center_freq(new_rf_center_freq)
+                except AttributeError:
+                    pass
+                time.sleep(1.0 / (poll_rate))
+        _est_cfo_hz_thread = threading.Thread(target=_est_cfo_hz_probe)
+        _est_cfo_hz_thread.daemon = True
+        _est_cfo_hz_thread.start()
+
         self.rtlsdr_source_0 = osmosdr.source( args="numchan=" + str(1) + " " + '' )
         self.rtlsdr_source_0.set_sample_rate(samp_rate)
         self.rtlsdr_source_0.set_center_freq(freq, 0)
@@ -95,11 +115,14 @@ class rx(gr.top_block):
         self.rtlsdr_source_0.set_bandwidth(0, 0)
 
         self.mods_turbo_decoder_0 = mods.turbo_decoder(codeword_len, dataword_len)
+        self.mods_nco_cc_0 = mods.nco_cc((2*pi*(est_cfo_hz/samp_rate)))
         self.mods_fifo_async_sink_0 = mods.fifo_async_sink('/tmp/async_rx')
         self.mods_ffw_coarse_freq_rec_0 = mods.ffw_coarse_freq_rec(
+            abs_cfo_threshold=1e6,
             alpha=0.0001,
             fft_len=fft_len,
             samp_rate=samp_rate,
+            rf_center_freq=1e9,
         )
         self.mods_da_carrier_phase_rec_0_0 = mods.da_carrier_phase_rec(((1/sqrt(2))*preamble_syms), 0.001, 1/sqrt(2), int(const_order), True, True)
         self.framers_gr_hdlc_deframer_b_0 = framers.gr_hdlc_deframer_b(0)
@@ -131,6 +154,7 @@ class rx(gr.top_block):
         ##################################################
         self.msg_connect((self.framers_gr_hdlc_deframer_b_0, 'pdu'), (self.mods_fifo_async_sink_0, 'async_pdu'))
         self.connect((self.blocks_divide_xx_0, 0), (self.mods_ffw_coarse_freq_rec_0, 0))
+        self.connect((self.blocks_divide_xx_0, 0), (self.mods_nco_cc_0, 0))
         self.connect((self.blocks_float_to_complex_0, 0), (self.blocks_divide_xx_0, 1))
         self.connect((self.blocks_rms_xx_1, 0), (self.blocks_float_to_complex_0, 0))
         self.connect((self.blocks_unpack_k_bits_bb_0, 0), (self.digital_map_bb_0_0_0, 0))
@@ -144,7 +168,9 @@ class rx(gr.top_block):
         self.connect((self.frame_synchronizer_0, 0), (self.mods_da_carrier_phase_rec_0_0, 0))
         self.connect((self.mods_da_carrier_phase_rec_0_0, 1), (self.blocks_null_sink_0_0, 0))
         self.connect((self.mods_da_carrier_phase_rec_0_0, 0), (self.digital_constellation_decoder_cb_0, 0))
-        self.connect((self.mods_ffw_coarse_freq_rec_0, 2), (self.digital_pfb_clock_sync_xxx_0, 0))
+        self.connect((self.mods_ffw_coarse_freq_rec_0, 1), (self.probe_cfo_est, 0))
+        self.connect((self.mods_ffw_coarse_freq_rec_0, 2), (self.probe_rf_center_freq, 0))
+        self.connect((self.mods_nco_cc_0, 0), (self.digital_pfb_clock_sync_xxx_0, 0))
         self.connect((self.mods_turbo_decoder_0, 0), (self.digital_descrambler_bb_0, 0))
         self.connect((self.rtlsdr_source_0, 0), (self.blocks_divide_xx_0, 0))
         self.connect((self.rtlsdr_source_0, 0), (self.blocks_rms_xx_1, 0))
@@ -195,6 +221,12 @@ class rx(gr.top_block):
     def set_loopbw(self, loopbw):
         self.loopbw = loopbw
         self.digital_costas_loop_cc_0.set_loop_bandwidth(2*pi/self.loopbw)
+
+    def get_poll_rate(self):
+        return self.poll_rate
+
+    def set_poll_rate(self, poll_rate):
+        self.poll_rate = poll_rate
 
     def get_sps(self):
         return self.sps
@@ -322,6 +354,7 @@ class rx(gr.top_block):
         self.samp_rate = samp_rate
         self.set_sym_rate(self.samp_rate/self.sps)
         self.rtlsdr_source_0.set_sample_rate(self.samp_rate)
+        self.mods_nco_cc_0.set_phase_inc((2*pi*(self.est_cfo_hz/self.samp_rate)))
         self.mods_ffw_coarse_freq_rec_0.set_samp_rate(self.samp_rate)
 
     def get_preamble_syms(self):
@@ -406,6 +439,13 @@ class rx(gr.top_block):
     def set_payload_size(self, payload_size):
         self.payload_size = payload_size
         self.frame_synchronizer_0.set_payload_size(self.payload_size)
+
+    def get_est_cfo_hz(self):
+        return self.est_cfo_hz
+
+    def set_est_cfo_hz(self, est_cfo_hz):
+        self.est_cfo_hz = est_cfo_hz
+        self.mods_nco_cc_0.set_phase_inc((2*pi*(self.est_cfo_hz/self.samp_rate)))
 
     def get_dataword_len(self):
         return self.dataword_len
