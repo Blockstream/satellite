@@ -6899,15 +6899,15 @@ from function probe</value>
     </param>
     <param>
       <key>yunit</key>
-      <value>"kHz"</value>
+      <value>"Hz"</value>
     </param>
     <param>
       <key>ymax</key>
-      <value>samp_rate/8e3</value>
+      <value>samp_rate/8</value>
     </param>
     <param>
       <key>ymin</key>
-      <value>-samp_rate/8e3</value>
+      <value>-samp_rate/8</value>
     </param>
   </block>
   <block>

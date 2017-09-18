@@ -3,7 +3,7 @@
 ##################################################
 # GNU Radio Python Flow Graph
 # Title: Rx Gui
-# Generated: Sat Sep 16 17:01:44 2017
+# Generated: Sun Sep 17 22:51:51 2017
 ##################################################
 
 if __name__ == '__main__':
@@ -378,9 +378,9 @@ class rx_gui(gr.top_block, Qt.QWidget):
         	1 #number of inputs
         )
         self.qtgui_time_sink_x_1.set_update_time(0.10)
-        self.qtgui_time_sink_x_1.set_y_axis(-samp_rate/8e3, samp_rate/8e3)
+        self.qtgui_time_sink_x_1.set_y_axis(-samp_rate/8, samp_rate/8)
 
-        self.qtgui_time_sink_x_1.set_y_label('Freq. Offset', "kHz")
+        self.qtgui_time_sink_x_1.set_y_label('Freq. Offset', "Hz")
 
         self.qtgui_time_sink_x_1.enable_tags(-1, False)
         self.qtgui_time_sink_x_1.set_trigger_mode(qtgui.TRIG_MODE_FREE, qtgui.TRIG_SLOPE_POS, 0.0, 0, 0, "")
@@ -1200,7 +1200,7 @@ class rx_gui(gr.top_block, Qt.QWidget):
         self.samp_rate = samp_rate
         self.set_sym_rate(self.samp_rate / self.sps)
         self.rtlsdr_source_0.set_sample_rate(self.samp_rate)
-        self.qtgui_time_sink_x_1.set_y_axis(-self.samp_rate/8e3, self.samp_rate/8e3)
+        self.qtgui_time_sink_x_1.set_y_axis(-self.samp_rate/8, self.samp_rate/8)
         self.qtgui_time_sink_x_1.set_samp_rate(self.samp_rate/self.fft_len)
         self.qtgui_time_sink_x_0.set_samp_rate(self.samp_rate)
         self.qtgui_time_agc_rms_val.set_samp_rate(self.samp_rate)
