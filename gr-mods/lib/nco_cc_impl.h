@@ -31,9 +31,16 @@ namespace gr {
      private:
       float d_phase_inc;
       float d_phase_accum;
+      float d_last_phase_inc;
+      float d_target_phase_inc;
+      float d_missing_phase_inc_adj;
+      int d_n_steps;
+      int d_i_step;
+      float d_step;
+      int d_state;
 
      public:
-      nco_cc_impl(float phase_inc);
+      nco_cc_impl(float phase_inc, int n_steps);
       ~nco_cc_impl();
 
       // Setters ready for parameter adjustment in runtime:

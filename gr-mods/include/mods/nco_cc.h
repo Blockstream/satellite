@@ -46,7 +46,7 @@ namespace gr {
        * class. mods::nco_cc::make is the public interface for
        * creating new instances.
        */
-      static sptr make(float phase_inc);
+      static sptr make(float phase_inc, int n_steps);
 
       // Setters ready for parameter adjustment in runtime:
       virtual float phase_inc() const = 0;

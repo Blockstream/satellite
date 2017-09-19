@@ -32,21 +32,28 @@ namespace gr {
   namespace mods {
 
     nco_cc::sptr
-    nco_cc::make(float phase_inc)
+    nco_cc::make(float phase_inc, int n_steps)
     {
       return gnuradio::get_initial_sptr
-        (new nco_cc_impl(phase_inc));
+        (new nco_cc_impl(phase_inc, n_steps));
     }
 
     /*
      * The private constructor
      */
-    nco_cc_impl::nco_cc_impl(float phase_inc)
+    nco_cc_impl::nco_cc_impl(float phase_inc, int n_steps)
       : gr::sync_block("nco_cc",
               gr::io_signature::make(1, 1, sizeof(gr_complex)),
               gr::io_signature::make(1, 1, sizeof(gr_complex))),
       d_phase_accum(0.0),
-      d_phase_inc(0.0)
+      d_phase_inc(0.0),
+      d_last_phase_inc(0.0),
+      d_target_phase_inc(0.0),
+      d_missing_phase_inc_adj(0.0),
+      d_n_steps(n_steps),
+      d_i_step(0),
+      d_step(0.0),
+      d_state(0)
     {
     }
 
@@ -58,7 +65,64 @@ namespace gr {
     }
 
     void nco_cc_impl::set_phase_inc(float new_phase_inc) {
-      d_phase_inc = new_phase_inc;
+      float phase_inc_change;
+      float missing_phase_inc_adj;
+      // Check if there was a change and, if yes, enter a state in which the
+      // target new increment is reached smoothly
+      phase_inc_change = new_phase_inc - d_phase_inc;
+
+      if (d_state == 0) {
+        // Save the previous configuration
+        d_last_phase_inc = d_phase_inc;
+
+        // Save the target new configuration
+        d_target_phase_inc = new_phase_inc;
+
+        // Detect whether the NCO has been reset and, in this case, change it
+        // immediatelly. Otherwise, change smoothly.
+        if (d_target_phase_inc == 0.0) {
+          // Compute a single transition step
+          d_step = (d_target_phase_inc - d_last_phase_inc);
+
+          // Set it straight to the last step
+          d_i_step == d_n_steps;
+        } else {
+          // Compute the smooth transition step
+          d_step = (d_target_phase_inc - d_last_phase_inc) / float(d_n_steps);
+
+          // Set it in the first step
+          d_i_step = 0;
+        }
+
+        if (fabs(d_step) > 1e-8) {
+          // Enter the Transition sate
+          d_state = 1;
+        }
+      }
+
+      // When transitioning, slowly increase/decrease to the target phase inc
+      if (d_state == 1) {
+
+        // Are we done?
+        missing_phase_inc_adj = fabs(d_phase_inc - d_target_phase_inc);
+
+        if (missing_phase_inc_adj > d_missing_phase_inc_adj
+            || d_i_step == d_n_steps) {
+          // Leave the Transition sate
+          d_state = 0;
+        } else {
+          d_i_step++;
+        }
+
+        //Apply one more step
+        d_phase_inc = d_phase_inc + d_step;
+
+        // Save the missing amount for the phase increment change
+        d_missing_phase_inc_adj = missing_phase_inc_adj;
+      } else {
+        // Otherwise, just keep the configuration
+        d_phase_inc = d_phase_inc;
+      }
     }
 
     int
