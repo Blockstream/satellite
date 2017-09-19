@@ -21,7 +21,4 @@
     <key>freq_step</key>
     <type>float</type>
   </param>
-
-
-
 </block>

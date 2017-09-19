@@ -3,7 +3,7 @@
 # GNU Radio Python Flow Graph
 # Title: Coarse Freq. Rec.
 # Description: FFT-Based Feedforward Coarse Carrier Frequency Recovery
-# Generated: Sat Sep 16 13:46:20 2017
+# Generated: Sat Sep 23 10:15:57 2017
 ##################################################
 
 from gnuradio import blocks
@@ -20,7 +20,7 @@ class ffw_coarse_freq_rec(gr.hier_block2):
         gr.hier_block2.__init__(
             self, "Coarse Freq. Rec.",
             gr.io_signature(1, 1, gr.sizeof_gr_complex*1),
-            gr.io_signaturev(3, 3, [gr.sizeof_float*fft_len, gr.sizeof_float*1, gr.sizeof_float*1]),
+            gr.io_signaturev(2, 2, [gr.sizeof_float*fft_len, gr.sizeof_float*1]),
         )
 
         ##################################################
@@ -48,6 +48,7 @@ class ffw_coarse_freq_rec(gr.hier_block2):
         )
         self.blocks_sub_xx_0 = blocks.sub_ff(1)
         self.blocks_short_to_float_0 = blocks.short_to_float(1, 1)
+        self.blocks_null_sink_1 = blocks.null_sink(gr.sizeof_float*1)
         self.blocks_null_sink_0 = blocks.null_sink(gr.sizeof_short*1)
         self.blocks_multiply_xx_0 = blocks.multiply_vff(1)
         self.blocks_multiply_const_vxx_2 = blocks.multiply_const_vff((samp_rate/(fft_len*4), ))
@@ -73,8 +74,8 @@ class ffw_coarse_freq_rec(gr.hier_block2):
         self.connect((self.logpwrfft_x_0, 0), (self.blocks_argmax_xx_0, 0))
         self.connect((self.logpwrfft_x_0, 0), (self, 0))
         self.connect((self.mods_exponentiate_const_cci_0, 0), (self.logpwrfft_x_0, 0))
+        self.connect((self.mods_runtime_cfo_ctrl_0, 1), (self.blocks_null_sink_1, 0))
         self.connect((self.mods_runtime_cfo_ctrl_0, 0), (self, 1))
-        self.connect((self.mods_runtime_cfo_ctrl_0, 1), (self, 2))
         self.connect((self.mods_wrap_fft_index_0, 0), (self.blocks_short_to_float_0, 0))
         self.connect((self, 0), (self.mods_exponentiate_const_cci_0, 0))
 

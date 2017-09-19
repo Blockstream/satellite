@@ -67,12 +67,6 @@
     <vlen>1</vlen>
     <optional>1</optional>
   </source>
-  <source>
-    <name>target_rf_cfreq</name>
-    <type>float</type>
-    <vlen>1</vlen>
-    <optional>1</optional>
-  </source>
   <doc>FFT-Based Feedforward Coarse Carrier Frequency Recovery
 
 This block estimates the carrier frequency offset (CFO) by first raising the \
@@ -95,18 +89,21 @@ passed. This introduces an extra "acquisition time" during startup, which \
 increases proportionally to (1/alpha).
 
 This block also receives the nominal RF center frequency as a parameter and \
-constantly outputs a potentially adjusted RF center frequency value. \
+constantly maintains (internally) an adjusted RF center frequency value. \
 The CFO estimation is internally monitored and compared against a \
 threshold. In case the CFO exceeds the threshold, the block assumes the CFO \
 will need to be corrected by adjusting the RF center frequency in the receiver \
 hardware (e.g. in an RTL), instead of adjusting a software-based NCO block. \
-When this occurs, the block updates the carrer frequency output and resets \
-the internal CFO estimate back to 0, as if the RF center frequency adjustment \
-in hardware leaves no residual CFO. More importantly, by doing so, the CFO \
+When this occurs, the block updates the internal carrier frequency variable \
+and resets the CFO estimate back to 0, assuming that the RF center frequency \
+will indeed be adjusted in hardware \
+leaving no residual CFO. More importantly, by doing so, the CFO \
 estimate returns to the center of \
-the correctable range, which was the goal in the first place. Ultimately, \
-the receiver is expected to be able to track the CFO \
-even if it exceeds the algorithm range.
+the correctable range (zero) and, consequently, the block is able to track the \
+CFO even if it exceeds the original algorithm range (see note #2 below). \
+The user must make sure that a \
+separate block is used to handle hardware corrections by accessing the \
+internal RF center frequency using "get_rf_center_freq()".
 
 
 Parameters:

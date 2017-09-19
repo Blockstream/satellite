@@ -33,6 +33,7 @@ namespace gr {
       int d_avg_len;
       float d_abs_cfo_threshold;
       float d_rf_center_freq;
+      float d_cfo_est;
       int d_i_sample;
       int d_sleep_count;
 
@@ -44,6 +45,8 @@ namespace gr {
       int work(int noutput_items,
          gr_vector_const_void_star &input_items,
          gr_vector_void_star &output_items);
+      float get_cfo_estimate();
+      float get_rf_center_freq();
     };
 
   } // namespace mods

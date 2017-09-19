@@ -45,6 +45,7 @@ namespace gr {
         d_avg_len(avg_len),
         d_abs_cfo_threshold(abs_cfo_threshold),
         d_rf_center_freq(rf_center_freq),
+        d_cfo_est(0.0),
         d_i_sample(0),
         d_sleep_count(0)
     {}
@@ -122,10 +123,23 @@ namespace gr {
         // RF Center Frequency is the default configuration + corrections
         // accumulated during runtime
         rf_center_freq[i] = d_rf_center_freq;
+
+        // Update the internal variable holding the CFO
+        d_cfo_est = freq_offset_out[i];
       }
 
       // Tell runtime system how many output items we produced.
       return noutput_items;
+    }
+
+    /*
+    * Getters for the RF center frequency and CFO estimate
+    */
+    float runtime_cfo_ctrl_impl::get_cfo_estimate(){
+      return d_cfo_est;
+    }
+    float runtime_cfo_ctrl_impl::get_rf_center_freq(){
+      return d_rf_center_freq;
     }
 
   } /* namespace mods */
