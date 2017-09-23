@@ -26,6 +26,9 @@
 #include "frame_sync_fast_impl.h"
 #include <gnuradio/math.h>
 #include <cstdio>
+#include <iostream>
+#include <chrono>
+#include <ctime>
 
 #define DEBUG_LOG 0
 #define AVG_LEN 200
@@ -105,6 +108,16 @@ namespace gr {
     */
     frame_sync_fast_impl::~frame_sync_fast_impl()
     {
+    }
+
+    /*
+     * Timestamp
+     */
+    void frame_sync_fast_impl::print_system_timestamp() {
+      std::chrono::time_point<std::chrono::system_clock> now;
+      now = std::chrono::system_clock::now();
+      std::time_t now_time = std::chrono::system_clock::to_time_t(now);
+      std::cout << "-- On " << std::ctime(&now_time);
     }
 
     void
@@ -348,7 +361,10 @@ namespace gr {
       if (d_correct_dist_peak_cnt == FRAME_ACQUIRED_CNT) {
         is_frame_time_acquired = 1;
         if (d_verbosity > 0) {
-          printf("##### Frame synchronization acquired #####\n");
+          printf("\n##########################################\n");
+          printf("-- Frame synchronization acquired\n");
+          print_system_timestamp();
+          printf("##########################################\n");
         }
       } else {
         is_frame_time_acquired = 0;
@@ -373,7 +389,10 @@ namespace gr {
       if (d_unmatched_pmf_peak_cnt == FRAME_ACQUIRED_CNT) {
         frame_lock_loss = 1;
         if (d_verbosity > 0) {
-          printf("##### Frame synchronization lost #####\n");
+          printf("\n##########################################\n");
+          printf("-- Frame synchronization lost\n");
+          print_system_timestamp();
+          printf("##########################################\n");
         }
       } else {
         frame_lock_loss = 0;

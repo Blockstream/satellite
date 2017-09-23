@@ -75,6 +75,7 @@ namespace gr {
       int verify_frame_acquisition(int d_peak);
       int verify_frame_lock_loss(int is_pmf_peak);
       gr_complex resolve_phase(float pmf_peak_re, float pmf_peak_im);
+      void print_system_timestamp();
 
       /* Get timing metrict */
       float get_avg_timing_metric();

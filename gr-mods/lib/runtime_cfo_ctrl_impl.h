@@ -47,6 +47,7 @@ namespace gr {
          gr_vector_void_star &output_items);
       float get_cfo_estimate();
       float get_rf_center_freq();
+      void print_system_timestamp();
     };
 
   } // namespace mods

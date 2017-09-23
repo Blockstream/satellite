@@ -23,6 +23,9 @@
 #endif
 
 #include <gnuradio/io_signature.h>
+#include <iostream>
+#include <chrono>
+#include <ctime>
 #include "runtime_cfo_ctrl_impl.h"
 
 namespace gr {
@@ -57,6 +60,13 @@ namespace gr {
     {
     }
 
+    void runtime_cfo_ctrl_impl::print_system_timestamp() {
+      std::chrono::time_point<std::chrono::system_clock> now;
+      now = std::chrono::system_clock::now();
+      std::time_t now_time = std::chrono::system_clock::to_time_t(now);
+      std::cout << "-- On " << std::ctime(&now_time);
+    }
+
     int
     runtime_cfo_ctrl_impl::work(int noutput_items,
         gr_vector_const_void_star &input_items,
@@ -73,6 +83,7 @@ namespace gr {
       for(int i = 0; i < noutput_items; i++)
       {
         // Keep track of the moving average transitory
+
         // Output a frequency offset only after the transitory has passed
         if (++d_i_sample > d_avg_len && d_sleep_count == 0) {
           // Transitory or sleep interval are finished
@@ -94,7 +105,7 @@ namespace gr {
            if (fabs(freq_offset_in[i]) > d_abs_cfo_threshold &&
            cfo_est_mean_dev < 10 && var_fo_est[i] < 10) {
              // Debug
-             printf("--- Carrier Tracking Mechanism ---\n");
+             printf("\n--- Carrier Tracking Mechanism ---\n");
              printf("RF center frequency update.\n");
              printf("From:\t %f Hz.\n", d_rf_center_freq);
              // Adjust the RF center frequency
@@ -106,6 +117,7 @@ namespace gr {
              // center frequency while it is being updated in the hardware
              d_sleep_count = d_avg_len;
              printf("To:\t %f Hz.\n", d_rf_center_freq);
+             print_system_timestamp();
              printf("----------------------------------\n");
            } else {
              freq_offset_out[i] = freq_offset_in[i];
