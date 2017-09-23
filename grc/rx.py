@@ -3,7 +3,7 @@
 ##################################################
 # GNU Radio Python Flow Graph
 # Title: Rx
-# Generated: Sat Sep 23 14:54:02 2017
+# Generated: Sat Sep 23 19:28:29 2017
 ##################################################
 
 from gnuradio import blocks
@@ -74,7 +74,6 @@ class rx(gr.top_block):
         self.tuning_control = mods.tuning_control(0, 0, 1, self)
         self.sym_rate = sym_rate = samp_rate/sps
         self.rrc_taps = rrc_taps = firdes.root_raised_cosine(nfilts, nfilts*sps, 1.0, excess_bw, n_rrc_taps)
-        self.rf_center_freq = rf_center_freq = 1428.4309e6
         self.preamble_size = preamble_size = len(preamble_syms)
         self.pmf_peak_threshold = pmf_peak_threshold = 0.6
         self.payload_size = payload_size = codeword_len*n_codewords/int(numpy.log2(const_order))
@@ -90,7 +89,7 @@ class rx(gr.top_block):
             alpha=freq_rec_alpha,
             fft_len=fft_len,
             samp_rate=samp_rate,
-            rf_center_freq=rf_center_freq,
+            rf_center_freq=freq,
         )
 
         def _est_cfo_hz_probe():
@@ -197,6 +196,7 @@ class rx(gr.top_block):
 
     def set_freq(self, freq):
         self.freq = freq
+        self.mods_ffw_coarse_freq_rec_0.set_rf_center_freq(self.freq)
         self.rtlsdr_source_0.set_center_freq(self.freq, 0)
 
     def get_freq_rec_alpha(self):
@@ -417,13 +417,6 @@ class rx(gr.top_block):
     def set_rrc_taps(self, rrc_taps):
         self.rrc_taps = rrc_taps
         self.digital_pfb_clock_sync_xxx_0.update_taps((self.rrc_taps))
-
-    def get_rf_center_freq(self):
-        return self.rf_center_freq
-
-    def set_rf_center_freq(self, rf_center_freq):
-        self.rf_center_freq = rf_center_freq
-        self.mods_ffw_coarse_freq_rec_0.set_rf_center_freq(self.rf_center_freq)
 
     def get_preamble_size(self):
         return self.preamble_size

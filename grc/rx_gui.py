@@ -3,7 +3,7 @@
 ##################################################
 # GNU Radio Python Flow Graph
 # Title: Rx Gui
-# Generated: Sat Sep 23 14:57:01 2017
+# Generated: Sat Sep 23 19:28:26 2017
 ##################################################
 
 if __name__ == '__main__':
@@ -116,7 +116,6 @@ class rx_gui(gr.top_block, Qt.QWidget):
         self.usrp_rx_addr = usrp_rx_addr = "192.168.10.2"
         self.tuning_control = mods.tuning_control(0, 0, 1, self)
         self.rrc_taps = rrc_taps = firdes.root_raised_cosine(nfilts, nfilts*sps, 1.0, excess_bw, n_rrc_taps)
-        self.rf_center_freq = rf_center_freq = 1428.4309e6
         self.pmf_peak_threshold = pmf_peak_threshold = 0.7
         self.phy_bit_rate = phy_bit_rate = sym_rate* ( constellation.bits_per_symbol() ) * (code_rate) * (1.-phy_preamble_overhead)
         self.est_cfo_hz = est_cfo_hz = 0
@@ -130,7 +129,7 @@ class rx_gui(gr.top_block, Qt.QWidget):
             alpha=freq_rec_alpha,
             fft_len=fft_len,
             samp_rate=samp_rate,
-            rf_center_freq=rf_center_freq,
+            rf_center_freq=freq,
         )
         self.tabs = Qt.QTabWidget()
         self.tabs_widget_0 = Qt.QWidget()
@@ -1018,6 +1017,7 @@ class rx_gui(gr.top_block, Qt.QWidget):
 
     def set_freq(self, freq):
         self.freq = freq
+        self.mods_ffw_coarse_freq_rec_0.set_rf_center_freq(self.freq)
         self.rtlsdr_source_0.set_center_freq(self.freq, 0)
 
     def get_freq_rec_alpha(self):
@@ -1294,13 +1294,6 @@ class rx_gui(gr.top_block, Qt.QWidget):
     def set_rrc_taps(self, rrc_taps):
         self.rrc_taps = rrc_taps
         self.digital_pfb_clock_sync_xxx_0.update_taps((self.rrc_taps))
-
-    def get_rf_center_freq(self):
-        return self.rf_center_freq
-
-    def set_rf_center_freq(self, rf_center_freq):
-        self.rf_center_freq = rf_center_freq
-        self.mods_ffw_coarse_freq_rec_0.set_rf_center_freq(self.rf_center_freq)
 
     def get_pmf_peak_threshold(self):
         return self.pmf_peak_threshold

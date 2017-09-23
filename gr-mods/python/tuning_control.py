@@ -71,6 +71,6 @@ class tuning_control():
     return new_freq;
 
   def update_nco_freq(self, est_cfo, rf_center_freq):
-    self.top.set_rf_center_freq(rf_center_freq)
+    self.top.set_freq(rf_center_freq)
 
     return est_cfo;

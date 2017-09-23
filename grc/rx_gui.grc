@@ -886,33 +886,6 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(176, 20)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>rf_center_freq</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>1428.4309e6</value>
-    </param>
-  </block>
-  <block>
-    <key>variable</key>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
       <value>(880, 148)</value>
     </param>
     <param>
@@ -1110,7 +1083,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(288, 20)</value>
+      <value>(176, 20)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1780,7 +1753,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1224, 0)</value>
+      <value>(1112, 0)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1827,7 +1800,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(960, 4)</value>
+      <value>(848, 4)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1874,7 +1847,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1544, 0)</value>
+      <value>(1432, 0)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -2039,7 +2012,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1136, 4)</value>
+      <value>(1024, 4)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -2086,7 +2059,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1384, 0)</value>
+      <value>(1272, 0)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -2133,7 +2106,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(784, 4)</value>
+      <value>(672, 4)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -2180,7 +2153,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(408, 28)</value>
+      <value>(296, 28)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -2211,7 +2184,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(576, 28)</value>
+      <value>(464, 28)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -2242,7 +2215,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(680, 28)</value>
+      <value>(568, 28)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -2273,7 +2246,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1048, 4)</value>
+      <value>(936, 4)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -2320,7 +2293,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(872, 4)</value>
+      <value>(760, 4)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -2470,7 +2443,7 @@
     </param>
     <param>
       <key>rf_center_freq</key>
-      <value>rf_center_freq</value>
+      <value>freq</value>
     </param>
   </block>
   <block>
@@ -9660,7 +9633,7 @@ from function probe</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1368, 84)</value>
+      <value>(1368, 100)</value>
     </param>
     <param>
       <key>gui_hint</key>
