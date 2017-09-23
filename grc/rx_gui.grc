@@ -460,7 +460,7 @@
     <key>variable_function_probe</key>
     <param>
       <key>block_id</key>
-      <value>probe_cfo_est</value>
+      <value>tuning_control</value>
     </param>
     <param>
       <key>comment</key>
@@ -472,15 +472,15 @@
     </param>
     <param>
       <key>function_args</key>
-      <value></value>
+      <value>self.mods_ffw_coarse_freq_rec_0.mods_runtime_cfo_ctrl_0.get_cfo_estimate(), self.mods_ffw_coarse_freq_rec_0.mods_runtime_cfo_ctrl_0.get_rf_center_freq()</value>
     </param>
     <param>
       <key>function_name</key>
-      <value>level</value>
+      <value>update_nco_freq</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(24, 584)</value>
+      <value>(32, 792)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1061,6 +1061,41 @@
     <param>
       <key>value</key>
       <value>sps*(200e3/(1 + excess_bw))</value>
+    </param>
+  </block>
+  <block>
+    <key>variable_tuning_control_def</key>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>freq_step</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(216, 808)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>tuning_control</value>
+    </param>
+    <param>
+      <key>max_freq</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>min_freq</key>
+      <value>0</value>
     </param>
   </block>
   <block>
@@ -2383,7 +2418,7 @@
     <key>mods_ffw_coarse_freq_rec</key>
     <param>
       <key>abs_cfo_threshold</key>
-      <value>0.7*(samp_rate/8)</value>
+      <value>0.95*(samp_rate/8)</value>
     </param>
     <param>
       <key>alpha</key>
@@ -2411,7 +2446,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(240, 664)</value>
+      <value>(272, 704)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -2541,7 +2576,7 @@ from function probe</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(256, 572)</value>
+      <value>(272, 596)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -2562,6 +2597,10 @@ from function probe</value>
     <param>
       <key>phase_inc</key>
       <value>(2*pi*(est_cfo_hz/samp_rate))</value>
+    </param>
+    <param>
+      <key>n_steps</key>
+      <value>100</value>
     </param>
   </block>
   <block>
@@ -2656,78 +2695,6 @@ from function probe</value>
     <param>
       <key>value</key>
       <value>100</value>
-    </param>
-  </block>
-  <block>
-    <key>blocks_probe_signal_x</key>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>comment</key>
-      <value>Post-processed CFO Estimation
-(updates the NCO)</value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(24, 864)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>180</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>probe_cfo_est</value>
-    </param>
-    <param>
-      <key>type</key>
-      <value>float</value>
-    </param>
-  </block>
-  <block>
-    <key>blocks_probe_signal_x</key>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>comment</key>
-      <value>Corrected RF Center Freq.
-(updates the RTL)</value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(24, 760)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>180</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>probe_rf_center_freq</value>
-    </param>
-    <param>
-      <key>type</key>
-      <value>float</value>
     </param>
   </block>
   <block>
@@ -4481,7 +4448,7 @@ from function probe</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(256, 464)</value>
+      <value>(272, 456)</value>
     </param>
     <param>
       <key>gui_hint</key>
@@ -6583,7 +6550,7 @@ from function probe</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(232, 792)</value>
+      <value>(328, 808)</value>
     </param>
     <param>
       <key>gui_hint</key>
@@ -8027,7 +7994,7 @@ from function probe</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(568, 732)</value>
+      <value>(608, 732)</value>
     </param>
     <param>
       <key>gui_hint</key>
@@ -11529,12 +11496,6 @@ from function probe</value>
   </connection>
   <connection>
     <source_block_id>mods_ffw_coarse_freq_rec_0</source_block_id>
-    <sink_block_id>probe_cfo_est</sink_block_id>
-    <source_key>1</source_key>
-    <sink_key>0</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>mods_ffw_coarse_freq_rec_0</source_block_id>
     <sink_block_id>qtgui_time_sink_x_1</sink_block_id>
     <source_key>1</source_key>
     <sink_key>0</sink_key>
@@ -11543,12 +11504,6 @@ from function probe</value>
     <source_block_id>mods_ffw_coarse_freq_rec_0</source_block_id>
     <sink_block_id>qtgui_vector_sink_f_0</sink_block_id>
     <source_key>0</source_key>
-    <sink_key>0</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>mods_ffw_coarse_freq_rec_0</source_block_id>
-    <sink_block_id>probe_rf_center_freq</sink_block_id>
-    <source_key>2</source_key>
     <sink_key>0</sink_key>
   </connection>
   <connection>

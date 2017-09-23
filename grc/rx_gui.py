@@ -3,7 +3,7 @@
 ##################################################
 # GNU Radio Python Flow Graph
 # Title: Rx Gui
-# Generated: Sun Sep 17 22:51:51 2017
+# Generated: Sat Sep 23 14:57:01 2017
 ##################################################
 
 if __name__ == '__main__':
@@ -114,6 +114,7 @@ class rx_gui(gr.top_block, Qt.QWidget):
         self.n_rrc_taps = n_rrc_taps = rrc_delay * int(sps*nfilts)
         self.code_rate = code_rate = 1.0*dataword_len/codeword_len
         self.usrp_rx_addr = usrp_rx_addr = "192.168.10.2"
+        self.tuning_control = mods.tuning_control(0, 0, 1, self)
         self.rrc_taps = rrc_taps = firdes.root_raised_cosine(nfilts, nfilts*sps, 1.0, excess_bw, n_rrc_taps)
         self.rf_center_freq = rf_center_freq = 1428.4309e6
         self.pmf_peak_threshold = pmf_peak_threshold = 0.7
@@ -124,8 +125,13 @@ class rx_gui(gr.top_block, Qt.QWidget):
         ##################################################
         # Blocks
         ##################################################
-        self.probe_cfo_est = blocks.probe_signal_f()
-        self.probe_rf_center_freq = blocks.probe_signal_f()
+        self.mods_ffw_coarse_freq_rec_0 = mods.ffw_coarse_freq_rec(
+            abs_cfo_threshold=0.95*(samp_rate/8),
+            alpha=freq_rec_alpha,
+            fft_len=fft_len,
+            samp_rate=samp_rate,
+            rf_center_freq=rf_center_freq,
+        )
         self.tabs = Qt.QTabWidget()
         self.tabs_widget_0 = Qt.QWidget()
         self.tabs_layout_0 = Qt.QBoxLayout(Qt.QBoxLayout.TopToBottom, self.tabs_widget_0)
@@ -166,11 +172,9 @@ class rx_gui(gr.top_block, Qt.QWidget):
 
         def _est_cfo_hz_probe():
             while True:
-                new_est_cfo_hz = self.probe_cfo_est.level()
-                new_rf_center_freq = self.probe_rf_center_freq.level()
+                val = self.tuning_control.update_nco_freq(self.mods_ffw_coarse_freq_rec_0.mods_runtime_cfo_ctrl_0.get_cfo_estimate(), self.mods_ffw_coarse_freq_rec_0.mods_runtime_cfo_ctrl_0.get_rf_center_freq())
                 try:
-                    self.set_est_cfo_hz(new_est_cfo_hz)
-                    self.set_rf_center_freq(new_rf_center_freq)
+                    self.set_est_cfo_hz(val)
                 except AttributeError:
                     pass
                 time.sleep(1.0 / (poll_rate))
@@ -910,16 +914,9 @@ class rx_gui(gr.top_block, Qt.QWidget):
         self._qtgui_const_sink_costas_const_win = sip.wrapinstance(self.qtgui_const_sink_costas_const.pyqwidget(), Qt.QWidget)
         self.tabs_grid_layout_4.addWidget(self._qtgui_const_sink_costas_const_win, 1,0)
         self.mods_turbo_decoder_0 = mods.turbo_decoder(codeword_len, dataword_len)
-        self.mods_nco_cc_0 = mods.nco_cc((2*pi*(est_cfo_hz/samp_rate)))
+        self.mods_nco_cc_0 = mods.nco_cc((2*pi*(est_cfo_hz/samp_rate)), 100)
         self.mods_mer_measurement_0 = mods.mer_measurement(1024, int(const_order))
         self.mods_fifo_async_sink_0 = mods.fifo_async_sink('/tmp/async_rx')
-        self.mods_ffw_coarse_freq_rec_0 = mods.ffw_coarse_freq_rec(
-            abs_cfo_threshold=0.7*(samp_rate/8),
-            alpha=freq_rec_alpha,
-            fft_len=fft_len,
-            samp_rate=samp_rate,
-            rf_center_freq=rf_center_freq,
-        )
         self.mods_da_carrier_phase_rec_0_0 = mods.da_carrier_phase_rec(((1/sqrt(2))*preamble_syms), 0.001, 1/sqrt(2), int(const_order), True, True)
         self.framers_gr_hdlc_deframer_b_0 = framers.gr_hdlc_deframer_b(0)
         self.frame_synchronizer_0 = mods.frame_synchronizer(
@@ -980,8 +977,6 @@ class rx_gui(gr.top_block, Qt.QWidget):
         self.connect((self.mods_da_carrier_phase_rec_0_0, 0), (self.digital_constellation_decoder_cb_0, 0))
         self.connect((self.mods_da_carrier_phase_rec_0_0, 0), (self.qtgui_const_sink_x_1, 0))
         self.connect((self.mods_da_carrier_phase_rec_0_0, 1), (self.qtgui_time_sink_x_0, 0))
-        self.connect((self.mods_ffw_coarse_freq_rec_0, 1), (self.probe_cfo_est, 0))
-        self.connect((self.mods_ffw_coarse_freq_rec_0, 2), (self.probe_rf_center_freq, 0))
         self.connect((self.mods_ffw_coarse_freq_rec_0, 1), (self.qtgui_time_sink_x_1, 0))
         self.connect((self.mods_ffw_coarse_freq_rec_0, 0), (self.qtgui_vector_sink_f_0, 0))
         self.connect((self.mods_mer_measurement_0, 0), (self.qtgui_mer_measurement, 0))
@@ -1002,8 +997,8 @@ class rx_gui(gr.top_block, Qt.QWidget):
 
     def set_fft_len(self, fft_len):
         self.fft_len = fft_len
-        self.qtgui_time_sink_x_1.set_samp_rate(self.samp_rate/self.fft_len)
         self.mods_ffw_coarse_freq_rec_0.set_fft_len(self.fft_len)
+        self.qtgui_time_sink_x_1.set_samp_rate(self.samp_rate/self.fft_len)
 
     def get_fllbw(self):
         return self.fllbw
@@ -1198,6 +1193,8 @@ class rx_gui(gr.top_block, Qt.QWidget):
 
     def set_samp_rate(self, samp_rate):
         self.samp_rate = samp_rate
+        self.mods_ffw_coarse_freq_rec_0.set_abs_cfo_threshold(0.95*(self.samp_rate/8))
+        self.mods_ffw_coarse_freq_rec_0.set_samp_rate(self.samp_rate)
         self.set_sym_rate(self.samp_rate / self.sps)
         self.rtlsdr_source_0.set_sample_rate(self.samp_rate)
         self.qtgui_time_sink_x_1.set_y_axis(-self.samp_rate/8, self.samp_rate/8)
@@ -1207,8 +1204,6 @@ class rx_gui(gr.top_block, Qt.QWidget):
         self.qtgui_freq_sink_fll_in_1.set_frequency_range(0, self.samp_rate)
         self.qtgui_freq_sink_agc_in.set_frequency_range(0, self.samp_rate)
         self.mods_nco_cc_0.set_phase_inc((2*pi*(self.est_cfo_hz/self.samp_rate)))
-        self.mods_ffw_coarse_freq_rec_0.set_abs_cfo_threshold(0.7*(self.samp_rate/8))
-        self.mods_ffw_coarse_freq_rec_0.set_samp_rate(self.samp_rate)
 
     def get_rrc_delay(self):
         return self.rrc_delay
@@ -1286,6 +1281,12 @@ class rx_gui(gr.top_block, Qt.QWidget):
 
     def set_usrp_rx_addr(self, usrp_rx_addr):
         self.usrp_rx_addr = usrp_rx_addr
+
+    def get_tuning_control(self):
+        return self.tuning_control
+
+    def set_tuning_control(self, tuning_control):
+        self.tuning_control = tuning_control
 
     def get_rrc_taps(self):
         return self.rrc_taps

@@ -3,7 +3,7 @@
 ##################################################
 # GNU Radio Python Flow Graph
 # Title: Rx
-# Generated: Sat Sep 16 17:05:51 2017
+# Generated: Sat Sep 23 14:54:02 2017
 ##################################################
 
 from gnuradio import blocks
@@ -71,6 +71,7 @@ class rx(gr.top_block):
         self.const_order = const_order = pow(2,constellation.bits_per_symbol())
         self.codeword_len = codeword_len = 18444
         self.usrp_rx_addr = usrp_rx_addr = "192.168.10.2"
+        self.tuning_control = mods.tuning_control(0, 0, 1, self)
         self.sym_rate = sym_rate = samp_rate/sps
         self.rrc_taps = rrc_taps = firdes.root_raised_cosine(nfilts, nfilts*sps, 1.0, excess_bw, n_rrc_taps)
         self.rf_center_freq = rf_center_freq = 1428.4309e6
@@ -84,16 +85,19 @@ class rx(gr.top_block):
         ##################################################
         # Blocks
         ##################################################
-        self.probe_cfo_est = blocks.probe_signal_f()
-        self.probe_rf_center_freq = blocks.probe_signal_f()
+        self.mods_ffw_coarse_freq_rec_0 = mods.ffw_coarse_freq_rec(
+            abs_cfo_threshold=0.95*(samp_rate/8),
+            alpha=freq_rec_alpha,
+            fft_len=fft_len,
+            samp_rate=samp_rate,
+            rf_center_freq=rf_center_freq,
+        )
 
         def _est_cfo_hz_probe():
             while True:
-                new_est_cfo_hz = self.probe_cfo_est.level()
-                new_rf_center_freq = self.probe_rf_center_freq.level()
+                val = self.tuning_control.update_nco_freq(self.mods_ffw_coarse_freq_rec_0.mods_runtime_cfo_ctrl_0.get_cfo_estimate(), self.mods_ffw_coarse_freq_rec_0.mods_runtime_cfo_ctrl_0.get_rf_center_freq())
                 try:
-                    self.set_est_cfo_hz(new_est_cfo_hz)
-                    self.set_rf_center_freq(new_rf_center_freq)
+                    self.set_est_cfo_hz(val)
                 except AttributeError:
                     pass
                 time.sleep(1.0 / (poll_rate))
@@ -115,15 +119,8 @@ class rx(gr.top_block):
         self.rtlsdr_source_0.set_bandwidth(0, 0)
 
         self.mods_turbo_decoder_0 = mods.turbo_decoder(codeword_len, dataword_len)
-        self.mods_nco_cc_0 = mods.nco_cc((2*pi*(est_cfo_hz/samp_rate)))
+        self.mods_nco_cc_0 = mods.nco_cc((2*pi*(est_cfo_hz/samp_rate)), 100)
         self.mods_fifo_async_sink_0 = mods.fifo_async_sink('/tmp/async_rx')
-        self.mods_ffw_coarse_freq_rec_0 = mods.ffw_coarse_freq_rec(
-            abs_cfo_threshold=1e6,
-            alpha=0.0001,
-            fft_len=fft_len,
-            samp_rate=samp_rate,
-            rf_center_freq=1e9,
-        )
         self.mods_da_carrier_phase_rec_0_0 = mods.da_carrier_phase_rec(((1/sqrt(2))*preamble_syms), 0.001, 1/sqrt(2), int(const_order), True, True)
         self.framers_gr_hdlc_deframer_b_0 = framers.gr_hdlc_deframer_b(0)
         self.frame_synchronizer_0 = mods.frame_synchronizer(
@@ -144,6 +141,7 @@ class rx(gr.top_block):
         self.digital_constellation_decoder_cb_0 = digital.constellation_decoder_cb(constellation.base())
         self.blocks_unpack_k_bits_bb_0 = blocks.unpack_k_bits_bb(constellation.bits_per_symbol())
         self.blocks_rms_xx_1 = blocks.rms_cf(0.0001)
+        self.blocks_null_sink_0_0_0_0 = blocks.null_sink(gr.sizeof_float*1)
         self.blocks_null_sink_0_0_0 = blocks.null_sink(gr.sizeof_float*1)
         self.blocks_null_sink_0_0 = blocks.null_sink(gr.sizeof_float*1)
         self.blocks_float_to_complex_0 = blocks.float_to_complex(1)
@@ -168,8 +166,7 @@ class rx(gr.top_block):
         self.connect((self.frame_synchronizer_0, 0), (self.mods_da_carrier_phase_rec_0_0, 0))
         self.connect((self.mods_da_carrier_phase_rec_0_0, 1), (self.blocks_null_sink_0_0, 0))
         self.connect((self.mods_da_carrier_phase_rec_0_0, 0), (self.digital_constellation_decoder_cb_0, 0))
-        self.connect((self.mods_ffw_coarse_freq_rec_0, 1), (self.probe_cfo_est, 0))
-        self.connect((self.mods_ffw_coarse_freq_rec_0, 2), (self.probe_rf_center_freq, 0))
+        self.connect((self.mods_ffw_coarse_freq_rec_0, 1), (self.blocks_null_sink_0_0_0_0, 0))
         self.connect((self.mods_nco_cc_0, 0), (self.digital_pfb_clock_sync_xxx_0, 0))
         self.connect((self.mods_turbo_decoder_0, 0), (self.digital_descrambler_bb_0, 0))
         self.connect((self.rtlsdr_source_0, 0), (self.blocks_divide_xx_0, 0))
@@ -207,6 +204,7 @@ class rx(gr.top_block):
 
     def set_freq_rec_alpha(self, freq_rec_alpha):
         self.freq_rec_alpha = freq_rec_alpha
+        self.mods_ffw_coarse_freq_rec_0.set_alpha(self.freq_rec_alpha)
 
     def get_gain(self):
         return self.gain
@@ -352,10 +350,11 @@ class rx(gr.top_block):
 
     def set_samp_rate(self, samp_rate):
         self.samp_rate = samp_rate
+        self.mods_ffw_coarse_freq_rec_0.set_abs_cfo_threshold(0.95*(self.samp_rate/8))
+        self.mods_ffw_coarse_freq_rec_0.set_samp_rate(self.samp_rate)
         self.set_sym_rate(self.samp_rate/self.sps)
         self.rtlsdr_source_0.set_sample_rate(self.samp_rate)
         self.mods_nco_cc_0.set_phase_inc((2*pi*(self.est_cfo_hz/self.samp_rate)))
-        self.mods_ffw_coarse_freq_rec_0.set_samp_rate(self.samp_rate)
 
     def get_preamble_syms(self):
         return self.preamble_syms
@@ -400,6 +399,12 @@ class rx(gr.top_block):
     def set_usrp_rx_addr(self, usrp_rx_addr):
         self.usrp_rx_addr = usrp_rx_addr
 
+    def get_tuning_control(self):
+        return self.tuning_control
+
+    def set_tuning_control(self, tuning_control):
+        self.tuning_control = tuning_control
+
     def get_sym_rate(self):
         return self.sym_rate
 
@@ -418,6 +423,7 @@ class rx(gr.top_block):
 
     def set_rf_center_freq(self, rf_center_freq):
         self.rf_center_freq = rf_center_freq
+        self.mods_ffw_coarse_freq_rec_0.set_rf_center_freq(self.rf_center_freq)
 
     def get_preamble_size(self):
         return self.preamble_size
