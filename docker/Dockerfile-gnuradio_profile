@@ -8,18 +8,15 @@ RUN apt-get update && apt-get install -y \
       net-tools
 
 # gnuradio build deps
-RUN apt-get install -y git-core cmake g++ python-dev \
+RUN apt-get update && apt-get install -y git-core cmake g++ python-dev \
   swig pkg-config libfftw3-dev libboost1.55-all-dev libcppunit-dev libgsl0-dev \
   libusb-dev libsdl1.2-dev python-numpy \
   python-cheetah python-lxml doxygen libxi-dev python-sip \
   libqt4-opengl-dev libqwt-dev libfontconfig1-dev libxrender-dev \
-  python-sip python-sip-dev
+  python-sip python-sip-dev \
+  libusb-1.0-0-dev python-mako python-gtk2 python-qt4
 
 ENV PYTHONPATH=/usr/lib/python2.7/site-packages/
-#hack:uhd-host installation fail inside docker otherwise
-RUN echo "" > /sbin/sysctl
-
-RUN apt-get install -y osmo-sdr gr-osmosdr
 
 # install thrift for gnuradio profiling
 RUN cd /opt && git clone -b 0.9.2 --depth=1 \
@@ -28,12 +25,34 @@ RUN cd /opt && git clone -b 0.9.2 --depth=1 \
   && ./configure --disable-tests --with-lua=no --disable-tutorial \
   --with-perl=no && make -j 4 && make install && rm -rf /opt/thrift
 
+#build uhd
+RUN cd /opt && \
+  git clone --depth=1 -b release_003_010_002_000 https://github.com/EttusResearch/uhd.git && \
+  mkdir uhd/host/build && cd uhd/host/build && cmake .. && \
+  make -j 4 && make install && ldconfig && \
+  rm -rf /opt/uhd
+
 #build gnuradio
 RUN cd /opt && git clone --depth=1 -b v3.7.11 \
   https://github.com/gnuradio/gnuradio.git && cd gnuradio && \
   git submodule update --init && mkdir build && \
   cd build && cmake .. && make -j 4 && make install && rm -rf \
   /opt/gnuradio
+
+# build rtlsdr
+# tested on commit: b04c2f9f035c5aede43d731e5d58e4725d2f8bb4
+RUN cd /opt && \
+  git clone --depth=1 https://github.com/osmocom/rtl-sdr.git && \
+  cd rtl-sdr && git checkout b04c2f9f035c5aede43d731e5d58e4725d2f8bb4 && \
+  mkdir build && cd build && cmake .. && \
+  make -j 4 && make install && ldconfig && \
+  rm -rf /opt/rtl-sdr
+RUN cd /opt && \
+  git clone --depth=1 https://github.com/osmocom/gr-osmosdr.git && \
+  cd gr-osmosdr && git checkout c653754dde5e2cf682965e939cc016fbddbd45e4 && \
+  mkdir build && cd build && cmake .. && \
+  make -j 4 && make install && ldconfig && \
+  rm -rf /opt/gr-osmosdr
 
 RUN git clone https://github.com/Blockstream/satellite.git /opt/satellite
 
