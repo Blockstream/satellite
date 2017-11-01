@@ -13,8 +13,9 @@ RUN apt-get update && apt-get install -y git-core cmake g++ python-dev \
   libusb-dev libsdl1.2-dev python-numpy \
   python-cheetah python-lxml doxygen libxi-dev python-sip \
   libqt4-opengl-dev libqwt-dev libfontconfig1-dev libxrender-dev \
-  python-sip python-sip-dev \
-  libusb-1.0-0-dev python-mako python-gtk2 python-qt4
+  python-sip python-sip-dev \ 
+  libusb-1.0-0-dev python-mako python-gtk2 python-qt4 \
+  python-matplotlib python-networkx
 
 ENV PYTHONPATH=/usr/lib/python2.7/site-packages/
 
