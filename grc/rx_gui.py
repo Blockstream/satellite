@@ -3,7 +3,7 @@
 ##################################################
 # GNU Radio Python Flow Graph
 # Title: Rx Gui
-# Generated: Sat Sep 23 19:28:26 2017
+# Generated: Sat Dec  2 22:58:32 2017
 ##################################################
 
 if __name__ == '__main__':
@@ -124,6 +124,19 @@ class rx_gui(gr.top_block, Qt.QWidget):
         ##################################################
         # Blocks
         ##################################################
+        self.rtlsdr_source_0 = osmosdr.source( args="numchan=" + str(1) + " " + '' )
+        self.rtlsdr_source_0.set_sample_rate(samp_rate)
+        self.rtlsdr_source_0.set_center_freq(freq, 0)
+        self.rtlsdr_source_0.set_freq_corr(0, 0)
+        self.rtlsdr_source_0.set_dc_offset_mode(0, 0)
+        self.rtlsdr_source_0.set_iq_balance_mode(0, 0)
+        self.rtlsdr_source_0.set_gain_mode(False, 0)
+        self.rtlsdr_source_0.set_gain(gain, 0)
+        self.rtlsdr_source_0.set_if_gain(20, 0)
+        self.rtlsdr_source_0.set_bb_gain(20, 0)
+        self.rtlsdr_source_0.set_antenna('', 0)
+        self.rtlsdr_source_0.set_bandwidth(0, 0)
+
         self.mods_ffw_coarse_freq_rec_0 = mods.ffw_coarse_freq_rec(
             abs_cfo_threshold=0.95*(samp_rate/8),
             alpha=freq_rec_alpha,
@@ -171,7 +184,7 @@ class rx_gui(gr.top_block, Qt.QWidget):
 
         def _est_cfo_hz_probe():
             while True:
-                val = self.tuning_control.update_nco_freq(self.mods_ffw_coarse_freq_rec_0.mods_runtime_cfo_ctrl_0.get_cfo_estimate(), self.mods_ffw_coarse_freq_rec_0.mods_runtime_cfo_ctrl_0.get_rf_center_freq())
+                val = self.tuning_control.update_nco_freq(self.mods_ffw_coarse_freq_rec_0.mods_runtime_cfo_ctrl_0.get_cfo_estimate(), self.mods_ffw_coarse_freq_rec_0.mods_runtime_cfo_ctrl_0.get_rf_center_freq(), self.rtlsdr_source_0.get_center_freq())
                 try:
                     self.set_est_cfo_hz(val)
                 except AttributeError:
@@ -180,19 +193,6 @@ class rx_gui(gr.top_block, Qt.QWidget):
         _est_cfo_hz_thread = threading.Thread(target=_est_cfo_hz_probe)
         _est_cfo_hz_thread.daemon = True
         _est_cfo_hz_thread.start()
-
-        self.rtlsdr_source_0 = osmosdr.source( args="numchan=" + str(1) + " " + '' )
-        self.rtlsdr_source_0.set_sample_rate(samp_rate)
-        self.rtlsdr_source_0.set_center_freq(freq, 0)
-        self.rtlsdr_source_0.set_freq_corr(0, 0)
-        self.rtlsdr_source_0.set_dc_offset_mode(0, 0)
-        self.rtlsdr_source_0.set_iq_balance_mode(0, 0)
-        self.rtlsdr_source_0.set_gain_mode(False, 0)
-        self.rtlsdr_source_0.set_gain(gain, 0)
-        self.rtlsdr_source_0.set_if_gain(20, 0)
-        self.rtlsdr_source_0.set_bb_gain(20, 0)
-        self.rtlsdr_source_0.set_antenna('', 0)
-        self.rtlsdr_source_0.set_bandwidth(0, 0)
 
         self.qtgui_vector_sink_f_0 = qtgui.vector_sink_f(
             fft_len,
@@ -1017,8 +1017,8 @@ class rx_gui(gr.top_block, Qt.QWidget):
 
     def set_freq(self, freq):
         self.freq = freq
-        self.mods_ffw_coarse_freq_rec_0.set_rf_center_freq(self.freq)
         self.rtlsdr_source_0.set_center_freq(self.freq, 0)
+        self.mods_ffw_coarse_freq_rec_0.set_rf_center_freq(self.freq)
 
     def get_freq_rec_alpha(self):
         return self.freq_rec_alpha
@@ -1193,10 +1193,10 @@ class rx_gui(gr.top_block, Qt.QWidget):
 
     def set_samp_rate(self, samp_rate):
         self.samp_rate = samp_rate
+        self.rtlsdr_source_0.set_sample_rate(self.samp_rate)
         self.mods_ffw_coarse_freq_rec_0.set_abs_cfo_threshold(0.95*(self.samp_rate/8))
         self.mods_ffw_coarse_freq_rec_0.set_samp_rate(self.samp_rate)
         self.set_sym_rate(self.samp_rate / self.sps)
-        self.rtlsdr_source_0.set_sample_rate(self.samp_rate)
         self.qtgui_time_sink_x_1.set_y_axis(-self.samp_rate/8, self.samp_rate/8)
         self.qtgui_time_sink_x_1.set_samp_rate(self.samp_rate/self.fft_len)
         self.qtgui_time_sink_x_0.set_samp_rate(self.samp_rate)

@@ -3,7 +3,7 @@
 ##################################################
 # GNU Radio Python Flow Graph
 # Title: Rx
-# Generated: Sat Sep 23 19:28:29 2017
+# Generated: Sat Dec  2 22:58:38 2017
 ##################################################
 
 from gnuradio import blocks
@@ -84,26 +84,6 @@ class rx(gr.top_block):
         ##################################################
         # Blocks
         ##################################################
-        self.mods_ffw_coarse_freq_rec_0 = mods.ffw_coarse_freq_rec(
-            abs_cfo_threshold=0.95*(samp_rate/8),
-            alpha=freq_rec_alpha,
-            fft_len=fft_len,
-            samp_rate=samp_rate,
-            rf_center_freq=freq,
-        )
-
-        def _est_cfo_hz_probe():
-            while True:
-                val = self.tuning_control.update_nco_freq(self.mods_ffw_coarse_freq_rec_0.mods_runtime_cfo_ctrl_0.get_cfo_estimate(), self.mods_ffw_coarse_freq_rec_0.mods_runtime_cfo_ctrl_0.get_rf_center_freq())
-                try:
-                    self.set_est_cfo_hz(val)
-                except AttributeError:
-                    pass
-                time.sleep(1.0 / (poll_rate))
-        _est_cfo_hz_thread = threading.Thread(target=_est_cfo_hz_probe)
-        _est_cfo_hz_thread.daemon = True
-        _est_cfo_hz_thread.start()
-
         self.rtlsdr_source_0 = osmosdr.source( args="numchan=" + str(1) + " " + '' )
         self.rtlsdr_source_0.set_sample_rate(samp_rate)
         self.rtlsdr_source_0.set_center_freq(freq, 0)
@@ -116,6 +96,26 @@ class rx(gr.top_block):
         self.rtlsdr_source_0.set_bb_gain(20, 0)
         self.rtlsdr_source_0.set_antenna('', 0)
         self.rtlsdr_source_0.set_bandwidth(0, 0)
+
+        self.mods_ffw_coarse_freq_rec_0 = mods.ffw_coarse_freq_rec(
+            abs_cfo_threshold=0.95*(samp_rate/8),
+            alpha=freq_rec_alpha,
+            fft_len=fft_len,
+            samp_rate=samp_rate,
+            rf_center_freq=freq,
+        )
+
+        def _est_cfo_hz_probe():
+            while True:
+                val = self.tuning_control.update_nco_freq(self.mods_ffw_coarse_freq_rec_0.mods_runtime_cfo_ctrl_0.get_cfo_estimate(), self.mods_ffw_coarse_freq_rec_0.mods_runtime_cfo_ctrl_0.get_rf_center_freq(), self.rtlsdr_source_0.get_center_freq())
+                try:
+                    self.set_est_cfo_hz(val)
+                except AttributeError:
+                    pass
+                time.sleep(1.0 / (poll_rate))
+        _est_cfo_hz_thread = threading.Thread(target=_est_cfo_hz_probe)
+        _est_cfo_hz_thread.daemon = True
+        _est_cfo_hz_thread.start()
 
         self.mods_turbo_decoder_0 = mods.turbo_decoder(codeword_len, dataword_len)
         self.mods_nco_cc_0 = mods.nco_cc((2*pi*(est_cfo_hz/samp_rate)), 100)
@@ -196,8 +196,8 @@ class rx(gr.top_block):
 
     def set_freq(self, freq):
         self.freq = freq
-        self.mods_ffw_coarse_freq_rec_0.set_rf_center_freq(self.freq)
         self.rtlsdr_source_0.set_center_freq(self.freq, 0)
+        self.mods_ffw_coarse_freq_rec_0.set_rf_center_freq(self.freq)
 
     def get_freq_rec_alpha(self):
         return self.freq_rec_alpha
@@ -350,10 +350,10 @@ class rx(gr.top_block):
 
     def set_samp_rate(self, samp_rate):
         self.samp_rate = samp_rate
+        self.rtlsdr_source_0.set_sample_rate(self.samp_rate)
         self.mods_ffw_coarse_freq_rec_0.set_abs_cfo_threshold(0.95*(self.samp_rate/8))
         self.mods_ffw_coarse_freq_rec_0.set_samp_rate(self.samp_rate)
         self.set_sym_rate(self.samp_rate/self.sps)
-        self.rtlsdr_source_0.set_sample_rate(self.samp_rate)
         self.mods_nco_cc_0.set_phase_inc((2*pi*(self.est_cfo_hz/self.samp_rate)))
 
     def get_preamble_syms(self):

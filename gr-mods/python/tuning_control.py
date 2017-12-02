@@ -70,7 +70,18 @@ class tuning_control():
 
     return new_freq;
 
-  def update_nco_freq(self, est_cfo, rf_center_freq):
-    self.top.set_freq(rf_center_freq)
+  ## Update NCO Frequency
+  # @param est_cfo Current carrier frequency offset (CFO) estimation
+  # @param new_rf_center_freq New RF Center Frequency to be set
+  # @param curr_rf_center_freq Current RF Center Frequency
+  #
+  # This function should be used to glue the current CFO estimate (a variable
+  # that is internal to the freq. recovery module) into a parameter that is
+  # expected to be passed to the NCO module for CFO correction. Additionally, it
+  # eventually updates the RF center frequency configuration in the radio.
+  def update_nco_freq(self, est_cfo, new_rf_center_freq, curr_rf_center_freq):
+    # Update the radio RF center frequency if a new one is requested
+    if (curr_rf_center_freq != new_rf_center_freq):
+        self.top.set_freq(new_rf_center_freq)
 
     return est_cfo;
