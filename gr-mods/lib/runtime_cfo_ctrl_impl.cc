@@ -85,7 +85,7 @@ namespace gr {
         // Keep track of the moving average transitory
 
         // Output a frequency offset only after the transitory has passed
-        if (++d_i_sample > d_avg_len && d_sleep_count == 0) {
+        if (d_i_sample > d_avg_len && d_sleep_count == 0) {
           // Transitory or sleep interval are finished
 
           // Deviation from the current mean:
@@ -126,6 +126,11 @@ namespace gr {
           // Decrement the sleep interval counter
           if (d_sleep_count > 0) {
             d_sleep_count--;
+          }
+
+          // Increment the sample count
+          if (d_i_sample <= d_avg_len) {
+            d_i_sample++;
           }
 
           // Output zero frequency offset
