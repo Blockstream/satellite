@@ -13,7 +13,6 @@ services:
         - 5901:5901
     volumes:
       - asset-volume:/tmp
-      - /home/aospan/tmp-async/volk_config:/root/.volk/volk_config
   bitcoinfibre:
       image: "aospan/bitcoinfibre"
       volumes:
