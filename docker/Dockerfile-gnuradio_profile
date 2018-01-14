@@ -72,4 +72,5 @@ EXPOSE 9090
 COPY config.conf /root/.gnuradio/config.conf
 COPY entrypoint.sh /
 COPY vncserver.sh /
+COPY volk_config-intel-joule-570x /root/.volk/volk_config-intel-joule-570x
 ENTRYPOINT ["/entrypoint.sh"]

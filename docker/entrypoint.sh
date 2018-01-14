@@ -10,6 +10,11 @@ if [ -f /vncserver.sh ] && [ ! -z "$VNCPASSWORD" ]; then
   /vncserver.sh &
 fi
 
+#use special volk_config
+if [ ! -z "$VOLK_CONFIG" ]; then
+    cp /root/.volk/$VOLK_CONFIG /root/.volk/volk_config
+fi
+
 #start actual data reception from satellite
 ulimit -c unlimited
 cd /opt/satellite/grc
