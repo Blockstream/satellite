@@ -1,4 +1,4 @@
-FROM debian:jessie
+FROM debian:stretch
 
 RUN apt-get update && apt-get install -y \
       build-essential git cmake sudo vim \
@@ -9,18 +9,19 @@ RUN apt-get update && apt-get install -y \
 
 # gnuradio build deps
 RUN apt-get update && apt-get install -y git-core cmake g++ python-dev \
-  swig pkg-config libfftw3-dev libboost1.55-all-dev libcppunit-dev libgsl0-dev \
+  swig pkg-config libfftw3-dev libboost-all-dev libcppunit-dev libgsl0-dev \
   libusb-dev libsdl1.2-dev python-numpy \
   python-cheetah python-lxml doxygen libxi-dev python-sip \
   libqt4-opengl-dev libqwt-dev libfontconfig1-dev libxrender-dev \
   python-sip python-sip-dev \ 
   libusb-1.0-0-dev python-mako python-gtk2 python-qt4 \
-  python-matplotlib python-networkx
+  python-matplotlib python-networkx \
+  python2.7-dbg gdb
 
 ENV PYTHONPATH=/usr/lib/python2.7/site-packages/
 
 # install thrift for gnuradio profiling
-RUN cd /opt && git clone -b 0.9.2 --depth=1 \
+RUN cd /opt && git clone -b 0.10.0 --depth=1 \
   https://git-wip-us.apache.org/repos/asf/thrift.git thrift \
   && cd thrift && ./bootstrap.sh \
   && ./configure --disable-tests --with-lua=no --disable-tutorial \
@@ -32,6 +33,13 @@ RUN cd /opt && \
   mkdir uhd/host/build && cd uhd/host/build && cmake .. && \
   make -j 4 && make install && ldconfig && \
   rm -rf /opt/uhd
+
+#build hackrf
+RUN cd /opt && \
+  git clone --depth=1 https://github.com/mossmann/hackrf.git && \
+  mkdir hackrf/host/build && cd hackrf/host/build && cmake .. && \
+  make -j 4 && make install && ldconfig && \
+  rm -rf /opt/hackrf
 
 #build gnuradio
 RUN cd /opt && git clone --depth=1 -b v3.7.11 \
