@@ -3,7 +3,7 @@
 ##################################################
 # GNU Radio Python Flow Graph
 # Title: Rx Gui
-# Generated: Sat Dec  2 22:58:32 2017
+# Generated: Sun Feb 11 12:39:16 2018
 ##################################################
 
 if __name__ == '__main__':
@@ -609,26 +609,26 @@ class rx_gui(gr.top_block, Qt.QWidget):
 
         self._qtgui_pmf_peak_vs_time_win = sip.wrapinstance(self.qtgui_pmf_peak_vs_time.pyqwidget(), Qt.QWidget)
         self.tabs_grid_layout_1.addWidget(self._qtgui_pmf_peak_vs_time_win, 1,0,1,2)
-        self.qtgui_mer_measurement = qtgui.time_sink_f(
-        	1024, #size
+        self.qtgui_mer_measurement_pre_frame_sync = qtgui.time_sink_f(
+        	preamble_size + payload_size, #size
         	sym_rate, #samp_rate
-        	"", #name
+        	'Input to Frame Synchronizer', #name
         	1 #number of inputs
         )
-        self.qtgui_mer_measurement.set_update_time(0.10)
-        self.qtgui_mer_measurement.set_y_axis(-100, 100)
+        self.qtgui_mer_measurement_pre_frame_sync.set_update_time(0.10)
+        self.qtgui_mer_measurement_pre_frame_sync.set_y_axis(-100, 100)
 
-        self.qtgui_mer_measurement.set_y_label('Modulation Error Ratio (dB)', "")
+        self.qtgui_mer_measurement_pre_frame_sync.set_y_label('Modulation Error Ratio (dB)', "")
 
-        self.qtgui_mer_measurement.enable_tags(-1, True)
-        self.qtgui_mer_measurement.set_trigger_mode(qtgui.TRIG_MODE_FREE, qtgui.TRIG_SLOPE_POS, 0.0, 0, 0, "")
-        self.qtgui_mer_measurement.enable_autoscale(True)
-        self.qtgui_mer_measurement.enable_grid(False)
-        self.qtgui_mer_measurement.enable_axis_labels(True)
-        self.qtgui_mer_measurement.enable_control_panel(False)
+        self.qtgui_mer_measurement_pre_frame_sync.enable_tags(-1, True)
+        self.qtgui_mer_measurement_pre_frame_sync.set_trigger_mode(qtgui.TRIG_MODE_FREE, qtgui.TRIG_SLOPE_POS, 0.0, 0, 0, "")
+        self.qtgui_mer_measurement_pre_frame_sync.enable_autoscale(True)
+        self.qtgui_mer_measurement_pre_frame_sync.enable_grid(False)
+        self.qtgui_mer_measurement_pre_frame_sync.enable_axis_labels(True)
+        self.qtgui_mer_measurement_pre_frame_sync.enable_control_panel(False)
 
         if not True:
-          self.qtgui_mer_measurement.disable_legend()
+          self.qtgui_mer_measurement_pre_frame_sync.disable_legend()
 
         labels = ['', 'Post-eq', '', '', '',
                   '', '', '', '', '']
@@ -645,17 +645,64 @@ class rx_gui(gr.top_block, Qt.QWidget):
 
         for i in xrange(1):
             if len(labels[i]) == 0:
-                self.qtgui_mer_measurement.set_line_label(i, "Data {0}".format(i))
+                self.qtgui_mer_measurement_pre_frame_sync.set_line_label(i, "Data {0}".format(i))
             else:
-                self.qtgui_mer_measurement.set_line_label(i, labels[i])
-            self.qtgui_mer_measurement.set_line_width(i, widths[i])
-            self.qtgui_mer_measurement.set_line_color(i, colors[i])
-            self.qtgui_mer_measurement.set_line_style(i, styles[i])
-            self.qtgui_mer_measurement.set_line_marker(i, markers[i])
-            self.qtgui_mer_measurement.set_line_alpha(i, alphas[i])
+                self.qtgui_mer_measurement_pre_frame_sync.set_line_label(i, labels[i])
+            self.qtgui_mer_measurement_pre_frame_sync.set_line_width(i, widths[i])
+            self.qtgui_mer_measurement_pre_frame_sync.set_line_color(i, colors[i])
+            self.qtgui_mer_measurement_pre_frame_sync.set_line_style(i, styles[i])
+            self.qtgui_mer_measurement_pre_frame_sync.set_line_marker(i, markers[i])
+            self.qtgui_mer_measurement_pre_frame_sync.set_line_alpha(i, alphas[i])
 
-        self._qtgui_mer_measurement_win = sip.wrapinstance(self.qtgui_mer_measurement.pyqwidget(), Qt.QWidget)
-        self.tabs_layout_0.addWidget(self._qtgui_mer_measurement_win)
+        self._qtgui_mer_measurement_pre_frame_sync_win = sip.wrapinstance(self.qtgui_mer_measurement_pre_frame_sync.pyqwidget(), Qt.QWidget)
+        self.tabs_layout_0.addWidget(self._qtgui_mer_measurement_pre_frame_sync_win)
+        self.qtgui_mer_measurement_pre_decoder = qtgui.time_sink_f(
+        	preamble_size + payload_size, #size
+        	sym_rate, #samp_rate
+        	'Input to Decoder', #name
+        	1 #number of inputs
+        )
+        self.qtgui_mer_measurement_pre_decoder.set_update_time(0.10)
+        self.qtgui_mer_measurement_pre_decoder.set_y_axis(-100, 100)
+
+        self.qtgui_mer_measurement_pre_decoder.set_y_label('Modulation Error Ratio (dB)', "")
+
+        self.qtgui_mer_measurement_pre_decoder.enable_tags(-1, True)
+        self.qtgui_mer_measurement_pre_decoder.set_trigger_mode(qtgui.TRIG_MODE_FREE, qtgui.TRIG_SLOPE_POS, 0.0, 0, 0, "")
+        self.qtgui_mer_measurement_pre_decoder.enable_autoscale(True)
+        self.qtgui_mer_measurement_pre_decoder.enable_grid(False)
+        self.qtgui_mer_measurement_pre_decoder.enable_axis_labels(True)
+        self.qtgui_mer_measurement_pre_decoder.enable_control_panel(False)
+
+        if not True:
+          self.qtgui_mer_measurement_pre_decoder.disable_legend()
+
+        labels = ['', 'Post-eq', '', '', '',
+                  '', '', '', '', '']
+        widths = [1, 1, 1, 1, 1,
+                  1, 1, 1, 1, 1]
+        colors = ["blue", "red", "green", "black", "cyan",
+                  "magenta", "yellow", "dark red", "dark green", "blue"]
+        styles = [1, 1, 1, 1, 1,
+                  1, 1, 1, 1, 1]
+        markers = [-1, -1, -1, -1, -1,
+                   -1, -1, -1, -1, -1]
+        alphas = [1.0, 1.0, 1.0, 1.0, 1.0,
+                  1.0, 1.0, 1.0, 1.0, 1.0]
+
+        for i in xrange(1):
+            if len(labels[i]) == 0:
+                self.qtgui_mer_measurement_pre_decoder.set_line_label(i, "Data {0}".format(i))
+            else:
+                self.qtgui_mer_measurement_pre_decoder.set_line_label(i, labels[i])
+            self.qtgui_mer_measurement_pre_decoder.set_line_width(i, widths[i])
+            self.qtgui_mer_measurement_pre_decoder.set_line_color(i, colors[i])
+            self.qtgui_mer_measurement_pre_decoder.set_line_style(i, styles[i])
+            self.qtgui_mer_measurement_pre_decoder.set_line_marker(i, markers[i])
+            self.qtgui_mer_measurement_pre_decoder.set_line_alpha(i, alphas[i])
+
+        self._qtgui_mer_measurement_pre_decoder_win = sip.wrapinstance(self.qtgui_mer_measurement_pre_decoder.pyqwidget(), Qt.QWidget)
+        self.tabs_layout_0.addWidget(self._qtgui_mer_measurement_pre_decoder_win)
         self.qtgui_freq_sink_fll_in_1 = qtgui.freq_sink_c(
         	1024, #size
         	firdes.WIN_HANN, #wintype
@@ -763,7 +810,7 @@ class rx_gui(gr.top_block, Qt.QWidget):
         if not True:
           self.qtgui_costas_state.disable_legend()
 
-        labels = ['', 'Post-eq', '', '', '',
+        labels = ['Frequency', 'Post-eq', '', '', '',
                   '', '', '', '', '']
         widths = [1, 1, 1, 1, 1,
                   1, 1, 1, 1, 1]
@@ -914,7 +961,8 @@ class rx_gui(gr.top_block, Qt.QWidget):
         self.tabs_grid_layout_4.addWidget(self._qtgui_const_sink_costas_const_win, 1,0)
         self.mods_turbo_decoder_0 = mods.turbo_decoder(codeword_len, dataword_len)
         self.mods_nco_cc_0 = mods.nco_cc((2*pi*(est_cfo_hz/samp_rate)), 100)
-        self.mods_mer_measurement_0 = mods.mer_measurement(1024, int(const_order))
+        self.mods_mer_measurement_pre_frame_sync = mods.mer_measurement(1024, int(const_order))
+        self.mods_mer_measurement_pre_decoder = mods.mer_measurement(1024, int(const_order))
         self.mods_fifo_async_sink_0 = mods.fifo_async_sink('/tmp/async_rx')
         self.mods_da_carrier_phase_rec_0_0 = mods.da_carrier_phase_rec(((1/sqrt(2))*preamble_syms), 0.001, 1/sqrt(2), int(const_order), True, True)
         self.framers_gr_hdlc_deframer_b_0 = framers.gr_hdlc_deframer_b(0)
@@ -959,7 +1007,7 @@ class rx_gui(gr.top_block, Qt.QWidget):
         self.connect((self.blocks_unpack_k_bits_bb_0, 0), (self.digital_map_bb_0_0_0, 0))
         self.connect((self.digital_constellation_decoder_cb_0, 0), (self.blocks_unpack_k_bits_bb_0, 0))
         self.connect((self.digital_costas_loop_cc_0, 0), (self.frame_synchronizer_0, 0))
-        self.connect((self.digital_costas_loop_cc_0, 0), (self.mods_mer_measurement_0, 0))
+        self.connect((self.digital_costas_loop_cc_0, 0), (self.mods_mer_measurement_pre_frame_sync, 0))
         self.connect((self.digital_costas_loop_cc_0, 0), (self.qtgui_const_sink_costas_const, 0))
         self.connect((self.digital_costas_loop_cc_0, 1), (self.qtgui_costas_state, 0))
         self.connect((self.digital_descrambler_bb_0, 0), (self.blocks_char_to_float_0_0, 0))
@@ -974,11 +1022,13 @@ class rx_gui(gr.top_block, Qt.QWidget):
         self.connect((self.frame_synchronizer_0, 3), (self.qtgui_time_sink_x_0_0, 0))
         self.connect((self.frame_synchronizer_0, 4), (self.qtgui_time_sink_x_2, 0))
         self.connect((self.mods_da_carrier_phase_rec_0_0, 0), (self.digital_constellation_decoder_cb_0, 0))
+        self.connect((self.mods_da_carrier_phase_rec_0_0, 0), (self.mods_mer_measurement_pre_decoder, 0))
         self.connect((self.mods_da_carrier_phase_rec_0_0, 0), (self.qtgui_const_sink_x_1, 0))
         self.connect((self.mods_da_carrier_phase_rec_0_0, 1), (self.qtgui_time_sink_x_0, 0))
         self.connect((self.mods_ffw_coarse_freq_rec_0, 1), (self.qtgui_time_sink_x_1, 0))
         self.connect((self.mods_ffw_coarse_freq_rec_0, 0), (self.qtgui_vector_sink_f_0, 0))
-        self.connect((self.mods_mer_measurement_0, 0), (self.qtgui_mer_measurement, 0))
+        self.connect((self.mods_mer_measurement_pre_decoder, 0), (self.qtgui_mer_measurement_pre_decoder, 0))
+        self.connect((self.mods_mer_measurement_pre_frame_sync, 0), (self.qtgui_mer_measurement_pre_frame_sync, 0))
         self.connect((self.mods_nco_cc_0, 0), (self.digital_pfb_clock_sync_xxx_0, 0))
         self.connect((self.mods_nco_cc_0, 0), (self.qtgui_freq_sink_fll_in_1, 1))
         self.connect((self.mods_turbo_decoder_0, 0), (self.digital_descrambler_bb_0, 0))
@@ -1252,7 +1302,8 @@ class rx_gui(gr.top_block, Qt.QWidget):
         self.qtgui_time_sink_x_2.set_samp_rate(self.sym_rate)
         self.qtgui_time_sink_x_0_0.set_samp_rate(self.sym_rate)
         self.qtgui_pmf_peak_vs_time.set_samp_rate(self.sym_rate)
-        self.qtgui_mer_measurement.set_samp_rate(self.sym_rate)
+        self.qtgui_mer_measurement_pre_frame_sync.set_samp_rate(self.sym_rate)
+        self.qtgui_mer_measurement_pre_decoder.set_samp_rate(self.sym_rate)
         self.qtgui_costas_state.set_samp_rate(self.sym_rate)
 
     def get_phy_preamble_overhead(self):
