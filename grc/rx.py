@@ -3,7 +3,7 @@
 ##################################################
 # GNU Radio Python Flow Graph
 # Title: Rx
-# Generated: Sat Dec  2 22:58:38 2017
+# Generated: Sun Mar  4 15:23:05 2018
 ##################################################
 
 from gnuradio import blocks
@@ -70,6 +70,7 @@ class rx(gr.top_block):
         self.n_codewords = n_codewords = 1
         self.const_order = const_order = pow(2,constellation.bits_per_symbol())
         self.codeword_len = codeword_len = 18444
+        self.variable_rx_logger_0 = variable_rx_logger_0 = 0
         self.usrp_rx_addr = usrp_rx_addr = "192.168.10.2"
         self.tuning_control = mods.tuning_control(0, 0, 1, self)
         self.sym_rate = sym_rate = samp_rate/sps
@@ -104,6 +105,18 @@ class rx(gr.top_block):
             samp_rate=samp_rate,
             rf_center_freq=freq,
         )
+        self.mods_mer_measurement_pre_frame_sync = mods.mer_measurement(1024, int(const_order))
+        self.frame_synchronizer_0 = mods.frame_synchronizer(
+            M=int(const_order),
+            equalize=1,
+            fix_phase=1,
+            fw_preamble=1,
+            payload_size=payload_size,
+            pmf_peak_threshold=pmf_peak_threshold,
+            preamble_size=preamble_size,
+            preamble_syms=preamble_syms,
+            verbosity=frame_sync_verbosity,
+        )
 
         def _est_cfo_hz_probe():
             while True:
@@ -117,22 +130,19 @@ class rx(gr.top_block):
         _est_cfo_hz_thread.daemon = True
         _est_cfo_hz_thread.start()
 
+
+        self.variable_rx_logger_0 = mods.rx_logger(
+            self.mods_mer_measurement_pre_frame_sync,
+            1,
+            self.frame_synchronizer_0.mods_frame_sync_fast_0,
+            8
+        )
+
         self.mods_turbo_decoder_0 = mods.turbo_decoder(codeword_len, dataword_len)
         self.mods_nco_cc_0 = mods.nco_cc((2*pi*(est_cfo_hz/samp_rate)), 100)
         self.mods_fifo_async_sink_0 = mods.fifo_async_sink('/tmp/async_rx')
         self.mods_da_carrier_phase_rec_0_0 = mods.da_carrier_phase_rec(((1/sqrt(2))*preamble_syms), 0.001, 1/sqrt(2), int(const_order), True, True)
         self.framers_gr_hdlc_deframer_b_0 = framers.gr_hdlc_deframer_b(0)
-        self.frame_synchronizer_0 = mods.frame_synchronizer(
-            M=int(const_order),
-            equalize=1,
-            fix_phase=1,
-            fw_preamble=1,
-            payload_size=payload_size,
-            pmf_peak_threshold=pmf_peak_threshold,
-            preamble_size=preamble_size,
-            preamble_syms=preamble_syms,
-            verbosity=frame_sync_verbosity,
-        )
         self.digital_pfb_clock_sync_xxx_0 = digital.pfb_clock_sync_ccf(sps, 2*pi/50, (rrc_taps), nfilts, nfilts/2, pi/8, 1)
         self.digital_map_bb_0_0_0 = digital.map_bb(([1,- 1]))
         self.digital_descrambler_bb_0 = digital.descrambler_bb(0x21, 0x7F, 16)
@@ -143,6 +153,7 @@ class rx(gr.top_block):
         self.blocks_null_sink_0_0_0_0 = blocks.null_sink(gr.sizeof_float*1)
         self.blocks_null_sink_0_0_0 = blocks.null_sink(gr.sizeof_float*1)
         self.blocks_null_sink_0_0 = blocks.null_sink(gr.sizeof_float*1)
+        self.blocks_null_sink_0 = blocks.null_sink(gr.sizeof_float*1)
         self.blocks_float_to_complex_0 = blocks.float_to_complex(1)
         self.blocks_divide_xx_0 = blocks.divide_cc(1)
 
@@ -157,6 +168,7 @@ class rx(gr.top_block):
         self.connect((self.blocks_unpack_k_bits_bb_0, 0), (self.digital_map_bb_0_0_0, 0))
         self.connect((self.digital_constellation_decoder_cb_0, 0), (self.blocks_unpack_k_bits_bb_0, 0))
         self.connect((self.digital_costas_loop_cc_0, 0), (self.frame_synchronizer_0, 0))
+        self.connect((self.digital_costas_loop_cc_0, 0), (self.mods_mer_measurement_pre_frame_sync, 0))
         self.connect((self.digital_descrambler_bb_0, 0), (self.framers_gr_hdlc_deframer_b_0, 0))
         self.connect((self.digital_map_bb_0_0_0, 0), (self.mods_turbo_decoder_0, 0))
         self.connect((self.digital_pfb_clock_sync_xxx_0, 0), (self.digital_costas_loop_cc_0, 0))
@@ -166,6 +178,7 @@ class rx(gr.top_block):
         self.connect((self.mods_da_carrier_phase_rec_0_0, 1), (self.blocks_null_sink_0_0, 0))
         self.connect((self.mods_da_carrier_phase_rec_0_0, 0), (self.digital_constellation_decoder_cb_0, 0))
         self.connect((self.mods_ffw_coarse_freq_rec_0, 1), (self.blocks_null_sink_0_0_0_0, 0))
+        self.connect((self.mods_mer_measurement_pre_frame_sync, 0), (self.blocks_null_sink_0, 0))
         self.connect((self.mods_nco_cc_0, 0), (self.digital_pfb_clock_sync_xxx_0, 0))
         self.connect((self.mods_turbo_decoder_0, 0), (self.digital_descrambler_bb_0, 0))
         self.connect((self.rtlsdr_source_0, 0), (self.blocks_divide_xx_0, 0))
@@ -392,6 +405,12 @@ class rx(gr.top_block):
     def set_codeword_len(self, codeword_len):
         self.codeword_len = codeword_len
         self.set_payload_size(self.codeword_len*self.n_codewords/int(numpy.log2(self.const_order)))
+
+    def get_variable_rx_logger_0(self):
+        return self.variable_rx_logger_0
+
+    def set_variable_rx_logger_0(self, variable_rx_logger_0):
+        self.variable_rx_logger_0 = variable_rx_logger_0
 
     def get_usrp_rx_addr(self):
         return self.usrp_rx_addr

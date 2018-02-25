@@ -1099,6 +1099,49 @@
     </param>
   </block>
   <block>
+    <key>variable_rx_logger</key>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>frame_synchronizer</key>
+      <value>self.frame_synchronizer_0</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(1160, 208)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>variable_rx_logger_0</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>frame_sync_log_period</key>
+      <value>8</value>
+    </param>
+    <param>
+      <key>snr_log_period</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>snr_meter</key>
+      <value>self.mods_mer_measurement_pre_frame_sync</value>
+    </param>
+  </block>
+  <block>
     <key>blocks_char_to_float</key>
     <param>
       <key>alias</key>
@@ -2509,7 +2552,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(880, 1028)</value>
+      <value>(880, 1020)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -11574,7 +11617,7 @@ from function probe</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(880, 948)</value>
+      <value>(880, 940)</value>
     </param>
     <param>
       <key>_rotation</key>

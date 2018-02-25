@@ -3,7 +3,7 @@
 ##################################################
 # GNU Radio Python Flow Graph
 # Title: Rx Gui
-# Generated: Sun Feb 11 12:39:16 2018
+# Generated: Sun Mar  4 15:19:26 2018
 ##################################################
 
 if __name__ == '__main__':
@@ -113,6 +113,7 @@ class rx_gui(gr.top_block, Qt.QWidget):
         self.phy_preamble_overhead = phy_preamble_overhead = 1.0* preamble_size / (preamble_size + payload_size)
         self.n_rrc_taps = n_rrc_taps = rrc_delay * int(sps*nfilts)
         self.code_rate = code_rate = 1.0*dataword_len/codeword_len
+        self.variable_rx_logger_0 = variable_rx_logger_0 = 0
         self.usrp_rx_addr = usrp_rx_addr = "192.168.10.2"
         self.tuning_control = mods.tuning_control(0, 0, 1, self)
         self.rrc_taps = rrc_taps = firdes.root_raised_cosine(nfilts, nfilts*sps, 1.0, excess_bw, n_rrc_taps)
@@ -181,6 +182,18 @@ class rx_gui(gr.top_block, Qt.QWidget):
         self.tabs_layout_6.addLayout(self.tabs_grid_layout_6)
         self.tabs.addTab(self.tabs_widget_6, 'Auto. Gain Control')
         self.top_layout.addWidget(self.tabs)
+        self.mods_mer_measurement_pre_frame_sync = mods.mer_measurement(1024, int(const_order))
+        self.frame_synchronizer_0 = mods.frame_synchronizer(
+            M=int(const_order),
+            equalize=1,
+            fix_phase=1,
+            fw_preamble=1,
+            payload_size=payload_size,
+            pmf_peak_threshold=pmf_peak_threshold,
+            preamble_size=preamble_size,
+            preamble_syms=preamble_syms,
+            verbosity=frame_sync_verbosity,
+        )
 
         def _est_cfo_hz_probe():
             while True:
@@ -193,6 +206,14 @@ class rx_gui(gr.top_block, Qt.QWidget):
         _est_cfo_hz_thread = threading.Thread(target=_est_cfo_hz_probe)
         _est_cfo_hz_thread.daemon = True
         _est_cfo_hz_thread.start()
+
+
+        self.variable_rx_logger_0 = mods.rx_logger(
+            self.mods_mer_measurement_pre_frame_sync,
+            1,
+            self.frame_synchronizer_0.mods_frame_sync_fast_0,
+            8
+        )
 
         self.qtgui_vector_sink_f_0 = qtgui.vector_sink_f(
             fft_len,
@@ -961,22 +982,10 @@ class rx_gui(gr.top_block, Qt.QWidget):
         self.tabs_grid_layout_4.addWidget(self._qtgui_const_sink_costas_const_win, 1,0)
         self.mods_turbo_decoder_0 = mods.turbo_decoder(codeword_len, dataword_len)
         self.mods_nco_cc_0 = mods.nco_cc((2*pi*(est_cfo_hz/samp_rate)), 100)
-        self.mods_mer_measurement_pre_frame_sync = mods.mer_measurement(1024, int(const_order))
         self.mods_mer_measurement_pre_decoder = mods.mer_measurement(1024, int(const_order))
         self.mods_fifo_async_sink_0 = mods.fifo_async_sink('/tmp/async_rx')
         self.mods_da_carrier_phase_rec_0_0 = mods.da_carrier_phase_rec(((1/sqrt(2))*preamble_syms), 0.001, 1/sqrt(2), int(const_order), True, True)
         self.framers_gr_hdlc_deframer_b_0 = framers.gr_hdlc_deframer_b(0)
-        self.frame_synchronizer_0 = mods.frame_synchronizer(
-            M=int(const_order),
-            equalize=1,
-            fix_phase=1,
-            fw_preamble=1,
-            payload_size=payload_size,
-            pmf_peak_threshold=pmf_peak_threshold,
-            preamble_size=preamble_size,
-            preamble_syms=preamble_syms,
-            verbosity=frame_sync_verbosity,
-        )
         self.digital_pfb_clock_sync_xxx_0 = digital.pfb_clock_sync_ccf(sps, 2*pi/50, (rrc_taps), nfilts, nfilts/2, pi/8, 1)
         self.digital_map_bb_0_0_0 = digital.map_bb(([1,- 1]))
         self.digital_descrambler_bb_0 = digital.descrambler_bb(0x21, 0x7F, 16)
@@ -1267,16 +1276,16 @@ class rx_gui(gr.top_block, Qt.QWidget):
 
     def set_preamble_size(self, preamble_size):
         self.preamble_size = preamble_size
-        self.set_phy_preamble_overhead(1.0* self.preamble_size / (self.preamble_size + self.payload_size))
         self.frame_synchronizer_0.set_preamble_size(self.preamble_size)
+        self.set_phy_preamble_overhead(1.0* self.preamble_size / (self.preamble_size + self.payload_size))
 
     def get_payload_size(self):
         return self.payload_size
 
     def set_payload_size(self, payload_size):
         self.payload_size = payload_size
-        self.set_phy_preamble_overhead(1.0* self.preamble_size / (self.preamble_size + self.payload_size))
         self.frame_synchronizer_0.set_payload_size(self.payload_size)
+        self.set_phy_preamble_overhead(1.0* self.preamble_size / (self.preamble_size + self.payload_size))
 
     def get_nfilts(self):
         return self.nfilts
@@ -1326,6 +1335,12 @@ class rx_gui(gr.top_block, Qt.QWidget):
     def set_code_rate(self, code_rate):
         self.code_rate = code_rate
         self.set_phy_bit_rate(self.sym_rate* ( constellation.bits_per_symbol() ) * (self.code_rate) * (1.-self.phy_preamble_overhead))
+
+    def get_variable_rx_logger_0(self):
+        return self.variable_rx_logger_0
+
+    def set_variable_rx_logger_0(self, variable_rx_logger_0):
+        self.variable_rx_logger_0 = variable_rx_logger_0
 
     def get_usrp_rx_addr(self):
         return self.usrp_rx_addr
