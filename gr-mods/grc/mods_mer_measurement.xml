@@ -5,6 +5,7 @@
   <category>[mods]</category>
   <import>import mods</import>
   <make>mods.mer_measurement($N, $M)</make>
+  <callback>get_snr()</callback>
   <!-- Make one 'param' node for every Parameter you want settable from the GUI.
        Sub-nodes:
        * name
@@ -20,7 +21,6 @@
     <key>M</key>
     <type>int</type>
   </param>
-
   <!-- Make one 'sink' node per input. Sub-nodes:
        * name (an identifier for the GUI)
        * type

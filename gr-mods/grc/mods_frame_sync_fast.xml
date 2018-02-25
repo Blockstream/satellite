@@ -5,6 +5,8 @@
   <category>Synchronizers</category>
   <import>import mods</import>
   <make>mods.frame_sync_fast($treshold, $preamble_len, $payload_len, $equalize, $fix_phase, $const_order, $fw_preamble, $verbosity)</make>
+  <callback>get_timing_rec_indicator()</callback>
+  <callback>get_state()</callback>
   <!-- Make one 'param' node for every Parameter you want settable from the GUI.
        Sub-nodes:
        * name

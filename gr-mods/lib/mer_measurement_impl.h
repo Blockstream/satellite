@@ -34,6 +34,7 @@ namespace gr {
        int d_i_sym;
        float d_e_sum;
        std::vector<float> d_delay_line;
+       float d_snr_db;
 
      public:
       mer_measurement_impl(int N, int M);
@@ -44,6 +45,9 @@ namespace gr {
          gr_vector_const_void_star &input_items,
          gr_vector_void_star &output_items);
       gr_complex slice_symbol(const gr_complex &sample);
+
+      // Public metrics
+      float get_snr();
     };
 
   } // namespace mods

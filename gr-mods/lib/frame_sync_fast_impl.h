@@ -41,6 +41,7 @@ namespace gr {
       gr_complex d_phase_rot;
       float d_last_max;
       float d_last_mag_peak;
+      float d_timing_metric_mov_max;
       gr_complex d_pmf_at_last_max;
       int d_i_last_max;
       int d_i_after_peak;
@@ -69,16 +70,18 @@ namespace gr {
 
       // Where all the action really happens
       void forecast (int noutput_items, gr_vector_int &ninput_items_required);
+      int mov_max_timing_metric(float timing_metric, gr_complex norm_c_pmf);
       int is_corr_peak(float timing_metric, gr_complex norm_c_pmf);
       int postprocess_peak(int is_peak_in, int offset_prev_peak);
       int check_frame_part(int is_peak);
       int verify_frame_acquisition(int d_peak);
       int verify_frame_lock_loss(int is_pmf_peak);
       gr_complex resolve_phase(float pmf_peak_re, float pmf_peak_im);
-      void print_system_timestamp();
 
       /* Get timing metrict */
       float get_avg_timing_metric();
+      float get_timing_rec_indicator();
+      int get_state();
 
       int general_work(int noutput_items,
         gr_vector_int &ninput_items,

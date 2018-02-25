@@ -47,6 +47,8 @@ namespace gr {
        * creating new instances.
        */
       static sptr make(int N, int M);
+
+      virtual float get_snr() = 0;
     };
 
   } // namespace mods

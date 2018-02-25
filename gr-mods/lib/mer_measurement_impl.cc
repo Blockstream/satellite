@@ -49,7 +49,8 @@ namespace gr {
         d_N(N), // Averaging length
         d_M(M), // Constellation Order
         d_i_sym(0), // Symbol index used to keep track of the transitory
-        d_e_sum(0.0) // Symbol mag sq. error sum
+        d_e_sum(0.0), // Symbol mag sq. error sum
+        d_snr_db(0.0)
     {
       d_delay_line.resize(N);
     }
@@ -75,7 +76,8 @@ namespace gr {
       gr_complex origin = gr_complex(0,0);
 
       // Perform ML decoding over the input iq data to generate alphabets
-      for(int i = 0; i < noutput_items; i++)
+      int i;
+      for(i = 0; i < noutput_items; i++)
       {
         // Keep track of the initialization transitory
         if (d_i_sym < d_N) {
@@ -114,7 +116,10 @@ namespace gr {
         // Output MER in dB
         out[i] = 10.0*log10(lin_mer);
 
-        // Prints
+        // Save globally
+        d_snr_db = out[i];
+
+        // Debug Prints
         // printf("Symbol In \t Real:\t %f\t Imag:\t %f\n", in[i].real(), in[i].imag());
         // printf("Sliced \t Real:\t %f\t Imag:\t %f\n", Ik.real(), Ik.imag());
         // printf("Error \t Real:\t %f\t Imag:\t %f\n", sym_err_k.real(), sym_err_k.imag());
@@ -155,6 +160,14 @@ namespace gr {
       } else {
         return gr_complex(0,0);
       }
+    }
+
+    /*
+     * Get SNR
+     */
+    float mer_measurement_impl::get_snr()
+    {
+      return d_snr_db;
     }
 
   } /* namespace mods */

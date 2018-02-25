@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+<block>
+    <name>Receiver Logger</name>
+    <key>variable_rx_logger</key>
+    <category>[mods]</category>
+    <import>import mods</import>
+    <var_make>self.$(id) = $(id) = $value</var_make>
+    <make>
+self.$(id) = mods.rx_logger(
+    $(snr_meter()),
+    $snr_log_period,
+    $(frame_synchronizer()).mods_frame_sync_fast_0,
+    $frame_sync_log_period
+)
+    </make>
+    <callback>self.set_$(id)($value)</callback>
+    <param>
+        <name>SNR</name>
+        <key>snr_meter</key>
+        <value></value>
+        <type>string</type>
+    </param>
+    <param>
+        <name>Log Period (sec)</name>
+        <key>snr_log_period</key>
+        <value>1</value>
+        <type>real</type>
+    </param>
+    <param>
+        <name>Frame Sync</name>
+        <key>frame_synchronizer</key>
+        <value></value>
+        <type>string</type>
+    </param>
+    <param>
+        <name>Log Period (sec)</name>
+        <key>frame_sync_log_period</key>
+        <value>1</value>
+        <type>real</type>
+    </param>
+    <param>
+        <name>Initial Value</name>
+        <key>value</key>
+        <value>0</value>
+        <type>raw</type>
+        <hide>part</hide>
+    </param>
+</block>
+

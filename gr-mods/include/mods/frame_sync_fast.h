@@ -38,7 +38,6 @@ namespace gr {
      public:
       typedef boost::shared_ptr<frame_sync_fast> sptr;
 
-      virtual float get_avg_timing_metric() = 0;
       /*!
        * \brief Return a shared_ptr to a new instance of mods::frame_sync_fast.
        *
@@ -49,8 +48,13 @@ namespace gr {
        */
       static sptr make(float treshold, int preamble_len, int payload_len, int n_init_peak, int equalize, int fix_phase, int const_order, int verbosity);
 
+      /*
+       * Getters for public metrics
+       */
+      virtual float get_avg_timing_metric() = 0;
+      virtual float get_timing_rec_indicator() = 0;
+      virtual int get_state() = 0;
     };
-
   } // namespace mods
 } // namespace gr
 

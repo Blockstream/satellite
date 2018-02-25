@@ -23,16 +23,17 @@
 #endif
 
 #include <gnuradio/io_signature.h>
-#include "frame_sync_fast_impl.h"
 #include <gnuradio/math.h>
 #include <cstdio>
 #include <iostream>
 #include <chrono>
 #include <ctime>
+#include "frame_sync_fast_impl.h"
 
 #define DEBUG_LOG 0
 #define AVG_LEN 200
 #define FRAME_ACQUIRED_CNT 50
+#define PEAK_PRINT_INTERVAL 8
 
 #define FRAME_PAYLOAD   2
 #define FRAME_PREAMBLE  1
@@ -50,6 +51,16 @@ void __debug_log(const char* fmt, ...)
 
 namespace gr {
   namespace mods {
+
+    /*
+     * Print System Timestamp
+     */
+    static void print_system_timestamp() {
+      std::chrono::time_point<std::chrono::system_clock> now;
+      now = std::chrono::system_clock::now();
+      std::time_t now_time = std::chrono::system_clock::to_time_t(now);
+      std::cout << "-- On " << std::ctime(&now_time);
+    }
 
     frame_sync_fast::sptr
     frame_sync_fast::make(float treshold, int preamble_len, int payload_len, int equalize, int fix_phase, int const_order, int fw_preamble, int verbosity)
@@ -82,6 +93,7 @@ namespace gr {
     d_eq_gain(0.0),
     d_last_max(0.0),
     d_last_mag_peak(0.0),
+    d_timing_metric_mov_max(0.0),
     d_pmf_at_last_max(0.0),
     d_i_after_peak(0),
     d_i_sym(0),
@@ -110,16 +122,6 @@ namespace gr {
     {
     }
 
-    /*
-     * Timestamp
-     */
-    void frame_sync_fast_impl::print_system_timestamp() {
-      std::chrono::time_point<std::chrono::system_clock> now;
-      now = std::chrono::system_clock::now();
-      std::time_t now_time = std::chrono::system_clock::to_time_t(now);
-      std::cout << "-- On " << std::ctime(&now_time);
-    }
-
     void
     frame_sync_fast_impl::forecast (int noutput_items, gr_vector_int &ninput_items_required)
     {
@@ -138,6 +140,23 @@ namespace gr {
       d_n_timing_metric = 0.0;
       //printf("Cur avg %f\n", avg);
       return avg;
+    }
+
+    /*
+     * Track timing metric max
+     *
+     * Use a moving-max implementation in order to track the maximum of timing
+     * metric. This is done just for the purposes of printing the timing metric
+     * peak.
+     */
+    int frame_sync_fast_impl::mov_max_timing_metric(float timing_metric,
+                                                    gr_complex norm_c_pmf)
+    {
+      // Consider the timing metric only if the PMF output is significant
+      if (timing_metric > d_timing_metric_mov_max &&
+          (fabs(norm_c_pmf) > 0.0001)) {
+        d_timing_metric_mov_max = timing_metric;
+      }
     }
 
     /*
@@ -364,7 +383,7 @@ namespace gr {
           printf("\n##########################################\n");
           printf("-- Frame synchronization acquired\n");
           print_system_timestamp();
-          printf("##########################################\n");
+          printf("##########################################\n\n");
         }
       } else {
         is_frame_time_acquired = 0;
@@ -392,7 +411,7 @@ namespace gr {
           printf("\n##########################################\n");
           printf("-- Frame synchronization lost\n");
           print_system_timestamp();
-          printf("##########################################\n");
+          printf("##########################################\n\n");
         }
       } else {
         frame_lock_loss = 0;
@@ -441,6 +460,9 @@ namespace gr {
           // Check the index offset of the current symbol relative to the
           // previous peak:
           offset_prev_peak = d_i_sym - d_i_prev_peak;
+
+          // Track maximum of the timing metric
+          mov_max_timing_metric(timing_metric[i], norm_c_corr[i]);
 
           // Check if the current PMF sample corresponds to the main peak
           is_pmf_peak = is_corr_peak(timing_metric[i], norm_c_corr[i]);
@@ -538,5 +560,22 @@ namespace gr {
         return n_produced;
       }
 
+      /*
+       * Get normalize percent timing metric
+       *
+       */
+      float frame_sync_fast_impl::get_timing_rec_indicator()
+      {
+          return (d_timing_metric_mov_max/d_threshold)*100;
+      }
+
+      /*
+       * Get frame timing synchronization state
+       *
+       */
+      int frame_sync_fast_impl::get_state()
+      {
+          return d_frame_lock;
+      }
     } /* namespace mods */
   } /* namespace gr */
