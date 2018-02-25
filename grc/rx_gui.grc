@@ -7979,11 +7979,11 @@ from function probe</value>
     </param>
     <param>
       <key>ymax</key>
-      <value>128</value>
+      <value>255</value>
     </param>
     <param>
       <key>ymin</key>
-      <value>-128</value>
+      <value>0</value>
     </param>
   </block>
   <block>

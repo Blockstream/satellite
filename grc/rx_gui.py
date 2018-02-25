@@ -287,7 +287,7 @@ class rx_gui(gr.top_block, Qt.QWidget):
         	1 #number of inputs
         )
         self.qtgui_time_sink_x_1_0_0.set_update_time(0.10)
-        self.qtgui_time_sink_x_1_0_0.set_y_axis(-128, 128)
+        self.qtgui_time_sink_x_1_0_0.set_y_axis(0, 255)
 
         self.qtgui_time_sink_x_1_0_0.set_y_label('Amplitude', "")
 
