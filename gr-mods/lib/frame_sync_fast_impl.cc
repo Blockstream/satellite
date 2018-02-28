@@ -159,7 +159,7 @@ namespace gr {
        * metric, but with the important distinction that its value is normalized
        * by the theoretical preamble energy, rather than the Rx energy.
        */
-      if (timing_metric > d_threshold && (fabs(norm_c_pmf) > 0.0001)){
+      if (timing_metric > d_threshold && (fabs(norm_c_pmf) > 0.01)){
         // Keep track of the number of peaks found for the frame
         d_n_peak_found++;
         // Update the maximum of the timing metric
