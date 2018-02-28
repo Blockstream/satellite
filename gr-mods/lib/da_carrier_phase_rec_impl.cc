@@ -107,7 +107,7 @@ namespace gr {
       * Carrier Phase Error Detector Gain is unitary (Kp = 1)
       * DDS Gain is unitary (K0 = 1)
       */
-      printf("K1 configured to:\t %f\n", K1);
+      // printf("K1 configured to:\t %f\n", K1);
 
       return K1;
     }
@@ -133,7 +133,7 @@ namespace gr {
       * Carrier Phase Error Detector Gain is unitary (Kp = 1)
       * DDS Gain is unitary (K0 = 1)
       */
-      printf("K2 configured to:\t %f\n", K2);
+      // printf("K2 configured to:\t %f\n", K2);
 
       return K2;
     }
