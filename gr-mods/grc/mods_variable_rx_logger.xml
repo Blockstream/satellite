@@ -9,7 +9,7 @@
 self.$(id) = mods.rx_logger(
     $(snr_meter()),
     $snr_log_period,
-    $(frame_synchronizer()).mods_frame_sync_fast_0,
+    $(frame_synchronizer()),
     $frame_sync_log_period,
     $(decoder()),
     $ber_log_period

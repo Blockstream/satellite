@@ -130,3 +130,10 @@ class frame_synchronizer(gr.hier_block2):
 
     def set_verbosity(self, verbosity):
         self.verbosity = verbosity
+
+    def get_state(self):
+        return self.mods_frame_sync_fast_0.get_state()
+
+    def get_timing_rec_indicator(self):
+        return self.mods_frame_sync_fast_0.get_timing_rec_indicator()
+
