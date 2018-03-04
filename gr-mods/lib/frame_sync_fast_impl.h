@@ -63,13 +63,7 @@ namespace gr {
       std::vector<int> d_peak_dist_hist;
       std::vector<float> d_central_diff;
 
-
-    public:
-      frame_sync_fast_impl(float treshold, int preamble_len, int payload_len, int equalize, int fix_phase, int const_order, int d_fw_preamble, int verbosity);
-      ~frame_sync_fast_impl();
-
-      // Where all the action really happens
-      void forecast (int noutput_items, gr_vector_int &ninput_items_required);
+      // Internal processing
       int mov_max_timing_metric(float timing_metric, gr_complex norm_c_pmf);
       int is_corr_peak(float timing_metric, gr_complex norm_c_pmf);
       int postprocess_peak(int is_peak_in, int offset_prev_peak);
@@ -78,7 +72,15 @@ namespace gr {
       int verify_frame_lock_loss(int is_pmf_peak);
       gr_complex resolve_phase(float pmf_peak_re, float pmf_peak_im);
 
-      /* Get timing metrict */
+
+    public:
+      frame_sync_fast_impl(float treshold, int preamble_len, int payload_len, int equalize, int fix_phase, int const_order, int d_fw_preamble, int verbosity);
+      ~frame_sync_fast_impl();
+
+      // Where all the action really happens
+      void forecast (int noutput_items, gr_vector_int &ninput_items_required);
+
+      // Public getters
       float get_avg_timing_metric();
       float get_timing_rec_indicator();
       int get_state();
@@ -87,8 +89,8 @@ namespace gr {
         gr_vector_int &ninput_items,
         gr_vector_const_void_star &input_items,
         gr_vector_void_star &output_items);
-      };
 
+      };
     } // namespace mods
   } // namespace gr
 
