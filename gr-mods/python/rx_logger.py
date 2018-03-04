@@ -125,7 +125,7 @@ class rx_logger():
         # Use mutex to coordinate logs
         lock = threading.Lock()
 
-        # Declare and start loggers
+        # Declare loggers
 
         if (snr_meter_obj):
 
@@ -133,8 +133,6 @@ class rx_logger():
                                 snr_log_period,
                                 print_snr,
                                 lock)
-            snr_logger.start()
-
 
         if (frame_synchronizer_obj):
 
@@ -142,7 +140,6 @@ class rx_logger():
                                        frame_sync_log_period,
                                        print_frame_sync,
                                        lock)
-            frame_sync_logger.start()
 
         if (decoder_obj):
 
@@ -150,6 +147,21 @@ class rx_logger():
                                 ber_log_period,
                                 print_ber,
                                 lock)
-            ber_logger.start()
 
+        # Start loggers
+
+        if (snr_meter_obj):
+
+            snr_logger.start()
+            time.sleep(0.01)
+
+        if (frame_synchronizer_obj):
+
+            frame_sync_logger.start()
+            time.sleep(0.01)
+
+        if (decoder_obj):
+
+            ber_logger.start()
+            time.sleep(0.01)
 
