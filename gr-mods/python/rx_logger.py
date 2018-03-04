@@ -95,6 +95,23 @@ def print_snr(block_obj):
     sys.stdout.flush()
 
 
+def print_ber(block_obj):
+
+    # Get BER
+    ber = block_obj.get_ber()
+
+    # Print
+    sys.stdout.write("----------------------------------------")
+    sys.stdout.write("----------------------------------------\n")
+    sys.stdout.write("[" + time.strftime("%Y-%m-%d %H:%M:%S") + "] ")
+    sys.stdout.write("BER: ");
+    sys.stdout.write(str("{:.2E}".format(ber)));
+    sys.stdout.write("\r\n");
+    sys.stdout.write("----------------------------------------")
+    sys.stdout.write("----------------------------------------\n")
+    sys.stdout.flush()
+
+
 class rx_logger():
     """Rx Logger
 
@@ -103,7 +120,7 @@ class rx_logger():
     """
 
     def __init__(self, snr_meter_obj, snr_log_period, frame_synchronizer_obj,
-                 frame_sync_log_period):
+                 frame_sync_log_period, decoder_obj, ber_log_period):
 
         # Use mutex to coordinate logs
         lock = threading.Lock()
@@ -117,8 +134,13 @@ class rx_logger():
                                    frame_sync_log_period,
                                    print_frame_sync,
                                    lock)
+        ber_logger        = Logger(decoder_obj,
+                                   ber_log_period,
+                                   print_ber,
+                                   lock)
 
         # Start threads:
         snr_logger.start()
         frame_sync_logger.start()
+        ber_logger.start()
 
