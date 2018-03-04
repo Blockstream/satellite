@@ -19,7 +19,7 @@ self.$(id) = mods.rx_logger(
     <param>
         <name>SNR</name>
         <key>snr_meter</key>
-        <value></value>
+        <value>None</value>
         <type>string</type>
     </param>
     <param>
@@ -31,7 +31,7 @@ self.$(id) = mods.rx_logger(
     <param>
         <name>Frame Sync</name>
         <key>frame_synchronizer</key>
-        <value></value>
+        <value>None</value>
         <type>string</type>
     </param>
     <param>
@@ -43,7 +43,7 @@ self.$(id) = mods.rx_logger(
     <param>
         <name>Decoder (BER)</name>
         <key>decoder</key>
-        <value></value>
+        <value>None</value>
         <type>string</type>
     </param>
     <param>
