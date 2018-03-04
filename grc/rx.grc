@@ -1024,6 +1024,10 @@
       <value></value>
     </param>
     <param>
+      <key>decoder</key>
+      <value>self.framers_gr_hdlc_deframer_b_0</value>
+    </param>
+    <param>
       <key>_enabled</key>
       <value>True</value>
     </param>
@@ -1046,6 +1050,10 @@
     <param>
       <key>value</key>
       <value>0</value>
+    </param>
+    <param>
+      <key>ber_log_period</key>
+      <value>8</value>
     </param>
     <param>
       <key>frame_sync_log_period</key>

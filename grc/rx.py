@@ -3,7 +3,7 @@
 ##################################################
 # GNU Radio Python Flow Graph
 # Title: Rx
-# Generated: Sun Mar  4 15:23:05 2018
+# Generated: Sun Mar  4 18:00:28 2018
 ##################################################
 
 from gnuradio import blocks
@@ -106,6 +106,7 @@ class rx(gr.top_block):
             rf_center_freq=freq,
         )
         self.mods_mer_measurement_pre_frame_sync = mods.mer_measurement(1024, int(const_order))
+        self.framers_gr_hdlc_deframer_b_0 = framers.gr_hdlc_deframer_b(0)
         self.frame_synchronizer_0 = mods.frame_synchronizer(
             M=int(const_order),
             equalize=1,
@@ -134,7 +135,9 @@ class rx(gr.top_block):
         self.variable_rx_logger_0 = mods.rx_logger(
             self.mods_mer_measurement_pre_frame_sync,
             1,
-            self.frame_synchronizer_0.mods_frame_sync_fast_0,
+            self.frame_synchronizer_0,
+            8,
+            self.framers_gr_hdlc_deframer_b_0,
             8
         )
 
@@ -142,7 +145,6 @@ class rx(gr.top_block):
         self.mods_nco_cc_0 = mods.nco_cc((2*pi*(est_cfo_hz/samp_rate)), 100)
         self.mods_fifo_async_sink_0 = mods.fifo_async_sink('/tmp/async_rx')
         self.mods_da_carrier_phase_rec_0_0 = mods.da_carrier_phase_rec(((1/sqrt(2))*preamble_syms), 0.001, 1/sqrt(2), int(const_order), True, True)
-        self.framers_gr_hdlc_deframer_b_0 = framers.gr_hdlc_deframer_b(0)
         self.digital_pfb_clock_sync_xxx_0 = digital.pfb_clock_sync_ccf(sps, 2*pi/50, (rrc_taps), nfilts, nfilts/2, pi/8, 1)
         self.digital_map_bb_0_0_0 = digital.map_bb(([1,- 1]))
         self.digital_descrambler_bb_0 = digital.descrambler_bb(0x21, 0x7F, 16)
