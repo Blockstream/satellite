@@ -40,6 +40,7 @@ namespace gr {
 
       virtual float get_cfo_estimate() = 0;
       virtual float get_rf_center_freq() = 0;
+      virtual int get_cfo_est_state() = 0;
       /*!
        * \brief Return a shared_ptr to a new instance of mods::runtime_cfo_ctrl.
        *

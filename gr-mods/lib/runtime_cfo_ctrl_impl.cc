@@ -28,6 +28,10 @@
 #include <ctime>
 #include "runtime_cfo_ctrl_impl.h"
 
+// Thresholds used to infer convergence in the estimation:
+#define CFO_EST_MEAN_THRESHOLD 10
+#define CFO_EST_VAR_THRESHOLD  10
+
 namespace gr {
   namespace mods {
 
@@ -50,7 +54,8 @@ namespace gr {
         d_rf_center_freq(rf_center_freq),
         d_cfo_est(0.0),
         d_i_sample(0),
-        d_sleep_count(0)
+        d_sleep_count(0),
+        d_cfo_est_converged(0)
     {}
 
     /*
@@ -92,18 +97,24 @@ namespace gr {
           cfo_est_mean_dev = fabs(freq_offset_in[i] - mean_fo_est[i]);
 
           /*
+           * Check if the CFO estimation has converged, i.e. has low
+           * instantaneous deviation and low variance.
+           */
+          d_cfo_est_converged = (cfo_est_mean_dev < CFO_EST_MEAN_THRESHOLD) &&
+                                (var_fo_est[i] < CFO_EST_VAR_THRESHOLD);
+          /*
            * Check if the current CFO exceeds the threshold, but take actions
-           * only if the CFO estimation is reliable (has low variance).
+           * only if the CFO estimation has converged.
            *
            * When the CFO is approaching the correction range of the method, in
            * order to be able to continue tracking the CFO (if it ends up
-           * exceeding the range), the RF center frequency is changed in the HW.
+           * exceeding the range), the RF center frequency is changed in HW.
            * The HW center freq. is updated using the current CFO estimation
            * and, then, CFO output by this block is set to 0 (since it will be
            * corrected in HW).
            */
            if (fabs(freq_offset_in[i]) > d_abs_cfo_threshold &&
-           cfo_est_mean_dev < 10 && var_fo_est[i] < 10) {
+               d_cfo_est_converged) {
              // Debug
              printf("\n--- Carrier Tracking Mechanism ---\n");
              printf("RF center frequency update.\n");
@@ -150,13 +161,16 @@ namespace gr {
     }
 
     /*
-    * Getters for the RF center frequency and CFO estimate
+    * Getters regarding CFO recovery data
     */
     float runtime_cfo_ctrl_impl::get_cfo_estimate(){
       return d_cfo_est;
     }
     float runtime_cfo_ctrl_impl::get_rf_center_freq(){
       return d_rf_center_freq;
+    }
+    int runtime_cfo_ctrl_impl::get_cfo_est_state(){
+      return d_cfo_est_converged;
     }
 
   } /* namespace mods */

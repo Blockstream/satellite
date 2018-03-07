@@ -114,3 +114,10 @@ class ffw_coarse_freq_rec(gr.hier_block2):
         self.samp_rate = samp_rate
         self.logpwrfft_x_0.set_sample_rate(self.samp_rate)
         self.blocks_multiply_const_vxx_2.set_k((self.samp_rate/(self.fft_len*4), ))
+
+    def get_cfo_estimate(self):
+        return self.mods_runtime_cfo_ctrl_0.get_cfo_estimate()
+
+    def get_cfo_est_state(self):
+        return self.mods_runtime_cfo_ctrl_0.get_cfo_est_state()
+

@@ -12,7 +12,9 @@ self.$(id) = mods.rx_logger(
     $(frame_synchronizer()),
     $frame_sync_log_period,
     $(decoder()),
-    $ber_log_period
+    $ber_log_period,
+    $(cfo_rec()),
+    $cfo_log_period
 )
     </make>
     <callback>self.set_$(id)($value)</callback>
@@ -49,6 +51,18 @@ self.$(id) = mods.rx_logger(
     <param>
         <name>Log Period (sec)</name>
         <key>ber_log_period</key>
+        <value>1</value>
+        <type>real</type>
+    </param>
+        <param>
+        <name>CFO Recovery</name>
+        <key>cfo_rec</key>
+        <value>None</value>
+        <type>string</type>
+    </param>
+    <param>
+        <name>Log Period (sec)</name>
+        <key>cfo_log_period</key>
         <value>1</value>
         <type>real</type>
     </param>

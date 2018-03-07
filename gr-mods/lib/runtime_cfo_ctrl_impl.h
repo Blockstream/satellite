@@ -36,6 +36,9 @@ namespace gr {
       float d_cfo_est;
       int d_i_sample;
       int d_sleep_count;
+      int d_cfo_est_converged;
+
+      void print_system_timestamp();
 
      public:
       runtime_cfo_ctrl_impl(int avg_len, float abs_cfo_threshold, float rf_center_freq);
@@ -47,7 +50,8 @@ namespace gr {
          gr_vector_void_star &output_items);
       float get_cfo_estimate();
       float get_rf_center_freq();
-      void print_system_timestamp();
+      int get_cfo_est_state();
+
     };
 
   } // namespace mods

@@ -71,7 +71,7 @@ def print_frame_sync(block_obj):
         sys.stdout.write("GOOD")
     else:
         sys.stdout.write("WEAK")
-    sys.stdout.write("\r\n");
+    sys.stdout.write("\r\n")
     sys.stdout.write("----------------------------------------")
     sys.stdout.write("----------------------------------------\n")
     sys.stdout.flush()
@@ -112,8 +112,33 @@ def print_ber(block_obj):
     sys.stdout.write("[" + time.strftime("%Y-%m-%d %H:%M:%S") + "] ")
     sys.stdout.write("Bit Error Rate: ")
     sys.stdout.write(str("{:.2E}".format(ber)))
-    sys.stdout.write("\r\n");
+    sys.stdout.write("\r\n")
     sys.stdout.write("----------------------------------------")
+    sys.stdout.write("----------------------------------------\n")
+    sys.stdout.flush()
+
+
+def print_cfo(block_obj):
+
+    # Current CFO estimation
+    cfo = block_obj.get_cfo_estimate()
+
+    # State (whether estimation has converged or not)
+    state = block_obj.get_cfo_est_state()
+
+    # Print
+    sys.stdout.write("----------------------------------------")
+    sys.stdout.write("----------------------------------------\n")
+    sys.stdout.write("[" + time.strftime("%Y-%m-%d %H:%M:%S") + "] ")
+    sys.stdout.write("Carrier Frequency Offset: ")
+
+    if (state):
+        sys.stdout.write(str("{:2.4f}".format(cfo/1e3)) + "kHz")
+        sys.stdout.write(" (CORRECTED)")
+    else:
+        sys.stdout.write("ESTIMATING")
+
+    sys.stdout.write("\n----------------------------------------")
     sys.stdout.write("----------------------------------------\n")
     sys.stdout.flush()
 
@@ -126,7 +151,8 @@ class rx_logger():
     """
 
     def __init__(self, snr_meter_obj, snr_log_period, frame_synchronizer_obj,
-                 frame_sync_log_period, decoder_obj, ber_log_period):
+                 frame_sync_log_period, decoder_obj, ber_log_period,
+                 cfo_rec_obj, cfo_log_period):
 
         # Use mutex to coordinate logs
         lock = threading.Lock()
@@ -154,6 +180,13 @@ class rx_logger():
                                 print_ber,
                                 lock)
 
+        if (cfo_rec_obj):
+
+            cfo_logger = Logger(cfo_rec_obj,
+                                cfo_log_period,
+                                print_cfo,
+                                lock)
+
         # Start loggers
 
         if (snr_meter_obj):
@@ -169,5 +202,10 @@ class rx_logger():
         if (decoder_obj):
 
             ber_logger.start()
+            time.sleep(0.01)
+
+        if (cfo_rec_obj):
+
+            cfo_logger.start()
             time.sleep(0.01)
 

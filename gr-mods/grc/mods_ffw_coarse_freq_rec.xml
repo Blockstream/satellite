@@ -15,6 +15,8 @@
   <callback>set_fft_len($fft_len)</callback>
   <callback>set_samp_rate($samp_rate)</callback>
   <callback>set_rf_center_freq($rf_center_freq)</callback>
+  <callback>get_cfo_estimate()</callback>
+  <callback>get_cfo_est_state()</callback>
   <param>
     <name>Abs CFO Threshold</name>
     <key>abs_cfo_threshold</key>
