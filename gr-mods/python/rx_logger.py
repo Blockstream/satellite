@@ -63,8 +63,14 @@ def print_frame_sync(block_obj):
     else:
         sys.stdout.write("LOCKED")
 
-    sys.stdout.write("\t Timing Indicator: ");
-    sys.stdout.write(str("{:3.4f}".format(timing_indicator)) + " %");
+    sys.stdout.write("\t Timing Indicator: ")
+
+    if (timing_indicator > 200):
+        sys.stdout.write("STRONG")
+    elif (timing_indicator > 100):
+        sys.stdout.write("GOOD")
+    else:
+        sys.stdout.write("WEAK")
     sys.stdout.write("\r\n");
     sys.stdout.write("----------------------------------------")
     sys.stdout.write("----------------------------------------\n")
@@ -104,8 +110,8 @@ def print_ber(block_obj):
     sys.stdout.write("----------------------------------------")
     sys.stdout.write("----------------------------------------\n")
     sys.stdout.write("[" + time.strftime("%Y-%m-%d %H:%M:%S") + "] ")
-    sys.stdout.write("BER: ");
-    sys.stdout.write(str("{:.2E}".format(ber)));
+    sys.stdout.write("Bit Error Rate: ")
+    sys.stdout.write(str("{:.2E}".format(ber)))
     sys.stdout.write("\r\n");
     sys.stdout.write("----------------------------------------")
     sys.stdout.write("----------------------------------------\n")
