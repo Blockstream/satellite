@@ -136,9 +136,11 @@ class rx(gr.top_block):
             self.mods_mer_measurement_pre_frame_sync,
             1,
             self.frame_synchronizer_0,
-            8,
+            10,
             self.framers_gr_hdlc_deframer_b_0,
-            8
+            10,
+            self.mods_ffw_coarse_freq_rec_0,
+            10
         )
 
         self.mods_turbo_decoder_0 = mods.turbo_decoder(codeword_len, dataword_len)

@@ -1020,6 +1020,10 @@
   <block>
     <key>variable_rx_logger</key>
     <param>
+      <key>cfo_rec</key>
+      <value>self.mods_ffw_coarse_freq_rec_0</value>
+    </param>
+    <param>
       <key>comment</key>
       <value></value>
     </param>
@@ -1053,11 +1057,15 @@
     </param>
     <param>
       <key>ber_log_period</key>
-      <value>8</value>
+      <value>10</value>
+    </param>
+    <param>
+      <key>cfo_log_period</key>
+      <value>10</value>
     </param>
     <param>
       <key>frame_sync_log_period</key>
-      <value>8</value>
+      <value>10</value>
     </param>
     <param>
       <key>snr_log_period</key>

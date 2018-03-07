@@ -213,9 +213,11 @@ class rx_gui(gr.top_block, Qt.QWidget):
             self.mods_mer_measurement_pre_frame_sync,
             1,
             self.frame_synchronizer_0,
-            8,
+            10,
             self.framers_gr_hdlc_deframer_b_0,
-            8
+            10,
+            self.mods_ffw_coarse_freq_rec_0,
+            10
         )
 
         self.qtgui_vector_sink_f_0 = qtgui.vector_sink_f(
