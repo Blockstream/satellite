@@ -37,6 +37,7 @@ namespace gr {
       int d_i_sample;
       int d_sleep_count;
       int d_cfo_est_converged;
+      float d_last_converged_cfo_est;
 
       void print_system_timestamp();
 

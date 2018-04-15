@@ -55,7 +55,8 @@ namespace gr {
         d_cfo_est(0.0),
         d_i_sample(0),
         d_sleep_count(0),
-        d_cfo_est_converged(0)
+        d_cfo_est_converged(0),
+        d_last_converged_cfo_est(0.0)
     {}
 
     /*
@@ -113,25 +114,33 @@ namespace gr {
            * and, then, CFO output by this block is set to 0 (since it will be
            * corrected in HW).
            */
-           if (fabs(freq_offset_in[i]) > d_abs_cfo_threshold &&
-               d_cfo_est_converged) {
-             // Debug
-             printf("\n--- Carrier Tracking Mechanism ---\n");
-             printf("RF center frequency update.\n");
-             printf("From:\t %f Hz.\n", d_rf_center_freq);
-             // Adjust the RF center frequency
-             d_rf_center_freq += freq_offset_in[i];
-             // Set the CFO freq. offset to 0 (as if corrected by the new RF
-             // center freq. configuration)
-             freq_offset_out[i] = 0;
-             // Add a sleep interval to prevent further increases in the RF
-             // center frequency while it is being updated in the hardware
-             d_sleep_count = d_avg_len;
-             printf("To:\t %f Hz.\n", d_rf_center_freq);
-             print_system_timestamp();
-             printf("----------------------------------\n");
+           if (d_cfo_est_converged) {
+             if (fabs(freq_offset_in[i]) > d_abs_cfo_threshold) {
+               // Debug
+               printf("\n--- Carrier Tracking Mechanism ---\n");
+               printf("RF center frequency update.\n");
+               printf("From:\t %f Hz.\n", d_rf_center_freq);
+               // Adjust the RF center frequency
+               d_rf_center_freq += freq_offset_in[i];
+               // Set the CFO freq. offset to 0 (as if corrected by the new RF
+               // center freq. configuration)
+               freq_offset_out[i] = 0;
+               // Add a sleep interval to prevent further increases in the RF
+               // center frequency while it is being updated in the hardware
+               d_sleep_count = d_avg_len;
+               printf("To:\t %f Hz.\n", d_rf_center_freq);
+               print_system_timestamp();
+               printf("----------------------------------\n");
+             } else {
+               freq_offset_out[i] = freq_offset_in[i];
+             }
+
+             // Save
+             d_last_converged_cfo_est = freq_offset_out[i];
+
            } else {
-             freq_offset_out[i] = freq_offset_in[i];
+             // No correction is output, unless it is stable (converged)
+             freq_offset_out[i] = d_last_converged_cfo_est;
            }
         } else {
           // Decrement the sleep interval counter
