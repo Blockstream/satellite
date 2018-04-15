@@ -46,6 +46,7 @@ list(APPEND mods_sources
     wrap_fft_index_impl.cc
     exponentiate_const_cci_impl.cc
     runtime_cfo_ctrl_impl.cc
+    argpeak_impl.cc
 )
 #		bash_tools.cpp
 #		cannot_allocate.cpp

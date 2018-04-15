@@ -30,5 +30,6 @@ install(FILES
     nco_cc.h
     wrap_fft_index.h
     exponentiate_const_cci.h
-    runtime_cfo_ctrl.h DESTINATION include/mods
+    runtime_cfo_ctrl.h
+    argpeak.h DESTINATION include/mods
 )

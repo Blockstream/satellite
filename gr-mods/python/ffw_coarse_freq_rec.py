@@ -54,13 +54,12 @@ class ffw_coarse_freq_rec(gr.hier_block2):
         self.blocks_multiply_const_vxx_2 = blocks.multiply_const_vff((samp_rate/(fft_len*4), ))
         self.blocks_moving_average_xx_0_0 = blocks.moving_average_ff(int(1/alpha), 1.0/int(1/alpha), int(4/alpha))
         self.blocks_moving_average_xx_0 = blocks.moving_average_ff(int(1/alpha), 1.0/int(1/alpha), int(4/alpha))
-        self.blocks_argmax_xx_0 = blocks.argmax_fs(fft_len)
+        self.mods_argpeak_0 = mods.argpeak(fft_len, 0.5)
 
         ##################################################
         # Connections
         ##################################################
-        self.connect((self.blocks_argmax_xx_0, 1), (self.blocks_null_sink_0, 0))
-        self.connect((self.blocks_argmax_xx_0, 0), (self.mods_wrap_fft_index_0, 0))
+        self.connect((self.mods_argpeak_0, 0), (self.mods_wrap_fft_index_0, 0))
         self.connect((self.blocks_moving_average_xx_0, 0), (self.blocks_sub_xx_0, 1))
         self.connect((self.blocks_moving_average_xx_0, 0), (self.mods_runtime_cfo_ctrl_0, 1))
         self.connect((self.blocks_moving_average_xx_0_0, 0), (self.mods_runtime_cfo_ctrl_0, 2))
@@ -71,7 +70,7 @@ class ffw_coarse_freq_rec(gr.hier_block2):
         self.connect((self.blocks_short_to_float_0, 0), (self.blocks_multiply_const_vxx_2, 0))
         self.connect((self.blocks_sub_xx_0, 0), (self.blocks_multiply_xx_0, 0))
         self.connect((self.blocks_sub_xx_0, 0), (self.blocks_multiply_xx_0, 1))
-        self.connect((self.logpwrfft_x_0, 0), (self.blocks_argmax_xx_0, 0))
+        self.connect((self.logpwrfft_x_0, 0), (self.mods_argpeak_0, 0))
         self.connect((self.logpwrfft_x_0, 0), (self, 0))
         self.connect((self.mods_exponentiate_const_cci_0, 0), (self.logpwrfft_x_0, 0))
         self.connect((self.mods_runtime_cfo_ctrl_0, 1), (self.blocks_null_sink_1, 0))

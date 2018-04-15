@@ -35,5 +35,6 @@ install(FILES
     mods_exponentiate_const_cci.xml
     mods_runtime_cfo_ctrl.xml
     mods_variable_tuning_control.xml
-    mods_variable_rx_logger.xml DESTINATION share/gnuradio/grc/blocks
+    mods_variable_rx_logger.xml
+    mods_argpeak.xml DESTINATION share/gnuradio/grc/blocks
 )
