@@ -472,7 +472,7 @@
     </param>
     <param>
       <key>function_args</key>
-      <value>self.mods_ffw_coarse_freq_rec_0.mods_runtime_cfo_ctrl_0.get_cfo_estimate(), self.mods_ffw_coarse_freq_rec_0.mods_runtime_cfo_ctrl_0.get_rf_center_freq(), self.rtlsdr_source_0.get_center_freq()</value>
+      <value>self.mods_ffw_coarse_freq_rec_0.mods_runtime_cfo_ctrl_0.get_cfo_estimate(), self.mods_ffw_coarse_freq_rec_0.mods_runtime_cfo_ctrl_0.get_rf_center_freq(), [self.rtlsdr_source_0.get_center_freq() if hasattr(self, 'rtlsdr_source_0') else freq]</value>
     </param>
     <param>
       <key>function_name</key>
