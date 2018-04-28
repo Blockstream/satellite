@@ -1,6 +1,0 @@
-<testsuite errors="0" failures="0" name="unittest.suite.TestSuite" tests="2" time="0.011">
-  <testcase classname="__main__.qa_frame_sync_cc" name="test_001_t" time="0.0049"></testcase>
-  <testcase classname="__main__.qa_frame_sync_cc" name="test_002_t" time="0.0060"></testcase>
-  <system-out><![CDATA[]]></system-out>
-  <system-err><![CDATA[]]></system-err>
-</testsuite>

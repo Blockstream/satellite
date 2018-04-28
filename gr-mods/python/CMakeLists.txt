@@ -31,7 +31,6 @@ endif()
 GR_PYTHON_INSTALL(
     FILES
     __init__.py
-    frame_sync_cc.py
     ffw_coarse_freq_rec.py
     frame_synchronizer.py
     file_source_nonblock.py
@@ -49,7 +48,6 @@ include(GrTest)
 
 set(GR_TEST_TARGET_DEPS gnuradio-mods)
 set(GR_TEST_PYTHON_DIRS ${CMAKE_BINARY_DIR}/swig)
-GR_ADD_TEST(qa_frame_sync_cc ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_frame_sync_cc.py)
 GR_ADD_TEST(qa_frame_sync_fast ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_frame_sync_fast.py)
 GR_ADD_TEST(qa_file_source_nonblock ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_file_source_nonblock.py)
 GR_ADD_TEST(qa_file_sink_nonblock ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_file_sink_nonblock.py)

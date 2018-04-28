@@ -18,7 +18,6 @@
 # Boston, MA 02110-1301, USA.
 
 install(FILES
-    mods_frame_sync_cc.xml
     mods_frame_sync_fast.xml
     mods_file_source_nonblock.xml
     mods_file_sink_nonblock.xml
