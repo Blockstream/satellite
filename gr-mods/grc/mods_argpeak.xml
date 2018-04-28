@@ -3,7 +3,7 @@
 	<name>Peak Finder</name>
 	<key>mods_argpeak</key>
 	<import>import mods</import>
-	<make>mods.argpeak($vlen, $max_ratio)</make>
+	<make>mods.argpeak($vlen, $max_thresh)</make>
 	<param>
 		<name>Vec Length</name>
 		<key>vlen</key>

@@ -9,6 +9,7 @@
     fft_len=$fft_len,
     samp_rate=$samp_rate,
     rf_center_freq=$rf_center_freq,
+    fft_peak_threshold=$fft_peak_threshold
 )</make>
   <callback>set_abs_cfo_threshold($abs_cfo_threshold)</callback>
   <callback>set_alpha($alpha)</callback>
@@ -49,6 +50,13 @@
     <name>Starting RF Center Freq.</name>
     <key>rf_center_freq</key>
     <value>1e9</value>
+    <type>raw</type>
+    <hide>none</hide>
+  </param>
+  <param>
+    <name>FFT Peak Threshold</name>
+    <key>fft_peak_threshold</key>
+    <value>0.5</value>
     <type>raw</type>
     <hide>none</hide>
   </param>
