@@ -50,7 +50,7 @@ class file_source_nonblock(gr.sync_block):
           ret = False
         else:
           ret = True
-          
+
         return ret
 
     def stop(self):
@@ -61,18 +61,14 @@ class file_source_nonblock(gr.sync_block):
     def get_pipe_non_block(self, f_name):
       # Check if file exists
       if os.path.exists(f_name):
-        print('File exists')
         # Check if the file is pipe
         if stat.S_ISFIFO(os.stat(f_name).st_mode):
-          print('and is pipe, opening ...')
           f = os.open(f_name, os.O_NONBLOCK)
         else:
-          print('but is not pipe, remove and recreate ...')
           os.system('rm '+f_name);
           os.mkfifo(f_name, 0777)
           f = os.open(f_name, os.O_NONBLOCK)
       else:
-        print("File does not exists, create ...")
         os.mkfifo(f_name, 0777)
         f = os.open(f_name, os.O_NONBLOCK)
       return f;

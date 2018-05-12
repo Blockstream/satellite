@@ -34,18 +34,20 @@ namespace gr {
       float d_last_phase_inc;
       float d_target_phase_inc;
       float d_missing_phase_inc_adj;
+      float d_samp_rate;
+      float d_freq;
       int d_n_steps;
       int d_i_step;
       float d_step;
       int d_state;
 
      public:
-      nco_cc_impl(float phase_inc, int n_steps);
+      nco_cc_impl(float samp_rate, float freq, int n_steps);
       ~nco_cc_impl();
 
       // Setters ready for parameter adjustment in runtime:
       float phase_inc() const { return d_phase_inc; }
-      void set_phase_inc(float s);
+      void set_freq(float new_freq);
 
       // Where all the action really happens
       int work(int noutput_items,

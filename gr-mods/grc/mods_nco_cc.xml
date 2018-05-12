@@ -4,11 +4,16 @@
   <key>mods_nco_cc</key>
   <category>Synchronizers</category>
   <import>import mods</import>
-  <make>mods.nco_cc($phase_inc, $n_steps)</make>
-  <callback>set_phase_inc($phase_inc)</callback>
+  <make>mods.nco_cc($samp_rate, $freq, $n_steps)</make>
+  <callback>set_freq($freq)</callback>
   <param>
-    <name>Phase Increment</name>
-    <key>phase_inc</key>
+    <name>Sample Rate</name>
+    <key>samp_rate</key>
+    <type>float</type>
+  </param>
+  <param>
+    <name>Frequency</name>
+    <key>freq</key>
     <type>float</type>
   </param>
   <param>
@@ -32,15 +37,20 @@ can be used for example for frequency offset correction or digital down/up \
 conversion.
 
 Parameters:
-phase_inc -> Fixed phase increment accumulated after each sampling period. \
-This should be set as "2*pi*F", where F is the target normalized (digital) \
-frequency for the NCO.
+freq -> The frequency shift that is supposed to be applied to the input signal.
 
 n_steps -> Number of steps used to adjust the phase increment when it is \
-changed asynchronously. This is used to avoid abrupt frequency changes in \
+changed asynchronously.
+
+A fixed phase increment is applied internally in the NCO, based on the given \
+frequency. This increment is set as "2*pi*F", where F is the target normalized \
+(digital) frequency for the NCO, namely "freq/samp_rate"".
+
+Also, the above number of steps is used to avoid abrupt frequency changes in \
 the output. Instead of changing directly from the previous frequency to the \
-current, do so in "n_steps". The only exception is when the NCO's \
-frequency is set to 0. When this occurs, the NCO transitions to 0 \
-immediately.
+current, the change is executed in the course of "n_steps". The only exception \
+is when the NCO's frequency is set to 0. When this occurs, the NCO transitions \
+to 0 immediately.
+
   </doc>
 </block>

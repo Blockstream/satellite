@@ -3,7 +3,7 @@
 # GNU Radio Python Flow Graph
 # Title: Coarse Freq. Rec.
 # Description: FFT-Based Feedforward Coarse Carrier Frequency Recovery
-# Generated: Sat Apr 28 18:26:32 2018
+# Generated: Sat May 12 14:09:27 2018
 ##################################################
 
 from gnuradio import blocks
@@ -50,7 +50,6 @@ class ffw_coarse_freq_rec(gr.hier_block2):
         )
         self.blocks_sub_xx_0 = blocks.sub_ff(1)
         self.blocks_short_to_float_0 = blocks.short_to_float(1, 1)
-        self.blocks_null_sink_0 = blocks.null_sink(gr.sizeof_float*1)
         self.blocks_multiply_xx_0 = blocks.multiply_vff(1)
         self.blocks_multiply_const_vxx_2 = blocks.multiply_const_vff((samp_rate/(fft_len*4), ))
         self.blocks_moving_average_xx_0_0 = blocks.moving_average_ff(int(1/alpha), 1.0/int(1/alpha), int(4/alpha))
@@ -73,7 +72,6 @@ class ffw_coarse_freq_rec(gr.hier_block2):
         self.connect((self.logpwrfft_x_0, 0), (self, 0))
         self.connect((self.mods_argpeak_0, 0), (self.mods_wrap_fft_index_0, 0))
         self.connect((self.mods_exponentiate_const_cci_0, 0), (self.logpwrfft_x_0, 0))
-        self.connect((self.mods_runtime_cfo_ctrl_0, 1), (self.blocks_null_sink_0, 0))
         self.connect((self.mods_runtime_cfo_ctrl_0, 0), (self, 1))
         self.connect((self.mods_wrap_fft_index_0, 0), (self.blocks_short_to_float_0, 0))
         self.connect((self, 0), (self.mods_exponentiate_const_cci_0, 0))
@@ -89,6 +87,7 @@ class ffw_coarse_freq_rec(gr.hier_block2):
 
     def set_alpha(self, alpha):
         self.alpha = alpha
+        self.mods_runtime_cfo_ctrl_0.set_avg_len(7*int(1/self.alpha))
         self.logpwrfft_x_0.set_avg_alpha(self.alpha)
         self.blocks_moving_average_xx_0_0.set_length_and_scale(int(1/self.alpha), 1.0/int(1/self.alpha))
         self.blocks_moving_average_xx_0.set_length_and_scale(int(1/self.alpha), 1.0/int(1/self.alpha))
@@ -106,12 +105,6 @@ class ffw_coarse_freq_rec(gr.hier_block2):
     def set_fft_peak_threshold(self, fft_peak_threshold):
         self.fft_peak_threshold = fft_peak_threshold
 
-    def get_rf_center_freq(self):
-        return self.rf_center_freq
-
-    def set_rf_center_freq(self, rf_center_freq):
-        self.rf_center_freq = rf_center_freq
-
     def get_samp_rate(self):
         return self.samp_rate
 
@@ -120,8 +113,16 @@ class ffw_coarse_freq_rec(gr.hier_block2):
         self.logpwrfft_x_0.set_sample_rate(self.samp_rate)
         self.blocks_multiply_const_vxx_2.set_k((self.samp_rate/(self.fft_len*4), ))
 
+    # Runtime CFO Controller API
     def get_cfo_estimate(self):
         return self.mods_runtime_cfo_ctrl_0.get_cfo_estimate()
+
+    def get_rf_center_freq(self):
+        return self.mods_runtime_cfo_ctrl_0.get_rf_center_freq()
+
+    def set_rf_center_freq(self, freq):
+        self.mods_runtime_cfo_ctrl_0.set_rf_center_freq(freq)
+        self.rf_center_freq = freq
 
     def get_cfo_est_state(self):
         return self.mods_runtime_cfo_ctrl_0.get_cfo_est_state()

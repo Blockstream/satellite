@@ -50,7 +50,7 @@
     <name>Starting RF Center Freq.</name>
     <key>rf_center_freq</key>
     <value>1e9</value>
-    <type>raw</type>
+    <type>int</type>
     <hide>none</hide>
   </param>
   <param>

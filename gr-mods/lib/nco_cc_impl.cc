@@ -32,16 +32,16 @@ namespace gr {
   namespace mods {
 
     nco_cc::sptr
-    nco_cc::make(float phase_inc, int n_steps)
+    nco_cc::make(float samp_rate, float freq, int n_steps)
     {
       return gnuradio::get_initial_sptr
-        (new nco_cc_impl(phase_inc, n_steps));
+        (new nco_cc_impl(samp_rate, freq, n_steps));
     }
 
     /*
      * The private constructor
      */
-    nco_cc_impl::nco_cc_impl(float phase_inc, int n_steps)
+    nco_cc_impl::nco_cc_impl(float samp_rate, float freq, int n_steps)
       : gr::sync_block("nco_cc",
               gr::io_signature::make(1, 1, sizeof(gr_complex)),
               gr::io_signature::make(1, 1, sizeof(gr_complex))),
@@ -50,6 +50,8 @@ namespace gr {
       d_last_phase_inc(0.0),
       d_target_phase_inc(0.0),
       d_missing_phase_inc_adj(0.0),
+      d_samp_rate(samp_rate),
+      d_freq(freq),
       d_n_steps(n_steps),
       d_i_step(0),
       d_step(0.0),
@@ -64,9 +66,14 @@ namespace gr {
     {
     }
 
-    void nco_cc_impl::set_phase_inc(float new_phase_inc) {
+    void nco_cc_impl::set_freq(float new_freq) {
+      float new_phase_inc;
       float phase_inc_change;
       float missing_phase_inc_adj;
+
+      // Compute new phase increment
+      new_phase_inc = M_TWOPI * new_freq / d_samp_rate;
+
       // Check if there was a change and, if yes, enter a state in which the
       // target new increment is reached smoothly
       phase_inc_change = new_phase_inc - d_phase_inc;

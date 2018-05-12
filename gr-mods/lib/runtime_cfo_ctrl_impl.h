@@ -32,25 +32,26 @@ namespace gr {
       // Nothing to declare in this block.
       int d_avg_len;
       float d_abs_cfo_threshold;
-      float d_rf_center_freq;
       float d_cfo_est;
+      int d_rf_center_freq;
       int d_i_sample;
-      int d_sleep_count;
       int d_cfo_est_converged;
       float d_last_converged_cfo_est;
 
-      void print_system_timestamp();
+      void reset_cfo_rec_state();
 
      public:
-      runtime_cfo_ctrl_impl(int avg_len, float abs_cfo_threshold, float rf_center_freq);
+      runtime_cfo_ctrl_impl(int avg_len, float abs_cfo_threshold, int rf_center_freq);
       ~runtime_cfo_ctrl_impl();
 
       // Where all the action really happens
       int work(int noutput_items,
          gr_vector_const_void_star &input_items,
          gr_vector_void_star &output_items);
+      void set_avg_len(int avg_len);
       float get_cfo_estimate();
-      float get_rf_center_freq();
+      int get_rf_center_freq();
+      void set_rf_center_freq(int freq);
       int get_cfo_est_state();
 
     };

@@ -36,7 +36,7 @@ namespace gr {
   namespace mods {
 
     runtime_cfo_ctrl::sptr
-    runtime_cfo_ctrl::make(int avg_len, float abs_cfo_threshold, float rf_center_freq)
+    runtime_cfo_ctrl::make(int avg_len, float abs_cfo_threshold, int rf_center_freq)
     {
       return gnuradio::get_initial_sptr
         (new runtime_cfo_ctrl_impl(avg_len, abs_cfo_threshold, rf_center_freq));
@@ -45,16 +45,15 @@ namespace gr {
     /*
      * The private constructor
      */
-    runtime_cfo_ctrl_impl::runtime_cfo_ctrl_impl(int avg_len, float abs_cfo_threshold, float rf_center_freq)
+    runtime_cfo_ctrl_impl::runtime_cfo_ctrl_impl(int avg_len, float abs_cfo_threshold, int rf_center_freq)
       : gr::sync_block("runtime_cfo_ctrl",
               gr::io_signature::make(3, 3, sizeof(float)),
-              gr::io_signature::make(2, 2, sizeof(float))),
+              gr::io_signature::make(1, 1, sizeof(float))),
         d_avg_len(avg_len),
         d_abs_cfo_threshold(abs_cfo_threshold),
         d_rf_center_freq(rf_center_freq),
         d_cfo_est(0.0),
         d_i_sample(0),
-        d_sleep_count(0),
         d_cfo_est_converged(0),
         d_last_converged_cfo_est(0.0)
     {}
@@ -66,11 +65,22 @@ namespace gr {
     {
     }
 
-    void runtime_cfo_ctrl_impl::print_system_timestamp() {
-      std::chrono::time_point<std::chrono::system_clock> now;
-      now = std::chrono::system_clock::now();
-      std::time_t now_time = std::chrono::system_clock::to_time_t(now);
-      std::cout << "-- On " << std::ctime(&now_time);
+    /**
+     * Reset CFO recovery state
+     *
+     * Reset the state of the algorithm such that it transitions back to
+     * non-converged state and sets the CFO correction to 0 (no correction).
+     */
+    void runtime_cfo_ctrl_impl::reset_cfo_rec_state()
+    {
+      // Reset the sample count
+      d_i_sample = 0;
+
+      // Reset CFO memory
+      d_last_converged_cfo_est = 0;
+
+      // Reset the state
+      d_cfo_est_converged = 0;
     }
 
     int
@@ -82,7 +92,6 @@ namespace gr {
       const float *mean_fo_est = (const float *) input_items[1];
       const float *var_fo_est = (const float *) input_items[2];
       float *freq_offset_out = (float *) output_items[0];
-      float *rf_center_freq = (float *) output_items[1];
       float cfo_est_mean_dev;
 
       // Do <+signal processing+>
@@ -91,7 +100,7 @@ namespace gr {
         // Keep track of the moving average transitory
 
         // Output a frequency offset only after the transitory has passed
-        if (d_i_sample > d_avg_len && d_sleep_count == 0) {
+        if (d_i_sample > d_avg_len) {
           // Transitory or sleep interval are finished
 
           // Deviation from the current mean:
@@ -103,63 +112,29 @@ namespace gr {
            */
           d_cfo_est_converged = (cfo_est_mean_dev < CFO_EST_MEAN_THRESHOLD) &&
                                 (var_fo_est[i] < CFO_EST_VAR_THRESHOLD);
+
           /*
-           * Check if the current CFO exceeds the threshold, but take actions
-           * only if the CFO estimation has converged.
-           *
-           * When the CFO is approaching the correction range of the method, in
-           * order to be able to continue tracking the CFO (if it ends up
-           * exceeding the range), the RF center frequency is changed in HW.
-           * The HW center freq. is updated using the current CFO estimation
-           * and, then, CFO output by this block is set to 0 (since it will be
-           * corrected in HW).
+           * If the instantaneous CFO estimation is within the converged
+           * average, take this value into consideration.
            */
-           if (d_cfo_est_converged) {
-             if (fabs(freq_offset_in[i]) > d_abs_cfo_threshold) {
-               // Debug
-               printf("\n--- Carrier Tracking Mechanism ---\n");
-               printf("RF center frequency update.\n");
-               printf("From:\t %f Hz.\n", d_rf_center_freq);
-               // Adjust the RF center frequency
-               d_rf_center_freq += freq_offset_in[i];
-               // Set the CFO freq. offset to 0 (as if corrected by the new RF
-               // center freq. configuration)
-               freq_offset_out[i] = 0;
-               // Add a sleep interval to prevent further increases in the RF
-               // center frequency while it is being updated in the hardware
-               d_sleep_count = d_avg_len;
-               printf("To:\t %f Hz.\n", d_rf_center_freq);
-               print_system_timestamp();
-               printf("----------------------------------\n");
-             } else {
-               freq_offset_out[i] = freq_offset_in[i];
-             }
+          if (d_cfo_est_converged)
+            d_last_converged_cfo_est = freq_offset_in[i];
 
-             // Save
-             d_last_converged_cfo_est = freq_offset_out[i];
+          /*
+           * Always output the converged average CFO, rather than the
+           * instantaneous estimation (potentially noisy).
+           */
+          freq_offset_out[i] = d_last_converged_cfo_est;
 
-           } else {
-             // No correction is output, unless it is stable (converged)
-             freq_offset_out[i] = d_last_converged_cfo_est;
-           }
         } else {
-          // Decrement the sleep interval counter
-          if (d_sleep_count > 0) {
-            d_sleep_count--;
-          }
+          // Transitory Phase
 
           // Increment the sample count
-          if (d_i_sample <= d_avg_len) {
-            d_i_sample++;
-          }
+          d_i_sample++;
 
           // Output zero frequency offset
-          freq_offset_out[i] = 0;
+          freq_offset_out[i] = d_last_converged_cfo_est;
         }
-
-        // RF Center Frequency is the default configuration + corrections
-        // accumulated during runtime
-        rf_center_freq[i] = d_rf_center_freq;
 
         // Update the internal variable holding the CFO
         d_cfo_est = freq_offset_out[i];
@@ -170,14 +145,69 @@ namespace gr {
     }
 
     /*
-    * Getters regarding CFO recovery data
-    */
+     * Public methos
+     */
+
+    /**
+     * Set average length
+     */
+    void runtime_cfo_ctrl_impl::set_avg_len(int avg_len){
+        d_avg_len = avg_len;
+    }
+
+    /**
+     * Get current CFO estimate
+     */
     float runtime_cfo_ctrl_impl::get_cfo_estimate(){
       return d_cfo_est;
     }
-    float runtime_cfo_ctrl_impl::get_rf_center_freq(){
-      return d_rf_center_freq;
+
+    /**
+     * Get target RF center frequency
+     *
+     * This RF center frequency corresponds to the frequency that, according to
+     * the CFO recovery algorithm, should be currently used in the HW. However,
+     * not it is not necessarily the RF center frequency being used already.
+     *
+     * When the CFO is approaching the correction range of the digital CFO
+     * recovery method, in order to be able to continue tracking the CFO (before
+     * the CFO exceeds the range), the RF center frequency needs to be changed
+     * in HW. This function returns the adjusted frequency in this case.
+     */
+    int runtime_cfo_ctrl_impl::get_rf_center_freq(){
+      int target_rf_center_freq;
+
+      // If the CFO exceeds the threshold, adjust the target center frequency:
+      if (fabs(d_cfo_est) > d_abs_cfo_threshold) {
+        target_rf_center_freq = d_rf_center_freq + int(roundf(d_cfo_est));
+      } else {
+        target_rf_center_freq = d_rf_center_freq;
+      }
+
+      return target_rf_center_freq;
     }
+
+    /**
+     * Set the RF center frequency
+     *
+     * Must be called when the HW RF frequency change is not coming from a
+     * detection carried internally, but instead by another process at another
+     * module. Since the runtime CFO controller needs to be aware of the current
+     * RF center frequency configured in the hardware, any such external module
+     * needs to call this function during a HW freq. update.
+     */
+    void runtime_cfo_ctrl_impl::set_rf_center_freq(int freq){
+      d_rf_center_freq = freq;
+
+      // Reset CFO state automatically (no need for another call)
+      reset_cfo_rec_state();
+    }
+
+    /**
+     * Get the current CFO recovery state
+     *
+     * Indicates whether the CFO recovery is converged or not.
+     */
     int runtime_cfo_ctrl_impl::get_cfo_est_state(){
       return d_cfo_est_converged;
     }

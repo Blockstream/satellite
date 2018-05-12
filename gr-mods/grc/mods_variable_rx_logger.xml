@@ -55,7 +55,7 @@ self.$(id) = mods.rx_logger(
         <value>1</value>
         <type>real</type>
     </param>
-        <param>
+    <param>
         <name>CFO Recovery</name>
         <key>cfo_rec</key>
         <value>None</value>

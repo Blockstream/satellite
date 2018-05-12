@@ -38,8 +38,10 @@ namespace gr {
      public:
       typedef boost::shared_ptr<runtime_cfo_ctrl> sptr;
 
+      virtual void set_avg_len(int avg_len) = 0;
       virtual float get_cfo_estimate() = 0;
-      virtual float get_rf_center_freq() = 0;
+      virtual int get_rf_center_freq() = 0;
+      virtual void set_rf_center_freq(int freq) = 0;
       virtual int get_cfo_est_state() = 0;
       /*!
        * \brief Return a shared_ptr to a new instance of mods::runtime_cfo_ctrl.
@@ -49,7 +51,7 @@ namespace gr {
        * class. mods::runtime_cfo_ctrl::make is the public interface for
        * creating new instances.
        */
-      static sptr make(int avg_len, float abs_cfo_threshold, float rf_center_freq);
+      static sptr make(int avg_len, float abs_cfo_threshold, int rf_center_freq);
     };
 
   } // namespace mods
