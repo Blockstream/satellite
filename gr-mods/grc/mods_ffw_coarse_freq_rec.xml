@@ -7,17 +7,18 @@
     abs_cfo_threshold=$abs_cfo_threshold,
     alpha=$alpha,
     fft_len=$fft_len,
-    samp_rate=$samp_rate,
+    fft_peak_threshold=$fft_peak_threshold,
     rf_center_freq=$rf_center_freq,
-    fft_peak_threshold=$fft_peak_threshold
+    samp_rate=$samp_rate,
 )</make>
   <callback>set_abs_cfo_threshold($abs_cfo_threshold)</callback>
   <callback>set_alpha($alpha)</callback>
   <callback>set_fft_len($fft_len)</callback>
-  <callback>set_samp_rate($samp_rate)</callback>
+  <callback>set_fft_peak_threshold($fft_peak_threshold)</callback>
   <callback>set_rf_center_freq($rf_center_freq)</callback>
   <callback>get_cfo_estimate()</callback>
   <callback>get_cfo_est_state()</callback>
+  <callback>set_samp_rate($samp_rate)</callback>
   <param>
     <name>Abs CFO Threshold</name>
     <key>abs_cfo_threshold</key>
@@ -40,9 +41,9 @@
     <hide>none</hide>
   </param>
   <param>
-    <name>Sample Rate</name>
-    <key>samp_rate</key>
-    <value>32e3</value>
+    <name>FFT Peak Threshold</name>
+    <key>fft_peak_threshold</key>
+    <value>0.5</value>
     <type>raw</type>
     <hide>none</hide>
   </param>
@@ -54,9 +55,9 @@
     <hide>none</hide>
   </param>
   <param>
-    <name>FFT Peak Threshold</name>
-    <key>fft_peak_threshold</key>
-    <value>0.5</value>
+    <name>Sample Rate</name>
+    <key>samp_rate</key>
+    <value>32e3</value>
     <type>raw</type>
     <hide>none</hide>
   </param>
