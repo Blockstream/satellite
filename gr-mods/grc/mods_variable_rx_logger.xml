@@ -14,7 +14,8 @@ self.$(id) = mods.rx_logger(
     $(decoder()),
     $ber_log_period,
     $(cfo_rec()),
-    $cfo_log_period
+    $cfo_log_period,
+    $enabled_start
 )
     </make>
     <callback>self.set_$(id)($value)</callback>
@@ -65,6 +66,12 @@ self.$(id) = mods.rx_logger(
         <key>cfo_log_period</key>
         <value>1</value>
         <type>real</type>
+    </param>
+    <param>
+        <name>Enabled Start</name>
+        <key>enabled_start</key>
+        <value>1</value>
+        <type>int</type>
     </param>
     <param>
         <name>Initial Value</name>

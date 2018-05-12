@@ -5,7 +5,6 @@ import threading
 # Definitions
 MAX_SNR_DB = 20
 
-
 class Logger(threading.Thread):
     """Logger Class
 
@@ -16,8 +15,9 @@ class Logger(threading.Thread):
         period    : Interval between prints
         print_fcn : The specific print function to be used every period
         lock      : A mutex used to synchronize prints across instances
+        start_en  : Flag to start the thread in enabled state
     """
-    def __init__(self, block_obj, period, print_fcn, lock):
+    def __init__(self, block_obj, period, print_fcn, lock, start_en=True):
         ''' Init Logger '''
 
         # Init daemon thread
@@ -28,14 +28,26 @@ class Logger(threading.Thread):
         self.period    = period
         self.log       = print_fcn
         self.lock      = lock
+        self.enabled   = start_en
 
     def run(self):
 
         next_print = time.time() + self.period
 
         while(True):
+
+            # Spin until the logger is enabled
+            while (not self.enabled):
+                time.sleep(2)
+                next_print = time.time() + self.period
+
+            # Sleep until next scheduled log
+            current_time = time.time()
+
+            if (next_print > current_time):
+                time.sleep((next_print - current_time))
+
             # Schedule next print
-            time.sleep((next_print - time.time()))
             next_print = time.time() + self.period
 
             # Call Print
@@ -44,6 +56,14 @@ class Logger(threading.Thread):
                 self.log(self.block_obj)
             finally:
                 self.lock.release()
+
+    def enable(self):
+        """Enable the logger """
+        self.enabled = True
+
+    def disable(self):
+        """Disable the logger """
+        self.enabled = False
 
 
 def print_frame_sync(block_obj):
@@ -132,11 +152,11 @@ def print_cfo(block_obj):
     sys.stdout.write("[" + time.strftime("%Y-%m-%d %H:%M:%S") + "] ")
     sys.stdout.write("Carrier Frequency Offset: ")
 
-    if (state):
-        sys.stdout.write(str("{:2.4f}".format(cfo/1e3)) + "kHz")
-        sys.stdout.write(" (CORRECTED)")
-    else:
+    if (state == 0 and cfo == 0):
         sys.stdout.write("ESTIMATING")
+    else:
+        sys.stdout.write(str("{:2.4f}".format(cfo/1e3)) + "kHz ")
+        sys.stdout.write("(CORRECTED)")
 
     sys.stdout.write("\n----------------------------------------")
     sys.stdout.write("----------------------------------------\n")
@@ -152,60 +172,84 @@ class rx_logger():
 
     def __init__(self, snr_meter_obj, snr_log_period, frame_synchronizer_obj,
                  frame_sync_log_period, decoder_obj, ber_log_period,
-                 cfo_rec_obj, cfo_log_period):
+                 cfo_rec_obj, cfo_log_period, enabled_start):
 
         # Use mutex to coordinate logs
         lock = threading.Lock()
 
         # Declare loggers
 
-        if (snr_meter_obj):
+        if (snr_meter_obj and snr_log_period > 0):
+            self.snr_logger = Logger(snr_meter_obj,
+                                     snr_log_period,
+                                     print_snr,
+                                     lock,
+                                     enabled_start)
 
-            snr_logger = Logger(snr_meter_obj,
-                                snr_log_period,
-                                print_snr,
-                                lock)
+        if (frame_synchronizer_obj and (frame_sync_log_period > 0)):
+            self.frame_sync_logger = Logger(frame_synchronizer_obj,
+                                            frame_sync_log_period,
+                                            print_frame_sync,
+                                            lock,
+                                            enabled_start)
 
-        if (frame_synchronizer_obj):
+        if (decoder_obj and (ber_log_period > 0)):
+            self.ber_logger = Logger(decoder_obj,
+                                     ber_log_period,
+                                     print_ber,
+                                     lock,
+                                     enabled_start)
 
-            frame_sync_logger = Logger(frame_synchronizer_obj,
-                                       frame_sync_log_period,
-                                       print_frame_sync,
-                                       lock)
-
-        if (decoder_obj):
-
-            ber_logger = Logger(decoder_obj,
-                                ber_log_period,
-                                print_ber,
-                                lock)
-
-        if (cfo_rec_obj):
-
-            cfo_logger = Logger(cfo_rec_obj,
-                                cfo_log_period,
-                                print_cfo,
-                                lock)
+        if (cfo_rec_obj and (cfo_log_period > 0)):
+            self.cfo_logger = Logger(cfo_rec_obj,
+                                     cfo_log_period,
+                                     print_cfo,
+                                     lock,
+                                     enabled_start)
 
         # Start loggers
 
-        if (snr_meter_obj):
-
-            snr_logger.start()
+        if (snr_meter_obj and (snr_log_period > 0)):
+            self.snr_logger.start()
             time.sleep(0.01)
 
-        if (frame_synchronizer_obj):
-
-            frame_sync_logger.start()
+        if (frame_synchronizer_obj and (frame_sync_log_period > 0)):
+            self.frame_sync_logger.start()
             time.sleep(0.01)
 
-        if (decoder_obj):
-
-            ber_logger.start()
+        if (decoder_obj and (ber_log_period > 0)):
+            self.ber_logger.start()
             time.sleep(0.01)
 
-        if (cfo_rec_obj):
-
-            cfo_logger.start()
+        if (cfo_rec_obj and (cfo_log_period > 0)):
+            self.cfo_logger.start()
             time.sleep(0.01)
+
+    def enable(self):
+        """Enable the Rx loggers """
+        if (hasattr(self, 'snr_logger')):
+            self.snr_logger.enable()
+
+        if (hasattr(self, 'frame_sync_logger')):
+            self.frame_sync_logger.enable()
+
+        if (hasattr(self, 'ber_logger')):
+            self.ber_logger.enable()
+
+        if (hasattr(self, 'cfo_logger')):
+            self.cfo_logger.enable()
+
+    def disable(self):
+        """Disable the Rx loggers """
+        if (hasattr(self, 'snr_logger')):
+            self.snr_logger.disable()
+
+        if (hasattr(self, 'frame_sync_logger')):
+            self.frame_sync_logger.disable()
+
+        if (hasattr(self, 'ber_logger')):
+            self.ber_logger.disable()
+
+        if (hasattr(self, 'cfo_logger')):
+            self.cfo_logger.disable()
 
