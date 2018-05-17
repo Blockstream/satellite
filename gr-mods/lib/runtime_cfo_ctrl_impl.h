@@ -36,7 +36,6 @@ namespace gr {
       int d_rf_center_freq;
       int d_i_sample;
       int d_cfo_est_converged;
-      float d_last_converged_cfo_est;
 
       void reset_cfo_rec_state();
 

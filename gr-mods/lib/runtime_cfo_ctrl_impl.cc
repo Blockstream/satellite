@@ -54,8 +54,7 @@ namespace gr {
         d_rf_center_freq(rf_center_freq),
         d_cfo_est(0.0),
         d_i_sample(0),
-        d_cfo_est_converged(0),
-        d_last_converged_cfo_est(0.0)
+        d_cfo_est_converged(0)
     {}
 
     /*
@@ -76,11 +75,11 @@ namespace gr {
       // Reset the sample count
       d_i_sample = 0;
 
-      // Reset CFO memory
-      d_last_converged_cfo_est = 0;
-
       // Reset the state
       d_cfo_est_converged = 0;
+
+      // Reset the CFO
+      d_cfo_est = 0.0;
     }
 
     int
@@ -115,29 +114,24 @@ namespace gr {
 
           /*
            * If the instantaneous CFO estimation is within the converged
-           * average, take this value into consideration.
+           * average, use this estimation to update the output:
            */
           if (d_cfo_est_converged)
-            d_last_converged_cfo_est = freq_offset_in[i];
-
-          /*
-           * Always output the converged average CFO, rather than the
-           * instantaneous estimation (potentially noisy).
-           */
-          freq_offset_out[i] = d_last_converged_cfo_est;
+            d_cfo_est = freq_offset_in[i];
 
         } else {
           // Transitory Phase
 
           // Increment the sample count
           d_i_sample++;
-
-          // Output zero frequency offset
-          freq_offset_out[i] = d_last_converged_cfo_est;
         }
 
-        // Update the internal variable holding the CFO
-        d_cfo_est = freq_offset_out[i];
+        /*
+         * Always output the converged average CFO, rather than the
+         * instantaneous estimation (potentially noisy).
+         */
+        freq_offset_out[i] = d_cfo_est;
+
       }
 
       // Tell runtime system how many output items we produced.
@@ -197,10 +191,9 @@ namespace gr {
      * needs to call this function during a HW freq. update.
      */
     void runtime_cfo_ctrl_impl::set_rf_center_freq(int freq){
-      d_rf_center_freq = freq;
-
-      // Reset CFO state automatically (no need for another call)
       reset_cfo_rec_state();
+
+      d_rf_center_freq = freq;
     }
 
     /**
