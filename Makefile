@@ -22,7 +22,8 @@ GR_FRAMERS_BUILD_RC = gr-framers/build_record
 GR_MODS_BUILD_DIR = gr-mods/build
 GR_MODS_BUILD_RC = gr-mods/build_record
 
-.PHONY: build gr-mods gr-framers clean hier build-hier clean-hier
+.PHONY: build gr-mods gr-framers clean uninstall remove \
+hier build-hier clean-hier
 
 # Build Rx Flowgraphs
 build: $(GRC_PY_FILES)
@@ -64,6 +65,15 @@ clean:
 	$(MAKE) -C $(GR_MODS_BUILD_DIR) clean
 	rm -rf $(GR_MODS_BUILD_DIR)
 	rm -f $(GRC_PY_FILES)
+
+uninstall:
+	sudo $(MAKE) -C $(GR_FRAMERS_BUILD_DIR) uninstall
+	sudo $(MAKE) -C $(GR_MODS_BUILD_DIR) uninstall
+
+remove:
+	-$(MAKE) uninstall
+	-$(MAKE) clean
+	-rm -rf gr-framers/
 
 # Re-build Hierarchical Blocks
 # NOTE: the hierarchical blocks are pre-built in the repository due to the fact
