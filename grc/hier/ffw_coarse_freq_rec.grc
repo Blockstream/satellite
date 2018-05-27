@@ -842,7 +842,7 @@ is approx. 7*(1/alpha).</value>
     </param>
     <param>
       <key>rf_center_freq</key>
-      <value>rf_center_freq</value>
+      <value>int(rf_center_freq)</value>
     </param>
   </block>
   <block>
