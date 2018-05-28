@@ -252,7 +252,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1152, 100)</value>
+      <value>(648, 100)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -387,7 +387,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1048, 100)</value>
+      <value>(544, 100)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -414,88 +414,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(320, 100)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>dec_factor</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>ceil(dsp_rate/target_samp_rate)</value>
-    </param>
-  </block>
-  <block>
-    <key>variable</key>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(104, 100)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>dsp_rate</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>100e6</value>
-    </param>
-  </block>
-  <block>
-    <key>variable</key>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(416, 100)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>even_dec_factor</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>dec_factor if (dec_factor % 1 == 1) else (dec_factor+1)</value>
-    </param>
-  </block>
-  <block>
-    <key>variable</key>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(704, 100)</value>
+      <value>(200, 100)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -549,7 +468,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1072, 164)</value>
+      <value>(1024, 100)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -630,7 +549,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(944, 100)</value>
+      <value>(440, 100)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -657,7 +576,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1264, 100)</value>
+      <value>(760, 100)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -684,7 +603,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1176, 164)</value>
+      <value>(864, 100)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -711,7 +630,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(800, 100)</value>
+      <value>(296, 100)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -851,7 +770,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1528, 308)</value>
+      <value>(1360, 244)</value>
     </param>
     <param>
       <key>gui_hint</key>
@@ -952,7 +871,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>dsp_rate/even_dec_factor</value>
+      <value>sym_rate * sps</value>
     </param>
   </block>
   <block>
@@ -967,7 +886,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1696, 204)</value>
+      <value>(1072, 164)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -994,34 +913,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(536, 100)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>sps</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>8</value>
-    </param>
-  </block>
-  <block>
-    <key>variable</key>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(608, 100)</value>
+      <value>(104, 100)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1033,34 +925,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>samp_rate / sps</value>
-    </param>
-  </block>
-  <block>
-    <key>variable</key>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(192, 100)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>target_samp_rate</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>sps*(200e3/(1 + excess_bw))</value>
+      <value>156250</value>
     </param>
   </block>
   <block>
@@ -1154,7 +1019,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1176, 228)</value>
+      <value>(1176, 100)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -2738,7 +2603,7 @@ from function probe</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1528, 204)</value>
+      <value>(1528, 208)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -10095,7 +9960,7 @@ from function probe</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1528, 104)</value>
+      <value>(1520, 104)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -10174,6 +10039,53 @@ from function probe</value>
     </param>
   </block>
   <block>
+    <key>parameter</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(1688, 104)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>sps</value>
+    </param>
+    <param>
+      <key>label</key>
+      <value>Oversampling Ratio</value>
+    </param>
+    <param>
+      <key>short_id</key>
+      <value>o</value>
+    </param>
+    <param>
+      <key>hide</key>
+      <value>none</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>intx</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>6</value>
+    </param>
+  </block>
+  <block>
     <key>qtgui_tab_widget</key>
     <param>
       <key>alias</key>
@@ -10189,7 +10101,7 @@ from function probe</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1368, 100)</value>
+      <value>(1360, 100)</value>
     </param>
     <param>
       <key>gui_hint</key>
