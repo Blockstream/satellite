@@ -7,6 +7,7 @@
     <var_make>self.$(id) = $(id) = $value</var_make>
     <make>
 self.$(id) = mods.rx_logger(
+    $samp_rate,
     $(snr_meter()),
     $snr_log_period,
     $(frame_synchronizer()),
@@ -19,6 +20,11 @@ self.$(id) = mods.rx_logger(
 )
     </make>
     <callback>self.set_$(id)($value)</callback>
+    <param>
+        <name>Sample Rate</name>
+        <key>samp_rate</key>
+        <type>raw</type>
+    </param>
     <param>
         <name>SNR</name>
         <key>snr_meter</key>

@@ -920,6 +920,10 @@
       <key>snr_meter</key>
       <value>None</value>
     </param>
+    <param>
+      <key>samp_rate</key>
+      <value>samp_rate</value>
+    </param>
   </block>
   <block>
     <key>blks2_tcp_source</key>
@@ -2698,7 +2702,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1024, 180)</value>
+      <value>(1024, 196)</value>
     </param>
     <param>
       <key>gui_hint</key>

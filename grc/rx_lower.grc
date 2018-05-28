@@ -387,6 +387,33 @@
     </param>
     <param>
       <key>_coordinate</key>
+      <value>(1016, 100)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>fll_pull_in_range</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>2 * sym_rate * (1 + 1.5*excess_bw)</value>
+    </param>
+  </block>
+  <block>
+    <key>variable</key>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
       <value>(352, 228)</value>
     </param>
     <param>
@@ -689,7 +716,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1080, 236)</value>
+      <value>(1128, 236)</value>
     </param>
     <param>
       <key>gui_hint</key>
@@ -817,7 +844,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>n_scan_iterations*(samp_rate/8) if scan_mode else 0</value>
+      <value>round(n_scan_iterations * fll_pull_in_range) if scan_mode else 0</value>
     </param>
   </block>
   <block>
@@ -851,7 +878,7 @@
     <key>variable_tuning_control_def</key>
     <param>
       <key>cfo_rec</key>
-      <value>self.mods_ffw_coarse_freq_rec_0</value>
+      <value>None</value>
     </param>
     <param>
       <key>comment</key>
@@ -860,6 +887,10 @@
     <param>
       <key>_enabled</key>
       <value>True</value>
+    </param>
+    <param>
+      <key>fll</key>
+      <value>self.digital_fll_band_edge_cc_1</value>
     </param>
     <param>
       <key>frame_synchronizer</key>
@@ -891,7 +922,7 @@
     </param>
     <param>
       <key>nco</key>
-      <value>self.mods_nco_cc_0</value>
+      <value>None</value>
     </param>
     <param>
       <key>n_steps</key>
@@ -900,6 +931,14 @@
     <param>
       <key>poll_interval</key>
       <value>1.0/cfo_poll_rate</value>
+    </param>
+    <param>
+      <key>samp_rate</key>
+      <value>samp_rate</value>
+    </param>
+    <param>
+      <key>sps</key>
+      <value>sps</value>
     </param>
     <param>
       <key>scan_interval</key>
@@ -914,7 +953,7 @@
     <key>variable_rx_logger</key>
     <param>
       <key>cfo_rec</key>
-      <value>self.mods_ffw_coarse_freq_rec_0.mods_runtime_cfo_ctrl_0</value>
+      <value>self.digital_fll_band_edge_cc_1</value>
     </param>
     <param>
       <key>comment</key>
@@ -938,7 +977,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1248, 100)</value>
+      <value>(1296, 108)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -971,6 +1010,10 @@
     <param>
       <key>snr_meter</key>
       <value>self.mods_mer_measurement_pre_frame_sync</value>
+    </param>
+    <param>
+      <key>samp_rate</key>
+      <value>samp_rate</value>
     </param>
   </block>
   <block>
@@ -1181,7 +1224,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1760, 0)</value>
+      <value>(992, 0)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1209,7 +1252,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>100</value>
+      <value>1</value>
     </param>
   </block>
   <block>
@@ -1264,6 +1307,65 @@
     </param>
   </block>
   <block>
+    <key>digital_fll_band_edge_cc</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>rolloff</key>
+      <value>excess_bw</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(280, 672)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>digital_fll_band_edge_cc_1</value>
+    </param>
+    <param>
+      <key>w</key>
+      <value>fllbw</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>filter_size</key>
+      <value>rrc_delay * int(sps) + 1</value>
+    </param>
+    <param>
+      <key>samps_per_sym</key>
+      <value>sps</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>cc</value>
+    </param>
+  </block>
+  <block>
     <key>digital_pfb_clock_sync_xxx</key>
     <param>
       <key>alias</key>
@@ -1287,7 +1389,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(520, 664)</value>
+      <value>(520, 624)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1335,7 +1437,7 @@
     </param>
   </block>
   <block>
-    <key>parameter</key>
+    <key>blocks_multiply_const_vxx</key>
     <param>
       <key>alias</key>
       <value></value>
@@ -1345,12 +1447,71 @@
       <value></value>
     </param>
     <param>
+      <key>const</key>
+      <value>(samp_rate / (2.0 * pi))</value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
       <key>_enabled</key>
       <value>True</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(824, 0)</value>
+      <value>(468, 824)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>270</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>fll_d_freq_multiply_const</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>float</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>vlen</key>
+      <value>1</value>
+    </param>
+  </block>
+  <block>
+    <key>blocks_null_sink</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>bus_conns</key>
+      <value>[[0,],]</value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(584, 808)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1358,27 +1519,66 @@
     </param>
     <param>
       <key>id</key>
-      <value>fft_len</value>
-    </param>
-    <param>
-      <key>label</key>
-      <value>Carrier Freq. Recovery FFT Size</value>
-    </param>
-    <param>
-      <key>short_id</key>
-      <value>N</value>
-    </param>
-    <param>
-      <key>hide</key>
-      <value>none</value>
+      <value>fll_d_phase_null_sink</value>
     </param>
     <param>
       <key>type</key>
-      <value>intx</value>
+      <value>float</value>
     </param>
     <param>
-      <key>value</key>
-      <value>2048</value>
+      <key>num_inputs</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>vlen</key>
+      <value>1</value>
+    </param>
+  </block>
+  <block>
+    <key>blocks_null_sink</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>bus_conns</key>
+      <value>[[0,],]</value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(592, 848)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>fll_error_null_sink</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>float</value>
+    </param>
+    <param>
+      <key>num_inputs</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>vlen</key>
+      <value>1</value>
     </param>
   </block>
   <block>
@@ -1397,7 +1597,54 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1144, 0)</value>
+      <value>(1480, 208)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>fllbw</value>
+    </param>
+    <param>
+      <key>label</key>
+      <value>Frequency-locked Loop Bandwidth</value>
+    </param>
+    <param>
+      <key>short_id</key>
+      <value>b</value>
+    </param>
+    <param>
+      <key>hide</key>
+      <value>none</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>eng_float</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>0.001</value>
+    </param>
+  </block>
+  <block>
+    <key>parameter</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(824, 0)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1548,53 +1795,6 @@
     <param>
       <key>value</key>
       <value>0</value>
-    </param>
-  </block>
-  <block>
-    <key>parameter</key>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(984, 0)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>freq_rec_alpha</value>
-    </param>
-    <param>
-      <key>label</key>
-      <value>Carrier Freq. Recovery Averaging Alpha</value>
-    </param>
-    <param>
-      <key>short_id</key>
-      <value>a</value>
-    </param>
-    <param>
-      <key>hide</key>
-      <value>none</value>
-    </param>
-    <param>
-      <key>type</key>
-      <value>eng_float</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>0.001</value>
     </param>
   </block>
   <block>
@@ -1828,7 +2028,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>800</value>
+      <value>100</value>
     </param>
   </block>
   <block>
@@ -1892,69 +2092,6 @@
     <param>
       <key>reset_per_frame</key>
       <value>True</value>
-    </param>
-  </block>
-  <block>
-    <key>mods_ffw_coarse_freq_rec</key>
-    <param>
-      <key>abs_cfo_threshold</key>
-      <value>0.95*(samp_rate/8)</value>
-    </param>
-    <param>
-      <key>alpha</key>
-      <value>freq_rec_alpha</value>
-    </param>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>fft_peak_threshold</key>
-      <value>0.5</value>
-    </param>
-    <param>
-      <key>fft_len</key>
-      <value>fft_len</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(272, 808)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>mods_ffw_coarse_freq_rec_0</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>samp_rate</key>
-      <value>samp_rate</value>
-    </param>
-    <param>
-      <key>rf_center_freq</key>
-      <value>freq</value>
     </param>
   </block>
   <block>
@@ -2052,58 +2189,6 @@
     </param>
   </block>
   <block>
-    <key>mods_nco_cc</key>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>comment</key>
-      <value>Uses CFO estimation 
-from function probe</value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>1</value>
-    </param>
-    <param>
-      <key>freq</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(272, 700)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>mods_nco_cc_0</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>samp_rate</key>
-      <value>samp_rate</value>
-    </param>
-    <param>
-      <key>n_steps</key>
-      <value>100</value>
-    </param>
-  </block>
-  <block>
     <key>parameter</key>
     <param>
       <key>alias</key>
@@ -2119,7 +2204,7 @@ from function probe</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1592, 104)</value>
+      <value>(1480, 104)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -2147,7 +2232,7 @@ from function probe</value>
     </param>
     <param>
       <key>value</key>
-      <value>20</value>
+      <value>8</value>
     </param>
   </block>
   <block>
@@ -6413,7 +6498,7 @@ from function probe</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(288, 952)</value>
+      <value>(232, 888)</value>
     </param>
     <param>
       <key>gui_hint</key>
@@ -6685,11 +6770,11 @@ from function probe</value>
     </param>
     <param>
       <key>size</key>
-      <value>8</value>
+      <value>samp_rate/100</value>
     </param>
     <param>
       <key>srate</key>
-      <value>samp_rate/fft_len</value>
+      <value>samp_rate</value>
     </param>
     <param>
       <key>tr_chan</key>
@@ -6733,11 +6818,11 @@ from function probe</value>
     </param>
     <param>
       <key>ymax</key>
-      <value>samp_rate/8</value>
+      <value>sym_rate*(1 + 2*excess_bw)</value>
     </param>
     <param>
       <key>ymin</key>
-      <value>-samp_rate/8</value>
+      <value>-sym_rate*(1 + 2*excess_bw)</value>
     </param>
   </block>
   <block>
@@ -7101,277 +7186,6 @@ from function probe</value>
     <param>
       <key>ymin</key>
       <value>-1</value>
-    </param>
-  </block>
-  <block>
-    <key>qtgui_vector_sink_f</key>
-    <param>
-      <key>autoscale</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>average</key>
-      <value>1.0</value>
-    </param>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(608, 836)</value>
-    </param>
-    <param>
-      <key>gui_hint</key>
-      <value>tabs@2:1,1</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>grid</key>
-      <value>False</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>qtgui_vector_sink_f_0</value>
-    </param>
-    <param>
-      <key>alpha1</key>
-      <value>1.0</value>
-    </param>
-    <param>
-      <key>color1</key>
-      <value>"blue"</value>
-    </param>
-    <param>
-      <key>label1</key>
-      <value></value>
-    </param>
-    <param>
-      <key>width1</key>
-      <value>1</value>
-    </param>
-    <param>
-      <key>alpha10</key>
-      <value>1.0</value>
-    </param>
-    <param>
-      <key>color10</key>
-      <value>"dark blue"</value>
-    </param>
-    <param>
-      <key>label10</key>
-      <value></value>
-    </param>
-    <param>
-      <key>width10</key>
-      <value>1</value>
-    </param>
-    <param>
-      <key>alpha2</key>
-      <value>1.0</value>
-    </param>
-    <param>
-      <key>color2</key>
-      <value>"red"</value>
-    </param>
-    <param>
-      <key>label2</key>
-      <value></value>
-    </param>
-    <param>
-      <key>width2</key>
-      <value>1</value>
-    </param>
-    <param>
-      <key>alpha3</key>
-      <value>1.0</value>
-    </param>
-    <param>
-      <key>color3</key>
-      <value>"green"</value>
-    </param>
-    <param>
-      <key>label3</key>
-      <value></value>
-    </param>
-    <param>
-      <key>width3</key>
-      <value>1</value>
-    </param>
-    <param>
-      <key>alpha4</key>
-      <value>1.0</value>
-    </param>
-    <param>
-      <key>color4</key>
-      <value>"black"</value>
-    </param>
-    <param>
-      <key>label4</key>
-      <value></value>
-    </param>
-    <param>
-      <key>width4</key>
-      <value>1</value>
-    </param>
-    <param>
-      <key>alpha5</key>
-      <value>1.0</value>
-    </param>
-    <param>
-      <key>color5</key>
-      <value>"cyan"</value>
-    </param>
-    <param>
-      <key>label5</key>
-      <value></value>
-    </param>
-    <param>
-      <key>width5</key>
-      <value>1</value>
-    </param>
-    <param>
-      <key>alpha6</key>
-      <value>1.0</value>
-    </param>
-    <param>
-      <key>color6</key>
-      <value>"magenta"</value>
-    </param>
-    <param>
-      <key>label6</key>
-      <value></value>
-    </param>
-    <param>
-      <key>width6</key>
-      <value>1</value>
-    </param>
-    <param>
-      <key>alpha7</key>
-      <value>1.0</value>
-    </param>
-    <param>
-      <key>color7</key>
-      <value>"yellow"</value>
-    </param>
-    <param>
-      <key>label7</key>
-      <value></value>
-    </param>
-    <param>
-      <key>width7</key>
-      <value>1</value>
-    </param>
-    <param>
-      <key>alpha8</key>
-      <value>1.0</value>
-    </param>
-    <param>
-      <key>color8</key>
-      <value>"dark red"</value>
-    </param>
-    <param>
-      <key>label8</key>
-      <value></value>
-    </param>
-    <param>
-      <key>width8</key>
-      <value>1</value>
-    </param>
-    <param>
-      <key>alpha9</key>
-      <value>1.0</value>
-    </param>
-    <param>
-      <key>color9</key>
-      <value>"dark green"</value>
-    </param>
-    <param>
-      <key>label9</key>
-      <value></value>
-    </param>
-    <param>
-      <key>width9</key>
-      <value>1</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>name</key>
-      <value>"Freq. Offset Estimation FFT"</value>
-    </param>
-    <param>
-      <key>nconnections</key>
-      <value>1</value>
-    </param>
-    <param>
-      <key>ref_level</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>showports</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>update_time</key>
-      <value>0.10</value>
-    </param>
-    <param>
-      <key>vlen</key>
-      <value>fft_len</value>
-    </param>
-    <param>
-      <key>x_axis_label</key>
-      <value>"FFT bin"</value>
-    </param>
-    <param>
-      <key>x_start</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>x_step</key>
-      <value>1</value>
-    </param>
-    <param>
-      <key>x_units</key>
-      <value>"kHz"</value>
-    </param>
-    <param>
-      <key>ymax</key>
-      <value>10</value>
-    </param>
-    <param>
-      <key>ymin</key>
-      <value>-140</value>
-    </param>
-    <param>
-      <key>y_axis_label</key>
-      <value>"log FFT"</value>
-    </param>
-    <param>
-      <key>y_units</key>
-      <value>""</value>
     </param>
   </block>
   <block>
@@ -8797,7 +8611,7 @@ from function probe</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1424, 104)</value>
+      <value>(1648, 104)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -8844,7 +8658,7 @@ from function probe</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1592, 0)</value>
+      <value>(1144, 0)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -8891,7 +8705,7 @@ from function probe</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1424, 208)</value>
+      <value>(1584, 0)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -8938,7 +8752,7 @@ from function probe</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1080, 104)</value>
+      <value>(1136, 104)</value>
     </param>
     <param>
       <key>gui_hint</key>
@@ -9254,6 +9068,36 @@ from function probe</value>
     <sink_key>0</sink_key>
   </connection>
   <connection>
+    <source_block_id>digital_fll_band_edge_cc_1</source_block_id>
+    <sink_block_id>fll_error_null_sink</sink_block_id>
+    <source_key>3</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>digital_fll_band_edge_cc_1</source_block_id>
+    <sink_block_id>fll_d_freq_multiply_const</sink_block_id>
+    <source_key>1</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>digital_fll_band_edge_cc_1</source_block_id>
+    <sink_block_id>digital_pfb_clock_sync_xxx_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>digital_fll_band_edge_cc_1</source_block_id>
+    <sink_block_id>qtgui_freq_sink_fll_in_1</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>1</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>digital_fll_band_edge_cc_1</source_block_id>
+    <sink_block_id>fll_d_phase_null_sink</sink_block_id>
+    <source_key>2</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
     <source_block_id>digital_pfb_clock_sync_xxx_0</source_block_id>
     <sink_block_id>digital_costas_loop_cc_0</sink_block_id>
     <source_key>0</source_key>
@@ -9262,6 +9106,12 @@ from function probe</value>
   <connection>
     <source_block_id>digital_pfb_clock_sync_xxx_0</source_block_id>
     <sink_block_id>qtgui_const_sink_pfb_out_sym</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>fll_d_freq_multiply_const</source_block_id>
+    <sink_block_id>qtgui_time_sink_x_1</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
@@ -9320,18 +9170,6 @@ from function probe</value>
     <sink_key>0</sink_key>
   </connection>
   <connection>
-    <source_block_id>mods_ffw_coarse_freq_rec_0</source_block_id>
-    <sink_block_id>qtgui_time_sink_x_1</sink_block_id>
-    <source_key>1</source_key>
-    <sink_key>0</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>mods_ffw_coarse_freq_rec_0</source_block_id>
-    <sink_block_id>qtgui_vector_sink_f_0</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
-  </connection>
-  <connection>
     <source_block_id>mods_mer_measurement_pre_decoder</source_block_id>
     <sink_block_id>qtgui_mer_measurement_pre_decoder</sink_block_id>
     <source_key>0</source_key>
@@ -9342,18 +9180,6 @@ from function probe</value>
     <sink_block_id>qtgui_mer_measurement_pre_frame_sync</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>mods_nco_cc_0</source_block_id>
-    <sink_block_id>digital_pfb_clock_sync_xxx_0</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>mods_nco_cc_0</source_block_id>
-    <sink_block_id>qtgui_freq_sink_fll_in_1</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>1</sink_key>
   </connection>
   <connection>
     <source_block_id>rtlsdr_source_0</source_block_id>
@@ -9381,13 +9207,7 @@ from function probe</value>
   </connection>
   <connection>
     <source_block_id>virtual_source_1</source_block_id>
-    <sink_block_id>mods_ffw_coarse_freq_rec_0</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>virtual_source_1</source_block_id>
-    <sink_block_id>mods_nco_cc_0</sink_block_id>
+    <sink_block_id>digital_fll_band_edge_cc_1</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>

@@ -1,6 +1,7 @@
 import sys
 import time
 import threading
+import math
 
 # Definitions
 MAX_SNR_DB = 20
@@ -139,12 +140,15 @@ def print_ber(block_obj):
 
 
 def print_cfo(block_obj):
+    global sample_rate
 
-    # Current CFO estimation
-    cfo = block_obj.get_cfo_estimate()
+    norm_angular_freq = block_obj.get_frequency()
 
-    # State (whether estimation has converged or not)
-    state = block_obj.get_cfo_est_state()
+    norm_freq = norm_angular_freq / (2.0 * math.pi)
+
+    analog_freq = norm_freq * sample_rate
+
+    cfo = -analog_freq
 
     # Print
     sys.stdout.write("----------------------------------------")
@@ -152,11 +156,7 @@ def print_cfo(block_obj):
     sys.stdout.write("[" + time.strftime("%Y-%m-%d %H:%M:%S") + "] ")
     sys.stdout.write("Carrier Frequency Offset: ")
 
-    if (state == 0 and cfo == 0):
-        sys.stdout.write("ESTIMATING")
-    else:
-        sys.stdout.write(str("{:2.4f}".format(cfo/1e3)) + "kHz ")
-        sys.stdout.write("(CORRECTED)")
+    sys.stdout.write(str("{:2.4f}".format(cfo/1e3)) + "kHz ")
 
     sys.stdout.write("\n----------------------------------------")
     sys.stdout.write("----------------------------------------\n")
@@ -170,9 +170,13 @@ class rx_logger():
 
     """
 
-    def __init__(self, snr_meter_obj, snr_log_period, frame_synchronizer_obj,
-                 frame_sync_log_period, decoder_obj, ber_log_period,
-                 cfo_rec_obj, cfo_log_period, enabled_start):
+    def __init__(self, samp_rate, snr_meter_obj, snr_log_period,
+                 frame_synchronizer_obj, frame_sync_log_period,
+                 decoder_obj, ber_log_period, cfo_rec_obj,
+                 cfo_log_period, enabled_start):
+
+        global sample_rate
+        sample_rate = samp_rate
 
         # Use mutex to coordinate logs
         lock = threading.Lock()

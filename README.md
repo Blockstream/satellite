@@ -122,14 +122,11 @@ specified as 1276150000 Hz, as in the above example.
 
 ## Frequency Scan Mode
 
-In case the stability of your LNB exceeds `+-150` kHz, it is advisable
+In case the stability of your LNB exceeds `+-200` kHz, it is advisable
 to start the receiver in **scan mode**. See the explanation in
-[**the wiki**](../../wiki/Running-the-System#scan_mode).
-
-This mode will first sweep a wider range of frequencies and then pick a suitable
-frequency to start receiving on. By default, this procedure can take up to
-roughly 3 minutes during the receiver initialization and sweeps a range of
-approximately `3` MHz around the nominal frequency.
+[**the wiki**](../../wiki/Running-the-System#scan_mode). This mode will first
+sweep a wider range of frequencies and then pick a suitable frequency to start
+receiving on.
 
 To use the scan mode, run the receiver with the `-s` flag:
 
@@ -137,8 +134,8 @@ To use the scan mode, run the receiver with the `-s` flag:
 ./rx.py -f 1276150000 -s
 ```
 
-If you are not sure about the stability of your LNB, the scan mode is
-recommeded.
+The scan mode is recommended also if you are not sure about the stability of
+your LNB.
 
 ## Split Receiver Mode (Using a Raspberry Pi)
 

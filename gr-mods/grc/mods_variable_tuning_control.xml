@@ -7,6 +7,8 @@
     <var_make>self.$(id) = $(id) = $value</var_make>
     <make>
 self.$(id) = mods.tuning_control(
+    $samp_rate,
+    $sps,
     $scan_range,
     $n_steps,
     $poll_interval,
@@ -16,11 +18,23 @@ self.$(id) = mods.tuning_control(
     $(nco()),
     $(logger()),
     $(freq_gui_label()),
+    $(fll()),
     self.get_freq,
     self.set_freq
 )
     </make>
     <callback>self.set_$(id)($value)</callback>
+    <param>
+        <name>Sample Rate</name>
+        <key>samp_rate</key>
+        <type>raw</type>
+    </param>
+    <param>
+        <name>Samples Per Symbol</name>
+        <key>sps</key>
+        <value>1</value>
+        <type>real</type>
+    </param>
     <param>
         <name>Scan Range</name>
         <key>scan_range</key>
@@ -70,6 +84,12 @@ self.$(id) = mods.tuning_control(
     <param>
         <name>Freq GUI Label</name>
         <key>freq_gui_label</key>
+        <value>None</value>
+        <type>string</type>
+    </param>
+    <param>
+        <name>FLL</name>
+        <key>fll</key>
         <value>None</value>
         <type>string</type>
     </param>
