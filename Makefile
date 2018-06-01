@@ -43,7 +43,8 @@ $(GR_FRAMERS_BUILD_RC):
 		git clone $(GR_FRAMERS_REPO);\
 	fi
 	mkdir -p $(GR_FRAMERS_BUILD_DIR)
-	cd $(GR_FRAMERS_BUILD_DIR) && cmake .. && make && sudo make install
+	cd $(GR_FRAMERS_BUILD_DIR) && git pull origin master && \
+	cmake .. && make && sudo make install
 	touch $(GR_FRAMERS_BUILD_RC)
 	sudo ldconfig
 
