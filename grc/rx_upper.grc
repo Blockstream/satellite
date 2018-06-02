@@ -713,7 +713,7 @@
     </param>
     <param>
       <key>ber_log_period</key>
-      <value>10</value>
+      <value>1</value>
     </param>
     <param>
       <key>cfo_log_period</key>
