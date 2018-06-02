@@ -109,7 +109,7 @@ compute it, see the
 
 There are several optional parameters. For example, you can try adjusting the
 gain using option `-g`. See more information in the
-[Antenna Alignment guide](../../wiki/Antenna-Alignment#rx_parameters).
+[wiki](../../wiki/Running-the-System).
 
 **Example:**
 
@@ -117,7 +117,7 @@ gain using option `-g`. See more information in the
 ./rx.py -f 1276150000 -g 40
 ```
 
-**NOTE:**: The frequency parameter is specified in Hz. So 1276.15 MHz would be
+**NOTE:** The frequency parameter is specified in Hz. So 1276.15 MHz would be
 specified as 1276150000 Hz, as in the above example.
 
 ## Frequency Scan Mode
