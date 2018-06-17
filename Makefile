@@ -1,3 +1,5 @@
+SHELL:=/bin/bash
+
 XML_PATH = gr-mods/grc
 CC_PATH = gr-mods/lib
 PY_PATH = gr-mods/python
@@ -8,7 +10,7 @@ HIER_PY_FILES = $(patsubst grc/hier/%.grc, gr-mods/python/%.py, $(HIER_FILES))
 HIER_RC = $(patsubst grc/hier/%.grc, grc/hier/%.build_record, $(HIER_FILES))
 
 GRC_FILES = $(shell find grc/ -maxdepth 1 -type f -name '*.grc')
-GRC_PY_FILES = $(patsubst grc/%.grc, %.py, $(GRC_FILES))
+GRC_PY_FILES = $(patsubst grc/%.grc, build/%.py, $(GRC_FILES))
 
 MOD_XML = $(shell find $(XML_PATH) -type f -name '*.xml')
 MOD_I_H = $(shell find $(CC_PATH) -type f -name '*.h')
@@ -22,21 +24,30 @@ GR_FRAMERS_BUILD_RC = gr-framers/build_record
 GR_MODS_BUILD_DIR = gr-mods/build
 GR_MODS_BUILD_RC = gr-mods/build_record
 
-.PHONY: build gr-mods gr-framers clean uninstall remove \
-hier build-hier clean-hier
+.PHONY: build install clean uninstall mods install-mods clean-mods \
+uninstall-mods framers install-framers clean-framers uninstall-framers hier \
+build-hier clean-hier
 
 # Build Rx Flowgraphs
 build: $(GRC_PY_FILES)
 
-%.py: grc/%.grc $(GR_FRAMERS_BUILD_RC) $(GR_MODS_BUILD_RC)
+build/%.py: grc/%.grc
+	@echo "Check if framers and mods libraries are installed"
+	@python -c "import framers"
+	@python -c "import mods"
+	mkdir -p build
 	grcc $< -d $(@D)
 	@sed -i 's/'\
 	'dest=\"scan_mode\", type=\"intx\", default=0/'\
 	'dest=\"scan_mode\", action=\"store_true\", default=False/g' $@
 	@chmod u+x $@
+	python -m compileall $@
+	f=$@ && x=$${f%.py} && y="$${x//_/-}" &&\
+	echo "#!/bin/bash" > $$y &&\
+	echo "/usr/bin/python $(DESTDIR)/usr/lib/bs-rx/$(@F)c \"\$$@\"" >> $$y
 
 # Build GR Framers
-gr-framers: $(GR_FRAMERS_BUILD_RC)
+framers: $(GR_FRAMERS_BUILD_RC)
 
 $(GR_FRAMERS_BUILD_RC):
 	@if [ ! -d "gr-framers" ]; then\
@@ -44,37 +55,59 @@ $(GR_FRAMERS_BUILD_RC):
 	fi
 	mkdir -p $(GR_FRAMERS_BUILD_DIR)
 	cd $(GR_FRAMERS_BUILD_DIR) && git pull origin master && \
-	cmake .. && make && sudo make install
+	cmake .. && make
 	touch $(GR_FRAMERS_BUILD_RC)
-	sudo ldconfig
+
+# Install gr-framers
+install-framers: $(GR_FRAMERS_BUILD_RC)
+	cd $(GR_FRAMERS_BUILD_DIR) && make DESTDIR=$(DESTDIR) install
 
 # Build GR Mods
-gr-mods: $(GR_MODS_BUILD_RC)
+mods: $(GR_MODS_BUILD_RC)
 
 $(GR_MODS_BUILD_RC): $(MOD_CC) $(MOD_I_H) $(MOD_H) $(MOD_XML) $(MOD_PY)
 	mkdir -p $(GR_MODS_BUILD_DIR)
-	cd $(GR_MODS_BUILD_DIR) && cmake .. && make && sudo make install
+	cd $(GR_MODS_BUILD_DIR) && cmake .. && make
 	touch $(GR_MODS_BUILD_RC)
-	sudo ldconfig
+
+# Install GR Mods
+install-mods: $(GR_MODS_BUILD_RC)
+	cd $(GR_MODS_BUILD_DIR) && make DESTDIR=$(DESTDIR) install
+
+install:
+	mkdir -p $(DESTDIR)/usr/bin
+	mkdir -p $(DESTDIR)/usr/lib/bs-rx
+	install -m 0644 build/bs_*.py* $(DESTDIR)/usr/lib/bs-rx/
+	cd build && ls | grep -v '\.py*' | \
+	xargs -L 1 -I '{}' install -m 0755 '{}' $(DESTDIR)/usr/bin/
 
 # Clean builds
-clean:
+clean-framers:
 	rm -f $(GR_FRAMERS_BUILD_RC)
 	$(MAKE) -C $(GR_FRAMERS_BUILD_DIR) clean
 	rm -rf $(GR_FRAMERS_BUILD_DIR)
+
+clean-mods:
 	rm -f $(GR_MODS_BUILD_RC)
 	$(MAKE) -C $(GR_MODS_BUILD_DIR) clean
 	rm -rf $(GR_MODS_BUILD_DIR)
+
+clean:
 	rm -f $(GRC_PY_FILES)
+	rm -r build/
+
+# Uninstall
+uninstall-framers:
+	rm -f $(GR_FRAMERS_BUILD_RC)
+	$(MAKE) -C $(GR_FRAMERS_BUILD_DIR) uninstall
+
+uninstall-mods:
+	rm -f $(GR_MODS_BUILD_RC)
+	$(MAKE) -C $(GR_MODS_BUILD_DIR) uninstall
 
 uninstall:
-	sudo $(MAKE) -C $(GR_FRAMERS_BUILD_DIR) uninstall
-	sudo $(MAKE) -C $(GR_MODS_BUILD_DIR) uninstall
-
-remove:
-	-$(MAKE) uninstall
-	-$(MAKE) clean
-	-rm -rf gr-framers/
+	rm $(DESTDIR)/usr/lib/bs_rx*
+	rm $(DESTDIR)/usr/bin/bs-rx*
 
 # Re-build Hierarchical Blocks
 # NOTE: the hierarchical blocks are pre-built in the repository due to the fact

@@ -80,13 +80,22 @@ Make sure you understand the concept of prefixes in PyBOMBS, explained in the
 above link. More importantly, ensure that GNU Radio 3.7.10 or later is installed
 when using this method.
 
-## Build the Project
+## Build and Install
 
-Assuming you have `make`, `cmake` and `swig`, build and install the Blockstream
-Satellite receiver. In the root folder of this project, run:
+Assuming you have `make`, `cmake` and `swig`, build and install the receiver
+dependencies. In the root folder of this project, run:
 
 ```
+$ make framers
+$ sudo make install-framers
+$ make mods
+$ sudo make install-mods
+```
+
+Then, build and install the Blockstream Satellite receiver applications:
+```
 $ make
+$ sudo make install
 ```
 
 Finally, install Bitcoin FIBRE: http://bitcoinfibre.org.
@@ -96,7 +105,7 @@ Finally, install Bitcoin FIBRE: http://bitcoinfibre.org.
 After successful set-up of your receiver, run the receiver application with:
 
 ```
-./rx.py -f [freq_in_hz]
+bs-rx -f [freq_in_hz]
 ```
 
 **Parameters:**
@@ -114,7 +123,7 @@ gain using option `-g`. See more information in the
 **Example:**
 
 ```
-./rx.py -f 1276150000 -g 40
+bs-rx -f 1276150000 -g 40
 ```
 
 **NOTE:** The frequency parameter is specified in Hz. So 1276.15 MHz would be
@@ -131,7 +140,7 @@ receiving on.
 To use the scan mode, run the receiver with the `-s` flag:
 
 ```
-./rx.py -f 1276150000 -s
+bs-rx -f 1276150000 -s
 ```
 
 The scan mode is recommended also if you are not sure about the stability of

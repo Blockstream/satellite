@@ -46,7 +46,7 @@
     </param>
     <param>
       <key>id</key>
-      <value>rx</value>
+      <value>bs_rx</value>
     </param>
     <param>
       <key>max_nouts</key>
