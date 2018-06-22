@@ -149,7 +149,7 @@ namespace gr {
      * metric. This is done just for the purposes of printing the timing metric
      * peak.
      */
-    int frame_sync_fast_impl::mov_max_timing_metric(float timing_metric,
+    void frame_sync_fast_impl::mov_max_timing_metric(float timing_metric,
                                                     gr_complex norm_c_pmf)
     {
       // Consider the timing metric only if the PMF output is significant

@@ -64,7 +64,7 @@ namespace gr {
       std::vector<float> d_central_diff;
 
       // Internal processing
-      int mov_max_timing_metric(float timing_metric, gr_complex norm_c_pmf);
+      void mov_max_timing_metric(float timing_metric, gr_complex norm_c_pmf);
       int is_corr_peak(float timing_metric, gr_complex norm_c_pmf);
       int postprocess_peak(int is_peak_in, int offset_prev_peak);
       int check_frame_part(int is_peak);
