@@ -1,5 +1,9 @@
 SHELL:=/bin/bash
 
+export PYTHONPATH := /usr/local/lib64/python2.7/site-packages:$(PYTHONPATH)
+export PYTHONPATH := /usr/local/lib64/python2.7/dist-packages:$(PYTHONPATH)
+export LD_LIBRARY_PATH := /usr/local/lib64:$(LD_LIBRARY_PATH)
+
 XML_PATH = gr-mods/grc
 CC_PATH = gr-mods/lib
 PY_PATH = gr-mods/python
