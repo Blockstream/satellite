@@ -156,7 +156,7 @@ def print_cfo(block_obj):
     sys.stdout.write("[" + time.strftime("%Y-%m-%d %H:%M:%S") + "] ")
     sys.stdout.write("Carrier Frequency Offset: ")
 
-    sys.stdout.write(str("{:2.4f}".format(cfo/1e3)) + "kHz ")
+    sys.stdout.write(str("{:2.4f}".format(cfo/1e3)) + " kHz ")
 
     sys.stdout.write("\n----------------------------------------")
     sys.stdout.write("----------------------------------------\n")
