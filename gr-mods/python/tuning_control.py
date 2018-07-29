@@ -48,6 +48,16 @@ class tuning_control(threading.Thread):
     self.fll_obj        = fll_obj
     self.rx_logger      = logger_obj
 
+    # Detect which CFO recovery scheme is adopted
+    if (self.fll_obj is not None and self.cfo_rec_obj is not None):
+      raise ValueError("Two different freq. rec. mechanisms")
+    elif (self.fll_obj is not None):
+      self.freq_rec_method = "FLL"
+    elif (self.cfo_rec_obj is not None):
+      self.freq_rec_method = "FFT"
+    else:
+      raise ValueError("Not freq. recovery module")
+
     # Interaction with the SDR
     self.get_hw_freq    = rf_freq_getter
     self.set_hw_freq    = rf_freq_setter
@@ -196,9 +206,7 @@ class tuning_control(threading.Thread):
     """ Interaction with Runtime CFO controller """
 
     # CFO threshold
-    sym_rate = self.samp_rate / self.sps
-    rolloff  = self.fll_obj.rolloff()
-
+    #
     # The BE filter is centered at "(1 + rolloff) * (Rsym/2)". A frequency shift
     # of "(1 + rolloff) * (Rsym/2)" shifts the signal to the BE filter center,
     # but in this case half of the effective signal bandwidth is still
@@ -213,7 +221,10 @@ class tuning_control(threading.Thread):
     #   = (1 + (3/2)*rolloff)*(Rsym/2)
     #
     # A slightly lower value is then used for the threshold
-    self.abs_cfo_threshold = sym_rate * (1 + (1.4)*rolloff)
+    if (self.freq_rec_method == "FLL"):
+      sym_rate               = self.samp_rate / self.sps
+      rolloff                = self.fll_obj.rolloff()
+      self.abs_cfo_threshold = sym_rate * (1 + (1.4)*rolloff)
 
     next_work = time.time() + self.cfo_poll_interval
 
@@ -231,7 +242,6 @@ class tuning_control(threading.Thread):
       # Check the current target RF center frequency according to the runtime
       # CFO controller module and the RF center frequency that is currently
       # being used in the SDR board
-      current_cfo_est        = self.get_fll_cfo_estimation()
       current_rf_center_freq = self.get_hw_freq()
 
       # Also check whether the frame recovery algorithm is locked, to ensure a
@@ -240,10 +250,19 @@ class tuning_control(threading.Thread):
       frame_sync_state = self.frame_sync_obj.get_state()
 
       # Update the radio RF center frequency if a new one is requested
-      if (abs(current_cfo_est) > self.abs_cfo_threshold and
-          frame_sync_state != 0):
-
+      if (self.freq_rec_method == "FLL"):
+        current_cfo_est       = self.get_fll_cfo_estimation()
+        update_freq           = (abs(current_cfo_est) > self.abs_cfo_threshold)
         target_rf_center_freq = current_rf_center_freq + current_cfo_est
+
+      elif (self.freq_rec_method == "FFT"):
+        target_rf_center_freq = self.cfo_rec_obj.get_rf_center_freq()
+        update_freq           = (current_rf_center_freq != target_rf_center_freq)
+
+      else:
+        raise ValueError("Unsupported freq. rec")
+
+      if (update_freq and frame_sync_state != 0):
 
         print("\n--- Carrier Tracking Mechanism ---");
         print "[" + datetime.datetime.now().strftime(
@@ -338,11 +357,14 @@ class tuning_control(threading.Thread):
     # Set the RF center frequency in HW in case the scan has not exited with
     # frame lock:
     if (not frame_lock or not self.frame_sync_obj.get_state()):
-      current_cfo_est = self.get_fll_cfo_estimation()
-      self.set_freq(target_freq + current_cfo_est)
-      # Changing frequency will lead to frame recovery loss, so it is better to
-      # wait until the frame loss logs are printed
-      time.sleep(3)
+      if (self.freq_rec_method == "FLL"):
+        current_cfo_est = self.get_fll_cfo_estimation()
+        self.set_freq(target_freq + current_cfo_est)
+        # Changing frequency will lead to frame recovery loss, so it is better to
+        # wait until the frame loss logs are printed
+        time.sleep(3)
+      else:
+        self.set_freq(target_freq)
 
     # Set frequency recovery averaging length back to the starting value:
     if (self.cfo_rec_obj is not None):
@@ -413,7 +435,8 @@ class tuning_control(threading.Thread):
   def set_freq(self, freq):
     """Wrapper for setting the frequency in HW as int """
 
-    self.reset_fll()
+    if (self.freq_rec_method == "FLL"):
+      self.reset_fll()
 
     self.set_hw_freq(int(round(freq)))
 
