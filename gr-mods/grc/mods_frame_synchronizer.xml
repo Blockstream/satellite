@@ -1,7 +1,7 @@
 <block>
   <name>Frame Synchronizer</name>
   <key>frame_synchronizer</key>
-  <category>Synchronizers</category>
+  <category>[mods]/Synchronizers</category>
   <import>import mods</import>
   <make>mods.frame_synchronizer(
     M=$M,

@@ -1,7 +1,7 @@
 <block>
-  <name>Coarse Freq. Rec.</name>
+  <name>Coarse Frequency Recovery</name>
   <key>mods_ffw_coarse_freq_rec</key>
-  <category>Synchronizers</category>
+  <category>[Blockstream]/Synchronizers</category>
   <import>import mods</import>
   <make>mods.ffw_coarse_freq_rec(
     abs_cfo_threshold=$abs_cfo_threshold,

@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <block>
-  <name>frame_sync_fast</name>
+  <name>Frame Synchronizer</name>
   <key>mods_frame_sync_fast</key>
-  <category>Synchronizers</category>
+  <category>[Blockstream]/Synchronizers</category>
   <import>import mods</import>
   <make>mods.frame_sync_fast($treshold, $preamble_len, $payload_len, $equalize, $fix_phase, $const_order, $fw_preamble, $verbosity)</make>
   <callback>get_timing_rec_indicator()</callback>

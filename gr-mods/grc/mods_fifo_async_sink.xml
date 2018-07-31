@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <block>
-  <name>fifo_async_sink</name>
+  <name>Asynchronous FIFO Sink</name>
   <key>mods_fifo_async_sink</key>
-  <category>[mods]</category>
+  <category>[Blockstream]/FIFO</category>
   <import>import mods</import>
   <make>mods.fifo_async_sink($fifo_file)</make>
   <param>

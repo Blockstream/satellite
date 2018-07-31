@@ -2,7 +2,7 @@
 <block>
     <name>Receiver Logger</name>
     <key>variable_rx_logger</key>
-    <category>[mods]</category>
+    <category>[Blockstream]/Tools</category>
     <import>import mods</import>
     <var_make>self.$(id) = $(id) = $value</var_make>
     <make>

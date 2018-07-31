@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <block>
-  <name>wrap_fft_index</name>
+  <name>FFT Index Wrapper</name>
   <key>mods_wrap_fft_index</key>
-  <category>Math</category>
+  <category>[Blockstream]/Math</category>
   <import>import mods</import>
   <make>mods.wrap_fft_index($fft_size)</make>
   <param>

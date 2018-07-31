@@ -2,6 +2,7 @@
 <block>
 	<name>Peak Finder</name>
 	<key>mods_argpeak</key>
+	<category>[Blockstream]/Peak Detector</category>
 	<import>import mods</import>
 	<make>mods.argpeak($vlen, $max_thresh)</make>
 	<param>

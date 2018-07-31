@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <block>
-  <name>turbo_encoder</name>
+  <name>Turbo Encoder</name>
   <key>mods_turbo_encoder</key>
-  <category>[mods]</category>
+  <category>[Blockstream]/Error Coding</category>
   <import>import mods</import>
   <make>mods.turbo_encoder($N, $K)</make>
   <param>

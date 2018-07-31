@@ -2,7 +2,7 @@
 <block>
   <name>Exponentiate Const Int</name>
   <key>mods_exponentiate_const_cci</key>
-  <category>Math</category>
+  <category>[Blockstream]/Math</category>
   <import>import mods</import>
   <make>mods.exponentiate_const_cci($exponent, $vlen)</make>
   <callback>set_exponent($exponent)</callback>

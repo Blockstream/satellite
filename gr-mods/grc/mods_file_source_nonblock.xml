@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <block>
-  <name>file_source_nonblock</name>
+  <name>Non-blocking File Source</name>
   <key>mods_file_source_nonblock</key>
-  <category>[mods]</category>
+  <category>[Blockstream]/File Operators</category>
   <import>import mods</import>
   <make>mods.file_source_nonblock($file_name, $poling_rate)</make>
   <param>

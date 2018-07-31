@@ -2,7 +2,7 @@
 <block>
     <name>Tuning Control</name>
     <key>variable_tuning_control_def</key>
-    <category>[mods]</category>
+    <category>[Blockstream]/Synchronizers</category>
     <import>import mods</import>
     <var_make>self.$(id) = $(id) = $value</var_make>
     <make>

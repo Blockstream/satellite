@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <block>
-  <name>mer_measurement</name>
+  <name>MER Estimator</name>
   <key>mods_mer_measurement</key>
-  <category>[mods]</category>
+  <category>[Blockstream]/Measurement Tools</category>
   <import>import mods</import>
   <make>mods.mer_measurement($N, $M)</make>
   <callback>get_snr()</callback>

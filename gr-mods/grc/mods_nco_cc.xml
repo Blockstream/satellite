@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <block>
-  <name>nco_cc</name>
+  <name>NCO</name>
   <key>mods_nco_cc</key>
-  <category>Synchronizers</category>
+  <category>[Blockstream]/Synchronizers</category>
   <import>import mods</import>
   <make>mods.nco_cc($samp_rate, $freq, $n_steps)</make>
   <callback>set_freq($freq)</callback>

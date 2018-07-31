@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <block>
-  <name>da_carrier_phase_rec</name>
+  <name>DA Carrier Phase Recovery</name>
   <key>mods_da_carrier_phase_rec</key>
-  <category>Synchronizers</category>
+  <category>[Blockstream]/Synchronizers</category>
   <import>import mods</import>
   <make>mods.da_carrier_phase_rec($preamble_syms, $noise_bw, $damp_factor, $M, $data_aided, $reset_per_frame)</make>
   <!-- Make one 'param' node for every Parameter you want settable from the GUI.

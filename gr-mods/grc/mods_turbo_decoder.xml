@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <block>
-  <name>turbo_decoder</name>
+  <name>Turbo Decoder</name>
   <key>mods_turbo_decoder</key>
-  <category>[mods]</category>
+  <category>[Blockstream]/Error Coding</category>
   <import>import mods</import>
   <make>mods.turbo_decoder($N, $K)</make>
   <param>
