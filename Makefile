@@ -13,7 +13,12 @@ HIER_FILES = $(shell find grc/hier/ -type f -name '*.grc')
 HIER_PY_FILES = $(patsubst grc/hier/%.grc, gr-mods/python/%.py, $(HIER_FILES))
 HIER_RC = $(patsubst grc/hier/%.grc, grc/hier/%.build_record, $(HIER_FILES))
 
-GRC_FILES = $(shell find grc/ -maxdepth 1 -type f -name '*.grc')
+ifeq ($(GUI), 0)
+	GRC_FILES = $(shell find grc/ -maxdepth 1 -type f -name '*.grc' ! \
+				  -path '*gui.grc')
+else
+	GRC_FILES = $(shell find grc/ -maxdepth 1 -type f -name '*.grc')
+endif
 GRC_PY_FILES = $(patsubst grc/%.grc, build/%.py, $(GRC_FILES))
 
 MOD_XML = $(shell find $(XML_PATH) -type f -name '*.xml')
