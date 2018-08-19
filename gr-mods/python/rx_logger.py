@@ -48,6 +48,11 @@ class Logger(threading.Thread):
             if (next_print > current_time):
                 time.sleep((next_print - current_time))
 
+            # Prevent module resolution issue during teardown of parent
+            # processs (see https://stackoverflow.com/a/21844166)
+            if (time is None):
+                break
+
             # Schedule next print
             next_print = time.time() + self.period
 

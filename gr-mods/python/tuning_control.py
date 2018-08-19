@@ -236,6 +236,11 @@ class tuning_control(threading.Thread):
       if (next_work > current_time):
         time.sleep(next_work - current_time)
 
+      # Prevent module resolution issue during teardown of parent
+      # processs (see https://stackoverflow.com/a/21844166)
+      if (time is None):
+        break
+
       # Schedule next work
       next_work = time.time() + self.cfo_poll_interval
 
