@@ -25,7 +25,7 @@ MOD_H = $(shell find $(H_PATH) -type f -name '*.h')
 
 GR_FRAMERS_REPO = https://github.com/gr-vt/gr-framers.git
 GR_FRAMERS_BUILD_DIR = gr-framers/build
-GR_FRAMERS_BUILD_RC = gr-framers/build_record
+GR_FRAMERS_BUILD_RC = build/gr-framers_build_record
 GR_MODS_BUILD_DIR = gr-mods/build
 GR_MODS_BUILD_RC = gr-mods/build_record
 
@@ -54,12 +54,9 @@ build/%.py: grc/%.grc
 framers: $(GR_FRAMERS_BUILD_RC)
 
 $(GR_FRAMERS_BUILD_RC):
-	@if [ ! -d "gr-framers" ]; then\
-		git clone $(GR_FRAMERS_REPO);\
-	fi
 	mkdir -p $(GR_FRAMERS_BUILD_DIR)
-	cd $(GR_FRAMERS_BUILD_DIR) && git pull origin master && \
-	cmake .. && make
+	cd $(GR_FRAMERS_BUILD_DIR) && cmake .. && make
+	mkdir -p build
 	touch $(GR_FRAMERS_BUILD_RC)
 
 # Install gr-framers

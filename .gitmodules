@@ -4,3 +4,6 @@
 [submodule "gr-mods"]
 	path = gr-mods
 	url = https://github.com/igorauad/gr-blockstream.git
+[submodule "gr-framers"]
+	path = gr-framers
+	url = https://github.com/gr-vt/gr-framers.git
