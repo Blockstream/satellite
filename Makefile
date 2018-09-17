@@ -9,10 +9,6 @@ CC_PATH = gr-mods/lib
 PY_PATH = gr-mods/python
 H_PATH = gr-mods/include/mods
 
-HIER_FILES = $(shell find grc/hier/ -type f -name '*.grc')
-HIER_PY_FILES = $(patsubst grc/hier/%.grc, gr-mods/python/%.py, $(HIER_FILES))
-HIER_RC = $(patsubst grc/hier/%.grc, grc/hier/%.build_record, $(HIER_FILES))
-
 ifeq ($(GUI), 0)
 	GRC_FILES = $(shell find grc/ -maxdepth 1 -type f -name '*.grc' ! \
 				  -path '*gui.grc')
@@ -34,8 +30,7 @@ GR_MODS_BUILD_DIR = gr-mods/build
 GR_MODS_BUILD_RC = gr-mods/build_record
 
 .PHONY: build install clean uninstall mods install-mods clean-mods \
-uninstall-mods framers install-framers clean-framers uninstall-framers hier \
-build-hier clean-hier
+uninstall-mods framers install-framers clean-framers uninstall-framers
 
 # Build Rx Flowgraphs
 build: $(GRC_PY_FILES)
@@ -117,25 +112,3 @@ uninstall-mods:
 uninstall:
 	rm $(DESTDIR)/usr/lib/bs_rx*
 	rm $(DESTDIR)/usr/bin/bs-rx*
-
-# Re-build Hierarchical Blocks
-# NOTE: the hierarchical blocks are pre-built in the repository due to the fact
-# that the top-level Python modules that they generate have been
-# customized. They should only be re-built in case there is some
-# incompatibility. In this case, the customizations in the top-level Python need
-# to be restored. These are easily tracked by using "git diff".
-hier: clean-hier build-hier
-
-build-hier: $(HIER_RC)
-
-grc/hier/%.build_record: grc/hier/%.grc
-	grcc $<
-	mv $(HOME)/.grc_gnuradio/$(*F).py gr-mods/python/
-	mv $(HOME)/.grc_gnuradio/$(*F).py.xml gr-mods/grc/mods_$(*F).xml
-	$(warning Build of hier blocks discards required python customizations)
-	$(info Check the changes using git and restore the customizations)
-	touch grc/hier/$(*F).build_record
-
-clean-hier:
-	-rm $(HIER_PY_FILES)
-	-rm $(HIER_RC)
