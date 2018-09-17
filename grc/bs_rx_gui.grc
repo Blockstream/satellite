@@ -975,7 +975,7 @@
     </param>
     <param>
       <key>frame_synchronizer</key>
-      <value>self.frame_synchronizer_0.mods_frame_sync_fast_0</value>
+      <value>self.frame_synchronizer_0.blockstream_frame_sync_fast_0</value>
     </param>
     <param>
       <key>freq_gui_label</key>
@@ -1090,7 +1090,7 @@
     </param>
     <param>
       <key>snr_meter</key>
-      <value>self.mods_mer_measurement_pre_frame_sync</value>
+      <value>self.blockstream_mer_measurement_pre_frame_sync</value>
     </param>
     <param>
       <key>samp_rate</key>
@@ -2477,7 +2477,7 @@
     </param>
   </block>
   <block>
-    <key>mods_da_carrier_phase_rec</key>
+    <key>blockstream_da_carrier_phase_rec</key>
     <param>
       <key>alias</key>
       <value></value>
@@ -2512,7 +2512,7 @@
     </param>
     <param>
       <key>id</key>
-      <value>mods_da_carrier_phase_rec_0_0</value>
+      <value>blockstream_da_carrier_phase_rec_0_0</value>
     </param>
     <param>
       <key>maxoutbuf</key>
@@ -2540,7 +2540,7 @@
     </param>
   </block>
   <block>
-    <key>mods_fifo_async_sink</key>
+    <key>blockstream_fifo_async_sink</key>
     <param>
       <key>alias</key>
       <value></value>
@@ -2571,11 +2571,11 @@
     </param>
     <param>
       <key>id</key>
-      <value>mods_fifo_async_sink_0</value>
+      <value>blockstream_fifo_async_sink_0</value>
     </param>
   </block>
   <block>
-    <key>mods_mer_measurement</key>
+    <key>blockstream_mer_measurement</key>
     <param>
       <key>N</key>
       <value>1024</value>
@@ -2610,7 +2610,7 @@
     </param>
     <param>
       <key>id</key>
-      <value>mods_mer_measurement_pre_decoder</value>
+      <value>blockstream_mer_measurement_pre_decoder</value>
     </param>
     <param>
       <key>maxoutbuf</key>
@@ -2622,7 +2622,7 @@
     </param>
   </block>
   <block>
-    <key>mods_mer_measurement</key>
+    <key>blockstream_mer_measurement</key>
     <param>
       <key>N</key>
       <value>1024</value>
@@ -2657,7 +2657,7 @@
     </param>
     <param>
       <key>id</key>
-      <value>mods_mer_measurement_pre_frame_sync</value>
+      <value>blockstream_mer_measurement_pre_frame_sync</value>
     </param>
     <param>
       <key>maxoutbuf</key>
@@ -2669,7 +2669,7 @@
     </param>
   </block>
   <block>
-    <key>mods_turbo_decoder</key>
+    <key>blockstream_turbo_decoder</key>
     <param>
       <key>alias</key>
       <value></value>
@@ -2696,7 +2696,7 @@
     </param>
     <param>
       <key>id</key>
-      <value>mods_turbo_decoder_0</value>
+      <value>blockstream_turbo_decoder_0</value>
     </param>
     <param>
       <key>maxoutbuf</key>
@@ -10710,7 +10710,7 @@
   </connection>
   <connection>
     <source_block_id>digital_costas_loop_cc_0</source_block_id>
-    <sink_block_id>mods_mer_measurement_pre_frame_sync</sink_block_id>
+    <sink_block_id>blockstream_mer_measurement_pre_frame_sync</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
@@ -10776,7 +10776,7 @@
   </connection>
   <connection>
     <source_block_id>digital_map_bb_0_0_0</source_block_id>
-    <sink_block_id>mods_turbo_decoder_0</sink_block_id>
+    <sink_block_id>blockstream_turbo_decoder_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
@@ -10806,7 +10806,7 @@
   </connection>
   <connection>
     <source_block_id>frame_synchronizer_0</source_block_id>
-    <sink_block_id>mods_da_carrier_phase_rec_0_0</sink_block_id>
+    <sink_block_id>blockstream_da_carrier_phase_rec_0_0</sink_block_id>
     <source_key>1</source_key>
     <sink_key>1</sink_key>
   </connection>
@@ -10824,7 +10824,7 @@
   </connection>
   <connection>
     <source_block_id>frame_synchronizer_0</source_block_id>
-    <sink_block_id>mods_da_carrier_phase_rec_0_0</sink_block_id>
+    <sink_block_id>blockstream_da_carrier_phase_rec_0_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
@@ -10842,48 +10842,48 @@
   </connection>
   <connection>
     <source_block_id>framers_gr_hdlc_deframer_b_0</source_block_id>
-    <sink_block_id>mods_fifo_async_sink_0</sink_block_id>
+    <sink_block_id>blockstream_fifo_async_sink_0</sink_block_id>
     <source_key>pdu</source_key>
     <sink_key>async_pdu</sink_key>
   </connection>
   <connection>
-    <source_block_id>mods_da_carrier_phase_rec_0_0</source_block_id>
+    <source_block_id>blockstream_da_carrier_phase_rec_0_0</source_block_id>
     <sink_block_id>qtgui_time_sink_x_0</sink_block_id>
     <source_key>1</source_key>
     <sink_key>0</sink_key>
   </connection>
   <connection>
-    <source_block_id>mods_da_carrier_phase_rec_0_0</source_block_id>
-    <sink_block_id>mods_mer_measurement_pre_decoder</sink_block_id>
+    <source_block_id>blockstream_da_carrier_phase_rec_0_0</source_block_id>
+    <sink_block_id>blockstream_mer_measurement_pre_decoder</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
   <connection>
-    <source_block_id>mods_da_carrier_phase_rec_0_0</source_block_id>
+    <source_block_id>blockstream_da_carrier_phase_rec_0_0</source_block_id>
     <sink_block_id>qtgui_const_sink_x_1</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
   <connection>
-    <source_block_id>mods_da_carrier_phase_rec_0_0</source_block_id>
+    <source_block_id>blockstream_da_carrier_phase_rec_0_0</source_block_id>
     <sink_block_id>virtual_sink_6</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
   <connection>
-    <source_block_id>mods_mer_measurement_pre_decoder</source_block_id>
+    <source_block_id>blockstream_mer_measurement_pre_decoder</source_block_id>
     <sink_block_id>qtgui_mer_measurement_pre_decoder</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
   <connection>
-    <source_block_id>mods_mer_measurement_pre_frame_sync</source_block_id>
+    <source_block_id>blockstream_mer_measurement_pre_frame_sync</source_block_id>
     <sink_block_id>qtgui_mer_measurement_pre_frame_sync</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
   <connection>
-    <source_block_id>mods_turbo_decoder_0</source_block_id>
+    <source_block_id>blockstream_turbo_decoder_0</source_block_id>
     <sink_block_id>digital_descrambler_bb_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>

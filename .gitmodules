@@ -1,3 +1,6 @@
 [submodule "bitcoinfibre"]
 	path = bitcoinfibre
 	url = https://github.com/bitcoinfibre/bitcoinfibre.git
+[submodule "gr-mods"]
+	path = gr-mods
+	url = https://github.com/igorauad/gr-blockstream.git
