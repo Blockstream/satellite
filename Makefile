@@ -36,7 +36,7 @@ uninstall-mods framers install-framers clean-framers uninstall-framers
 build: $(GRC_PY_FILES)
 
 build/%.py: grc/%.grc
-	@echo "Check if framers and mods libraries are installed"
+	@echo "Check gr-framers and gr-blockstream installations"
 	@python -c "import framers"
 	@python -c "import blockstream"
 	mkdir -p build
@@ -54,6 +54,7 @@ build/%.py: grc/%.grc
 framers: $(GR_FRAMERS_BUILD_RC)
 
 $(GR_FRAMERS_BUILD_RC):
+	git submodule update --init gr-framers
 	mkdir -p $(GR_FRAMERS_BUILD_DIR)
 	cd $(GR_FRAMERS_BUILD_DIR) && cmake .. && make
 	mkdir -p build
@@ -67,6 +68,7 @@ install-framers: $(GR_FRAMERS_BUILD_RC)
 mods: $(GR_MODS_BUILD_RC)
 
 $(GR_MODS_BUILD_RC): $(MOD_CC) $(MOD_I_H) $(MOD_H) $(MOD_XML) $(MOD_PY)
+	git submodule update --init gr-mods
 	mkdir -p $(GR_MODS_BUILD_DIR)
 	cd $(GR_MODS_BUILD_DIR) && cmake .. && make
 	touch $(GR_MODS_BUILD_RC)
