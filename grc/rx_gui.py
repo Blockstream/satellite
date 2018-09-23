@@ -16,7 +16,7 @@ if __name__ == '__main__':
         except:
             print "Warning: failed to XInitThreads()"
 
-from PyQt4 import Qt
+from PyQt5 import Qt
 from gnuradio import blocks
 from gnuradio import digital
 from gnuradio import eng_notation
@@ -61,7 +61,7 @@ class rx_gui(gr.top_block, Qt.QWidget):
         self.top_layout.addLayout(self.top_grid_layout)
 
         self.settings = Qt.QSettings("GNU Radio", "rx_gui")
-        self.restoreGeometry(self.settings.value("geometry").toByteArray())
+        self.restoreGeometry(self.settings.value("geometry"))
 
         ##################################################
         # Parameters
@@ -1009,9 +1009,6 @@ def main(top_block_cls=rx_gui, options=None):
         options, _ = argument_parser().parse_args()
 
     from distutils.version import StrictVersion
-    if StrictVersion(Qt.qVersion()) >= StrictVersion("4.5.0"):
-        style = gr.prefs().get_string('qtgui', 'style', 'raster')
-        Qt.QApplication.setGraphicsSystem(style)
     qapp = Qt.QApplication(sys.argv)
 
     tb = top_block_cls(freq=options.freq, gain=options.gain, loopbw=options.loopbw, loopbw_0=options.loopbw_0, fllbw=options.fllbw)
@@ -1021,7 +1018,7 @@ def main(top_block_cls=rx_gui, options=None):
     def quitting():
         tb.stop()
         tb.wait()
-    qapp.connect(qapp, Qt.SIGNAL("aboutToQuit()"), quitting)
+    qapp.aboutToQuit.connect(quitting)
     qapp.exec_()
 
 
