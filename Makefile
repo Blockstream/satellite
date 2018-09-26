@@ -5,7 +5,7 @@ export PYTHONPATH := /usr/local/lib64/python2.7/dist-packages:$(PYTHONPATH)
 export LD_LIBRARY_PATH := /usr/local/lib64:$(LD_LIBRARY_PATH)
 
 XML_PATH = gr-mods/grc
-CC_PATH = gr-mods/lib
+LIB_PATH = gr-mods/lib
 PY_PATH = gr-mods/python
 H_PATH = gr-mods/include/blockstream
 
@@ -18,10 +18,11 @@ endif
 GRC_PY_FILES = $(patsubst grc/%.grc, build/%.py, $(GRC_FILES))
 
 MOD_XML = $(shell find $(XML_PATH) -type f -name '*.xml')
-MOD_I_H = $(shell find $(CC_PATH) -type f -name '*.h')
-MOD_CC = $(shell find $(CC_PATH) -type f -name '*.cc')
+MOD_I_H = $(shell find $(LIB_PATH) -type f -name '*.h')
+MOD_CC = $(shell find $(LIB_PATH) -type f -name '*.cc')
 MOD_PY = $(shell find $(PY_PATH) -type f -name '*.py')
 MOD_H = $(shell find $(H_PATH) -type f -name '*.h')
+AFF3CT = $(shell find $(LIB_PATH) -type f -name '*.cpp')
 
 GR_FRAMERS_REPO = https://github.com/gr-vt/gr-framers.git
 GR_FRAMERS_BUILD_DIR = gr-framers/build
@@ -67,7 +68,7 @@ install-framers: $(GR_FRAMERS_BUILD_RC)
 # Build GR Mods
 mods: $(GR_MODS_BUILD_RC)
 
-$(GR_MODS_BUILD_RC): $(MOD_CC) $(MOD_I_H) $(MOD_H) $(MOD_XML) $(MOD_PY)
+$(GR_MODS_BUILD_RC): $(MOD_CC) $(MOD_I_H) $(AFF3CT) $(MOD_H) $(MOD_XML) $(MOD_PY)
 	git submodule update --init gr-mods
 	mkdir -p $(GR_MODS_BUILD_DIR)
 	cd $(GR_MODS_BUILD_DIR) && cmake .. && make
