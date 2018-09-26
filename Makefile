@@ -64,6 +64,7 @@ $(GR_FRAMERS_BUILD_RC):
 # Install gr-framers
 install-framers: $(GR_FRAMERS_BUILD_RC)
 	cd $(GR_FRAMERS_BUILD_DIR) && make DESTDIR=$(DESTDIR) install
+	-ldconfig
 
 # Build GR Mods
 mods: $(GR_MODS_BUILD_RC)
@@ -77,6 +78,7 @@ $(GR_MODS_BUILD_RC): $(MOD_CC) $(MOD_I_H) $(AFF3CT) $(MOD_H) $(MOD_XML) $(MOD_PY
 # Install GR Mods
 install-mods: $(GR_MODS_BUILD_RC)
 	cd $(GR_MODS_BUILD_DIR) && make DESTDIR=$(DESTDIR) install
+	-ldconfig
 
 install:
 	mkdir -p $(DESTDIR)/usr/bin
