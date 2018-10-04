@@ -100,7 +100,6 @@ clean-mods:
 
 clean:
 	rm -f $(GRC_PY_FILES)
-	rm -r build/
 
 # Uninstall
 uninstall-framers:
