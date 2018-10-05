@@ -16,6 +16,8 @@ else
 	GRC_FILES = $(shell find grc/ -maxdepth 1 -type f -name '*.grc')
 endif
 GRC_PY_FILES = $(patsubst grc/%.grc, build/%.py, $(GRC_FILES))
+GRC_PYC_FILES = $(patsubst grc/%.grc, build/%.pyc, $(GRC_FILES))
+GRC_WRAPPER_FILES = $(subst _,-, $(patsubst grc/%.grc, build/%, $(GRC_FILES)))
 
 MOD_XML = $(shell find $(XML_PATH) -type f -name '*.xml')
 MOD_I_H = $(shell find $(LIB_PATH) -type f -name '*.h')
@@ -100,6 +102,8 @@ clean-mods:
 
 clean:
 	rm -f $(GRC_PY_FILES)
+	rm -f $(GRC_PYC_FILES)
+	rm -f $(GRC_WRAPPER_FILES)
 
 # Uninstall
 uninstall-framers:
