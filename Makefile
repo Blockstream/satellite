@@ -83,7 +83,7 @@ install-mods: $(GR_MODS_BUILD_RC)
 install:
 	mkdir -p $(DESTDIR)/usr/local/bin
 	mkdir -p $(DESTDIR)/usr/local/lib/bs-rx
-	install -m 0644 build/bs_*.py* $(DESTDIR)/usr/local/lib/bs-rx/
+	install -m 0755 build/bs_*.py* $(DESTDIR)/usr/local/lib/bs-rx/
 	cd build && ls | grep -v '\.py*' | \
 	xargs -L 1 -I '{}' install -m 0755 '{}' $(DESTDIR)/usr/local/bin/
 
