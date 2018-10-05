@@ -49,7 +49,7 @@ build/%.py: grc/%.grc
 	python -m compileall $@
 	f=$@ && x=$${f%.py} && y="$${x//_/-}" &&\
 	echo "#!/bin/bash" > $$y &&\
-	echo "/usr/bin/python $(DESTDIR)/usr/lib/bs-rx/$(@F)c \"\$$@\"" >> $$y
+	echo "/usr/bin/python $(DESTDIR)/usr/local/lib/bs-rx/$(@F)c \"\$$@\"" >> $$y
 
 # Build GR Framers
 framers: $(GR_FRAMERS_BUILD_RC)
@@ -81,11 +81,11 @@ install-mods: $(GR_MODS_BUILD_RC)
 	-ldconfig
 
 install:
-	mkdir -p $(DESTDIR)/usr/bin
-	mkdir -p $(DESTDIR)/usr/lib/bs-rx
-	install -m 0644 build/bs_*.py* $(DESTDIR)/usr/lib/bs-rx/
+	mkdir -p $(DESTDIR)/usr/local/bin
+	mkdir -p $(DESTDIR)/usr/local/lib/bs-rx
+	install -m 0644 build/bs_*.py* $(DESTDIR)/usr/local/lib/bs-rx/
 	cd build && ls | grep -v '\.py*' | \
-	xargs -L 1 -I '{}' install -m 0755 '{}' $(DESTDIR)/usr/bin/
+	xargs -L 1 -I '{}' install -m 0755 '{}' $(DESTDIR)/usr/local/bin/
 
 # Clean builds
 clean-framers:
@@ -111,5 +111,5 @@ uninstall-mods:
 	$(MAKE) -C $(GR_MODS_BUILD_DIR) uninstall
 
 uninstall:
-	rm $(DESTDIR)/usr/lib/bs_rx*
-	rm $(DESTDIR)/usr/bin/bs-rx*
+	rm $(DESTDIR)/usr/local/lib/bs_rx*
+	rm $(DESTDIR)/usr/local/bin/bs-rx*
