@@ -1,8 +1,13 @@
 SHELL:=/bin/bash
 
-export PYTHONPATH := /usr/local/lib64/python2.7/site-packages:$(PYTHONPATH)
-export PYTHONPATH := /usr/local/lib64/python2.7/dist-packages:$(PYTHONPATH)
-export LD_LIBRARY_PATH := /usr/local/lib64:$(LD_LIBRARY_PATH)
+MACHINE    := $(shell uname -m)
+OS         := $(shell cat /etc/os-release | grep "^NAME=" | cut -d"=" -f2)
+
+ifeq ($(MACHINE), x86_64)
+ifneq ($(OS), "Ubuntu")
+export PYTHONPATH := $(PYTHONPATH):/usr/local/lib64/python2.7/site-packages
+endif
+endif
 
 XML_PATH = gr-mods/grc
 LIB_PATH = gr-mods/lib
@@ -51,7 +56,7 @@ build/%.py: grc/%.grc
 	python -m compileall $@
 	f=$@ && x=$${f%.py} && y="$${x//_/-}" &&\
 	echo "#!/bin/bash" > $$y &&\
-	echo "/usr/bin/python $(DESTDIR)/usr/local/lib/bs-rx/$(@F)c \"\$$@\"" >> $$y
+	echo "/usr/bin/env python $(DESTDIR)$(libdir)/bs-rx/$(@F)c \"\$$@\"" >> $$y
 
 # Build GR Framers
 framers: $(GR_FRAMERS_BUILD_RC)
