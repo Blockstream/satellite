@@ -3,6 +3,11 @@ SHELL:=/bin/bash
 MACHINE    := $(shell uname -m)
 OS         := $(shell cat /etc/os-release | grep "^NAME=" | cut -d"=" -f2)
 
+prefix      = /usr/local
+exec_prefix = $(prefix)
+bindir      = $(exec_prefix)/bin
+libdir      = $(exec_prefix)/lib
+
 ifeq ($(MACHINE), x86_64)
 ifneq ($(OS), "Ubuntu")
 export PYTHONPATH := $(PYTHONPATH):/usr/local/lib64/python2.7/site-packages
@@ -11,8 +16,8 @@ endif
 
 XML_PATH = gr-mods/grc
 LIB_PATH = gr-mods/lib
-PY_PATH = gr-mods/python
-H_PATH = gr-mods/include/blockstream
+PY_PATH  = gr-mods/python
+H_PATH   = gr-mods/include/blockstream
 
 ifeq ($(GUI), 0)
 	GRC_FILES = $(shell find grc/ -maxdepth 1 -type f -name '*.grc' ! \
@@ -20,22 +25,22 @@ ifeq ($(GUI), 0)
 else
 	GRC_FILES = $(shell find grc/ -maxdepth 1 -type f -name '*.grc')
 endif
-GRC_PY_FILES = $(patsubst grc/%.grc, build/%.py, $(GRC_FILES))
-GRC_PYC_FILES = $(patsubst grc/%.grc, build/%.pyc, $(GRC_FILES))
+GRC_PY_FILES      = $(patsubst grc/%.grc, build/%.py, $(GRC_FILES))
+GRC_PYC_FILES     = $(patsubst grc/%.grc, build/%.pyc, $(GRC_FILES))
 GRC_WRAPPER_FILES = $(subst _,-, $(patsubst grc/%.grc, build/%, $(GRC_FILES)))
 
 MOD_XML = $(shell find $(XML_PATH) -type f -name '*.xml')
 MOD_I_H = $(shell find $(LIB_PATH) -type f -name '*.h')
-MOD_CC = $(shell find $(LIB_PATH) -type f -name '*.cc')
-MOD_PY = $(shell find $(PY_PATH) -type f -name '*.py')
-MOD_H = $(shell find $(H_PATH) -type f -name '*.h')
-AFF3CT = $(shell find $(LIB_PATH) -type f -name '*.cpp')
+MOD_CC  = $(shell find $(LIB_PATH) -type f -name '*.cc')
+MOD_PY  = $(shell find $(PY_PATH) -type f -name '*.py')
+MOD_H   = $(shell find $(H_PATH) -type f -name '*.h')
+AFF3CT  = $(shell find $(LIB_PATH) -type f -name '*.cpp')
 
-GR_FRAMERS_REPO = https://github.com/gr-vt/gr-framers.git
+GR_FRAMERS_REPO      = https://github.com/gr-vt/gr-framers.git
 GR_FRAMERS_BUILD_DIR = gr-framers/build
-GR_FRAMERS_BUILD_RC = build/gr-framers_build_record
-GR_MODS_BUILD_DIR = gr-mods/build
-GR_MODS_BUILD_RC = gr-mods/build_record
+GR_FRAMERS_BUILD_RC  = build/gr-framers_build_record
+GR_MODS_BUILD_DIR    = gr-mods/build
+GR_MODS_BUILD_RC     = gr-mods/build_record
 
 .PHONY: build install clean uninstall mods install-mods clean-mods \
 uninstall-mods framers install-framers clean-framers uninstall-framers
@@ -88,11 +93,11 @@ install-mods: $(GR_MODS_BUILD_RC)
 	-ldconfig
 
 install:
-	mkdir -p $(DESTDIR)/usr/local/bin
-	mkdir -p $(DESTDIR)/usr/local/lib/bs-rx
-	install -m 0755 build/bs_*.py* $(DESTDIR)/usr/local/lib/bs-rx/
+	mkdir -p $(DESTDIR)$(bindir)
+	mkdir -p $(DESTDIR)$(libdir)/bs-rx
+	install -m 0755 build/bs_*.py* $(DESTDIR)$(libdir)/bs-rx/
 	cd build && ls | grep -v '\.py*' | \
-	xargs -L 1 -I '{}' install -m 0755 '{}' $(DESTDIR)/usr/local/bin/
+	xargs -L 1 -I '{}' install -m 0755 '{}' $(DESTDIR)$(bindir)
 
 # Clean builds
 clean-framers:
@@ -120,5 +125,5 @@ uninstall-mods:
 	$(MAKE) -C $(GR_MODS_BUILD_DIR) uninstall
 
 uninstall:
-	rm $(DESTDIR)/usr/local/lib/bs_rx*
-	rm $(DESTDIR)/usr/local/bin/bs-rx*
+	rm $(DESTDIR)$(libdir)/bs_rx*
+	rm $(DESTDIR)$(bindir)/bs-rx*
