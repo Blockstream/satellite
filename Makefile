@@ -61,7 +61,7 @@ build/%.py: grc/%.grc
 	python -m compileall $@
 	f=$@ && x=$${f%.py} && y="$${x//_/-}" &&\
 	echo "#!/bin/bash" > $$y &&\
-	echo "/usr/bin/env python $(DESTDIR)$(libdir)/bs-rx/$(@F)c \"\$$@\"" >> $$y
+	echo "/usr/bin/env python $(libdir)/bs-rx/$(@F)c \"\$$@\"" >> $$y
 
 # Build GR Framers
 framers: $(GR_FRAMERS_BUILD_RC)
