@@ -105,7 +105,7 @@ Finally, install Bitcoin FIBRE: http://bitcoinfibre.org.
 After successful set-up of your receiver, run the receiver application with:
 
 ```
-bs-rx -f [freq_in_hz]
+blocksat-rx -f [freq_in_hz]
 ```
 
 **Parameters:**
@@ -123,7 +123,7 @@ gain using option `-g`. See more information in the
 **Example:**
 
 ```
-bs-rx -f 1276150000 -g 40
+blocksat-rx -f 1276150000 -g 40
 ```
 
 **NOTE:** The frequency parameter is specified in Hz. So 1276.15 MHz would be
@@ -140,7 +140,7 @@ receiving on.
 To use the scan mode, run the receiver with the `-s` flag:
 
 ```
-bs-rx -f 1276150000 -s
+blocksat-rx -f 1276150000 -s
 ```
 
 The scan mode is recommended also if you are not sure about the stability of

@@ -61,7 +61,7 @@ build/%.py: grc/%.grc
 	python -m compileall $@
 	f=$@ && x=$${f%.py} && y="$${x//_/-}" &&\
 	echo "#!/bin/bash" > $$y &&\
-	echo "/usr/bin/env python $(libdir)/bs-rx/$(@F)c \"\$$@\"" >> $$y
+	echo "/usr/bin/env python $(libdir)/blocksat-rx/$(@F)c \"\$$@\"" >> $$y
 
 # Build GR Framers
 framers: $(GR_FRAMERS_BUILD_RC)
@@ -94,8 +94,8 @@ install-mods: $(GR_MODS_BUILD_RC)
 
 install:
 	mkdir -p $(DESTDIR)$(bindir)
-	mkdir -p $(DESTDIR)$(libdir)/bs-rx
-	install -m 0755 build/bs_*.py* $(DESTDIR)$(libdir)/bs-rx/
+	mkdir -p $(DESTDIR)$(libdir)/blocksat-rx
+	install -m 0755 build/blocksat_*.py* $(DESTDIR)$(libdir)/blocksat-rx/
 	cd build && ls | grep -v '\.py*' | \
 	xargs -L 1 -I '{}' install -m 0755 '{}' $(DESTDIR)$(bindir)
 
@@ -125,5 +125,5 @@ uninstall-mods:
 	$(MAKE) -C $(GR_MODS_BUILD_DIR) uninstall
 
 uninstall:
-	rm $(DESTDIR)$(libdir)/bs_rx*
-	rm $(DESTDIR)$(bindir)/bs-rx*
+	rm $(DESTDIR)$(libdir)/blocksat_rx*
+	rm $(DESTDIR)$(bindir)/blocksat-rx*

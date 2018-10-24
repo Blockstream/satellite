@@ -46,7 +46,7 @@
     </param>
     <param>
       <key>id</key>
-      <value>bs_rx_usrp</value>
+      <value>blocksat_rx_usrp</value>
     </param>
     <param>
       <key>max_nouts</key>
