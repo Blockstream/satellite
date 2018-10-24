@@ -894,7 +894,7 @@
     </param>
     <param>
       <key>frame_synchronizer</key>
-      <value>self.frame_synchronizer_0.blockstream_frame_sync_fast_0</value>
+      <value>self.frame_synchronizer_0.blocksat_frame_sync_fast_0</value>
     </param>
     <param>
       <key>freq_gui_label</key>
@@ -1009,7 +1009,7 @@
     </param>
     <param>
       <key>snr_meter</key>
-      <value>self.blockstream_mer_measurement_pre_frame_sync</value>
+      <value>self.blocksat_mer_measurement_pre_frame_sync</value>
     </param>
     <param>
       <key>samp_rate</key>
@@ -2083,7 +2083,7 @@
     </param>
   </block>
   <block>
-    <key>blockstream_da_carrier_phase_rec</key>
+    <key>blocksat_da_carrier_phase_rec</key>
     <param>
       <key>alias</key>
       <value></value>
@@ -2118,7 +2118,7 @@
     </param>
     <param>
       <key>id</key>
-      <value>blockstream_da_carrier_phase_rec_0_0</value>
+      <value>blocksat_da_carrier_phase_rec_0_0</value>
     </param>
     <param>
       <key>maxoutbuf</key>
@@ -2146,7 +2146,7 @@
     </param>
   </block>
   <block>
-    <key>blockstream_mer_measurement</key>
+    <key>blocksat_mer_measurement</key>
     <param>
       <key>N</key>
       <value>1024</value>
@@ -2181,7 +2181,7 @@
     </param>
     <param>
       <key>id</key>
-      <value>blockstream_mer_measurement_pre_decoder</value>
+      <value>blocksat_mer_measurement_pre_decoder</value>
     </param>
     <param>
       <key>maxoutbuf</key>
@@ -2193,7 +2193,7 @@
     </param>
   </block>
   <block>
-    <key>blockstream_mer_measurement</key>
+    <key>blocksat_mer_measurement</key>
     <param>
       <key>N</key>
       <value>1024</value>
@@ -2228,7 +2228,7 @@
     </param>
     <param>
       <key>id</key>
-      <value>blockstream_mer_measurement_pre_frame_sync</value>
+      <value>blocksat_mer_measurement_pre_frame_sync</value>
     </param>
     <param>
       <key>maxoutbuf</key>
@@ -9471,7 +9471,7 @@
   </connection>
   <connection>
     <source_block_id>digital_costas_loop_cc_0</source_block_id>
-    <sink_block_id>blockstream_mer_measurement_pre_frame_sync</sink_block_id>
+    <sink_block_id>blocksat_mer_measurement_pre_frame_sync</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
@@ -9543,7 +9543,7 @@
   </connection>
   <connection>
     <source_block_id>frame_synchronizer_0</source_block_id>
-    <sink_block_id>blockstream_da_carrier_phase_rec_0_0</sink_block_id>
+    <sink_block_id>blocksat_da_carrier_phase_rec_0_0</sink_block_id>
     <source_key>1</source_key>
     <sink_key>1</sink_key>
   </connection>
@@ -9561,7 +9561,7 @@
   </connection>
   <connection>
     <source_block_id>frame_synchronizer_0</source_block_id>
-    <sink_block_id>blockstream_da_carrier_phase_rec_0_0</sink_block_id>
+    <sink_block_id>blocksat_da_carrier_phase_rec_0_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
@@ -9572,37 +9572,37 @@
     <sink_key>0</sink_key>
   </connection>
   <connection>
-    <source_block_id>blockstream_da_carrier_phase_rec_0_0</source_block_id>
+    <source_block_id>blocksat_da_carrier_phase_rec_0_0</source_block_id>
     <sink_block_id>qtgui_time_sink_x_0</sink_block_id>
     <source_key>1</source_key>
     <sink_key>0</sink_key>
   </connection>
   <connection>
-    <source_block_id>blockstream_da_carrier_phase_rec_0_0</source_block_id>
+    <source_block_id>blocksat_da_carrier_phase_rec_0_0</source_block_id>
     <sink_block_id>blks2_tcp_sink_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
   <connection>
-    <source_block_id>blockstream_da_carrier_phase_rec_0_0</source_block_id>
-    <sink_block_id>blockstream_mer_measurement_pre_decoder</sink_block_id>
+    <source_block_id>blocksat_da_carrier_phase_rec_0_0</source_block_id>
+    <sink_block_id>blocksat_mer_measurement_pre_decoder</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
   <connection>
-    <source_block_id>blockstream_da_carrier_phase_rec_0_0</source_block_id>
+    <source_block_id>blocksat_da_carrier_phase_rec_0_0</source_block_id>
     <sink_block_id>qtgui_const_sink_x_1</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
   <connection>
-    <source_block_id>blockstream_mer_measurement_pre_decoder</source_block_id>
+    <source_block_id>blocksat_mer_measurement_pre_decoder</source_block_id>
     <sink_block_id>qtgui_mer_measurement_pre_decoder</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
   <connection>
-    <source_block_id>blockstream_mer_measurement_pre_frame_sync</source_block_id>
+    <source_block_id>blocksat_mer_measurement_pre_frame_sync</source_block_id>
     <sink_block_id>qtgui_mer_measurement_pre_frame_sync</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>

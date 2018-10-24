@@ -1167,7 +1167,7 @@
     </param>
   </block>
   <block>
-    <key>blockstream_fifo_async_sink</key>
+    <key>blocksat_fifo_async_sink</key>
     <param>
       <key>alias</key>
       <value></value>
@@ -1198,11 +1198,11 @@
     </param>
     <param>
       <key>id</key>
-      <value>blockstream_fifo_async_sink_0</value>
+      <value>blocksat_fifo_async_sink_0</value>
     </param>
   </block>
   <block>
-    <key>blockstream_turbo_decoder</key>
+    <key>blocksat_turbo_decoder</key>
     <param>
       <key>alias</key>
       <value></value>
@@ -1229,7 +1229,7 @@
     </param>
     <param>
       <key>id</key>
-      <value>blockstream_turbo_decoder_0</value>
+      <value>blocksat_turbo_decoder_0</value>
     </param>
     <param>
       <key>maxoutbuf</key>
@@ -1374,18 +1374,18 @@
   </connection>
   <connection>
     <source_block_id>digital_map_bb_0_0_0</source_block_id>
-    <sink_block_id>blockstream_turbo_decoder_0</sink_block_id>
+    <sink_block_id>blocksat_turbo_decoder_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
   <connection>
     <source_block_id>framers_gr_hdlc_deframer_b_0</source_block_id>
-    <sink_block_id>blockstream_fifo_async_sink_0</sink_block_id>
+    <sink_block_id>blocksat_fifo_async_sink_0</sink_block_id>
     <source_key>pdu</source_key>
     <sink_key>async_pdu</sink_key>
   </connection>
   <connection>
-    <source_block_id>blockstream_turbo_decoder_0</source_block_id>
+    <source_block_id>blocksat_turbo_decoder_0</source_block_id>
     <sink_block_id>digital_descrambler_bb_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>

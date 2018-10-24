@@ -14,10 +14,10 @@ export PYTHONPATH := $(PYTHONPATH):/usr/local/lib64/python2.7/site-packages
 endif
 endif
 
-XML_PATH = gr-mods/grc
-LIB_PATH = gr-mods/lib
-PY_PATH  = gr-mods/python
-H_PATH   = gr-mods/include/blockstream
+XML_PATH = gr-blocksat/grc
+LIB_PATH = gr-blocksat/lib
+PY_PATH  = gr-blocksat/python
+H_PATH   = gr-blocksat/include/blocksat
 
 ifeq ($(GUI), 0)
 	GRC_FILES = $(shell find grc/ -maxdepth 1 -type f -name '*.grc' ! \
@@ -29,29 +29,29 @@ GRC_PY_FILES      = $(patsubst grc/%.grc, build/%.py, $(GRC_FILES))
 GRC_PYC_FILES     = $(patsubst grc/%.grc, build/%.pyc, $(GRC_FILES))
 GRC_WRAPPER_FILES = $(subst _,-, $(patsubst grc/%.grc, build/%, $(GRC_FILES)))
 
-MOD_XML = $(shell find $(XML_PATH) -type f -name '*.xml')
-MOD_I_H = $(shell find $(LIB_PATH) -type f -name '*.h')
-MOD_CC  = $(shell find $(LIB_PATH) -type f -name '*.cc')
-MOD_PY  = $(shell find $(PY_PATH) -type f -name '*.py')
-MOD_H   = $(shell find $(H_PATH) -type f -name '*.h')
+XML = $(shell find $(XML_PATH) -type f -name '*.xml')
+I_H = $(shell find $(LIB_PATH) -type f -name '*.h')
+CC  = $(shell find $(LIB_PATH) -type f -name '*.cc')
+PY  = $(shell find $(PY_PATH) -type f -name '*.py')
+H   = $(shell find $(H_PATH) -type f -name '*.h')
 AFF3CT  = $(shell find $(LIB_PATH) -type f -name '*.cpp')
 
-GR_FRAMERS_REPO      = https://github.com/gr-vt/gr-framers.git
-GR_FRAMERS_BUILD_DIR = gr-framers/build
-GR_FRAMERS_BUILD_RC  = build/gr-framers_build_record
-GR_MODS_BUILD_DIR    = gr-mods/build
-GR_MODS_BUILD_RC     = gr-mods/build_record
+GR_FRAMERS_REPO       = https://github.com/gr-vt/gr-framers.git
+GR_FRAMERS_BUILD_DIR  = gr-framers/build
+GR_FRAMERS_BUILD_RC   = build/gr-framers_build_record
+GR_BLOCKSAT_BUILD_DIR = gr-blocksat/build
+GR_BLOCKSAT_BUILD_RC  = gr-blocksat/build_record
 
-.PHONY: build install clean uninstall mods install-mods clean-mods \
-uninstall-mods framers install-framers clean-framers uninstall-framers
+.PHONY: build install clean uninstall blocksat install-blocksat clean-blocksat \
+uninstall-blocksat framers install-framers clean-framers uninstall-framers
 
 # Build Rx Flowgraphs
 build: $(GRC_PY_FILES)
 
 build/%.py: grc/%.grc
-	@echo "Check gr-framers and gr-blockstream installations"
+	@echo "Check gr-framers and gr-blocksat installations"
 	@python -c "import framers"
-	@python -c "import blockstream"
+	@python -c "import blocksat"
 	mkdir -p build
 	grcc $< -d $(@D)
 	@sed -i 's/'\
@@ -78,18 +78,18 @@ install-framers: $(GR_FRAMERS_BUILD_RC)
 	cd $(GR_FRAMERS_BUILD_DIR) && make DESTDIR=$(DESTDIR) install
 	-ldconfig
 
-# Build GR Mods
-mods: $(GR_MODS_BUILD_RC)
+# Build GR Blocksat
+blocksat: $(GR_BLOCKSAT_BUILD_RC)
 
-$(GR_MODS_BUILD_RC): $(MOD_CC) $(MOD_I_H) $(AFF3CT) $(MOD_H) $(MOD_XML) $(MOD_PY)
-	git submodule update --init gr-mods
-	mkdir -p $(GR_MODS_BUILD_DIR)
-	cd $(GR_MODS_BUILD_DIR) && cmake .. && make
-	touch $(GR_MODS_BUILD_RC)
+$(GR_BLOCKSAT_BUILD_RC): $(CC) $(I_H) $(AFF3CT) $(H) $(XML) $(PY)
+	git submodule update --init gr-blocksat
+	mkdir -p $(GR_BLOCKSAT_BUILD_DIR)
+	cd $(GR_BLOCKSAT_BUILD_DIR) && cmake .. && make
+	touch $(GR_BLOCKSAT_BUILD_RC)
 
-# Install GR Mods
-install-mods: $(GR_MODS_BUILD_RC)
-	cd $(GR_MODS_BUILD_DIR) && make DESTDIR=$(DESTDIR) install
+# Install GR Blocksat
+install-blocksat: $(GR_BLOCKSAT_BUILD_RC)
+	cd $(GR_BLOCKSAT_BUILD_DIR) && make DESTDIR=$(DESTDIR) install
 	-ldconfig
 
 install:
@@ -105,10 +105,10 @@ clean-framers:
 	$(MAKE) -C $(GR_FRAMERS_BUILD_DIR) clean
 	rm -rf $(GR_FRAMERS_BUILD_DIR)
 
-clean-mods:
-	rm -f $(GR_MODS_BUILD_RC)
-	$(MAKE) -C $(GR_MODS_BUILD_DIR) clean
-	rm -rf $(GR_MODS_BUILD_DIR)
+clean-blocksat:
+	rm -f $(GR_BLOCKSAT_BUILD_RC)
+	$(MAKE) -C $(GR_BLOCKSAT_BUILD_DIR) clean
+	rm -rf $(GR_BLOCKSAT_BUILD_DIR)
 
 clean:
 	rm -f $(GRC_PY_FILES)
@@ -120,9 +120,9 @@ uninstall-framers:
 	rm -f $(GR_FRAMERS_BUILD_RC)
 	$(MAKE) -C $(GR_FRAMERS_BUILD_DIR) uninstall
 
-uninstall-mods:
-	rm -f $(GR_MODS_BUILD_RC)
-	$(MAKE) -C $(GR_MODS_BUILD_DIR) uninstall
+uninstall-blocksat:
+	rm -f $(GR_BLOCKSAT_BUILD_RC)
+	$(MAKE) -C $(GR_BLOCKSAT_BUILD_DIR) uninstall
 
 uninstall:
 	rm $(DESTDIR)$(libdir)/blocksat_rx*

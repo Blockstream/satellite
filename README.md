@@ -88,8 +88,8 @@ dependencies. In the root folder of this project, run:
 ```
 $ make framers
 $ sudo make install-framers
-$ make mods
-$ sudo make install-mods
+$ make blocksat
+$ sudo make install-blocksat
 ```
 
 Then, build and install the Blockstream Satellite receiver applications:
