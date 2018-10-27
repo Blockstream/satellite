@@ -9,7 +9,7 @@ This is an initial release and regular improvements will be made to make Blockst
 
 # Coverage Area
 
-Blockstream Satellite currently covers nearly 2/3rds of the Earth's landmass.  To see if you are in the coverage area, use our [Interactive Coverage Map](http://www.blockstream.com/satellite/satellite)
+Blockstream Satellite currently covers nearly 2/3rds of the Earth's landmass.  To see if you are in the coverage area, use our [Interactive Coverage Map](http://www.blockstream.com/satellite)
 
 # Hardware Required
 
