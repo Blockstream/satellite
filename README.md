@@ -9,7 +9,7 @@ This is an initial release and regular improvements will be made to make Blockst
 
 # Coverage Area
 
-Blockstream Satellite currently covers nearly 2/3rds of the Earth's landmass.  To see if you are in the coverage area, use our [Interactive Coverage Map](http://www.blockstream.com/satellite/satellite)
+Blockstream Satellite currently covers nearly 2/3rds of the Earth's landmass.  To see if you are in the coverage area, use our [Interactive Coverage Map](https://blockstream.com/satellite/#satellite_network-coverage)
 
 # Hardware Required
 
@@ -49,7 +49,7 @@ The type of LNB used is critical.  There are 3 parameters of an LNB that must be
 
 ### LNB Frequency Range.
 
-First you must verify that the Blockstream Satellite coverage in your area operates within the LNB frequency range. You can check the coverage area and satellite frequencies on our [Network Status](http://www.blockstream.com/satellite/satellite) page.
+First you must verify that the Blockstream Satellite coverage in your area operates within the LNB frequency range. You can check the coverage area and satellite frequencies on our [Network Status](https://blockstream.com/satellite/) page.
 
 For example, if you are located in North America and are using the Galaxy 18 satellite, your frequency is 12.178 GHz.  Thus an LNB that operates from 11.7 GHz to 12.2 GHz would work.  However, if your LNB operates from 10.7 GHz to 11.7 GHz would NOT work.
 
@@ -137,7 +137,7 @@ Aligning a satellite antenna is a precise procedure.  Remember that the satellit
 ## 1.Ideal Mounting Location
 Before mounting your satellite antenna, it is important to ensure you find the ideal mounting location.
 
-To find the ideal location to place your antenna, first use the following tool to find the correct azimuth and elevation. http://blockstream.com/satellite/satellite (click on the satellite dish icon in the upper right).
+To find the ideal location to place your antenna, first use the following tool to find the correct azimuth and elevation. https://blockstream.com/satellite/ (click on Dish Alignment Tool).
 
 After entering your address or latitude/longitude, this tool will give you three parameters:
 
@@ -203,7 +203,7 @@ python rx_gui.py --freq 1276150000 --gain 40
 ### Frequency
 >The frequency should be your satellite's frequency - LNB's LO frequency.  
 >
->To find your frequency, first go to http://blockstream.com/satellite/satellite and find your satellite.  You should see the frequency listed in MHz.
+>To find your frequency, first go to https://blockstream.com/satellite/ and find your satellite.  You should see the frequency listed in MHz.
 >
 >Then adjust for your LNB LO frequency.  For example, if your LNB has an LO frequency of 10750 MHz and you're connecting to Eutelsat 113 at 12026.15 MHz, the frequency is 12026.15 - 10750 = 1276.15 MHz.
 >
