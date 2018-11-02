@@ -15,12 +15,12 @@ Blockstream Satellite more user friendly and less technically complex.
 During your initial set-up, you will need to go through the following steps:
 
 1. Check your coverage at Blockstream's
-   [Interactive Coverage Map](http://www.blockstream.com/satellite/satellite).
-2. Gather the required hardware - appropriate satellite dish, low-noise block
-   downconverter (LNB), power supply, mounting hardware, SDR interface, cables
-   and connectors.
-3. Download the required software - Bitcoin FIBRE, GNU Radio and GR OsmoSDR.
-4. Install the receiver and software dependencies.
+   [Interactive Coverage Map](https://blockstream.com/satellite/#satellite_network-coverage).
+2. Get the required hardware - software defined radio (SDR) interface, satellite
+   dish/antenna, low-noise block downconverter (LNB), power supply, mounting
+   hardware, cables and connectors.
+3. Install the required software - Bitcoin FIBRE, GNU Radio and GR OsmoSDR.
+4. Install the satellite receiver.
 5. Align your satellite dish with the help of the receiver application.
 
 All of these steps are thoroughly explained in [**the wiki**](../../wiki), which
@@ -38,49 +38,18 @@ Install GNU Radio and OsmoSDR:
 
 (Ubuntu/Debian)
 ```
-$ sudo apt-get install gnuradio=3.7.11\* gr-osmosdr
+$ sudo apt-get install gnuradio gr-osmosdr
 ```
 (Fedora)
 ```
-sudo dnf install gnuradio-3.7.11* gnuradio-devel gr-osmosdr
+sudo dnf install gnuradio gnuradio-devel gr-osmosdr
 ```
 
-The above installation points to version 3.7.11 of GNU Radio, but you can
-install 3.7.10 or any later version.
+The GNU Radio version is reuqired to be 3.7.9 or later. This is met by the
+versions that are available in Ubuntu 16.04 and Fedora 26 or any subsequent
+Ubuntu/Fedora release.
 
-Check if the version is available via package manager, e.g. in Ubuntu/Debian:
-
-```
-apt-cache policy gnuradio
-```
-
-If a suitable version is not available, you can either search for a repository
-that provides the package or use PyBOMBS.
-
-## GNU Radio and OsmoSDR via PyBOMBS
-
-**NOTE:** PyBOMBS detects if a binary package is available. In case it is not,
-it will build from source. Hence, please note that this method can take much
-longer.
-
-Please follow the instructions from
-[github.com/gnuradio/pybombs](https://github.com/gnuradio/pybombs#quickstart).
-
-In summary, the following steps can be used:
-```
-sudo apt-get install pip
-sudo pip install PyBOMBS
-pybombs auto-config
-pybombs recipes add-defaults
-pybombs prefix init ~/prefix -a myprefix -R gnuradio-default
-source ~/prefix/setup_env.sh
-```
-
-Make sure you understand the concept of prefixes in PyBOMBS, explained in the
-above link. More importantly, ensure that GNU Radio 3.7.10 or later is installed
-when using this method.
-
-## Build and Install
+## Build and Install the Blockstream Satellite Receiver
 
 Assuming you have `make`, `cmake` and `swig`, build and install the receiver
 dependencies. In the root folder of this project, run:
@@ -164,16 +133,11 @@ The wiki explains how to
 
 Bitcoin FIBRE uses the same `bitcoin.conf` configuration file as Bitcoin Core.
 Configure as needed and start `bitcoind` with the following parameters after the
-receiver (above) is running:
+satellite receiver is running:
 
 ```
 ./bitcoind -fecreaddevice=/tmp/async_rx
 ```
 
 >Note: The Blockstream Satellite receiver will create the `/tmp/async_rx` file.
-
-# Setup Complete
-
-Once both the Blockstream Satellite Receiver and Bitcoin FIBRE are running, your
-node will stay in sync!
 
