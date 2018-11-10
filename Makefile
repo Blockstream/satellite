@@ -125,5 +125,5 @@ uninstall-blocksat:
 	$(MAKE) -C $(GR_BLOCKSAT_BUILD_DIR) uninstall
 
 uninstall:
-	rm $(DESTDIR)$(libdir)/blocksat_rx*
+	rm $(DESTDIR)$(libdir)/blocksat-rx/blocksat_rx*
 	rm $(DESTDIR)$(bindir)/blocksat-rx*
