@@ -136,8 +136,8 @@ Configure as needed and start `bitcoind` with the following parameters after the
 satellite receiver is running:
 
 ```
-./bitcoind -fecreaddevice=/tmp/async_rx
+./bitcoind -fecreaddevice=/tmp/blocksat/bitcoinfibre
 ```
 
->Note: The Blockstream Satellite receiver will create the `/tmp/async_rx` file.
+>Note: The Blockstream Satellite receiver will create the `/tmp/blocksat/bitcoinfibre` file.
 

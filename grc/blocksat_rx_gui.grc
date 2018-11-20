@@ -1886,6 +1886,92 @@
     </param>
   </block>
   <block>
+    <key>parameter</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(1488, 0)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>version</value>
+    </param>
+    <param>
+      <key>label</key>
+      <value>Blockstream Satellite Protocol Version</value>
+    </param>
+    <param>
+      <key>short_id</key>
+      <value></value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>intx</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>1</value>
+    </param>
+  </block>
+  <block>
+    <key>parameter</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(1488, 208)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>no_api</value>
+    </param>
+    <param>
+      <key>label</key>
+      <value>Disable User API Data Output</value>
+    </param>
+    <param>
+      <key>short_id</key>
+      <value></value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>intx</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
     <key>blocks_multiply_const_vxx</key>
     <param>
       <key>alias</key>
@@ -2540,7 +2626,7 @@
     </param>
   </block>
   <block>
-    <key>blocksat_fifo_async_sink</key>
+    <key>blocksat_protocol_sink</key>
     <param>
       <key>alias</key>
       <value></value>
@@ -2558,8 +2644,20 @@
       <value>1</value>
     </param>
     <param>
-      <key>fifo_file</key>
-      <value>/tmp/async_rx</value>
+      <key>blocks_pipe</key>
+      <value>/tmp/blocksat/bitcoinfibre</value>
+    </param>
+    <param>
+      <key>user_pipe</key>
+      <value>/tmp/blocksat/api</value>
+    </param>
+    <param>
+      <key>protocol_version</key>
+      <value>version</value>
+    </param>
+    <param>
+      <key>disable_api</key>
+      <value>bool(no_api)</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -2571,7 +2669,7 @@
     </param>
     <param>
       <key>id</key>
-      <value>blocksat_fifo_async_sink_0</value>
+      <value>blocksat_protocol_sink_0</value>
     </param>
   </block>
   <block>
@@ -10842,7 +10940,7 @@
   </connection>
   <connection>
     <source_block_id>framers_gr_hdlc_deframer_b_0</source_block_id>
-    <sink_block_id>blocksat_fifo_async_sink_0</sink_block_id>
+    <sink_block_id>blocksat_protocol_sink_0</sink_block_id>
     <source_key>pdu</source_key>
     <sink_key>async_pdu</sink_key>
   </connection>
