@@ -25,11 +25,36 @@ During your initial set-up, you will need to go through the following steps:
 
 All of these steps are thoroughly explained next.
 
+<!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-generate-toc again -->
+# Table of Contents
+
+- [Hardware Requirements](#hardware-requirements)
+- [Software Installation](#software-installation)
+    - [From Binary Packages](#from-binary-packages)
+    - [From Source](#from-source)
+- [Antenna Pointing](#antenna-pointing)
+    - [1.Ideal Mounting Location](#1ideal-mounting-location)
+    - [2. Mount the Antenna](#2-mount-the-antenna)
+    - [3. Prepare to Locate the Blockstream Satellite Signal](#3-prepare-to-locate-the-blockstream-satellite-signal)
+    - [4. Connect the Equipment](#4-connect-the-equipment)
+    - [5. Run the Blockstream Satellite Receiver](#5-run-the-blockstream-satellite-receiver)
+    - [6. Search for the Blockstream Satellite Signal](#6-search-for-the-blockstream-satellite-signal)
+    - [7. Next Steps](#7-next-steps)
+- [Run the Receiver](#run-the-receiver)
+  	- [GUI Mode](#gui-mode)
+    - [Console-only Mode](#console-only-mode)
+    - [Frequency Scan Mode](#frequency-scan-mode)
+    - [Split Receiver Mode](#split-receiver-mode)
+- [Run Bitcoin FIBRE](#run-bitcoin-fibre)
+- [Frequent issues and questions](#frequent-issues-and-questions)
+
+<!-- markdown-toc end -->
+
 # Hardware Requirements
 
 To utilize the Blockstream Satellite network, you must have the following
 hardware at a minimum:
-1. [45cm Ku band satellite dish (antenna)](#dish)
+1. [Satellite dish (antenna)](#dish)
 2. [LNB (linear polarization w/ LO stability <= 200 kHz)](#lnb)
 3. [LNB power supply](#power)
 4. [LNB mounting bracket](#mount)
@@ -39,19 +64,23 @@ hardware at a minimum:
 These items are available from resellers around the world and we are currently
 working with a vendor to provide complete kits and components.
 
-## <a name="dish"></a> 1. Minimum 45cm Satellite Dish (bigger is better)
+## <a name="dish"></a> 1. Minimum 45cm/60cm Satellite Dish (bigger is better)
 
-Blockstream Satellite is designed to work with small antennas of only 45cm in
-diameter.  However, a larger antenna is always better. When possible, we
-recommend installing an antenna larger than 45cm if one is readily available.
-60cm, 90cm, and 1.2m antennas are readily available.
+Blockstream Satellite is designed to work with small antennas. In Ku band, it is
+expected to work with antennas of only 45cm in diameter, while in C band it is
+expected to work with 60cm or higher. However, a larger antenna is always
+better. When possible, we recommend installing an antenna larger than the
+referred minimum if one is readily available. 60cm, 90cm, and 1.2m antennas are
+readily available.
 
 Other than size, the only additional requirement is that the antenna will work
-with Ku band and higher frequencies.
+with the frequency band that suits your coverage region.
 
 ### Satellite Frequency Bands
 
-Blockstream Satellite operates in Ku band.
+Blockstream Satellite operates in Ku band and C band, depending on region. Ku
+band is used in North America, South America, Africa and Europe. C band is used
+in Asia.
 
 >C band:     3.4 GHZ - 4.2 GHz
 >
@@ -60,9 +89,10 @@ Blockstream Satellite operates in Ku band.
 >Ka band:  17.7 GHz - 21.2 GHz
 
 You can always use antennas designed for higher frequencies. For example, an
-antenna designed for Ka band will work, as it is designed for higher frequencies
-than the one used by Blockstream Satellite. However, a C band antenna will not
-work, as it is designed for frequencies lower than Ku band.
+antenna designed for Ka band will work for Ku band and C band, as it is designed
+for higher frequencies than the one used by Blockstream Satellite. However, a C
+band antenna will not work for Ku band, as it is designed for frequencies lower
+than Ku band.
 
 ## <a name="lnb"></a> 2. LNB
 
@@ -125,7 +155,7 @@ normally specified in +/- XX Hz, kHz or MHz. A stability specification of `<=
 +/- 200 kHz` is preferable for better performance. However, if you would like
 (or you need) to use a less stable LNB, it can also be used. The difference is
 that, in this case, you will need to run the system in **Scan Mode**, as
-described in [[Running the system|Running-the-System#scan_mode]].
+described in [Frequency Scan Mode](#frequency-scan-mode).
 
 An LNB that relies on a phase-locked loop (PLL) frequency reference is typically
 more accurate and stable. Hence, we advise to look for a PLL LNB, instead of a
@@ -142,10 +172,10 @@ traditional dielectric oscillator (DRO) LNB.
 
 **In Summary:**
 
-You are advised to use a Ku band PLL LNBF with linear polarization and LO
-stability ideally within `+- 200 kHz` or less. The LNB should be suitable for
-the frequency of the satellite covering your location and preferably not a
-Universal LNB.
+You are advised to use a PLL LNBF with linear polarization and LO stability
+ideally within `+- 200 kHz` or less. The LNB should be suitable for the
+frequency of the satellite covering your location and preferably not a Universal
+LNB.
 
 ## <a name="power"></a>  3. LNB Power Inserter
 
@@ -254,9 +284,7 @@ yum install epel-release
 
 > <sup>*</sup>Note regarding CentOS 7: at the moment, the binary package for
 > this distribution/release installs solely the console-only receiver
-> applications. It does not install the applications that feature a GUI, due to
-> missing dependencies.
-
+> applications. It does not install the applications that feature a GUI.
 
 ## From Source
 
@@ -269,28 +297,34 @@ Satellite receiver from source:
 >
 >gr-osmosdr: https://github.com/osmocom/gr-osmosdr
 
-When installing these, just make sure to pick suitable versions. For GNU Radio,
-look for version 3.7.10 or later. The `gr-osmosdr`, then, needs to be compatible
-with the chosen GNU Radio version.
+When installing these, just make sure to pick suitable versions. Blockstream
+Satellite works with GNU Radio version 3.7.10 or later.
 
-The following commands attempt to install 3.7.11, but you can try 3.7.10 or any
-later version in case 3.7.11 is unavailable.
+In case you are flexible with the distribution/release that you can use, we
+advise using one of the following, where GNU Radio 3.7.11 is available:
+
+- Ubuntu bionic (18.04)
+- Fedora 27
+- Fedora 28
+
+The following commands attempt to install GNU Radio version 3.7.11, but you can
+try 3.7.10 or any later version in case 3.7.11 is not available in your system:
 
 **Debian/Ubuntu**:
 ```
-apt install gnuradio=3.7.11\* gr-osmosdr
+apt install gnuradio=3.7.11* gr-osmosdr
 ```
 
 **Fedora**
 
 ```
-dnf install gnuradio-3.7.11* gr-osmosdr
+dnf install gnuradio-3.7.11 gr-osmosdr
 ```
 
 **RHEL/CentOS**
 
 ```
-yum install gnuradio-3.7.11* gr-osmosdr
+yum install gnuradio-3.7.11 gr-osmosdr
 ```
 
 **NOTE 1:** For the Fedora/RHEL/CentOS distributions, you will also need to
@@ -335,8 +369,8 @@ $ sudo make install
 1. `blockstream` or `framers` cannot be found ("ImportError")
 
    Ensure that Python can load modules from the location where `gr-framers` and
-   `gr-blockstream` were installed. See the information in
-   [[Import Error (FAQ page).|Frequent-Issues-and-Questions#import_error]]
+   `gr-blockstream` were installed. See the information in the
+   [FAQ section](#import_error).
 
 2. Segmentation fault
 
@@ -344,8 +378,7 @@ $ sudo make install
    set the `LD_LIBRARY_PATH` environment variable to include the
    `/usr/local/lib` (or `/usr/local/lib64`) path. If this is not the case or if
    this does not solve the segmentation fault, please refer to the debugging
-   information in
-   [[Segmentation Fault (FAQ page)|Frequent-Issues-and-Questions#seg_fault]].
+   information in the [FAQ section](#seg_fault).
 
 3. GNU Radio development package
 
@@ -354,9 +387,7 @@ $ sudo make install
     `GnuradioConfig.cmake` or `gnuradio-config.cmake` files were not found, make
     sure to install the `gnuradio-devel` or `gnuradio-dev` package.
 
-Further issues are listed at the
-[[Frequent Issues and Questions page|Frequent-Issues-and-Questions]].
-
+Further issues are listed at the [FAQ section](#frequent-issues-and-questions).
 
 # Antenna Pointing
 
@@ -503,9 +534,7 @@ sat_freq - lnb_freq = freq_param
 
 ### Run the Receiver application (GUI mode)
 
-Assuming you have built and installed the receiver as described in the
-**[[installation section|Satellite-Receiver-Software-Installation]]**, now you
-can run:
+Assuming you have built and installed the receiver, now you can run:
 
 ```
 blocksat-rx-gui -f [freq_in_hz] -g [gain]
@@ -677,7 +706,7 @@ become available in the system. The two main applications are named
 without the GUI, respectively. The other applications are explained later in
 this guide.
 
-### GUI Mode
+## GUI Mode
 
 In order to launch the receiver in GUI mode, run:
 
@@ -687,8 +716,7 @@ blocksat-rx-gui -f [freq_in_hz]
 
 `freq_in_hz` is the frequency parameter, **specified in units of Hz**.
 
-See the
-[[Antenna Alignment guide|Antenna-Alignment#5-run-the-blockstream-satellite-receiver]]
+See the [Antenna Pointing Section](#5-run-the-blockstream-satellite-receiver)
 for the computation of the frequency parameter.
 
 **Example:**
@@ -702,7 +730,7 @@ You can see a full list of optional parameter using the help:
 blocksat-rx-gui -h
 ```
 
-### Non-GUI Mode
+## Console-only Mode
 
 In order to run the lighter receiver that does not provide any GUI (only console
 logs), execute:
@@ -717,7 +745,7 @@ blocksat-rx -f [freq_in_hz]
 blocksat-rx -f 1276150000
 ```
 
-## <a name="scan_mode"></a> Frequency Scan Mode
+## Frequency Scan Mode
 
 The above frequency passed as argument `-f` to the receiver application
 corresponds to the nominal (the ideal) frequency for your receiver. However, in
@@ -760,7 +788,7 @@ For more options, check the help:
 blocksat-rx -h
 ```
 
-## <a name="split_mode"></a> Split Receiver Mode
+## Split Receiver Mode
 
 The split receiver mode is intended to support the case where one computer (SDR
 host) is connected to the SDR/LNB/dish and the data is ultimately supposed to be
@@ -828,7 +856,7 @@ PC:
 blocksat-rx-upper-gui -i 10.0.0.1 -p 5201
 ```
 
-## Run Bitcoin FIBRE
+# Run Bitcoin FIBRE
 
 The Blockstream Satellite receiver feeds received data into an output named pipe
 that is supposed to be read by the Bitcoin FIBRE application. In case you don't
