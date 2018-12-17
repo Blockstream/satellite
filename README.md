@@ -115,16 +115,13 @@ blocksat-rx -f 1276150000 -s
 The scan mode is recommended also if you are not sure about the stability of
 your LNB.
 
-## Split Receiver Mode (Using a Raspberry Pi)
+## Split Receiver Mode
 
 You can also split your receiver into two different hosts. In this case, one
 computer is connected to the SDR board and correspondingly the LNB/dish. The
 other computer receives the processed data over the network (via TCP/IP) and
 runs Bitcoin FIBRE. This can be useful when, due to space and cabling
-limitations, only a small form factor computer (e.g. a Raspberry Pi) can be
-connected to the antenna. The setup is illustrated below:
-
-<img src="doc/split_rx.png" width="80%"/>
+limitations, only a small form factor computer can be connected to the antenna.
 
 The wiki explains how to
 [**run the receiver in Split Mode**](../../wiki/Running-the-System#split_mode).
