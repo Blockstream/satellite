@@ -33,7 +33,7 @@ All of these steps are thoroughly explained next.
     - [From Binary Packages](#from-binary-packages)
     - [From Source](#from-source)
 - [Antenna Pointing](#antenna-pointing)
-    - [1.Ideal Mounting Location](#1ideal-mounting-location)
+    - [1. Ideal Mounting Location](#1-ideal-mounting-location)
     - [2. Mount the Antenna](#2-mount-the-antenna)
     - [3. Prepare to Locate the Blockstream Satellite Signal](#3-prepare-to-locate-the-blockstream-satellite-signal)
     - [4. Connect the Equipment](#4-connect-the-equipment)
@@ -80,7 +80,7 @@ with the frequency band that suits your coverage region.
 
 Blockstream Satellite operates in Ku band and C band, depending on region. Ku
 band is used in North America, South America, Africa and Europe. C band is used
-in Asia.
+in Asia-Pacific region.
 
 >C band:     3.4 GHZ - 4.2 GHz
 >
@@ -290,12 +290,13 @@ yum install epel-release
 
 ### Dependencies
 
-Two software components are needed in order to build and install the Blockstream
-Satellite receiver from source:
+#### GNU Radio and GrOsmoSDR
 
->GNU Radio: http://gnuradio.org (Version 3.7.10 or greater)
->
->gr-osmosdr: https://github.com/osmocom/gr-osmosdr
+The two main prerequisites to build and install the Blockstream Satellite
+receiver from source are:
+
+- GNU Radio: http://gnuradio.org (Version 3.7.10 or greater)
+- gr-osmosdr: https://github.com/osmocom/gr-osmosdr
 
 When installing these, just make sure to pick suitable versions. Blockstream
 Satellite works with GNU Radio version 3.7.10 or later.
@@ -318,38 +319,55 @@ apt install gnuradio=3.7.11* gr-osmosdr
 **Fedora**
 
 ```
-dnf install gnuradio-3.7.11 gr-osmosdr
+dnf install gnuradio-3.7.11 gr-osmosdr gnuradio-devel
 ```
 
 **RHEL/CentOS**
 
 ```
-yum install gnuradio-3.7.11 gr-osmosdr
+yum install gnuradio-3.7.11 gr-osmosdr gnuradio-devel
 ```
 
-**NOTE 1:** For the Fedora/RHEL/CentOS distributions, you will also need to
-install the GNU Radio development package. Run:
-
-```
-# On Fedora
-dnf install gnuradio-devel
-
-# On RHEL/CentOS
-yum install gnuradio-devel
-```
+**NOTE 1:** For the Fedora/RHEL/CentOS distributions, note that the GNU Radio
+development package (`gnuradio-devel`) package is also needed. It is included in
+the above commands.
 
 **NOTE 2:** In CentOS, you need the EPEL package (or another source) in order to
-find the `gnuradio` and `gr-osmosdr` packages. You can install using:
+find the `gnuradio` and `gr-osmosdr` packages. You can install it using:
 
 ```
 yum install epel-release
 ```
 
+#### Other Dependencies
+
+Aside from GNU Radio and GrOsmoSDR, you should have `make`, `cmake` and
+`swig`. For completeness, install the following packages before proceeding:
+
+**Debian/Ubuntu**:
+```
+apt install make cmake swig pkg-config doxygen graphviz
+```
+
+**Fedora**
+```
+dnf install make cmake swig pkg-config doxygen graphviz gcc-c++ cppunit-devel
+```
+
+**RHEL/CentOS**
+
+```
+yum install make cmake swig pkg-config doxygen graphviz gcc-c++ cppunit-devel
+```
+
 ### Build from Source and Install
 
-After installing GNU Radio and OsmoSDR, the next step is to build and install
-the building blocks of the Blockstream Satellite receiver. To do so, at the root
-folder of the `satellite` repository, run:
+#### Build and install gr-blocksat and gr-framers
+
+After installing prerequisites, the next step is to build and install the
+building blocks of the Blockstream Satellite receiver, that is, the GNU Radio
+Out-of-Tree (OOT) modules named `gr-blocksat` and `gr-framers`. To do so, at the
+root folder of the `satellite` repository, run:
 
 ```
 $ make framers
@@ -358,21 +376,102 @@ $ make blocksat
 $ sudo make install-blocksat
 ```
 
-Subsequently, build and install the Blockstream Satellite receiver applications:
+#### Verify the Python packages
+
+Before proceeding, ensure that the installed Python packages for *framers* and
+*blocksat* can be found:
+
+```
+python -c "import framers; help(framers)"
+python -c "import blocksat; help(blocksat)"
+```
+
+If nothing is displayed, then follow the solution in
+[Import Error (FAQ page)](#import_error).
+If you are on Fedora or CentOS, you will likely need to include the path as
+follows:
+
+```
+export PYTHONPATH=/usr/local/lib64/python2.7/site-packages:$PYTHONPATH
+```
+
+#### Verify the shared libraries
+
+Also, to prevent any errors on the next steps, make sure that the shared
+libraries from `framers` and `blocksat` that were installed above can indeed be
+located by your system.
+
+If your are on Ubuntu, you will likely need to run:
+
+```
+ldd /usr/local/lib/python2.7/dist-packages/blocksat/_blocksat_swig.so  | grep blocksat
+```
+
+Meanwhile, if you are on Fedora/CentOS, you will probably need to run:
+
+```
+ldd /usr/local/lib64/python2.7/site-packages/blocksat/_blocksat_swig.so | grep blocksat
+```
+
+If the result is `not found`, then follow the solution in
+[Segmentation Fault (FAQ page)](#seg_fault). This
+will involve adding a path like `/usr/local/lib` (on Ubuntu) or
+`/usr/local/lib64` (on Fedora/CentOS) to the search path of shared libraries,
+as follows:
+
+```
+export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
+
+# or
+
+export LD_LIBRARY_PATH=/usr/local/lib64:$LD_LIBRARY_PATH
+```
+
+Once the Python packages and the shared libraries are within reach, move to the
+next step.
+
+#### Build and install the receiver applications
+
+To do so, run:
 ```
 $ make
 $ sudo make install
 ```
 
+> NOTE: In CentOS, depending on your GNU Radio installation, it is possible that
+> you are only able to build and install the receiver applications that are
+> console-only (without the GUI). This is the case when you see `Block key
+> "qtgui_xxx" not found` during the `make` step.
+>
+> To do so, run:
+> ```
+> make GUI=0
+> sudo make install
+> ```
+>
+> Also, on a headless setup, you will need a virtual display server in order to
+> build. You can follow the details on the [FAQ page](#display_server), but in
+> summary you can overcome this by installing `xorg-x11-server-Xvfb` and running
+> the build/install steps as follows:
+>
+> ```
+> xvfb-run make GUI=0
+> sudo make install
+> ```
+
 ### Possible Issues:
 
-1. `blockstream` or `framers` cannot be found ("ImportError")
+1. `blocksat` or `framers` cannot be found ("ImportError")
 
    Ensure that Python can load modules from the location where `gr-framers` and
-   `gr-blockstream` were installed. See the information in the
+   `gr-blocksat` were installed. See the information in the
    [FAQ section](#import_error).
 
-2. Segmentation fault
+2. *Block key "blocksat_xxx" not found*
+
+   The above solution is applicable.
+
+3. Segmentation fault
 
    If running the system on a Red Hat-derived distributions, a quick test is to
    set the `LD_LIBRARY_PATH` environment variable to include the
@@ -380,7 +479,7 @@ $ sudo make install
    this does not solve the segmentation fault, please refer to the debugging
    information in the [FAQ section](#seg_fault).
 
-3. GNU Radio development package
+4. GNU Radio development package
 
     If you see the error *Could not find a package configuration file provided
     by "Gnuradio"* during the `cmake` step of the above build, meaning
@@ -395,7 +494,7 @@ Aligning a satellite antenna is a precise procedure. Remember that the
 satellites are over 35,000 km (22,000 mi) away. A tenth of a degree of error
 will miss the satellite by more than 3500 km.
 
-## 1.Ideal Mounting Location
+## 1. Ideal Mounting Location
 
 Before mounting your satellite dish, it is important to consider the antenna
 alignment angles required for your specific location of interest. To obtain
@@ -970,7 +1069,7 @@ after the receiver is running.
     sudo yum install cppunit-devel
     ```
 
-6. Error `‘list’ object has no attribute ‘get’` on headless CentOS build.
+6. <a name="display_server"></a> Error `‘list’ object has no attribute ‘get’` on headless CentOS build.
 
     The build of the Rx applications (launched by `make`) relies on
     the GNU Radio Companion Compiler ("grcc") tool, which in turn
@@ -1048,7 +1147,7 @@ after the receiver is running.
    in your system. Assuming 64-bit systems, the default path will either be
    `/usr/local/lib64/python2.7/site-packages` on RedHat/Fedora or
    `/usr/local/lib/python2.7/dist-packages` on Ubuntu. Double check by looking
-   into one of these directories and searching for `framers` and `blockstream`
+   into one of these directories and searching for `framers` and `blocksat`
    folders.
 
    In case you can't find these folders, you can manually discover where the
@@ -1081,10 +1180,10 @@ after the receiver is running.
     If when running the receiver the program exits due to `segmentation fault`,
     you can check whether this is related to the Blockstream Satellite GNU Radio
     out-of-tree (OOT) modules. By OOT modules, we mean the `framers` and
-    `blockstream` modules, the former within the `gr-framers` folder and the
-    latter within the `gr-blocksat` folder of the root folder in this
-    project. In the sequel, we will take the `blockstream` module as reference
-    in the examples, but the same procedure applies to the `framers` module.
+    `blocksat` modules, the former within the `gr-framers` folder and the latter
+    within the `gr-blocksat` folder of the root folder in this project. In the
+    sequel, we will take the `blocksat` module as reference in the examples, but
+    the same procedure applies to the `framers` module.
 
     Before starting to debug, ensure that `ldconfig` is (or was) executed after
     module installation. This step is automatically executed when running `sudo
@@ -1092,11 +1191,11 @@ after the receiver is running.
     skipped in case you installed the modules using the instructed "make
     install" commands (check the install logs).
 
-    Next, you should verify that the "blockstream" (or "framers") module can be
+    Next, you should verify that the "blocksat" (or "framers") module can be
     successfully imported in Python. To do so, run:
 
     ```
-    python2.7 -c "import blockstream"
+    python2.7 -c "import blocksat"
     ```
 
     If nothing is printed, it means that the module can indeed be imported. The
@@ -1106,13 +1205,20 @@ after the receiver is running.
 
     There are two things to verify regarding shared libraries: 1) that they can
     be located and 2) that they can be correctly loaded. To double check that
-    the *blockstream* shared libraries can be found, you can inspect the `ldd`
+    the *blocksat* shared libraries can be found, you can inspect the `ldd`
     output on the swig-generated shared library files. For example, assuming
     that your library path is at `/usr/local/lib/python2.7/dist-packages`
     (e.g. on Ubuntu), you can run:
 
     ```
-    ldd /usr/local/lib/python2.7/dist-packages/blockstream/_blockstream_swig.so  | grep blockstream
+    ldd /usr/local/lib/python2.7/dist-packages/blocksat/_blocksat_swig.so  | grep blocksat
+    ```
+
+    If your library is instead at `/usr/local/lib64/python2.7/site-packages`
+    (e.g. on Fedora), run:
+
+    ```
+    ldd /usr/local/lib64/python2.7/site-packages/blocksat/_blocksat_swig.so | grep blocksat
     ```
 
     The above command should point to the shared library `.so` file. If,
@@ -1129,17 +1235,17 @@ after the receiver is running.
     ```
 
     When the above `ldd` command already points to the shared library file, but
-    the `import blockstream` Python command still fails, then it is likely that
+    the `import blocksat` Python command still fails, then it is likely that
     the problem is in the library itself. This can be inspected by looking at
     the library loading logs. To do so, set the `LD_DEBUG` environmental
     variable to `libs` and then attempt to import the module in Python. For
-    example, for the `blockstream` module, run:
+    example, for the `blocksat` module, run:
 
     ```
-    LD_DEBUG=libs python -c "import blockstream"
+    LD_DEBUG=libs python -c "import blocksat" 2>&1 | grep "blocksat"
     ```
 
-    Subsequently, check the occurrences of "blockstream" in the logs and check
+    Subsequently, check the occurrences of "blocksat" in the logs and check
     whether they are error-free. If not, then there is probably a problem in the
     source code. In this case, please feel free to raise an issue or contact us
     directly.
