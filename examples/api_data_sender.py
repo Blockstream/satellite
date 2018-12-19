@@ -10,6 +10,143 @@ import gnupg
 # Example user-specific message header
 USER_HEADER_FORMAT = '255sxi'
 
+class Order:
+    """API Transmission Order
+
+    Args:
+        server: API server address where the order lives
+
+    """
+    def __init__(self, server):
+        # Get order UUID and Authorization Token from user input
+        uuid = raw_input("UUID: ") or None
+        if (uuid is None):
+            raise ValueError("Order UUID is required")
+
+        auth_token = raw_input("Authentication Token: ") or None
+        if (auth_token is None):
+            raise ValueError("Authentication Token is required")
+
+        self.uuid       = uuid
+        self.auth_token = auth_token
+        self.server     = server
+
+        # Check the order in the server
+        r = requests.get(server + '/order/' + uuid,
+                         headers = {
+                             'X-Auth-Token': auth_token
+                         })
+
+        if (r.status_code != requests.codes.ok):
+            if "errors" in r.json():
+                for error in r.json()["errors"]:
+                    print("ERROR: " + error)
+
+        r.raise_for_status()
+
+        self.order = r.json()
+        logging.debug(json.dumps(r.json(), indent=4, sort_keys=True))
+
+    def bump(self):
+        """Bump the order
+        """
+        if (self.order["status"] == "transmitting"):
+            raise ValueError("Cannot bump - order is already in transmission")
+
+        if (self.order["status"] == "sent"):
+            raise ValueError("Cannot bump - order was already transmitted")
+
+        print("Previous bid was %s msats for %s bytes" %(
+            self.order["bid"],
+            self.order["message_size"]))
+
+        print("Bid ratio was %s msats/byte" %(self.order["bid_per_byte"]))
+
+        if (self.order["status"] == "pending"):
+            print("Order payment is still pending")
+        elif (self.order["status"] == "paid"):
+            print("Previous bid status is already \"paid\"")
+
+        # Ask for new bid
+        bid = ask_bid(self.order["message_size"], self.order["bid"])
+
+        # Post bump request
+        r = requests.post(self.server + '/order/' + self.uuid + "/bump",
+                          data={
+                              'bid_increase': bid - self.order["bid"],
+                              'auth_token': self.auth_token
+                          })
+
+        if (r.status_code != requests.codes.ok):
+            if "errors" in r.json():
+                for error in r.json()["errors"]:
+                    print("ERROR: " + error)
+
+        r.raise_for_status()
+
+        # Print the response
+        print("Order bumped successfully")
+        print("--\nNew Lightning Invoice Number:\n%s\n" %(
+            r.json()["lightning_invoice"]["payreq"]))
+        print("--\nNew Amount Due:\n%s millisatoshis\n" %(
+            r.json()["lightning_invoice"]["msatoshi"]))
+
+        logging.debug("API Response:")
+        logging.debug(json.dumps(r.json(), indent=4, sort_keys=True))
+
+    def delete(self):
+        """Delete the order
+        """
+
+        # Post delete request
+        r = requests.delete(self.server + '/order/' + self.uuid,
+                            headers = {
+                             'X-Auth-Token': self.auth_token
+                            })
+
+        if (r.status_code != requests.codes.ok):
+            if "errors" in r.json():
+                for error in r.json()["errors"]:
+                    print("ERROR: " + error)
+
+        r.raise_for_status()
+
+        # Print the response
+        print("Order deleted successfully")
+
+        logging.debug("API Response:")
+        logging.debug(json.dumps(r.json(), indent=4, sort_keys=True))
+
+
+def ask_bid(data_size, prev_bid=None):
+    """Ask for user bid
+
+    Args:
+        data_size : Size of the transmit data in bytes
+        prev_bid  : Previous bid, if any
+
+    """
+
+    if (prev_bid is not None):
+        # Suggest a 5% higher msats/byte ratio
+        prev_ratio      = float(prev_bid) / data_size
+        suggested_ratio = 1.05 * prev_ratio
+        min_bid         = data_size * suggested_ratio
+    else:
+        min_bid = data_size * 50
+
+    bid     = raw_input("Your " +
+                        ("new " if prev_bid is not None else "") +
+                        "bid to transmit %d bytes " %(data_size) +
+                        "(in millisatoshis): [%d] " %(min_bid)) \
+                        or min_bid
+    bid     = int(bid)
+
+    print("Post data with bid of %d millisatoshis (%.2f msat/byte)" %(
+        bid, float(bid) / data_size))
+
+    return bid
+
 
 def main():
     parser = argparse.ArgumentParser(
@@ -42,6 +179,12 @@ def main():
                         'data structure (default: false)')
     parser.add_argument('--debug', action='store_true',
                         help='Debug mode (default: false)')
+    # Optional actions
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument('-b', '--bump', action='store_true',
+                       help='Bump the bid of an order (default: false)')
+    group.add_argument('-d', '--delete', action='store_true',
+                       help='Delete an order (default: false)')
     args        = parser.parse_args()
     filename    = args.file
     gnupghome   = args.gnupghome
@@ -62,6 +205,18 @@ def main():
 
     if (server_addr == 'https://satellite.blockstream.com'):
         server_addr += '/api'
+
+    # Check if bump or delete
+    if (args.bump or args.delete):
+        order = Order(server_addr)
+
+    if (args.bump):
+        order.bump()
+        exit()
+
+    if (args.delete):
+        order.delete()
+        exit()
 
     # GPG object
     gpg = gnupg.GPG(gnupghome = gnupghome)
@@ -104,15 +259,7 @@ def main():
             tx_len))
 
         # Ask user for bid
-        min_bid = tx_len * 50
-
-        bid     = raw_input("Your bid to transmit %d bytes " %(tx_len) +
-                            "(in millisatoshis): [%d] " %(min_bid)) \
-                            or min_bid
-        bid     = int(bid)
-
-        print("Post data with bid of %d millisatoshis (%.2f msat/byte)" %(
-            bid, float(bid)/tx_len))
+        bid = ask_bid(tx_len)
 
         # Post request to the API
         r = requests.post(server_addr + '/order',

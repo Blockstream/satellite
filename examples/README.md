@@ -253,3 +253,24 @@ in the data reader.
 ```
 ./api_data_sender.py -f filename
 ```
+
+## Further Information
+
+The API data sender script also supports bumping and deletion of orders sent to
+the API.
+
+For bumping, you can run:
+
+```
+./api_data_sender.py --bump
+```
+
+To delete an order, run:
+
+```
+./api_data_sender.py --delete
+```
+
+Both of these commands will ask for the UUID and the authorization token of the
+order. These were originally printed to the console by the API data sender, when
+the latter was used to send the data to the API.
