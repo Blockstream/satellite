@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 """
-Read API data directly via Internet and output to pipe
+Read API data directly via internet and output to pipe
 """
 
-import sys, argparse, textwrap, requests, struct, pprint, json, logging
+import sys, argparse, textwrap, requests, struct, json, logging
 import sseclient
 import pipe
 
@@ -14,6 +14,8 @@ OUT_DATA_HEADER_FORMAT     = '64sQ'
 OUT_DATA_DELIMITER         = 'vyqzbefrsnzqahgdkrsidzigxvrppato' + \
                              '\xe0\xe0$\x1a\xe4["\xb5Z\x0bv\x17\xa7\xa7\x9d' + \
                              '\xa5\xd6\x00W}M\xa6TO\xda7\xfaeu:\xac\xdc'
+# Maximum transmission sequence number
+MAX_SEQ_NUM = 2 ** 31
 
 
 def create_output_data_struct(data):
@@ -25,6 +27,9 @@ def create_output_data_struct(data):
 
     Args:
         data : Sequence of bytes to be placed in the output structure
+
+    Returns:
+        Output data structure as sequence of bytes
 
     """
 
@@ -38,6 +43,7 @@ def create_output_data_struct(data):
 
     return out_data
 
+
 def fetch_api_data(server_addr, uuid):
     """Download a given message from the Ionosphere API
 
@@ -45,13 +51,68 @@ def fetch_api_data(server_addr, uuid):
         server_addr : Ionosphere API server address
         uuid        : Message unique ID
 
+    Returns:
+        Message data as sequence of bytes
+
     """
     logging.debug("Fetch message %s from API" %(uuid))
     r = requests.get(server_addr + '/order/' + uuid + '/sent_message')
 
+    r.raise_for_status()
+
     if (r.status_code == requests.codes.ok):
         data        = r.content
         return data
+
+
+def catch_up(pipe_f, server_addr, current_seq_num, last_seq_num):
+    """Catch up with any transmission missed during re-connection
+
+    During re-connection with the SSE server, events can be missed, depending on
+    how quick the re-connection is handled. To catch up with missing data,
+    observe the sequence number gap between the current transmission and the one
+    previously received and fetch any missing data.
+
+    Args:
+        pipe_f          : Pipe object
+        server_addr     : Ionosphere API server address
+        current_seq_num : Current sequence number
+        last_seq_num    : Sequence number of the previous message
+
+    """
+
+    # Missing messages (consider sequence number wrapping)
+    if (current_seq_num < last_seq_num):
+        # Unwrap
+        current_seq_num  += MAX_SEQ_NUM
+        # Range over unwrapped sequence numbers
+        unwrapped_range   = range(last_seq_num + 1, current_seq_num)
+        # Wrap back
+        missing_num       = [(x % (MAX_SEQ_NUM)) for x in unwrapped_range]
+    else:
+        missing_num = range(last_seq_num + 1, current_seq_num)
+
+    for seq_num in missing_num:
+
+        logging.debug("Catch up with transmission %d" %(seq_num))
+        r = requests.get(server_addr + '/message/' + str(seq_num))
+
+        r.raise_for_status()
+
+        if (r.status_code == requests.codes.ok):
+            data = r.content
+
+            print("%27s Get transmission - #%-5d - Size: %d bytes\t" %(
+                "", seq_num, len(data)))
+
+            # Frame in output data structure
+            data_struct = create_output_data_struct(data)
+
+            # Write to pipe
+            pipe_f.write(data_struct)
+
+            logging.debug("Output %d bytes to pipe %s" %(
+                len(data_struct), pipe_f.name))
 
 
 def main():
@@ -101,6 +162,9 @@ def main():
     # Open pipe
     pipe_f = pipe.Pipe(pipe_file)
 
+    # Always keep a record of the last received sequence number
+    last_seq_num = None
+
     print("Waiting for events...\n")
     while (True):
         try:
@@ -108,6 +172,7 @@ def main():
             client = sseclient.SSEClient(requests.get(server_addr +
                                                       "/subscribe/transmissions",
                                                       stream=True))
+
             # Continuously wait for events
             for event in client.events():
                 # Parse the order corresponding to the event
@@ -117,10 +182,21 @@ def main():
                 logging.debug("Order: " + json.dumps(order, indent=4,
                                                      sort_keys=True))
 
-                # Download the message from the given order once it is "sent"
+                # Download the message only if its order has "sent" state
                 if (order["status"] == "sent"):
-                    print("[%s]: New transmission - Size: %d bytes\t" %(
-                        order["upload_ended_at"], order["message_size"]))
+                    # Sequence number
+                    seq_num = order["tx_seq_num"]
+
+                    # On a sequence number gap, catch up with missing messages
+                    if (last_seq_num is not None):
+                        expected_seq_num = (last_seq_num + 1) % (MAX_SEQ_NUM)
+
+                        if (seq_num != expected_seq_num):
+                            catch_up(pipe_f, server_addr, seq_num, last_seq_num)
+
+                    print("[%s]: New transmission - #%-5d - Size: %d bytes\t" %(
+                        order["upload_ended_at"], seq_num,
+                        order["message_size"]))
 
                     # Get the data
                     data = fetch_api_data(server_addr, order["uuid"])
@@ -131,6 +207,9 @@ def main():
                         pipe_f.write(data_struct)
                         logging.debug("Output %d bytes to pipe %s" %(
                             len(data_struct), pipe_f.name))
+
+                    # Record the sequence number of the order that was received
+                    last_seq_num = seq_num
 
         except requests.exceptions.ChunkedEncodingError:
             print("Reconnecting...")
