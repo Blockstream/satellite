@@ -387,7 +387,7 @@ python -c "import blocksat; help(blocksat)"
 ```
 
 If nothing is displayed, then follow the solution in
-[Import Error (FAQ page)](#import_error).
+[Import Error (FAQ section)](#import_error).
 If you are on Fedora or CentOS, you will likely need to include the path as
 follows:
 
@@ -414,7 +414,7 @@ ldd /usr/local/lib64/python2.7/site-packages/blocksat/_blocksat_swig.so | grep b
 ```
 
 If the result is `not found`, then follow the solution in
-[Segmentation Fault (FAQ page)](#seg_fault). This
+[Segmentation Fault (FAQ section)](#seg_fault). This
 will involve adding a path like `/usr/local/lib` (on Ubuntu) or
 `/usr/local/lib64` (on Fedora/CentOS) to the search path of shared libraries,
 as follows:
@@ -450,9 +450,9 @@ $ sudo make install
 > ```
 >
 > Also, on a headless setup, you will need a virtual display server in order to
-> build. You can follow the details on the [FAQ page](#display_server), but in
-> summary you can overcome this by installing `xorg-x11-server-Xvfb` and running
-> the build/install steps as follows:
+> build. You can follow the details on the [FAQ section](#display_server), but
+> in summary you can overcome this by installing `xorg-x11-server-Xvfb` and
+> running the build/install steps as follows:
 >
 > ```
 > xvfb-run make GUI=0
