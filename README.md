@@ -789,13 +789,14 @@ blocksat-rx-gui --freq 1276150000 --gain 45
 
 ## 7. Next Steps
 
-Well done. Your receiver is properly set-up and you are now ready to run the
-Bitcoin FIBRE application receiving data via the Blockstream Satellite Network.
-
-For your satellite receiver, you have two options now:
+Well done. Your receiver is properly set-up and you are now ready to run it
+continuously. You have two options now:
 
 1. Continue running in GUI mode, namely the above `blocksat-rx-gui` application.
-2. Run the lean non-GUI receiver application, that is `blocksat-rx`.
+2. Run the lighter non-GUI receiver application, that is `blocksat-rx`.
+
+Once the receiver is up and running, you can run the Bitcoin FIBRE application
+receiving data via the Blockstream Satellite Network.
 
 # Run the Receiver
 
@@ -957,22 +958,27 @@ blocksat-rx-upper-gui -i 10.0.0.1 -p 5201
 
 # Run Bitcoin FIBRE
 
-The Blockstream Satellite receiver feeds received data into an output named pipe
-that is supposed to be read by the Bitcoin FIBRE application. In case you don't
-have Bitcoin FIBRE installed, do so before proceeding:
+In case you don't have Bitcoin FIBRE installed, do so before proceeding. Make
+sure to use [version
+0.16](https://github.com/bitcoinfibre/bitcoinfibre/tree/0.16-fibre), which is
+the one currently being used by the Blockstream Satellite transmitter. Refer to:
 
 >Bitcoin FIBRE: http://bitcoinfibre.org
 
-Bitcoin Fibre uses the same `bitcoin.conf` configuration file as Bitcoin Core.
-Configure as needed and then start `bitcoind` with the following parameters
-after the receiver is running.
+Note that the Blockstream Satellite receiver feeds received data into an output
+named pipe that is supposed to be read by the Bitcoin FIBRE application. Hence,
+you need to point FIBRE to the named pipe file accordingly. You can start
+`bitcoind` with the following parameters:
 
 ```
 ./bitcoind -fecreaddevice=/tmp/blocksat/bitcoinfibre
 ```
 
-**NOTE:** The Blockstream Satellite receiver will create the
-`/tmp/blocksat/bitcoinfibre` file.
+> **NOTE 1:** The Blockstream Satellite receiver will create the
+> `/tmp/blocksat/bitcoinfibre` file.
+
+> **NOTE 2:** Bitcoin Fibre uses the same `bitcoin.conf` configuration file as
+> Bitcoin Core. Configure as needed.
 
 # Frequent issues and questions
 
