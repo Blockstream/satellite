@@ -7,6 +7,7 @@ prefix      = /usr/local
 exec_prefix = $(prefix)
 bindir      = $(exec_prefix)/bin
 libdir      = $(exec_prefix)/lib
+sharedir    = $(exec_prefix)/share
 
 ifeq ($(MACHINE), x86_64)
 ifneq ($(OS), "Ubuntu")
@@ -102,6 +103,17 @@ install:
 	cd build && ls | grep -v '\.py*' | \
 	xargs -L 1 -I '{}' install -m 0755 '{}' $(DESTDIR)$(bindir)
 
+install-docs:
+	mkdir -p $(DESTDIR)$(sharedir)/doc/satellite/
+	mkdir -p $(DESTDIR)$(sharedir)/doc/satellite/api/
+	mkdir -p $(DESTDIR)$(sharedir)/doc/satellite/api/examples/
+	install -m 0644 README.md $(DESTDIR)$(sharedir)/doc/satellite/
+	install -m 0644 api/README.md $(DESTDIR)$(sharedir)/doc/satellite/api/
+	install -m 0644 api/examples/*.{md,txt} \
+	$(DESTDIR)$(sharedir)/doc/satellite/api/examples/
+	install -m 0755 api/examples/*.py \
+	$(DESTDIR)$(sharedir)/doc/satellite/api/examples/
+
 # Clean builds
 clean-framers:
 	rm -f $(GR_FRAMERS_BUILD_RC)
@@ -130,3 +142,7 @@ uninstall-blocksat:
 uninstall:
 	rm $(DESTDIR)$(libdir)/blocksat-rx/blocksat_rx*
 	rm $(DESTDIR)$(bindir)/blocksat-rx*
+
+uninstall-docs:
+	rm -r $(DESTDIR)$(sharedir)/doc/satellite/
+
