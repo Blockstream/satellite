@@ -7,8 +7,12 @@ In order to set up your receiver system, please read the following information
 carefully. For additional help, go to the #blockstream-satellite IRC channel on
 freenode.
 
-This is an initial release and regular improvements will be made to make
-Blockstream Satellite more user friendly and less technically complex.
+**IMPORTANT:** Please note that the Blockstream Satellite network will be
+updated on Wednesday, January 16th 2019, at 1pm EST. From this date on, please
+use Blockstream Satellite receiver version greater than or equal to
+`v1.1.0`. Also, from this date on, use Bitcoin FIBRE version `v0.16`. Meanwhile,
+until January 16th 2019 at 1pm EST, please continue with any version up to the
+v1.0.1.
 
 # Getting Started
 
