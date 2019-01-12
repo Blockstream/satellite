@@ -171,7 +171,8 @@ def main():
             # Server-side Event Client
             client = sseclient.SSEClient(requests.get(server_addr +
                                                       "/subscribe/transmissions",
-                                                      stream=True))
+                                                      stream=True,
+                                                      timeout=5))
 
             # Continuously wait for events
             for event in client.events():
@@ -195,7 +196,7 @@ def main():
                             catch_up(pipe_f, server_addr, seq_num, last_seq_num)
 
                     print("[%s]: New transmission - #%-5d - Size: %d bytes\t" %(
-                        order["upload_ended_at"], seq_num,
+                        order["ended_transmission_at"], seq_num,
                         order["message_size"]))
 
                     # Get the data
