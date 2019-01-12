@@ -56,24 +56,30 @@ class Order:
         if (self.order["status"] == "sent"):
             raise ValueError("Cannot bump - order was already transmitted")
 
-        print("Previous bid was %s msats for %s bytes" %(
-            self.order["bid"],
-            self.order["message_size"]))
+        if (self.order["unpaid_bid"] > 0):
+            unpaid_bid_msg = "(%d msat paid, %d msat unpaid)" %(
+                self.order["bid"], self.order["unpaid_bid"])
+        else:
+            unpaid_bid_msg = ""
 
-        print("Bid ratio was %s msats/byte" %(self.order["bid_per_byte"]))
+        previous_bid = self.order["bid"] + self.order["unpaid_bid"]
 
-        if (self.order["status"] == "pending"):
-            print("Order payment is still pending")
-        elif (self.order["status"] == "paid"):
-            print("Previous bid status is already \"paid\"")
+        print("Previous bid was %s msat for %s bytes %s" %(
+            previous_bid, self.order["message_size"],
+            unpaid_bid_msg))
+
+        print("Paid bid ratio is currently %s msat/byte" %(
+            self.order["bid_per_byte"]))
+        print("Total (paid + unpaid) bid ratio is currently %s msat/byte" %(
+            float(previous_bid) / self.order["message_size"]))
 
         # Ask for new bid
-        bid = ask_bid(self.order["message_size"], self.order["bid"])
+        bid = ask_bid(self.order["message_size"], previous_bid)
 
         # Post bump request
         r = requests.post(self.server + '/order/' + self.uuid + "/bump",
                           data={
-                              'bid_increase': bid - self.order["bid"],
+                              'bid_increase': bid - previous_bid,
                               'auth_token': self.auth_token
                           })
 
@@ -128,7 +134,7 @@ def ask_bid(data_size, prev_bid=None):
     """
 
     if (prev_bid is not None):
-        # Suggest a 5% higher msats/byte ratio
+        # Suggest a 5% higher msat/byte ratio
         prev_ratio      = float(prev_bid) / data_size
         suggested_ratio = 1.05 * prev_ratio
         min_bid         = data_size * suggested_ratio
@@ -136,14 +142,18 @@ def ask_bid(data_size, prev_bid=None):
         min_bid = data_size * 50
 
     bid     = raw_input("Your " +
-                        ("new " if prev_bid is not None else "") +
+                        ("new total " if prev_bid is not None else "") +
                         "bid to transmit %d bytes " %(data_size) +
                         "(in millisatoshis): [%d] " %(min_bid)) \
                         or min_bid
     bid     = int(bid)
 
-    print("Post data with bid of %d millisatoshis (%.2f msat/byte)" %(
-        bid, float(bid) / data_size))
+    if (prev_bid is not None):
+        print("Bump bid by %d msat to a total of %d msat (%.2f msat/byte)" %(
+            bid - prev_bid, bid, float(bid) / data_size))
+    else:
+        print("Post data with bid of %d millisatoshis (%.2f msat/byte)" %(
+            bid, float(bid) / data_size))
 
     return bid
 
@@ -211,6 +221,8 @@ def main():
         order = Order(server_addr)
 
     if (args.bump):
+        if (order.order["status"] == "cancelled"):
+            raise ValueError("Order already cancelled")
         order.bump()
         exit()
 
