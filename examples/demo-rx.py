@@ -171,8 +171,7 @@ def main():
             # Server-side Event Client
             client = sseclient.SSEClient(requests.get(server_addr +
                                                       "/subscribe/transmissions",
-                                                      stream=True,
-                                                      timeout=5))
+                                                      stream=True))
 
             # Continuously wait for events
             for event in client.events():
