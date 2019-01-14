@@ -7,7 +7,7 @@ API. In particular, it illustrates a case in which data is transmitted alongside
 user-defined metadata fields. The second example, in turn, illustrates the
 transmission of a file to the Satellite API server. Lastly, the third example
 illustrates how one can simulate the output of the Blockstream Satellite
-receiver while fetching data directly from the Satellite API via the internet,
+receiver while fetching data directly from the Satellite API via the Internet,
 rather than receiving data via the satellite link.
 
 ![Blockstream Satellite API Architecture](../doc/api_architecture.png?raw=true "Blockstream Satellite API Architecture")
@@ -17,8 +17,8 @@ rather than receiving data via the satellite link.
 
 - [Environment](#environment)
 - [Example 1: Sending data in a user-defined protocol](#example-1-sending-data-in-a-user-defined-protocol)
-- [Example 2: Sending files](#example-2-sending-files)
-- [Example 3: Receiving data from the API sandbox](#example-3-receiving-data-from-the-api-sandbox)
+- [Example 2: Sending files directly](#example-2-sending-files-directly)
+- [Example 3: Testing the API while receiving data directly via Internet](#example-3-testing-the-api-while-receiving-data-directly-via-internet)
 - [Further Information](#further-information)
 
 <!-- markdown-toc end -->
@@ -161,7 +161,7 @@ pipe (at `/tmp/blocksat/api`) multiplexes transmissions from all users of the
 Satellite API. Hence, the application is expected to fail decryption several
 times until it finds the data for which it is actually a recipient of.
 
-## Example 2: Sending files
+## Example 2: Sending files directly
 
 In this example, the goal is to send a file directly to the API, without placing
 it on any user-specific protocol.
@@ -211,26 +211,26 @@ gpg --encrypt --recipient pub_key_id_or_email filename
 where `pub_key_id_or_email` can be either the public key ID of the target
 recipient or its e-mail.
 
-## Example 3: Receiving data from the API sandbox
+## Example 3: Testing the API while receiving data directly via Internet
 
 This example illustrates the scenario in which instead of receiving data with
 the actual Blockstream Satellite receiver (i.e. the `blocksat-rx` application),
-you fetch data directly from the API through the internet.
+you fetch data directly from the API through the Internet.
 
 Now, you will need three scripts from the `examples` directory:
 
 1. API data sender
 2. API data reader
-3. Demo Receiver
+3. Demo receiver
 
-You can choose to use the API data sender and API data reader either as
-illustrated in [Example 1](#example-1-sending-data-in-a-user-defined-protocol)
-or [Example 2](#example-2-sending-files). The important difference here is that
-the API data reader will read data from a named pipe that is filled by the *Demo
-Receiver*, rather than the actual Blockstream Satellite receiver.
+You can choose to use the API data sender and API data reader either as in
+[Example 1](#example-1-sending-data-in-a-user-defined-protocol) or as in
+[Example 2](#example-2-sending-files). The important difference here is that the
+API data reader will read data from a named pipe that is filled by the *demo
+receiver*, rather than the actual Blockstream Satellite receiver.
 
 Start by activating the `blocksat-api` Python virtual environment. Then, run the
-Demo Receiver:
+demo receiver:
 
 ```
 ./demo-rx.py
@@ -239,6 +239,13 @@ Demo Receiver:
 This application will continuously wait for data broadcast directly by the API
 and then it will output the data to the same named pipe that the Blockstream
 Satellite receiver would use, namely the pipe file at `/tmp/blocksat/api`.
+
+> NOTE: in case you want to concurrently run both the actual `blocksat-rx`
+> receiver application and the demo receiver, you will need to use another named
+> pipe for the demo receiver. Otherwise, the two applications would try to use
+> the same named pipe. To do so, run `./demo-rx.py -f pipe_file`, where
+> `pipe_file` is the name of the other named pipe file to be used for the demo
+> receiver.
 
 Next, assuming for the explanation that the approach of [Example
 1](#example-1-sending-data-in-a-user-defined-protocol) is adopted, you can leave
