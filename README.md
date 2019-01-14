@@ -10,10 +10,8 @@ freenode.
 **IMPORTANT:** Please note that the Blockstream Satellite network will be
 updated on Wednesday, January 16th 2019, from midday to 1pm EST. From this date
 on, please use Blockstream Satellite receiver version greater than or equal to
-`v1.1.0`. Until then, please continue with any version up to
-`v1.0.1`. Additionally, please note that from Jan 16th onward you will need to
-update your Bitcoin FIBRE version. More information regarding the FIBRE version
-will be announced on Wednesday, Jan 16th 2019.
+`v1.1.0`. Until then, please continue with any version up to `v1.0.1`. Also,
+from Jan 16th 2019 onward, please use Bitcoin FIBRE version `v0.16`.
 
 # Getting Started
 
