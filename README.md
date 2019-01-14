@@ -8,11 +8,12 @@ carefully. For additional help, go to the #blockstream-satellite IRC channel on
 freenode.
 
 **IMPORTANT:** Please note that the Blockstream Satellite network will be
-updated on Wednesday, January 16th 2019, at 1pm EST. From this date on, please
-use Blockstream Satellite receiver version greater than or equal to
-`v1.1.0`. Also, from this date on, use Bitcoin FIBRE version `v0.16`. Meanwhile,
-until January 16th 2019 at 1pm EST, please continue with any version up to the
-v1.0.1.
+updated on Wednesday, January 16th 2019, from midday to 1pm EST. From this date
+on, please use Blockstream Satellite receiver version greater than or equal to
+`v1.1.0`. Until then, please continue with any version up to
+`v1.0.1`. Additionally, please note that from Jan 16th onward you will need to
+update your Bitcoin FIBRE version. More information regarding the FIBRE version
+will be announced on Wednesday, Jan 16th 2019.
 
 # Getting Started
 
@@ -962,10 +963,8 @@ blocksat-rx-upper-gui -i 10.0.0.1 -p 5201
 
 # Run Bitcoin FIBRE
 
-In case you don't have Bitcoin FIBRE installed, do so before proceeding. Make
-sure to use [version
-0.16](https://github.com/bitcoinfibre/bitcoinfibre/tree/0.16-fibre), which is
-the one currently being used by the Blockstream Satellite transmitter. Refer to:
+In case you don't have Bitcoin FIBRE installed, do so before proceeding. Refer
+to:
 
 >Bitcoin FIBRE: http://bitcoinfibre.org
 
