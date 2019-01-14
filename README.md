@@ -51,6 +51,7 @@ All of these steps are thoroughly explained next.
     - [Frequency Scan Mode](#frequency-scan-mode)
     - [Split Receiver Mode](#split-receiver-mode)
 - [Run Bitcoin FIBRE](#run-bitcoin-fibre)
+- [Satellite API](#satellite-api)
 - [Frequent issues and questions](#frequent-issues-and-questions)
 
 <!-- markdown-toc end -->
@@ -982,6 +983,15 @@ you need to point FIBRE to the named pipe file accordingly. You can start
 
 > **NOTE 2:** Bitcoin Fibre uses the same `bitcoin.conf` configuration file as
 > Bitcoin Core. Configure as needed.
+
+# Satellite API
+
+Example Python applications for interaction with the Satellite API are available
+in the `examples` directory. Please refer to the
+[documentation there](examples/).
+
+For more information regarding the Satellite API, please visit
+[blockstream.com/satellite-api](https://blockstream.com/satellite-api/).
 
 # Frequent issues and questions
 
