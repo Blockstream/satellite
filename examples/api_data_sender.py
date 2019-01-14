@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Post data to Ionosphere API for transmission via Blockstream Satellite
+Post data to the Satellite API for transmission via Blockstream Satellite
 """
 
 import os, sys, argparse, textwrap, struct, zlib, requests, json, logging
@@ -163,7 +163,7 @@ def main():
         description=textwrap.dedent('''\
         Example data sender application
 
-        Sends a file to the Ionosphere API for transmission via Blockstream
+        Sends a file to the Satellite API for transmission via Blockstream
         Satellite. By default, encapsulates the file into a user-specific
         message structure containing the data checksum and the file name,
         encrypts the entire structure using GnuPG and posts to the API.
@@ -178,10 +178,10 @@ def main():
                         help='GnuPG home directory (default: .gnupg)')
     parser.add_argument('-p', '--port',
                         default=None,
-                        help='Ionosphere API server port (default: None)')
+                        help='Satellite API server port (default: None)')
     parser.add_argument('-s', '--server',
                         default='https://satellite.blockstream.com',
-                        help='Ionosphere API server address (default: ' +
+                        help='Satellite API server address (default: ' +
                         'https://satellite.blockstream.com)')
     parser.add_argument('--send-raw', default=False,
                         action="store_true",
@@ -239,7 +239,7 @@ def main():
     # Use the first public key in case there are multiple
     public_key = public_keys[0]
 
-    # Read the file, append header, encrypt and transmit to the Ionosphere API
+    # Read the file, append header, encrypt and transmit to the Satellite API
     with open(filename, 'rb') as f:
         data  = f.read()
 

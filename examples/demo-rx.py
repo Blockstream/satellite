@@ -45,10 +45,10 @@ def create_output_data_struct(data):
 
 
 def fetch_api_data(server_addr, uuid):
-    """Download a given message from the Ionosphere API
+    """Download a given message from the Satellite API
 
     Args:
-        server_addr : Ionosphere API server address
+        server_addr : Satellite API server address
         uuid        : Message unique ID
 
     Returns:
@@ -75,7 +75,7 @@ def catch_up(pipe_f, server_addr, current_seq_num, last_seq_num):
 
     Args:
         pipe_f          : Pipe object
-        server_addr     : Ionosphere API server address
+        server_addr     : Satellite API server address
         current_seq_num : Current sequence number
         last_seq_num    : Sequence number of the previous message
 
@@ -120,7 +120,7 @@ def main():
         description=textwrap.dedent('''\
         Demo Receiver
 
-        Receives data directly from the Ionosphere API though the internet and
+        Receives data directly from the Satellite API though the internet and
         outputs the data to a named pipe just like the Blockstream Satellite
         receiver application (blocksat-rx) would.
 
@@ -133,10 +133,10 @@ def main():
                         '(default: /tmp/blocksat/api)')
     parser.add_argument('-p', '--port',
                         default=None,
-                        help='Ionosphere API server port (default: None)')
+                        help='Satellite API server port (default: None)')
     parser.add_argument('-s', '--server',
                         default='https://satellite.blockstream.com',
-                        help='Ionosphere API server address (default: ' +
+                        help='Satellite API server address (default: ' +
                         'https://satellite.blockstream.com)')
     parser.add_argument('--debug', action='store_true',
                         help='Debug mode (default: false)')

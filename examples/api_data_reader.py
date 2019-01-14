@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Read Ionosphere API data received via Blockstream Satellite
+Read Satellite API data received via Blockstream Satellite
 """
 
 import os, sys, argparse, textwrap, struct, zlib, time, logging
@@ -115,7 +115,7 @@ def parse_api_out_data(rd_buffer):
 
     The delimiter is introduced by the Blockstream Satellite receiver
     application in between segments of data from independent transmissions
-    requested via the Ionosphere API. That is, if two users (e.g. users A and B)
+    requested via the Satellite API. That is, if two users (e.g. users A and B)
     request transmission at the same time, the resulting stream of bytes in the
     named pipe will have two delimiter sequences, one before the data sent by
     user A and another for the data sent by user B. Importantly, the delimiter

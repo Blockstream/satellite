@@ -1,13 +1,13 @@
 # Example Applications for Data Transmission via API
 
 This directory contains example scripts for sending and receiving data through
-the Ionosphere API. The first example illustrates how a user can create its own
-user/application-specific protocol for sending data through the API. In
-particular, it illustrates a case in which data is transmitted alongside
+the Blockstream Satellite API. The first example illustrates how a user can
+create its own user/application-specific protocol for sending data through the
+API. In particular, it illustrates a case in which data is transmitted alongside
 user-defined metadata fields. The second example, in turn, illustrates the
-transmission of a file to the Ionosphere API server. Lastly, the third example
+transmission of a file to the Satellite API server. Lastly, the third example
 illustrates how one can simulate the output of the Blockstream Satellite
-receiver while fetching data directly from the Ionosphere API via the internet,
+receiver while fetching data directly from the Satellite API via the internet,
 rather than receiving data via the satellite link.
 
 ![Blockstream Satellite API Architecture](../doc/api_architecture.png?raw=true "Blockstream Satellite API Architecture")
@@ -87,7 +87,8 @@ The *API data sender* by default places a user-specified file into a data
 structure and then sends the entire structure to the API. The structure carries
 the file name as a string and also contains a CRC32 checksum that can be used
 for data integrity check on the receiver side. The entire structure is first
-encrypted using GnuPG and then posted via HTTPS to the Ionosphere API.
+encrypted using GnuPG and then posted via HTTPS to the Blockstream Satellite
+API.
 
 Meanwhile, the *API data reader* application waits for data written by the
 Blockstream Satellite receiver into the pipe file at `/tmp/blocksat/api`. It
@@ -157,7 +158,7 @@ directory, you should expect decryption to fail in this case.
 
 Note that, in practice, data written by the Blocksat Receiver in the API named
 pipe (at `/tmp/blocksat/api`) multiplexes transmissions from all users of the
-Ionosphere API. Hence, the application is expected to fail decryption several
+Satellite API. Hence, the application is expected to fail decryption several
 times until it finds the data for which it is actually a recipient of.
 
 ## Example 2: Sending files
