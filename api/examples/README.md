@@ -10,7 +10,7 @@ illustrates how one can simulate the output of the Blockstream Satellite
 receiver while fetching data directly from the Satellite API via the Internet,
 rather than receiving data via the satellite link.
 
-![Blockstream Satellite API Architecture](../doc/api_architecture.png?raw=true "Blockstream Satellite API Architecture")
+![Blockstream Satellite API Architecture](../../doc/api_architecture.png?raw=true "Blockstream Satellite API Architecture")
 
 <!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-generate-toc again -->
 ## Contents

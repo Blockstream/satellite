@@ -985,11 +985,12 @@ you need to point FIBRE to the named pipe file accordingly. You can start
 # Satellite API
 
 Example Python applications for interaction with the Satellite API are available
-in the `examples` directory. Please refer to the
-[documentation there](examples/).
+in the `api/examples` directory. Please refer to the [documentation
+there](api/examples/).
 
 For more information regarding the Satellite API, please visit
-[blockstream.com/satellite-api](https://blockstream.com/satellite-api/).
+[blockstream.com/satellite-api](https://blockstream.com/satellite-api/) or the
+documentation in the [`api` directory](api/).
 
 # Frequent issues and questions
 
