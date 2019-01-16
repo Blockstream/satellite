@@ -7,28 +7,45 @@ In order to set up your receiver system, please read the following information
 carefully. For additional help, go to the #blockstream-satellite IRC channel on
 freenode.
 
-## Downtime and network update on Jan 16th 2019
+## IMPORTANT: Downtime and network update on Jan 16th 2019
 
-**IMPORTANT:** Please note that the Blockstream Satellite network will be
-updated on **Wednesday, January 16th 2019, from midday to 1pm EST**. From this
-date on, please use Blockstream Satellite receiver version greater than or equal
-to `v1.1.0`. Until then, please continue with any version up to `v1.0.1`. Also,
+Please note that the Blockstream Satellite network will be updated on
+**Wednesday, January 16th 2019, from midday to 1pm EST**. From this date on,
+please use Blockstream Satellite receiver version greater than or equal to
+`v1.1.0`. Until then, please continue with any version up to `v1.0.1`. Also,
 from Jan 16th 2019 onward, please use [Bitcoin FIBRE version
 `v0.16`](https://github.com/bitcoinfibre/bitcoinfibre/tree/0.16-fibre) or later.
 
-**NOTE:** If you are using the blocksat receiver application version `v1.0.0`
-installed via binary package, you will need to launch it with the command-line
-argument `--version 2` after Jan 16th 2019. That is, you will need to run:
+In case you have installed the blocksat receiver via binary package (e.g. using
+`apt-get install`), you can upgrade to `v1.1.0` with:
 
-```bash
-blocksat-rx ...  --version 2
 ```
-where `...` represents the other arguments that you use normally.
+apt-get install --only-upgrade satellite
+```
 
-The `--version 2` argument specifies that the packetization protocol embeded
-within satellite-transmitted frames is now version 2 and supports the [Satellite
-API](#satellite-api). From version `v1.1.0` onward, this will be the default
-choice.
+```
+dnf upgrade satellite
+```
+
+```
+yum update satellite
+```
+
+> **NOTE:** In case you don't update your binary package installation after Jan
+> 16th 2019 and continue with version `v1.0.0`, you can launch the blocksat
+> receiver application with command-line argument `--version 2`.
+>
+> To run `v1.0.0`, you will need to launch it as follows:
+>
+> ```bash
+> blocksat-rx ...  --version 2
+> ```
+> where `...` represents the other arguments that you use normally.
+>
+> The `--version 2` argument specifies that the packetization protocol embedded
+> within satellite-transmitted frames is now version 2 and supports the
+> [Satellite API](#satellite-api). From version `v1.1.0` onward, this is the
+> default choice.
 
 # Getting Started
 
