@@ -14,7 +14,7 @@ updated on **Wednesday, January 16th 2019, from midday to 1pm EST**. From this
 date on, please use Blockstream Satellite receiver version greater than or equal
 to `v1.1.0`. Until then, please continue with any version up to `v1.0.1`. Also,
 from Jan 16th 2019 onward, please use [Bitcoin FIBRE master
-branch](https://github.com/bitcoinfibre/bitcoinfibre/tree/master) or later.
+branch](https://github.com/bitcoinfibre/bitcoinfibre/tree/master).
 
 **NOTE:** If you are using the blocksat receiver application version `v1.0.0`
 installed via binary package, you will need to launch it with the command-line
