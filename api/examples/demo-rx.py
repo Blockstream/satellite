@@ -44,19 +44,19 @@ def create_output_data_struct(data):
     return out_data
 
 
-def fetch_api_data(server_addr, uuid):
+def fetch_api_data(server_addr, seq_num):
     """Download a given message from the Satellite API
 
     Args:
         server_addr : Satellite API server address
-        uuid        : Message unique ID
+        seq_num     : Message sequence number
 
     Returns:
         Message data as sequence of bytes
 
     """
-    logging.debug("Fetch message %s from API" %(uuid))
-    r = requests.get(server_addr + '/order/' + uuid + '/sent_message')
+    logging.debug("Fetch message #%s from API" %(seq_num))
+    r = requests.get(server_addr + '/message/' + str(seq_num))
 
     r.raise_for_status()
 
@@ -199,7 +199,7 @@ def main():
                         order["message_size"]))
 
                     # Get the data
-                    data = fetch_api_data(server_addr, order["uuid"])
+                    data = fetch_api_data(server_addr, seq_num)
 
                     # Output to named pipe
                     if (data is not None):
