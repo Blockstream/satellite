@@ -11,7 +11,8 @@ freenode.
 updated on Wednesday, January 16th 2019, from midday to 1pm EST. From this date
 on, please use Blockstream Satellite receiver version greater than or equal to
 `v1.1.0`. Until then, please continue with any version up to `v1.0.1`. Also,
-from Jan 16th 2019 onward, please use Bitcoin FIBRE version `v0.16`.
+from Jan 16th 2019 onward, please use [Bitcoin FIBRE version
+`v0.16`](https://github.com/bitcoinfibre/bitcoinfibre/tree/0.16-fibre) or later.
 
 # Getting Started
 
@@ -962,8 +963,12 @@ blocksat-rx-upper-gui -i 10.0.0.1 -p 5201
 
 # Run Bitcoin FIBRE
 
-In case you don't have Bitcoin FIBRE installed, do so before proceeding. Refer
-to:
+In case you don't have Bitcoin FIBRE installed, do so before proceeding. Make
+sure to use [version 0.16 or
+later](https://github.com/bitcoinfibre/bitcoinfibre/tree/0.16-fibre), which is
+the one currently being used by the Blockstream Satellite transmitter.
+
+For more information about Bitcoin FIBRE, refer to:
 
 >Bitcoin FIBRE: http://bitcoinfibre.org
 
