@@ -2084,7 +2084,50 @@
     </param>
     <param>
       <key>label</key>
-      <value>Disable User API Data Output</value>
+      <value>True to Disable Satellite API Data Output</value>
+    </param>
+    <param>
+      <key>short_id</key>
+      <value></value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>intx</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>parameter</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(1696, 512)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>no_blocks</value>
+    </param>
+    <param>
+      <key>label</key>
+      <value>True to Disable Bitcoin FIBRE Data Output</value>
     </param>
     <param>
       <key>short_id</key>
@@ -2833,6 +2876,10 @@
     <param>
       <key>disable_api</key>
       <value>bool(no_api)</value>
+    </param>
+    <param>
+      <key>disable_blocks</key>
+      <value>bool(no_blocks)</value>
     </param>
     <param>
       <key>_coordinate</key>
