@@ -174,11 +174,13 @@ def main():
         description=textwrap.dedent('''\
         Example data reader application
 
-        Continuously waits for data in the named pipe that receives the API
-        output of the Blockstream Satellite receiver application. By default,
-        once it accumulates a complete output data structure, it decrypts the
-        structure, validates the integrity of the data and then saves the file
-        in the "downloads/" directory.
+        Continuously reads data in the named pipe that receives the API output
+        of the Blockstream Satellite receiver application and waits until a
+        complete API data transmission is acquired. Then, by default attempts to
+        decrypt the data using the local GnuPG key. On successful decryption,
+        validates the integrity of the data and then saves the file in the
+        "downloads/" directory. By default, assumes the data was transmitted
+        using the example "API data sender" application.
 
         '''),
         formatter_class=argparse.RawDescriptionHelpFormatter
@@ -189,17 +191,31 @@ def main():
                         '(default: /tmp/blocksat/api)')
     parser.add_argument('-g', '--gnupghome', default=".gnupg",
                         help='GnuPG home directory (default: .gnupg)')
-    parser.add_argument('--save-raw', default=False,
-                        action="store_true",
-                        help='Save raw decrypted data and ignore the ' +
-                        'existence of a user-specific data structure ' +
-                        "(default: false)")
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument('--save-raw', default=False,
+                       action="store_true",
+                       help='Save the raw decrypted data in the ' +
+                       '\"downloads/\" folder while ignoring the ' +
+                       'existence of a user-specific data structure. ' +
+                       'Individual API transmissions that can be decrypted '
+                       'with the GPG keys you possess ' +
+                       'are saved in separate files whose names ' +
+                       ' correspond to timestamps. (default: false)')
+    group.add_argument('--plaintext', default=False,
+                       action="store_true",
+                       help='Do not try to decrypt the data. Instead, assume ' +
+                       'that all API data transmissions are plaintext and ' +
+                       'save them as individual files named by timestamps ' +
+                       ' in the  \"downloads/\" folder. ' +
+                       'NOTE: this saves all transmissions in the ' +
+                       ' \"downloads/\" folder. (default: false)')
     parser.add_argument('--debug', action='store_true',
                         help='Debug mode (default: false)')
     args      = parser.parse_args()
     pipe_file = args.pipe
     gnupghome = args.gnupghome
     save_raw  = args.save_raw
+    plaintext = args.plaintext
 
     # Switch debug level
     if (args.debug):
@@ -210,7 +226,8 @@ def main():
     pipe_f = pipe.Pipe(pipe_file)
 
     # GPG object
-    gpg = gnupg.GPG(gnupghome = gnupghome)
+    if (not plaintext):
+        gpg = gnupg.GPG(gnupghome = gnupghome)
 
     # Read the chosen named pipe continuously and append read data to a
     # buffer. Once complete data structures are ready, output them accordingly.
@@ -231,8 +248,17 @@ def main():
             # Pop data from the read buffer
             rd_buffer = rd_buffer[(OUT_DATA_HEADER_LEN + len(data)):]
 
-            # Try to decrypt the data
-            decrypted_data = str(gpg.decrypt(data))
+            # In plaintext mode, every API transmission is assumed to be
+            # plaintext and output as a file to the downloads folder with a
+            # timestamp as name.
+            if (plaintext):
+                print("[%s]: Got %7d bytes\tSaving as plaintext" %(
+                    datetime.now().strftime("%Y-%m-%d %H:%M:%S"), len(data)))
+                save_file(data)
+                continue
+            else:
+                # Try to decrypt the data
+                decrypted_data = str(gpg.decrypt(data))
 
             if (len(decrypted_data) > 0):
                 print("[%s]: Got %7d bytes\t Decryption: OK    \t" %(

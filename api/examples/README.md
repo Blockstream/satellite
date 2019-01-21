@@ -194,13 +194,13 @@ Note that, just like in Example 1, this example also handles encryption
 internally. That is, you can point to a non-encrypted file and the data sender
 will encrypt it internally. The reader will then decrypt the data.
 
-This use case is also useful when sending a file directly via the form in the
-API web page. In this case, the file can be retrieved on the Blocksat receiver
-side by running the API data reader as above. The only difference is that in
-this case you will need to encrypt the file offline, before uploading to the
-form in the API web page. This is because the *API data reader* application by
-default assumes the incoming data is encrypted with the keys that are available
-in the local GnupG home directory.
+This use case is also useful when sending a file directly via the [form in the
+API web page](https://blockstream.com/satellite-queue/). In this case, the file
+can be retrieved on the Blocksat receiver side by running the API data reader as
+above. The only difference is that in this case you will need to encrypt the
+file offline, before uploading to the form in the API web page. This is because
+the *API data reader* application by default assumes the incoming data is
+encrypted with the keys that are available in the local GnupG home directory.
 
 To encrypt a file offline, you can run for example:
 
@@ -210,6 +210,18 @@ gpg --encrypt --recipient pub_key_id_or_email filename
 
 where `pub_key_id_or_email` can be either the public key ID of the target
 recipient or its e-mail.
+
+Alternatively, you can run the API data reader in "plaintext mode". This will
+allow you to receive plaintext files uploaded directly via the [API
+website](https://blockstream.com/satellite-queue/), or any other plaintext
+transmission broadcast via the satellite network. However, please be aware that
+in this case **all** API transmissions will be saved to the `downloads` folder,
+rather than solely the ones that can be decrypted with the GPG keys you
+possess. To run in this mode, execute:
+
+```
+./api_data_reader.py --plaintext
+```
 
 ## Example 3: Testing the API while receiving data directly via Internet
 
