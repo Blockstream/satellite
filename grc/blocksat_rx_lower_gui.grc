@@ -844,7 +844,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>156250</value>
+      <value>156250 if (modulation == "qpsk") else 312500</value>
     </param>
   </block>
   <block>
