@@ -105,7 +105,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>barker_code_two_dim if (constellation == "qpsk") else barker_code_one_dim</value>
+      <value>barker_code_two_dim if (modulation == "qpsk") else barker_code_one_dim</value>
     </param>
   </block>
   <block>
@@ -318,7 +318,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>qpsk_const if (constellation == "qpsk") else bpsk_const</value>
+      <value>qpsk_const if (modulation == "qpsk") else bpsk_const</value>
     </param>
   </block>
   <block>
@@ -907,7 +907,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1136, 212)</value>
+      <value>(1136, 228)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1430,49 +1430,6 @@
     <param>
       <key>value</key>
       <value>1</value>
-    </param>
-  </block>
-  <block>
-    <key>parameter</key>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(1136, 116)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>constellation</value>
-    </param>
-    <param>
-      <key>label</key>
-      <value>Constellation (qpsk or bpsk)</value>
-    </param>
-    <param>
-      <key>short_id</key>
-      <value></value>
-    </param>
-    <param>
-      <key>type</key>
-      <value>string</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>"qpsk"</value>
     </param>
   </block>
   <block>
@@ -2080,6 +2037,49 @@
     <param>
       <key>value</key>
       <value>100</value>
+    </param>
+  </block>
+  <block>
+    <key>parameter</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(1136, 116)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>modulation</value>
+    </param>
+    <param>
+      <key>label</key>
+      <value>Modulation (qpsk or bpsk)</value>
+    </param>
+    <param>
+      <key>short_id</key>
+      <value>m</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>string</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>"qpsk"</value>
     </param>
   </block>
   <block>
