@@ -1405,7 +1405,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1328, 4)</value>
+      <value>(1336, 4)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1582,7 +1582,7 @@
     </param>
     <param>
       <key>loop_bw</key>
-      <value>2*pi/50</value>
+      <value>pcsbw</value>
     </param>
     <param>
       <key>maxoutbuf</key>
@@ -1672,7 +1672,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1160, 4)</value>
+      <value>(1320, 116)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1969,7 +1969,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1648, 4)</value>
+      <value>(1656, 4)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -2098,7 +2098,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1480, 116)</value>
+      <value>(1488, 116)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -2141,7 +2141,50 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1648, 116)</value>
+      <value>(1160, 4)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>pcsbw</value>
+    </param>
+    <param>
+      <key>label</key>
+      <value>Polyphase Clock Sync Loop Bandwidth</value>
+    </param>
+    <param>
+      <key>short_id</key>
+      <value>w</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>eng_float</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>2*pi/50</value>
+    </param>
+  </block>
+  <block>
+    <key>parameter</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(1656, 116)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -3591,7 +3634,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1480, 228)</value>
+      <value>(1488, 228)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -3634,7 +3677,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1480, 4)</value>
+      <value>(1488, 4)</value>
     </param>
     <param>
       <key>_rotation</key>
