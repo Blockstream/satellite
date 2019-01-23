@@ -64,6 +64,9 @@ build/%.py: grc/%.grc
 	@sed -i 's/'\
 	'dest=\"no_blocks\", type=\"intx\", default=0/'\
 	'dest=\"no_blocks\", action=\"store_true\", default=False/g' $@
+	@sed -i 's/'\
+	'dest=\"no_phase_reset\", type=\"intx\", default=0/'\
+	'dest=\"no_phase_reset\", action=\"store_true\", default=False/g' $@
 	@chmod u+x $@
 	python -m compileall $@
 	f=$@ && x=$${f%.py} && y="$${x//_/-}" &&\
