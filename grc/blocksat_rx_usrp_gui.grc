@@ -770,7 +770,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1512, 508)</value>
+      <value>(1520, 508)</value>
     </param>
     <param>
       <key>gui_hint</key>
@@ -1015,7 +1015,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1776, 412)</value>
+      <value>(1784, 412)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1042,7 +1042,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1672, 412)</value>
+      <value>(1680, 412)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1069,7 +1069,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1672, 348)</value>
+      <value>(1680, 348)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1112,7 +1112,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1176, 228)</value>
+      <value>(1168, 228)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1167,7 +1167,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1856, 4)</value>
+      <value>(1864, 4)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1606,7 +1606,7 @@
     </param>
     <param>
       <key>noise_bw</key>
-      <value>0.001</value>
+      <value>daloopbw</value>
     </param>
     <param>
       <key>data_aided</key>
@@ -1829,7 +1829,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1360, 4)</value>
+      <value>(1360, 228)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1854,6 +1854,49 @@
     <param>
       <key>value</key>
       <value>1</value>
+    </param>
+  </block>
+  <block>
+    <key>parameter</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(1344, 4)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>daloopbw</value>
+    </param>
+    <param>
+      <key>label</key>
+      <value>Data-aided Carrier Phase Recovery Loop Bandwidth</value>
+    </param>
+    <param>
+      <key>short_id</key>
+      <value>d</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>eng_float</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>0.001</value>
     </param>
   </block>
   <block>
@@ -2718,7 +2761,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1856, 116)</value>
+      <value>(1864, 116)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -2804,7 +2847,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1176, 116)</value>
+      <value>(1168, 116)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -2847,7 +2890,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1512, 116)</value>
+      <value>(1520, 116)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -2890,7 +2933,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1680, 100)</value>
+      <value>(1688, 100)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -2933,7 +2976,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1680, 196)</value>
+      <value>(1688, 196)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -2976,7 +3019,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1176, 4)</value>
+      <value>(1168, 4)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -9062,7 +9105,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1512, 228)</value>
+      <value>(1520, 228)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -9105,7 +9148,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1512, 4)</value>
+      <value>(1520, 4)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -9191,7 +9234,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1512, 348)</value>
+      <value>(1520, 348)</value>
     </param>
     <param>
       <key>gui_hint</key>
@@ -10645,7 +10688,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1680, 4)</value>
+      <value>(1688, 4)</value>
     </param>
     <param>
       <key>_rotation</key>
