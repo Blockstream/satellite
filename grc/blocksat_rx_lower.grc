@@ -105,7 +105,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>barker_code_two_dim if (const_choice == "qpsk") else barker_code_one_dim</value>
+      <value>barker_code_two_dim if (constellation == "qpsk") else barker_code_one_dim</value>
     </param>
   </block>
   <block>
@@ -279,33 +279,6 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(784, 244)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>const_choice</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>"qpsk"</value>
-    </param>
-  </block>
-  <block>
-    <key>variable</key>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
       <value>(712, 180)</value>
     </param>
     <param>
@@ -318,7 +291,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>pow(2,constellation.bits_per_symbol())</value>
+      <value>pow(2,constellation_obj.bits_per_symbol())</value>
     </param>
   </block>
   <block>
@@ -341,11 +314,11 @@
     </param>
     <param>
       <key>id</key>
-      <value>constellation</value>
+      <value>constellation_obj</value>
     </param>
     <param>
       <key>value</key>
-      <value>qpsk_const if (const_choice=="qpsk") else bpsk_const</value>
+      <value>qpsk_const if (constellation == "qpsk") else bpsk_const</value>
     </param>
   </block>
   <block>
@@ -934,7 +907,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1136, 172)</value>
+      <value>(1136, 212)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1460,6 +1433,49 @@
     </param>
   </block>
   <block>
+    <key>parameter</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(1136, 116)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>constellation</value>
+    </param>
+    <param>
+      <key>label</key>
+      <value>Constellation (qpsk or bpsk)</value>
+    </param>
+    <param>
+      <key>short_id</key>
+      <value></value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>string</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>"qpsk"</value>
+    </param>
+  </block>
+  <block>
     <key>digital_costas_loop_cc</key>
     <param>
       <key>alias</key>
@@ -1503,7 +1519,7 @@
     </param>
     <param>
       <key>order</key>
-      <value>2**constellation.bits_per_symbol()</value>
+      <value>2**constellation_obj.bits_per_symbol()</value>
     </param>
     <param>
       <key>use_snr</key>
