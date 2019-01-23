@@ -788,7 +788,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(832, 396)</value>
+      <value>(832, 388)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1066,7 +1066,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(648, 500)</value>
+      <value>(656, 492)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1075,6 +1075,10 @@
     <param>
       <key>id</key>
       <value>blocksat_turbo_decoder_0</value>
+    </param>
+    <param>
+      <key>n_ite</key>
+      <value>max_turbo_iterations</value>
     </param>
     <param>
       <key>maxoutbuf</key>
@@ -1156,7 +1160,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(832, 492)</value>
+      <value>(856, 492)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1364,6 +1368,49 @@
     <param>
       <key>import</key>
       <value>import numpy.matlib</value>
+    </param>
+  </block>
+  <block>
+    <key>parameter</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(1296, 4)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>max_turbo_iterations</value>
+    </param>
+    <param>
+      <key>label</key>
+      <value>maximum number of Turbo decoding iterations.</value>
+    </param>
+    <param>
+      <key>short_id</key>
+      <value></value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>intx</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>6</value>
     </param>
   </block>
   <block>
@@ -1921,7 +1968,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(632, 380)</value>
+      <value>(616, 364)</value>
     </param>
     <param>
       <key>gui_hint</key>

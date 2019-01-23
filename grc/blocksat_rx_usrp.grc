@@ -1576,7 +1576,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(736, 1180)</value>
+      <value>(736, 1172)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1585,6 +1585,10 @@
     <param>
       <key>id</key>
       <value>blocksat_turbo_decoder_0</value>
+    </param>
+    <param>
+      <key>n_ite</key>
+      <value>max_turbo_iterations</value>
     </param>
     <param>
       <key>maxoutbuf</key>
@@ -2188,7 +2192,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1056, 1188)</value>
+      <value>(1064, 1188)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -2474,6 +2478,49 @@
     <param>
       <key>value</key>
       <value>100</value>
+    </param>
+  </block>
+  <block>
+    <key>parameter</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(1496, 340)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>max_turbo_iterations</value>
+    </param>
+    <param>
+      <key>label</key>
+      <value>maximum number of Turbo decoding iterations.</value>
+    </param>
+    <param>
+      <key>short_id</key>
+      <value></value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>intx</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>6</value>
     </param>
   </block>
   <block>
