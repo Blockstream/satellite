@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<?grc format='1' created='3.7.12'?>
+<?grc format='1' created='3.7.11'?>
 <flow_graph>
   <timestamp>Sat Jun 24 12:08:57 2017</timestamp>
   <block>
@@ -93,7 +93,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(176, 236)</value>
+      <value>(176, 244)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -120,7 +120,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(8, 236)</value>
+      <value>(8, 244)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -147,7 +147,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(8, 172)</value>
+      <value>(8, 180)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -174,7 +174,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(344, 164)</value>
+      <value>(344, 180)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -213,7 +213,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(456, 228)</value>
+      <value>(456, 244)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -252,7 +252,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(648, 100)</value>
+      <value>(648, 116)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -279,7 +279,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(712, 164)</value>
+      <value>(712, 180)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -306,7 +306,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(616, 228)</value>
+      <value>(616, 244)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -333,7 +333,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(544, 100)</value>
+      <value>(544, 116)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -360,7 +360,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(200, 108)</value>
+      <value>(200, 116)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -387,7 +387,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(960, 100)</value>
+      <value>(960, 116)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -414,7 +414,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(352, 228)</value>
+      <value>(352, 244)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -441,7 +441,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(760, 100)</value>
+      <value>(760, 116)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -468,7 +468,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(968, 164)</value>
+      <value>(968, 180)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -495,7 +495,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(808, 164)</value>
+      <value>(808, 180)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -522,7 +522,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(440, 100)</value>
+      <value>(440, 116)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -549,7 +549,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(296, 100)</value>
+      <value>(296, 116)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -576,7 +576,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(440, 164)</value>
+      <value>(440, 180)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -603,7 +603,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(168, 172)</value>
+      <value>(168, 180)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -642,7 +642,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(552, 164)</value>
+      <value>(552, 180)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -681,7 +681,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(880, 164)</value>
+      <value>(880, 180)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -708,7 +708,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(792, 228)</value>
+      <value>(768, 236)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -735,7 +735,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(8, 108)</value>
+      <value>(8, 116)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -762,7 +762,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(864, 100)</value>
+      <value>(864, 116)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -789,7 +789,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(104, 108)</value>
+      <value>(104, 116)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -832,7 +832,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(32, 720)</value>
+      <value>(32, 740)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -891,7 +891,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1608, 4)</value>
+      <value>(1584, 428)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -918,7 +918,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1864, 68)</value>
+      <value>(1480, 428)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -945,7 +945,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1864, 4)</value>
+      <value>(1480, 364)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -988,7 +988,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1088, 204)</value>
+      <value>(1080, 212)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1043,7 +1043,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1696, 0)</value>
+      <value>(1816, 4)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1060,10 +1060,6 @@
     <param>
       <key>short_id</key>
       <value>a</value>
-    </param>
-    <param>
-      <key>hide</key>
-      <value>none</value>
     </param>
     <param>
       <key>type</key>
@@ -1094,7 +1090,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(832, 440)</value>
+      <value>(544, 488)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1145,7 +1141,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(632, 488)</value>
+      <value>(344, 536)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1192,7 +1188,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1232, 712)</value>
+      <value>(1232, 720)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1286,7 +1282,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(584, 1080)</value>
+      <value>(552, 1096)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1333,7 +1329,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(496, 484)</value>
+      <value>(208, 532)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1354,65 +1350,6 @@
     <param>
       <key>minoutbuf</key>
       <value>0</value>
-    </param>
-  </block>
-  <block>
-    <key>blocks_socket_pdu</key>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(1280, 1080)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>host</key>
-      <value>127.0.0.1</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>blocks_socket_pdu_0</value>
-    </param>
-    <param>
-      <key>mtu</key>
-      <value>10000</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>port</key>
-      <value>4321</value>
-    </param>
-    <param>
-      <key>tcp_no_delay</key>
-      <value>False</value>
-    </param>
-    <param>
-      <key>type</key>
-      <value>"UDP_CLIENT"</value>
     </param>
   </block>
   <block>
@@ -1459,6 +1396,214 @@
     </param>
   </block>
   <block>
+    <key>blocksat_da_carrier_phase_rec</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value>Data-aided Phase Recovery</value>
+    </param>
+    <param>
+      <key>M</key>
+      <value>int(const_order)</value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>damp_factor</key>
+      <value>1/sqrt(2)</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(584, 940)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>blocksat_da_carrier_phase_rec_0_0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>noise_bw</key>
+      <value>0.001</value>
+    </param>
+    <param>
+      <key>data_aided</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>preamble_syms</key>
+      <value>(1/sqrt(2))*preamble_syms</value>
+    </param>
+    <param>
+      <key>reset_per_frame</key>
+      <value>True</value>
+    </param>
+  </block>
+  <block>
+    <key>blocksat_mer_measurement</key>
+    <param>
+      <key>N</key>
+      <value>1024</value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>M</key>
+      <value>int(const_order)</value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(1032, 700)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>blocksat_mer_measurement_pre_frame_sync</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>blocksat_protocol_sink</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>blocks_pipe</key>
+      <value>/tmp/blocksat/bitcoinfibre</value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>disable_api</key>
+      <value>bool(no_api)</value>
+    </param>
+    <param>
+      <key>disable_blocks</key>
+      <value>bool(no_blocks)</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(1248, 1156)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>blocksat_protocol_sink_0</value>
+    </param>
+    <param>
+      <key>protocol_version</key>
+      <value>version</value>
+    </param>
+    <param>
+      <key>user_pipe</key>
+      <value>/tmp/blocksat/api</value>
+    </param>
+  </block>
+  <block>
+    <key>blocksat_turbo_decoder</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(736, 1180)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>blocksat_turbo_decoder_0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>N</key>
+      <value>codeword_len</value>
+    </param>
+    <param>
+      <key>K</key>
+      <value>dataword_len</value>
+    </param>
+  </block>
+  <block>
     <key>parameter</key>
     <param>
       <key>alias</key>
@@ -1474,7 +1619,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(992, 0)</value>
+      <value>(1328, 4)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1491,10 +1636,6 @@
     <param>
       <key>short_id</key>
       <value>c</value>
-    </param>
-    <param>
-      <key>hide</key>
-      <value>none</value>
     </param>
     <param>
       <key>type</key>
@@ -1521,7 +1662,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1312, 0)</value>
+      <value>(1080, 116)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1538,10 +1679,6 @@
     <param>
       <key>short_id</key>
       <value></value>
-    </param>
-    <param>
-      <key>hide</key>
-      <value>none</value>
     </param>
     <param>
       <key>type</key>
@@ -1615,7 +1752,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(800, 608)</value>
+      <value>(800, 616)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1721,7 +1858,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(256, 608)</value>
+      <value>(256, 616)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1823,7 +1960,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(488, 608)</value>
+      <value>(488, 620)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1886,136 +2023,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1696, 108)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>version</value>
-    </param>
-    <param>
-      <key>label</key>
-      <value>Blockstream Satellite Protocol Version</value>
-    </param>
-    <param>
-      <key>short_id</key>
-      <value></value>
-    </param>
-    <param>
-      <key>type</key>
-      <value>intx</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>2</value>
-    </param>
-  </block>
-  <block>
-    <key>parameter</key>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(1696, 308)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>no_api</value>
-    </param>
-    <param>
-      <key>label</key>
-      <value>True to Disable Satellite API Data Output</value>
-    </param>
-    <param>
-      <key>short_id</key>
-      <value></value>
-    </param>
-    <param>
-      <key>type</key>
-      <value>intx</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
-    <key>parameter</key>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(1696, 408)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>no_blocks</value>
-    </param>
-    <param>
-      <key>label</key>
-      <value>True to Disable Bitcoin FIBRE Data Output</value>
-    </param>
-    <param>
-      <key>short_id</key>
-      <value></value>
-    </param>
-    <param>
-      <key>type</key>
-      <value>intx</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
-    <key>parameter</key>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(1272, 208)</value>
+      <value>(984, 4)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -2032,10 +2040,6 @@
     <param>
       <key>short_id</key>
       <value>b</value>
-    </param>
-    <param>
-      <key>hide</key>
-      <value>none</value>
     </param>
     <param>
       <key>type</key>
@@ -2062,7 +2066,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(824, 0)</value>
+      <value>(1160, 4)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -2079,10 +2083,6 @@
     <param>
       <key>short_id</key>
       <value>v</value>
-    </param>
-    <param>
-      <key>hide</key>
-      <value>none</value>
     </param>
     <param>
       <key>type</key>
@@ -2121,7 +2121,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(280, 960)</value>
+      <value>(264, 964)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -2227,7 +2227,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(664, 0)</value>
+      <value>(552, 4)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -2244,10 +2244,6 @@
     <param>
       <key>short_id</key>
       <value>f</value>
-    </param>
-    <param>
-      <key>hide</key>
-      <value>none</value>
     </param>
     <param>
       <key>type</key>
@@ -2274,7 +2270,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(392, 0)</value>
+      <value>(712, 4)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -2291,10 +2287,6 @@
     <param>
       <key>short_id</key>
       <value>g</value>
-    </param>
-    <param>
-      <key>hide</key>
-      <value>none</value>
     </param>
     <param>
       <key>type</key>
@@ -2414,7 +2406,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1472, 0)</value>
+      <value>(1816, 116)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -2431,10 +2423,6 @@
     <param>
       <key>short_id</key>
       <value>i</value>
-    </param>
-    <param>
-      <key>hide</key>
-      <value>none</value>
     </param>
     <param>
       <key>type</key>
@@ -2461,7 +2449,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(488, 0)</value>
+      <value>(808, 4)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -2480,224 +2468,12 @@
       <value>l</value>
     </param>
     <param>
-      <key>hide</key>
-      <value>none</value>
-    </param>
-    <param>
       <key>type</key>
       <value>intx</value>
     </param>
     <param>
       <key>value</key>
       <value>100</value>
-    </param>
-  </block>
-  <block>
-    <key>blocksat_da_carrier_phase_rec</key>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>comment</key>
-      <value>Data-aided Phase Recovery</value>
-    </param>
-    <param>
-      <key>M</key>
-      <value>int(const_order)</value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>damp_factor</key>
-      <value>1/sqrt(2)</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(576, 936)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>blocksat_da_carrier_phase_rec_0_0</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>noise_bw</key>
-      <value>0.001</value>
-    </param>
-    <param>
-      <key>data_aided</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>preamble_syms</key>
-      <value>(1/sqrt(2))*preamble_syms</value>
-    </param>
-    <param>
-      <key>reset_per_frame</key>
-      <value>True</value>
-    </param>
-  </block>
-  <block>
-    <key>blocksat_protocol_sink</key>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>1</value>
-    </param>
-    <param>
-      <key>blocks_pipe</key>
-      <value>/tmp/blocksat/bitcoinfibre</value>
-    </param>
-    <param>
-      <key>user_pipe</key>
-      <value>/tmp/blocksat/api</value>
-    </param>
-    <param>
-      <key>protocol_version</key>
-      <value>version</value>
-    </param>
-    <param>
-      <key>disable_api</key>
-      <value>bool(no_api)</value>
-    </param>
-    <param>
-      <key>disable_blocks</key>
-      <value>bool(no_blocks)</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(1280, 1260)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>blocksat_protocol_sink_0</value>
-    </param>
-  </block>
-  <block>
-    <key>blocksat_mer_measurement</key>
-    <param>
-      <key>N</key>
-      <value>1024</value>
-    </param>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>M</key>
-      <value>int(const_order)</value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(1032, 692)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>blocksat_mer_measurement_pre_frame_sync</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
-    <key>blocksat_turbo_decoder</key>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>1</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(736, 1180)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>blocksat_turbo_decoder_0</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>N</key>
-      <value>codeword_len</value>
-    </param>
-    <param>
-      <key>K</key>
-      <value>dataword_len</value>
     </param>
   </block>
   <block>
@@ -2716,7 +2492,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1248, 104)</value>
+      <value>(1480, 116)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -2733,10 +2509,6 @@
     <param>
       <key>short_id</key>
       <value>n</value>
-    </param>
-    <param>
-      <key>hide</key>
-      <value>none</value>
     </param>
     <param>
       <key>type</key>
@@ -2763,7 +2535,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1416, 104)</value>
+      <value>(1648, 100)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -2771,66 +2543,15 @@
     </param>
     <param>
       <key>id</key>
-      <value>scan_interval</value>
+      <value>no_api</value>
     </param>
     <param>
       <key>label</key>
-      <value>Frequency Scan Interval (sec)</value>
+      <value>True to Disable Satellite API Data Output</value>
     </param>
     <param>
       <key>short_id</key>
-      <value>t</value>
-    </param>
-    <param>
-      <key>hide</key>
-      <value>none</value>
-    </param>
-    <param>
-      <key>type</key>
-      <value>eng_float</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>10</value>
-    </param>
-  </block>
-  <block>
-    <key>parameter</key>
-    <param>
-      <key>alias</key>
       <value></value>
-    </param>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(1144, 0)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>scan_mode</value>
-    </param>
-    <param>
-      <key>label</key>
-      <value>Frequency Scan Mode</value>
-    </param>
-    <param>
-      <key>short_id</key>
-      <value>s</value>
-    </param>
-    <param>
-      <key>hide</key>
-      <value>none</value>
     </param>
     <param>
       <key>type</key>
@@ -2857,7 +2578,136 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1088, 104)</value>
+      <value>(1648, 196)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>no_blocks</value>
+    </param>
+    <param>
+      <key>label</key>
+      <value>True to Disable Bitcoin FIBRE Data Output</value>
+    </param>
+    <param>
+      <key>short_id</key>
+      <value></value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>intx</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>parameter</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(1480, 228)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>scan_interval</value>
+    </param>
+    <param>
+      <key>label</key>
+      <value>Frequency Scan Interval (sec)</value>
+    </param>
+    <param>
+      <key>short_id</key>
+      <value>t</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>eng_float</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>10</value>
+    </param>
+  </block>
+  <block>
+    <key>parameter</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(1480, 4)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>scan_mode</value>
+    </param>
+    <param>
+      <key>label</key>
+      <value>Frequency Scan Mode</value>
+    </param>
+    <param>
+      <key>short_id</key>
+      <value>s</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>intx</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>parameter</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(392, 4)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -2874,10 +2724,6 @@
     <param>
       <key>short_id</key>
       <value>o</value>
-    </param>
-    <param>
-      <key>hide</key>
-      <value>none</value>
     </param>
     <param>
       <key>type</key>
@@ -4072,7 +3918,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(24, 344)</value>
+      <value>(24, 340)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -4228,6 +4074,49 @@
     </param>
   </block>
   <block>
+    <key>parameter</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(1648, 4)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>version</value>
+    </param>
+    <param>
+      <key>label</key>
+      <value>Blockstream Satellite Protocol Version</value>
+    </param>
+    <param>
+      <key>short_id</key>
+      <value></value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>intx</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>2</value>
+    </param>
+  </block>
+  <block>
     <key>virtual_sink</key>
     <param>
       <key>comment</key>
@@ -4239,7 +4128,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1008, 452)</value>
+      <value>(720, 500)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -4293,7 +4182,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1032, 604)</value>
+      <value>(1032, 612)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -4320,7 +4209,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(832, 956)</value>
+      <value>(840, 964)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -4347,7 +4236,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(320, 436)</value>
+      <value>(32, 484)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -4374,7 +4263,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(32, 652)</value>
+      <value>(32, 660)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -4401,7 +4290,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(32, 1020)</value>
+      <value>(32, 1028)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -4468,6 +4357,30 @@
     <sink_key>0</sink_key>
   </connection>
   <connection>
+    <source_block_id>blocksat_da_carrier_phase_rec_0_0</source_block_id>
+    <sink_block_id>blocks_null_sink_0_0</sink_block_id>
+    <source_key>1</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>blocksat_da_carrier_phase_rec_0_0</source_block_id>
+    <sink_block_id>virtual_sink_6</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>blocksat_mer_measurement_pre_frame_sync</source_block_id>
+    <sink_block_id>blocks_null_sink_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>blocksat_turbo_decoder_0</source_block_id>
+    <sink_block_id>digital_descrambler_bb_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
     <source_block_id>digital_constellation_decoder_cb_0</source_block_id>
     <sink_block_id>blocks_unpack_k_bits_bb_0</sink_block_id>
     <source_key>0</source_key>
@@ -4529,39 +4442,9 @@
   </connection>
   <connection>
     <source_block_id>framers_gr_hdlc_deframer_b_0</source_block_id>
-    <sink_block_id>blocks_socket_pdu_0</sink_block_id>
-    <source_key>pdu</source_key>
-    <sink_key>pdus</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>framers_gr_hdlc_deframer_b_0</source_block_id>
     <sink_block_id>blocksat_protocol_sink_0</sink_block_id>
     <source_key>pdu</source_key>
     <sink_key>async_pdu</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>blocksat_da_carrier_phase_rec_0_0</source_block_id>
-    <sink_block_id>blocks_null_sink_0_0</sink_block_id>
-    <source_key>1</source_key>
-    <sink_key>0</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>blocksat_da_carrier_phase_rec_0_0</source_block_id>
-    <sink_block_id>virtual_sink_6</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>blocksat_mer_measurement_pre_frame_sync</source_block_id>
-    <sink_block_id>blocks_null_sink_0</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>blocksat_turbo_decoder_0</source_block_id>
-    <sink_block_id>digital_descrambler_bb_0</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
   </connection>
   <connection>
     <source_block_id>uhd_usrp_source_0</source_block_id>
