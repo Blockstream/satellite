@@ -770,7 +770,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1520, 508)</value>
+      <value>(1512, 716)</value>
     </param>
     <param>
       <key>gui_hint</key>
@@ -1015,7 +1015,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1784, 412)</value>
+      <value>(1776, 620)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1042,7 +1042,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1680, 412)</value>
+      <value>(1672, 620)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1069,7 +1069,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1680, 348)</value>
+      <value>(1672, 556)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -2504,7 +2504,7 @@
     </param>
     <param>
       <key>fix_phase</key>
-      <value>1</value>
+      <value>(0 if bool(no_fs_phase_corr) else 1)</value>
     </param>
     <param>
       <key>preamble_size</key>
@@ -2516,7 +2516,7 @@
     </param>
     <param>
       <key>equalize</key>
-      <value>1</value>
+      <value>(0 if bool(no_fs_eq) else 1)</value>
     </param>
     <param>
       <key>verbosity</key>
@@ -2989,6 +2989,92 @@
     <param>
       <key>label</key>
       <value>True to Disable Bitcoin FIBRE Data Output</value>
+    </param>
+    <param>
+      <key>short_id</key>
+      <value></value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>intx</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>parameter</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(1352, 436)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>no_fs_eq</value>
+    </param>
+    <param>
+      <key>label</key>
+      <value>True to disable the single-tap equalization carried in the frame synchronizer.</value>
+    </param>
+    <param>
+      <key>short_id</key>
+      <value></value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>intx</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>parameter</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(1512, 436)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>no_fs_phase_corr</value>
+    </param>
+    <param>
+      <key>label</key>
+      <value>True to disable the phase correction carried in the frame synchronizer.</value>
     </param>
     <param>
       <key>short_id</key>
@@ -9277,7 +9363,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1520, 348)</value>
+      <value>(1512, 556)</value>
     </param>
     <param>
       <key>gui_hint</key>
