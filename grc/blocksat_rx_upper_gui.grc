@@ -1078,7 +1078,7 @@
     </param>
     <param>
       <key>n_ite</key>
-      <value>max_turbo_iterations</value>
+      <value>dec_max_iterations</value>
     </param>
     <param>
       <key>maxoutbuf</key>
@@ -1394,7 +1394,7 @@
     </param>
     <param>
       <key>id</key>
-      <value>max_turbo_iterations</value>
+      <value>dec_max_iterations</value>
     </param>
     <param>
       <key>label</key>

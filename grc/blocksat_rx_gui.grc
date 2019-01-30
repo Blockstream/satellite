@@ -1618,7 +1618,7 @@
     </param>
     <param>
       <key>reset_per_frame</key>
-      <value>(not bool(no_phase_reset))</value>
+      <value>(not bool(dapr_no_reset))</value>
     </param>
   </block>
   <block>
@@ -1798,7 +1798,7 @@
     </param>
     <param>
       <key>n_ite</key>
-      <value>max_turbo_iterations</value>
+      <value>dec_max_iterations</value>
     </param>
     <param>
       <key>maxoutbuf</key>
@@ -2508,7 +2508,7 @@
     </param>
     <param>
       <key>fix_phase</key>
-      <value>(0 if bool(no_fs_phase_corr) else 1)</value>
+      <value>(0 if bool(fs_no_phase_corr) else 1)</value>
     </param>
     <param>
       <key>preamble_size</key>
@@ -2520,7 +2520,7 @@
     </param>
     <param>
       <key>equalize</key>
-      <value>(0 if bool(no_fs_eq) else 1)</value>
+      <value>(0 if bool(fs_no_eq) else 1)</value>
     </param>
     <param>
       <key>verbosity</key>
@@ -2867,7 +2867,7 @@
     </param>
     <param>
       <key>id</key>
-      <value>max_turbo_iterations</value>
+      <value>dec_max_iterations</value>
     </param>
     <param>
       <key>label</key>
@@ -3082,7 +3082,7 @@
     </param>
     <param>
       <key>id</key>
-      <value>no_fs_eq</value>
+      <value>fs_no_eq</value>
     </param>
     <param>
       <key>label</key>
@@ -3125,7 +3125,7 @@
     </param>
     <param>
       <key>id</key>
-      <value>no_fs_phase_corr</value>
+      <value>fs_no_phase_corr</value>
     </param>
     <param>
       <key>label</key>
@@ -3168,7 +3168,7 @@
     </param>
     <param>
       <key>id</key>
-      <value>no_phase_reset</value>
+      <value>dapr_no_reset</value>
     </param>
     <param>
       <key>label</key>

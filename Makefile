@@ -65,14 +65,14 @@ build/%.py: grc/%.grc
 	'dest=\"no_blocks\", type=\"intx\", default=0/'\
 	'dest=\"no_blocks\", action=\"store_true\", default=False/g' $@
 	@sed -i 's/'\
-	'dest=\"no_phase_reset\", type=\"intx\", default=0/'\
-	'dest=\"no_phase_reset\", action=\"store_true\", default=False/g' $@
+	'dest=\"dapr_no_reset\", type=\"intx\", default=0/'\
+	'dest=\"dapr_no_reset\", action=\"store_true\", default=False/g' $@
 	@sed -i 's/'\
-	'dest=\"no_fs_eq\", type=\"intx\", default=0/'\
-	'dest=\"no_fs_eq\", action=\"store_true\", default=False/g' $@
+	'dest=\"fs_no_eq\", type=\"intx\", default=0/'\
+	'dest=\"fs_no_eq\", action=\"store_true\", default=False/g' $@
 	@sed -i 's/'\
-	'dest=\"no_fs_phase_corr\", type=\"intx\", default=0/'\
-	'dest=\"no_fs_phase_corr\", action=\"store_true\", default=False/g' $@
+	'dest=\"fs_no_phase_corr\", type=\"intx\", default=0/'\
+	'dest=\"fs_no_phase_corr\", action=\"store_true\", default=False/g' $@
 	@chmod u+x $@
 	python -m compileall $@
 	f=$@ && x=$${f%.py} && y="$${x//_/-}" &&\
