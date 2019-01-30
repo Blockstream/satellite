@@ -1649,7 +1649,7 @@
     </param>
     <param>
       <key>max_dev</key>
-      <value>pi/8</value>
+      <value>pcs_max_rate_dev</value>
     </param>
     <param>
       <key>minoutbuf</key>
@@ -2311,6 +2311,49 @@
     <param>
       <key>value</key>
       <value>8</value>
+    </param>
+  </block>
+  <block>
+    <key>parameter</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(1824, 4)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>pcs_max_rate_dev</value>
+    </param>
+    <param>
+      <key>label</key>
+      <value>maximum allowed rate deviation for the control loop of the polyphase symbol timing synchronizer.</value>
+    </param>
+    <param>
+      <key>short_id</key>
+      <value></value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>eng_float</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>pi/8</value>
     </param>
   </block>
   <block>
