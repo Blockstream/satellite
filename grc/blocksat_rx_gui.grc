@@ -468,6 +468,33 @@
     </param>
     <param>
       <key>_coordinate</key>
+      <value>(784, 244)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>frame_size</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>preamble_size + payload_size</value>
+    </param>
+  </block>
+  <block>
+    <key>variable</key>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
       <value>(1768, 692)</value>
     </param>
     <param>
@@ -2720,6 +2747,57 @@
     <param>
       <key>import</key>
       <value>import numpy.matlib</value>
+    </param>
+  </block>
+  <block>
+    <key>blocks_keep_one_in_n</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(556, 1240)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>270</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>keep_one_in_n_pmf_peak_vs_time</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>n</key>
+      <value>frame_size</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>float</value>
+    </param>
+    <param>
+      <key>vlen</key>
+      <value>1</value>
     </param>
   </block>
   <block>
@@ -6501,7 +6579,7 @@
     <key>qtgui_time_sink_x</key>
     <param>
       <key>autoscale</key>
-      <value>True</value>
+      <value>False</value>
     </param>
     <param>
       <key>axislabels</key>
@@ -6545,7 +6623,7 @@
     </param>
     <param>
       <key>grid</key>
-      <value>False</value>
+      <value>True</value>
     </param>
     <param>
       <key>id</key>
@@ -6805,11 +6883,11 @@
     </param>
     <param>
       <key>size</key>
-      <value>8*(preamble_size + payload_size)</value>
+      <value>4*int(sym_rate/frame_size)</value>
     </param>
     <param>
       <key>srate</key>
-      <value>sym_rate</value>
+      <value>sym_rate/frame_size</value>
     </param>
     <param>
       <key>stemplot</key>
@@ -6845,7 +6923,7 @@
     </param>
     <param>
       <key>update_time</key>
-      <value>0.10</value>
+      <value>2</value>
     </param>
     <param>
       <key>ylabel</key>
@@ -6857,11 +6935,11 @@
     </param>
     <param>
       <key>ymax</key>
-      <value>1.2</value>
+      <value>1</value>
     </param>
     <param>
       <key>ymin</key>
-      <value>-0.2</value>
+      <value>0</value>
     </param>
   </block>
   <block>
@@ -12169,7 +12247,7 @@
   </connection>
   <connection>
     <source_block_id>frame_synchronizer_0</source_block_id>
-    <sink_block_id>qtgui_pmf_peak_vs_time</sink_block_id>
+    <sink_block_id>keep_one_in_n_pmf_peak_vs_time</sink_block_id>
     <source_key>2</source_key>
     <sink_key>0</sink_key>
   </connection>
@@ -12190,6 +12268,12 @@
     <sink_block_id>blocksat_protocol_sink_0</sink_block_id>
     <source_key>pdu</source_key>
     <sink_key>async_pdu</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>keep_one_in_n_pmf_peak_vs_time</source_block_id>
+    <sink_block_id>qtgui_pmf_peak_vs_time</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
   </connection>
   <connection>
     <source_block_id>rtlsdr_source_0</source_block_id>
