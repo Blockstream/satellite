@@ -8122,7 +8122,7 @@
     <key>qtgui_time_sink_x</key>
     <param>
       <key>autoscale</key>
-      <value>True</value>
+      <value>False</value>
     </param>
     <param>
       <key>axislabels</key>
@@ -8166,7 +8166,7 @@
     </param>
     <param>
       <key>grid</key>
-      <value>False</value>
+      <value>True</value>
     </param>
     <param>
       <key>id</key>
@@ -8478,11 +8478,11 @@
     </param>
     <param>
       <key>ymax</key>
-      <value>1</value>
+      <value>pi/2</value>
     </param>
     <param>
       <key>ymin</key>
-      <value>-1</value>
+      <value>-pi/2</value>
     </param>
   </block>
   <block>
