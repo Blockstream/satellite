@@ -480,34 +480,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>rrc_delay * int(sps*nfilts)</value>
-    </param>
-  </block>
-  <block>
-    <key>variable</key>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(808, 180)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>nfilts</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>32</value>
+      <value>rrc_delay * int(sps * pcs_n_filters)</value>
     </param>
   </block>
   <block>
@@ -693,7 +666,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>firdes.root_raised_cosine(nfilts, nfilts*sps, 1.0, excess_bw, n_rrc_taps)</value>
+      <value>firdes.root_raised_cosine(pcs_n_filters, pcs_n_filters * sps, 1.0, excess_bw, n_rrc_taps)</value>
     </param>
   </block>
   <block>
@@ -1895,7 +1868,7 @@
     </param>
     <param>
       <key>filter_size</key>
-      <value>nfilts</value>
+      <value>pcs_n_filters</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -1911,7 +1884,7 @@
     </param>
     <param>
       <key>init_phase</key>
-      <value>nfilts/2</value>
+      <value>pcs_n_filters/2</value>
     </param>
     <param>
       <key>loop_bw</key>
@@ -2714,6 +2687,49 @@
     <param>
       <key>value</key>
       <value>pi/8</value>
+    </param>
+  </block>
+  <block>
+    <key>parameter</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(1848, 100)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>pcs_n_filters</value>
+    </param>
+    <param>
+      <key>label</key>
+      <value>number of parallel filters in the polyphase clock sync block.</value>
+    </param>
+    <param>
+      <key>short_id</key>
+      <value></value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>intx</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>32</value>
     </param>
   </block>
   <block>
