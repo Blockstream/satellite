@@ -2447,7 +2447,7 @@
     </param>
     <param>
       <key>label</key>
-      <value>Rx Gain</value>
+      <value>USRP Rx gain</value>
     </param>
     <param>
       <key>short_id</key>
