@@ -1647,7 +1647,7 @@
     </param>
     <param>
       <key>comment</key>
-      <value></value>
+      <value>Coarse Carrier Freq. Recovery</value>
     </param>
     <param>
       <key>affinity</key>
