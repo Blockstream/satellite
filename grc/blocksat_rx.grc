@@ -1336,6 +1336,53 @@
     </param>
   </block>
   <block>
+    <key>blocksat_soft_decoder_cf</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>M</key>
+      <value>int(const_order)</value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>N0</key>
+      <value>1.0</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(248, 1180)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>blocksat_soft_decoder_cf_0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
     <key>blocksat_turbo_decoder</key>
     <param>
       <key>alias</key>
@@ -1355,7 +1402,7 @@
     </param>
     <param>
       <key>flip_llrs</key>
-      <value>True</value>
+      <value>False</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -1560,49 +1607,6 @@
     <param>
       <key>value</key>
       <value>6</value>
-    </param>
-  </block>
-  <block>
-    <key>digital_constellation_soft_decoder_cf</key>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>comment</key>
-      <value>Soft QPSK/BPSK Decoder</value>
-    </param>
-    <param>
-      <key>constellation</key>
-      <value>constellation_obj.base()</value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>1</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(248, 1188)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>digital_constellation_soft_decoder_cf_0</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
     </param>
   </block>
   <block>
@@ -4568,14 +4572,14 @@
     <sink_key>0</sink_key>
   </connection>
   <connection>
-    <source_block_id>blocksat_turbo_decoder_0</source_block_id>
-    <sink_block_id>digital_descrambler_bb_0</sink_block_id>
+    <source_block_id>blocksat_soft_decoder_cf_0</source_block_id>
+    <sink_block_id>blocksat_turbo_decoder_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
   <connection>
-    <source_block_id>digital_constellation_soft_decoder_cf_0</source_block_id>
-    <sink_block_id>blocksat_turbo_decoder_0</sink_block_id>
+    <source_block_id>blocksat_turbo_decoder_0</source_block_id>
+    <sink_block_id>digital_descrambler_bb_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
@@ -4665,7 +4669,7 @@
   </connection>
   <connection>
     <source_block_id>virtual_source_5</source_block_id>
-    <sink_block_id>digital_constellation_soft_decoder_cf_0</sink_block_id>
+    <sink_block_id>blocksat_soft_decoder_cf_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
