@@ -1445,8 +1445,8 @@
   <block>
     <key>blocksat_mer_measurement</key>
     <param>
-      <key>N</key>
-      <value>1024</value>
+      <key>alpha</key>
+      <value>mer_alpha</value>
     </param>
     <param>
       <key>alias</key>
@@ -1492,8 +1492,8 @@
   <block>
     <key>blocksat_mer_measurement</key>
     <param>
-      <key>N</key>
-      <value>1024</value>
+      <key>alpha</key>
+      <value>mer_alpha</value>
     </param>
     <param>
       <key>alias</key>
@@ -2842,6 +2842,49 @@
     <param>
       <key>value</key>
       <value>100</value>
+    </param>
+  </block>
+  <block>
+    <key>parameter</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(1848, 292)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>mer_alpha</value>
+    </param>
+    <param>
+      <key>label</key>
+      <value>the MER measurement averaging alpha, i.e. the weight coefficient of its exponential moving average IIR filter.</value>
+    </param>
+    <param>
+      <key>short_id</key>
+      <value></value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>eng_float</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>0.0001</value>
     </param>
   </block>
   <block>
