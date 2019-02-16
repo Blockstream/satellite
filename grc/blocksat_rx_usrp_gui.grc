@@ -1237,6 +1237,49 @@
     </param>
     <param>
       <key>_coordinate</key>
+      <value>(1856, 516)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>agc_rate</value>
+    </param>
+    <param>
+      <key>label</key>
+      <value>the update rate of the automatic gain control (AGC) loop.</value>
+    </param>
+    <param>
+      <key>short_id</key>
+      <value></value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>eng_float</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>1e-4</value>
+    </param>
+  </block>
+  <block>
+    <key>parameter</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
       <value>(1856, 196)</value>
     </param>
     <param>
@@ -1312,100 +1355,6 @@
     </param>
   </block>
   <block>
-    <key>blocks_divide_xx</key>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>comment</key>
-      <value>Automatic Gain Control</value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>1</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(544, 360)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>blocks_divide_xx_0</value>
-    </param>
-    <param>
-      <key>type</key>
-      <value>complex</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>num_inputs</key>
-      <value>2</value>
-    </param>
-    <param>
-      <key>vlen</key>
-      <value>1</value>
-    </param>
-  </block>
-  <block>
-    <key>blocks_float_to_complex</key>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>1</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(352, 392)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>blocks_float_to_complex_0</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>vlen</key>
-      <value>1</value>
-    </param>
-  </block>
-  <block>
     <key>blocks_keep_one_in_n</key>
     <param>
       <key>alias</key>
@@ -1457,11 +1406,7 @@
     </param>
   </block>
   <block>
-    <key>blocks_rms_xx</key>
-    <param>
-      <key>alpha</key>
-      <value>0.0001</value>
-    </param>
+    <key>blocksat_agc_cc</key>
     <param>
       <key>alias</key>
       <value></value>
@@ -1476,23 +1421,27 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>1</value>
+      <value>True</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(208, 404)</value>
+      <value>(320, 428)</value>
     </param>
     <param>
       <key>_rotation</key>
       <value>0</value>
     </param>
     <param>
-      <key>id</key>
-      <value>blocks_rms_xx_1</value>
+      <key>gain</key>
+      <value>1.0</value>
     </param>
     <param>
-      <key>type</key>
-      <value>complex</value>
+      <key>id</key>
+      <value>blocksat_agc_cc_0</value>
+    </param>
+    <param>
+      <key>max_gain</key>
+      <value>65536</value>
     </param>
     <param>
       <key>maxoutbuf</key>
@@ -1501,6 +1450,14 @@
     <param>
       <key>minoutbuf</key>
       <value>0</value>
+    </param>
+    <param>
+      <key>rate</key>
+      <value>agc_rate</value>
+    </param>
+    <param>
+      <key>reference</key>
+      <value>1.0</value>
     </param>
   </block>
   <block>
@@ -5158,7 +5115,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(728, 412)</value>
+      <value>(320, 324)</value>
     </param>
     <param>
       <key>gui_hint</key>
@@ -6497,7 +6454,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(360, 476)</value>
+      <value>(664, 620)</value>
     </param>
     <param>
       <key>gui_hint</key>
@@ -7103,7 +7060,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(24, 436)</value>
+      <value>(664, 516)</value>
     </param>
     <param>
       <key>gui_hint</key>
@@ -7111,7 +7068,7 @@
     </param>
     <param>
       <key>_rotation</key>
-      <value>180</value>
+      <value>0</value>
     </param>
     <param>
       <key>grid</key>
@@ -11654,7 +11611,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(48, 1712)</value>
+      <value>(24, 420)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -11864,7 +11821,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(728, 332)</value>
+      <value>(664, 436)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -11877,33 +11834,6 @@
     <param>
       <key>stream_id</key>
       <value>rx_norm_seq</value>
-    </param>
-  </block>
-  <block>
-    <key>virtual_sink</key>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>1</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(272, 1748)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>virtual_sink_2_0</value>
-    </param>
-    <param>
-      <key>stream_id</key>
-      <value>rx_seq</value>
     </param>
   </block>
   <block>
@@ -11958,33 +11888,6 @@
     <param>
       <key>stream_id</key>
       <value>payload_sym</value>
-    </param>
-  </block>
-  <block>
-    <key>virtual_source</key>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>1</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(32, 356)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>virtual_source_0</value>
-    </param>
-    <param>
-      <key>stream_id</key>
-      <value>rx_seq</value>
     </param>
   </block>
   <block>
@@ -12075,44 +11978,32 @@
     <sink_key>0</sink_key>
   </connection>
   <connection>
-    <source_block_id>blocks_divide_xx_0</source_block_id>
-    <sink_block_id>qtgui_freq_sink_agc_in</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>blocks_divide_xx_0</source_block_id>
-    <sink_block_id>virtual_sink_1</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>blocks_float_to_complex_0</source_block_id>
-    <sink_block_id>blocks_divide_xx_0</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>1</sink_key>
-  </connection>
-  <connection>
     <source_block_id>blocks_keep_one_in_n_0</source_block_id>
     <sink_block_id>qtgui_time_sink_fll_est_hist</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
   <connection>
-    <source_block_id>blocks_rms_xx_1</source_block_id>
-    <sink_block_id>blocks_float_to_complex_0</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>blocks_rms_xx_1</source_block_id>
+    <source_block_id>blocksat_agc_cc_0</source_block_id>
     <sink_block_id>qtgui_number_sink_signal_level</sink_block_id>
+    <source_key>1</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>blocksat_agc_cc_0</source_block_id>
+    <sink_block_id>qtgui_time_agc_rms_val</sink_block_id>
+    <source_key>1</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>blocksat_agc_cc_0</source_block_id>
+    <sink_block_id>qtgui_freq_sink_agc_in</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
   <connection>
-    <source_block_id>blocks_rms_xx_1</source_block_id>
-    <sink_block_id>qtgui_time_agc_rms_val</sink_block_id>
+    <source_block_id>blocksat_agc_cc_0</source_block_id>
+    <sink_block_id>virtual_sink_1</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
@@ -12310,24 +12201,12 @@
   </connection>
   <connection>
     <source_block_id>uhd_usrp_source_0</source_block_id>
-    <sink_block_id>virtual_sink_2_0</sink_block_id>
+    <sink_block_id>blocksat_agc_cc_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
   <connection>
-    <source_block_id>virtual_source_0</source_block_id>
-    <sink_block_id>blocks_divide_xx_0</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>virtual_source_0</source_block_id>
-    <sink_block_id>blocks_rms_xx_1</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>virtual_source_0</source_block_id>
+    <source_block_id>uhd_usrp_source_0</source_block_id>
     <sink_block_id>qtgui_freq_sink_agc_in</sink_block_id>
     <source_key>0</source_key>
     <sink_key>1</sink_key>

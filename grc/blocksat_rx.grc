@@ -893,26 +893,22 @@
     </param>
   </block>
   <block>
-    <key>blocks_divide_xx</key>
+    <key>parameter</key>
     <param>
       <key>alias</key>
       <value></value>
     </param>
     <param>
       <key>comment</key>
-      <value>Automatic Gain Control</value>
-    </param>
-    <param>
-      <key>affinity</key>
       <value></value>
     </param>
     <param>
       <key>_enabled</key>
-      <value>1</value>
+      <value>True</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(832, 440)</value>
+      <value>(1848, 388)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -920,70 +916,23 @@
     </param>
     <param>
       <key>id</key>
-      <value>blocks_divide_xx_0</value>
+      <value>agc_rate</value>
+    </param>
+    <param>
+      <key>label</key>
+      <value>the update rate of the automatic gain control (AGC) loop.</value>
+    </param>
+    <param>
+      <key>short_id</key>
+      <value></value>
     </param>
     <param>
       <key>type</key>
-      <value>complex</value>
+      <value>eng_float</value>
     </param>
     <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>num_inputs</key>
-      <value>2</value>
-    </param>
-    <param>
-      <key>vlen</key>
-      <value>1</value>
-    </param>
-  </block>
-  <block>
-    <key>blocks_float_to_complex</key>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>1</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(632, 488)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>blocks_float_to_complex_0</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>vlen</key>
-      <value>1</value>
+      <key>value</key>
+      <value>1e-4</value>
     </param>
   </block>
   <block>
@@ -1128,11 +1077,7 @@
     </param>
   </block>
   <block>
-    <key>blocks_rms_xx</key>
-    <param>
-      <key>alpha</key>
-      <value>0.0001</value>
-    </param>
+    <key>blocksat_agc_cc</key>
     <param>
       <key>alias</key>
       <value></value>
@@ -1147,23 +1092,27 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>1</value>
+      <value>True</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(496, 484)</value>
+      <value>(280, 420)</value>
     </param>
     <param>
       <key>_rotation</key>
       <value>0</value>
     </param>
     <param>
-      <key>id</key>
-      <value>blocks_rms_xx_1</value>
+      <key>gain</key>
+      <value>1.0</value>
     </param>
     <param>
-      <key>type</key>
-      <value>complex</value>
+      <key>id</key>
+      <value>blocksat_agc_cc_0</value>
+    </param>
+    <param>
+      <key>max_gain</key>
+      <value>65536</value>
     </param>
     <param>
       <key>maxoutbuf</key>
@@ -1172,6 +1121,14 @@
     <param>
       <key>minoutbuf</key>
       <value>0</value>
+    </param>
+    <param>
+      <key>rate</key>
+      <value>agc_rate</value>
+    </param>
+    <param>
+      <key>reference</key>
+      <value>1.0</value>
     </param>
   </block>
   <block>
@@ -4087,7 +4044,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(32, 316)</value>
+      <value>(32, 380)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -4374,7 +4331,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1008, 452)</value>
+      <value>(464, 428)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -4387,33 +4344,6 @@
     <param>
       <key>stream_id</key>
       <value>rx_norm_seq</value>
-    </param>
-  </block>
-  <block>
-    <key>virtual_sink</key>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>1</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(248, 380)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>virtual_sink_2_0_0</value>
-    </param>
-    <param>
-      <key>stream_id</key>
-      <value>rx_seq</value>
     </param>
   </block>
   <block>
@@ -4468,33 +4398,6 @@
     <param>
       <key>stream_id</key>
       <value>payload_sym</value>
-    </param>
-  </block>
-  <block>
-    <key>virtual_source</key>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>1</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(320, 436)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>virtual_source_0</value>
-    </param>
-    <param>
-      <key>stream_id</key>
-      <value>rx_seq</value>
     </param>
   </block>
   <block>
@@ -4579,20 +4482,8 @@
     </param>
   </block>
   <connection>
-    <source_block_id>blocks_divide_xx_0</source_block_id>
+    <source_block_id>blocksat_agc_cc_0</source_block_id>
     <sink_block_id>virtual_sink_1</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>blocks_float_to_complex_0</source_block_id>
-    <sink_block_id>blocks_divide_xx_0</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>1</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>blocks_rms_xx_1</source_block_id>
-    <sink_block_id>blocks_float_to_complex_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
@@ -4682,19 +4573,7 @@
   </connection>
   <connection>
     <source_block_id>rtlsdr_source_0</source_block_id>
-    <sink_block_id>virtual_sink_2_0_0</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>virtual_source_0</source_block_id>
-    <sink_block_id>blocks_divide_xx_0</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>virtual_source_0</source_block_id>
-    <sink_block_id>blocks_rms_xx_1</sink_block_id>
+    <sink_block_id>blocksat_agc_cc_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
