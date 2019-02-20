@@ -333,6 +333,33 @@
     </param>
     <param>
       <key>_coordinate</key>
+      <value>(8, 308)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>data_size</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>codeword_len*n_codewords/int(numpy.log2(const_order))</value>
+    </param>
+  </block>
+  <block>
+    <key>variable</key>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
       <value>(200, 116)</value>
     </param>
     <param>
@@ -373,6 +400,33 @@
     <param>
       <key>value</key>
       <value>2 * sym_rate * (1 + 1.5*excess_bw)</value>
+    </param>
+  </block>
+  <block>
+    <key>variable</key>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(336, 308)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>frame_size</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>preamble_size + payload_size</value>
     </param>
   </block>
   <block>
@@ -480,7 +534,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>codeword_len*n_codewords/int(numpy.log2(const_order))</value>
+      <value>data_size + tracking_size</value>
     </param>
   </block>
   <block>
@@ -751,6 +805,60 @@
     </param>
   </block>
   <block>
+    <key>variable</key>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(104, 308)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>tracking_interval</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>variable</key>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(232, 308)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>tracking_size</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
     <key>variable_tuning_control_def</key>
     <param>
       <key>cfo_rec</key>
@@ -778,7 +886,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(24, 336)</value>
+      <value>(24, 420)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -959,7 +1067,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(944, 756)</value>
+      <value>(944, 836)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1010,7 +1118,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1256, 648)</value>
+      <value>(1232, 728)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1057,7 +1165,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(944, 856)</value>
+      <value>(944, 936)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1104,7 +1212,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(584, 880)</value>
+      <value>(584, 960)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1147,7 +1255,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(520, 356)</value>
+      <value>(520, 436)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1205,12 +1313,20 @@
       <value>1/sqrt(2)</value>
     </param>
     <param>
+      <key>debug_stats</key>
+      <value>bool(preamble_stats)</value>
+    </param>
+    <param>
       <key>_enabled</key>
       <value>True</value>
     </param>
     <param>
+      <key>frame_len</key>
+      <value>frame_size</value>
+    </param>
+    <param>
       <key>_coordinate</key>
-      <value>(584, 752)</value>
+      <value>(584, 836)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1234,7 +1350,7 @@
     </param>
     <param>
       <key>data_aided</key>
-      <value>True</value>
+      <value>False</value>
     </param>
     <param>
       <key>preamble_syms</key>
@@ -1243,6 +1359,14 @@
     <param>
       <key>reset_per_frame</key>
       <value>(not bool(dapr_no_reset))</value>
+    </param>
+    <param>
+      <key>tracking_interval</key>
+      <value>tracking_interval</value>
+    </param>
+    <param>
+      <key>tracking_syms</key>
+      <value>[]</value>
     </param>
   </block>
   <block>
@@ -1273,7 +1397,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1040, 636)</value>
+      <value>(1040, 716)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1441,7 +1565,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(816, 552)</value>
+      <value>(816, 632)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1496,7 +1620,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(280, 560)</value>
+      <value>(280, 640)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1555,7 +1679,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(512, 560)</value>
+      <value>(512, 644)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1716,7 +1840,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(264, 776)</value>
+      <value>(264, 860)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -2456,6 +2580,49 @@
     <param>
       <key>value</key>
       <value>5201</value>
+    </param>
+  </block>
+  <block>
+    <key>parameter</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(1496, 340)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>preamble_stats</value>
+    </param>
+    <param>
+      <key>label</key>
+      <value>True to debug preamble MER and SER statistics.</value>
+    </param>
+    <param>
+      <key>short_id</key>
+      <value></value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>intx</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>0</value>
     </param>
   </block>
   <block>
@@ -3805,7 +3972,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(280, 316)</value>
+      <value>(280, 396)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -4049,7 +4216,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(696, 364)</value>
+      <value>(696, 444)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -4076,7 +4243,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1040, 548)</value>
+      <value>(1040, 628)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -4103,7 +4270,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(24, 604)</value>
+      <value>(24, 684)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -4130,7 +4297,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(24, 836)</value>
+      <value>(24, 916)</value>
     </param>
     <param>
       <key>_rotation</key>

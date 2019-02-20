@@ -387,6 +387,33 @@
     </param>
     <param>
       <key>_coordinate</key>
+      <value>(624, 308)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>data_size</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>codeword_len*n_codewords/int(numpy.log2(const_order))</value>
+    </param>
+  </block>
+  <block>
+    <key>variable</key>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
       <value>(544, 116)</value>
     </param>
     <param>
@@ -468,7 +495,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(784, 244)</value>
+      <value>(952, 308)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -615,7 +642,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>codeword_len*n_codewords/int(numpy.log2(const_order))</value>
+      <value>data_size + tracking_size</value>
     </param>
   </block>
   <block>
@@ -953,6 +980,60 @@
     <param>
       <key>value</key>
       <value>156250 if (modulation == "qpsk") else 312500</value>
+    </param>
+  </block>
+  <block>
+    <key>variable</key>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(720, 308)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>tracking_interval</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>variable</key>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(848, 308)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>tracking_size</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>0</value>
     </param>
   </block>
   <block>
@@ -1359,8 +1440,16 @@
       <value>1/sqrt(2)</value>
     </param>
     <param>
+      <key>debug_stats</key>
+      <value>bool(preamble_stats)</value>
+    </param>
+    <param>
       <key>_enabled</key>
       <value>True</value>
+    </param>
+    <param>
+      <key>frame_len</key>
+      <value>frame_size</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -1388,7 +1477,7 @@
     </param>
     <param>
       <key>data_aided</key>
-      <value>True</value>
+      <value>False</value>
     </param>
     <param>
       <key>preamble_syms</key>
@@ -1397,6 +1486,14 @@
     <param>
       <key>reset_per_frame</key>
       <value>(not bool(dapr_no_reset))</value>
+    </param>
+    <param>
+      <key>tracking_interval</key>
+      <value>tracking_interval</value>
+    </param>
+    <param>
+      <key>tracking_syms</key>
+      <value>[]</value>
     </param>
   </block>
   <block>
@@ -1791,7 +1888,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1512, 340)</value>
+      <value>(1664, 340)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -3143,6 +3240,49 @@
     <param>
       <key>value</key>
       <value>2*pi/50</value>
+    </param>
+  </block>
+  <block>
+    <key>parameter</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(1512, 340)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>preamble_stats</value>
+    </param>
+    <param>
+      <key>label</key>
+      <value>True to debug preamble MER and SER statistics.</value>
+    </param>
+    <param>
+      <key>short_id</key>
+      <value></value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>intx</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>0</value>
     </param>
   </block>
   <block>
