@@ -93,88 +93,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(176, 244)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>barker_code</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>barker_code_two_dim if (modulation == "qpsk") else barker_code_one_dim</value>
-    </param>
-  </block>
-  <block>
-    <key>variable</key>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>1</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(8, 244)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>barker_code_one_dim</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>sqrt(2)*numpy.real([-1.0000 - 1.0000j, -1.0000 - 1.0000j, -1.0000 - 1.0000j, -1.0000 - 1.0000j, -1.0000 - 1.0000j,  1.0000 + 1.0000j,  1.0000 + 1.0000j, -1.0000 - 1.0000j, -1.0000 - 1.0000j,  1.0000 + 1.0000j, -1.0000 - 1.0000j,  1.0000 + 1.0000j, -1.0000 - 1.0000j])</value>
-    </param>
-  </block>
-  <block>
-    <key>variable</key>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>1</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(8, 180)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>barker_code_two_dim</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>[-1.0000 - 1.0000j, -1.0000 - 1.0000j, -1.0000 - 1.0000j, -1.0000 - 1.0000j, -1.0000 - 1.0000j,  1.0000 + 1.0000j,  1.0000 + 1.0000j, -1.0000 - 1.0000j, -1.0000 - 1.0000j,  1.0000 + 1.0000j, -1.0000 - 1.0000j,  1.0000 + 1.0000j, -1.0000 - 1.0000j]</value>
-    </param>
-  </block>
-  <block>
-    <key>variable</key>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(344, 180)</value>
+      <value>(440, 244)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -213,7 +132,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(456, 244)</value>
+      <value>(16, 180)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -248,11 +167,11 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>True</value>
+      <value>1</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(680, 116)</value>
+      <value>(448, 116)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -279,7 +198,34 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(832, 244)</value>
+      <value>(408, 308)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>coded_phy_bit_rate</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>uncoded_phy_bit_rate * code_rate</value>
+    </param>
+  </block>
+  <block>
+    <key>variable</key>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(336, 116)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -291,7 +237,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>18444</value>
+      <value>int(dataword_len * (1.0/target_code_rate) + 12)</value>
     </param>
   </block>
   <block>
@@ -306,7 +252,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(712, 180)</value>
+      <value>(504, 180)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -333,7 +279,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(616, 244)</value>
+      <value>(336, 180)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -360,7 +306,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(312, 116)</value>
+      <value>(16, 244)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -368,88 +314,7 @@
     </param>
     <param>
       <key>id</key>
-      <value>dataword_len</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>6144</value>
-    </param>
-  </block>
-  <block>
-    <key>variable</key>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(352, 244)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>n_barker_rep</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>10</value>
-    </param>
-  </block>
-  <block>
-    <key>variable</key>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(576, 116)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>n_codewords</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>1</value>
-    </param>
-  </block>
-  <block>
-    <key>variable</key>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(208, 116)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>payload_size</value>
+      <value>data_size</value>
     </param>
     <param>
       <key>value</key>
@@ -476,11 +341,11 @@
     </param>
     <param>
       <key>id</key>
-      <value>phy_bit_rate</value>
+      <value>dataword_len</value>
     </param>
     <param>
       <key>value</key>
-      <value>sym_rate* ( constellation_obj.bits_per_symbol() ) * (code_rate) * (1.-phy_preamble_overhead)</value>
+      <value>6144</value>
     </param>
   </block>
   <block>
@@ -495,7 +360,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(416, 116)</value>
+      <value>(752, 244)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -503,11 +368,11 @@
     </param>
     <param>
       <key>id</key>
-      <value>phy_preamble_overhead</value>
+      <value>frame_size</value>
     </param>
     <param>
       <key>value</key>
-      <value>1.0* preamble_size / (preamble_size + payload_size)</value>
+      <value>preamble_size + payload_size</value>
     </param>
   </block>
   <block>
@@ -522,7 +387,115 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(440, 180)</value>
+      <value>(536, 244)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>n_barker_rep</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>10</value>
+    </param>
+  </block>
+  <block>
+    <key>variable</key>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(560, 116)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>n_codewords</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>1</value>
+    </param>
+  </block>
+  <block>
+    <key>variable</key>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(336, 244)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>payload_size</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>data_size + tracking_size</value>
+    </param>
+  </block>
+  <block>
+    <key>variable</key>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(144, 308)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>phy_overhead</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>float(preamble_size + tracking_size) / frame_size</value>
+    </param>
+  </block>
+  <block>
+    <key>variable</key>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(640, 244)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -534,34 +507,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>len(preamble_syms)</value>
-    </param>
-  </block>
-  <block>
-    <key>variable</key>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(168, 180)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>preamble_syms</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>numpy.matlib.repmat(barker_code, 1, n_barker_rep)[0]</value>
+      <value>barker_len * n_barker_rep</value>
     </param>
   </block>
   <block>
@@ -588,7 +534,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(552, 180)</value>
+      <value>(176, 180)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -627,7 +573,34 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(8, 116)</value>
+      <value>(16, 308)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>raw_phy_bit_rate</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>sym_rate* ( constellation_obj.bits_per_symbol() )</value>
+    </param>
+  </block>
+  <block>
+    <key>variable</key>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(16, 116)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -639,7 +612,115 @@
     </param>
     <param>
       <key>value</key>
-      <value>156250 if (modulation == "qpsk") else 312500</value>
+      <value>250e3</value>
+    </param>
+  </block>
+  <block>
+    <key>variable</key>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(208, 116)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>target_code_rate</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>1.0/2</value>
+    </param>
+  </block>
+  <block>
+    <key>variable</key>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(104, 244)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>tracking_interval</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>variable</key>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(232, 244)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>tracking_size</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>variable</key>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(256, 308)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>uncoded_phy_bit_rate</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>sym_rate* ( constellation_obj.bits_per_symbol() ) * (1.-phy_overhead)</value>
     </param>
   </block>
   <block>
@@ -670,7 +751,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(944, 116)</value>
+      <value>(864, 116)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -733,7 +814,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(8, 468)</value>
+      <value>(8, 564)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -788,7 +869,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(792, 348)</value>
+      <value>(792, 444)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -835,7 +916,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(168, 484)</value>
+      <value>(168, 580)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -902,7 +983,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1160, 452)</value>
+      <value>(1160, 548)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -949,7 +1030,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(368, 476)</value>
+      <value>(368, 572)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -992,7 +1073,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(608, 460)</value>
+      <value>(608, 556)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1015,8 +1096,8 @@
       <value>0</value>
     </param>
     <param>
-      <key>N</key>
-      <value>codeword_len</value>
+      <key>pct_en</key>
+      <value>target_code_rate == 0.5</value>
     </param>
     <param>
       <key>K</key>
@@ -1039,7 +1120,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1296, 4)</value>
+      <value>(1216, 4)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1086,7 +1167,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(808, 468)</value>
+      <value>(808, 564)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1137,7 +1218,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(968, 484)</value>
+      <value>(968, 580)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1269,7 +1350,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(944, 4)</value>
+      <value>(864, 4)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1293,7 +1374,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>"qpsk"</value>
+      <value>"bpsk"</value>
     </param>
   </block>
   <block>
@@ -1312,7 +1393,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1128, 100)</value>
+      <value>(1048, 100)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1355,7 +1436,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1128, 196)</value>
+      <value>(1048, 196)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1453,7 +1534,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(368, 396)</value>
+      <value>(368, 492)</value>
     </param>
     <param>
       <key>gui_hint</key>
@@ -1808,7 +1889,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(608, 564)</value>
+      <value>(608, 660)</value>
     </param>
     <param>
       <key>gui_hint</key>
@@ -2084,7 +2165,7 @@
     </param>
     <param>
       <key>srate</key>
-      <value>phy_bit_rate * (1/code_rate)</value>
+      <value>uncoded_phy_bit_rate</value>
     </param>
     <param>
       <key>stemplot</key>
@@ -2175,7 +2256,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(584, 324)</value>
+      <value>(584, 420)</value>
     </param>
     <param>
       <key>gui_hint</key>
@@ -2451,7 +2532,7 @@
     </param>
     <param>
       <key>srate</key>
-      <value>phy_bit_rate</value>
+      <value>coded_phy_bit_rate</value>
     </param>
     <param>
       <key>stemplot</key>
@@ -2565,7 +2646,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(808, 164)</value>
+      <value>(864, 324)</value>
     </param>
     <param>
       <key>gui_hint</key>
@@ -2680,7 +2761,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1128, 4)</value>
+      <value>(1048, 4)</value>
     </param>
     <param>
       <key>_rotation</key>
