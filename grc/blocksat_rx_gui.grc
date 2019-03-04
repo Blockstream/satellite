@@ -6234,7 +6234,7 @@
     </param>
     <param>
       <key>min</key>
-      <value>3</value>
+      <value>0</value>
     </param>
     <param>
       <key>name</key>
@@ -6465,7 +6465,7 @@
     </param>
     <param>
       <key>min</key>
-      <value>3</value>
+      <value>0</value>
     </param>
     <param>
       <key>name</key>
