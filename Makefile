@@ -65,8 +65,8 @@ build/%.py: grc/%.grc
 	'dest=\"no_blocks\", type=\"intx\", default=0/'\
 	'dest=\"no_blocks\", action=\"store_true\", default=False/g' $@
 	@sed -i 's/'\
-	'dest=\"dapr_no_reset\", type=\"intx\", default=0/'\
-	'dest=\"dapr_no_reset\", action=\"store_true\", default=False/g' $@
+	'dest=\"dapr_en_reset\", type=\"intx\", default=0/'\
+	'dest=\"dapr_en_reset\", action=\"store_true\", default=False/g' $@
 	@sed -i 's/'\
 	'dest=\"fs_no_eq\", type=\"intx\", default=0/'\
 	'dest=\"fs_no_eq\", action=\"store_true\", default=False/g' $@

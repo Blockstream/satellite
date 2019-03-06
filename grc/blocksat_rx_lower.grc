@@ -1358,7 +1358,7 @@
     </param>
     <param>
       <key>reset_per_frame</key>
-      <value>(not bool(dapr_no_reset))</value>
+      <value>bool(dapr_en_reset)</value>
     </param>
     <param>
       <key>tracking_interval</key>
@@ -1526,11 +1526,11 @@
     </param>
     <param>
       <key>id</key>
-      <value>dapr_no_reset</value>
+      <value>dapr_en_reset</value>
     </param>
     <param>
       <key>label</key>
-      <value>True to prevent per-frame reset of DA phase recovery state.</value>
+      <value>True to enable per-frame reset of DA phase recovery state.</value>
     </param>
     <param>
       <key>short_id</key>
