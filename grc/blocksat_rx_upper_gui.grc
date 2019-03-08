@@ -93,7 +93,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(440, 244)</value>
+      <value>(560, 244)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -360,7 +360,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(752, 244)</value>
+      <value>(872, 244)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -387,7 +387,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(536, 244)</value>
+      <value>(656, 244)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -441,7 +441,34 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(336, 244)</value>
+      <value>(232, 244)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>n_tracking_seqs</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>0 if tracking_interval == 0 else floor((data_size - 1) / tracking_interval)</value>
+    </param>
+  </block>
+  <block>
+    <key>variable</key>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(456, 244)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -495,7 +522,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(640, 244)</value>
+      <value>(760, 244)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -666,7 +693,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>0</value>
+      <value>1440</value>
     </param>
   </block>
   <block>
@@ -681,7 +708,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(232, 244)</value>
+      <value>(352, 244)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -693,7 +720,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>0</value>
+      <value>int(n_tracking_seqs * 32)</value>
     </param>
   </block>
   <block>
@@ -751,7 +778,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(864, 116)</value>
+      <value>(984, 116)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1120,7 +1147,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1216, 4)</value>
+      <value>(1336, 4)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1350,7 +1377,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(864, 4)</value>
+      <value>(984, 4)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1393,7 +1420,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1048, 100)</value>
+      <value>(1168, 100)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1436,7 +1463,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1048, 196)</value>
+      <value>(1168, 196)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -2646,7 +2673,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(864, 324)</value>
+      <value>(984, 324)</value>
     </param>
     <param>
       <key>gui_hint</key>
@@ -2761,7 +2788,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1048, 4)</value>
+      <value>(1168, 4)</value>
     </param>
     <param>
       <key>_rotation</key>
