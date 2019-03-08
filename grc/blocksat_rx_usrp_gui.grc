@@ -174,7 +174,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(440, 244)</value>
+      <value>(552, 244)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -522,7 +522,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(752, 244)</value>
+      <value>(864, 244)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -576,7 +576,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(536, 244)</value>
+      <value>(648, 244)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -657,7 +657,34 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(336, 244)</value>
+      <value>(224, 244)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>n_tracking_seqs</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>0 if tracking_interval == 0 else floor((data_size - 1) / tracking_interval)</value>
+    </param>
+  </block>
+  <block>
+    <key>variable</key>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(448, 244)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -711,7 +738,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(640, 244)</value>
+      <value>(752, 244)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1048,7 +1075,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(104, 244)</value>
+      <value>(96, 244)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1060,7 +1087,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>0</value>
+      <value>1440</value>
     </param>
   </block>
   <block>
@@ -1075,7 +1102,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(232, 244)</value>
+      <value>(344, 244)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1087,7 +1114,88 @@
     </param>
     <param>
       <key>value</key>
+      <value>int(n_tracking_seqs * len(tracking_syms))</value>
+    </param>
+  </block>
+  <block>
+    <key>variable</key>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(672, 372)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
       <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>tracking_syms</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>tracking_syms_two_dim if (modulation == "qpsk") else tracking_syms_one_dim</value>
+    </param>
+  </block>
+  <block>
+    <key>variable</key>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(352, 372)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>tracking_syms_one_dim</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>[(-1 + 0j), (-1 + 0j), (-1 + 0j), (-1 + 0j), (-1 + 0j), (+1 + 0j), (-1 + 0j), (+1 + 0j), (+1 + 0j), (+1 + 0j), (-1 + 0j), (-1 + 0j), (-1 + 0j), (+1 + 0j), (+1 + 0j), (-1 + 0j), (+1 + 0j), (+1 + 0j), (-1 + 0j), (-1 + 0j), (+1 + 0j), (-1 + 0j), (-1 + 0j), (+1 + 0j), (-1 + 0j), (-1 + 0j), (-1 + 0j), (-1 + 0j), (+1 + 0j), (-1 + 0j), (+1 + 0j), (-1 + 0j)]</value>
+    </param>
+  </block>
+  <block>
+    <key>variable</key>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(512, 372)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>tracking_syms_two_dim</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>[ (1.0/sqrt(2))*x for x in [(-1 + 1j), (-1 + 1j), (-1 + 1j), (-1 + 1j), (-1 + 1j), (+1 - 1j), (-1 + 1j), (+1 - 1j), (+1 - 1j), (+1 - 1j), (-1 + 1j), (-1 + 1j), (-1 + 1j), (+1 - 1j), (+1 - 1j), (-1 + 1j), (+1 - 1j), (+1 - 1j), (-1 + 1j), (-1 + 1j), (+1 - 1j), (-1 + 1j), (-1 + 1j), (+1 - 1j), (-1 + 1j), (-1 + 1j), (-1 + 1j), (-1 + 1j), (+1 - 1j), (-1 + 1j), (+1 - 1j), (-1 + 1j)]]</value>
     </param>
   </block>
   <block>
@@ -1698,7 +1806,7 @@
     </param>
     <param>
       <key>tracking_syms</key>
-      <value>[]</value>
+      <value>tracking_syms</value>
     </param>
   </block>
   <block>
