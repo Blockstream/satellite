@@ -7,26 +7,18 @@ In order to set up your receiver system, please read the following information
 carefully. For additional help, go to the #blockstream-satellite IRC channel on
 freenode.
 
-## Update on Jan 16th 2019
+## Update on Mar 11, 2019
 
-**IMPORTANT:** Please note that the Blockstream Satellite network was updated on
-January 16th 2019. From this date on, the required Blockstream Satellite
-receiver version is greater than or equal to `v1.1.0` and Bitcoin FIBRE should
-be the version in [the master
+**IMPORTANT:** Please note that the Blockstream Satellite network was updated
+with backwards incompatible changes on March 11, 2019. From this date on, the
+required Blockstream Satellite receiver version is greater than or equal to
+`v1.3.0`. Meanwhile, Bitcoin FIBRE should be the version from [the master
 branch](https://github.com/bitcoinfibre/bitcoinfibre/tree/master).
 
-**NOTE:** If you are still using the blocksat receiver application version
-`v1.0.0` installed via binary package, you now need to launch it with the
-command-line argument `--version 2`. That is, you need to run:
-
-```bash
-blocksat-rx ...  --version 2
-```
-where `...` represents the other arguments that you use normally.
-
-The `--version 2` argument specifies that the packetization protocol embeded
-within satellite-transmitted frames is now version 2 and supports the [Satellite
-API](#satellite-api). From version `v1.1.0` onward, this is the default choice.
+The update involves changes to the modulation scheme, channel coding and
+transmission bandwidth. These are expected to improve reliability under low
+signal to noise ratio (SNR) and improve throughput by approximately 18%. More
+information can be found within the v1.3.0 release notes.
 
 # Getting Started
 
