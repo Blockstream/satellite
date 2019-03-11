@@ -133,6 +133,23 @@ where `filename` is the path to the file you want to send.
 Subsequently, get the *Lightning Invoice Number* that was printed by the API
 data sender on the console and pay.
 
+By default, the above command sends the transmission request to the API server
+that handles live broadcasting via the Blockstream Satellite network. This
+server operates in Mainnet and thus the payment requires actual
+bitcoins. However, for developers/testers/experimenters, there is an alternative
+API server that operates in Testnet. You can send the transmission request to
+the Testnet server, using:
+
+```
+./api_data_sender.py --net test -f filename
+```
+
+Do note however that the Testnet server does not transmit data through the
+satellite network. It only broadcasts the data to clients that are connected
+directly to the server through the Internet. Hence, the way to receive Testnet
+data is with the demo receiver of [Example
+3](#example-3-receiving-data-from-the-api-sandbox)).
+
 Once the API server effectively transmits your data, the data is expected to pop
 at the API data reader application. In the end, the received file will be saved
 in the `downloads` folder.
@@ -186,6 +203,12 @@ Next, send some data using:
 
 Note that the `--send-raw` flag means that the data is sent as it is, without
 any additional protocol framing.
+
+Again, to use the Testnet server instead, run:
+
+```
+./api_data_sender.py --net test -f filename --send-raw
+```
 
 Once the Blocksat receiver outputs your data into the API output pipe, the
 reader will receive this data and retrieve the file.
@@ -249,8 +272,9 @@ demo receiver:
 ```
 
 This application will continuously wait for data broadcast directly by the API
-and then it will output the data to the same named pipe that the Blockstream
-Satellite receiver would use, namely the pipe file at `/tmp/blocksat/api`.
+over the Internet and then it will output the data to the same named pipe that
+the Blockstream Satellite receiver would use, namely the pipe file at
+`/tmp/blocksat/api`.
 
 > NOTE: in case you want to concurrently run both the actual `blocksat-rx`
 > receiver application and the demo receiver, you will need to use another named
@@ -272,6 +296,20 @@ in the data reader.
 
 ```
 ./api_data_sender.py -f filename
+```
+
+If instead of sending to the Mainnet server, the goal is to send to the Testnet
+server, run:
+
+```
+./api_data_sender.py --net test -f filename
+```
+
+In this case, the Demo receiver also needs to be listening to the Testnet
+server. That is, it needs to be launched as follows:
+
+```
+./demo-rx.py --net test
 ```
 
 ## Further Information

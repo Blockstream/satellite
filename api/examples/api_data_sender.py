@@ -195,10 +195,15 @@ def main():
     parser.add_argument('-p', '--port',
                         default=None,
                         help='Satellite API server port (default: None)')
-    parser.add_argument('-s', '--server',
-                        default='https://satellite.blockstream.com',
-                        help='Satellite API server address (default: ' +
-                        'https://satellite.blockstream.com)')
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument('--net', choices=['main', 'test'],
+                       default=None,
+                       help='Choose Mainnet (main) or Testnet (test) ' +
+                       'Satellite API (default: main)')
+    group.add_argument('-s', '--server',
+                       default='https://api.blockstream.space',
+                       help='Satellite API server address (default: ' +
+                       'https://api.blockstream.space)')
     parser.add_argument('--send-raw', default=False,
                         action="store_true",
                         help='Send file directly, without any user-specific ' +
@@ -216,6 +221,7 @@ def main():
     gnupghome   = args.gnupghome
     port        = args.port
     server      = args.server
+    net         = args.net
     send_raw    = args.send_raw
 
     # Switch debug level
@@ -223,14 +229,16 @@ def main():
         logging.basicConfig(stream=sys.stderr, level=logging.DEBUG)
         logging.debug('[Debug Mode]')
 
+    if (net is not None and net == "main"):
+        server = "https://api.blockstream.space"
+    elif (net is not None and net == "test"):
+        server = "https://api.blockstream.space/testnet"
+
     # Process the server address
     server_addr = server
 
     if (port is not None):
         server_addr = server + ":" + port
-
-    if (server_addr == 'https://satellite.blockstream.com'):
-        server_addr += '/api'
 
     # Check if bump or delete
     if (args.bump or args.delete):
@@ -300,7 +308,8 @@ def main():
                           files={'file': msg_data})
 
         # In case of failure, check the API error message
-        if (r.status_code != requests.codes.ok):
+        if (r.status_code != requests.codes.ok and
+            r.headers['content-type'] == "application/json"):
             if "errors" in r.json():
                 for error in r.json()["errors"]:
                     print("ERROR: " + error["title"] + "\n" + error["detail"])

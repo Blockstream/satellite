@@ -134,21 +134,32 @@ def main():
     parser.add_argument('-p', '--port',
                         default=None,
                         help='Satellite API server port (default: None)')
-    parser.add_argument('-s', '--server',
-                        default='https://satellite.blockstream.com',
-                        help='Satellite API server address (default: ' +
-                        'https://satellite.blockstream.com)')
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument('--net', choices=['main', 'test'],
+                       default=None,
+                       help='Choose Mainnet (main) or Testnet (test) ' +
+                       'Satellite API (default: main)')
+    group.add_argument('-s', '--server',
+                       default='https://api.blockstream.space',
+                       help='Satellite API server address (default: ' +
+                       'https://api.blockstream.space)')
     parser.add_argument('--debug', action='store_true',
                         help='Debug mode (default: false)')
     args        = parser.parse_args()
     pipe_file   = args.file
     port        = args.port
     server      = args.server
+    net         = args.net
 
     # Switch debug level
     if (args.debug):
         logging.basicConfig(stream=sys.stderr, level=logging.DEBUG)
         logging.debug('[Debug Mode]')
+
+    if (net is not None and net == "main"):
+        server = "https://api.blockstream.space"
+    elif (net is not None and net == "test"):
+        server = "https://api.blockstream.space/testnet"
 
     # Process the server address
     server_addr = server
@@ -165,13 +176,15 @@ def main():
     # Always keep a record of the last received sequence number
     last_seq_num = None
 
-    print("Waiting for events...\n")
+    print("Connecting with Satellite API server...")
     while (True):
         try:
             # Server-side Event Client
-            client = sseclient.SSEClient(requests.get(server_addr +
-                                                      "/subscribe/transmissions",
-                                                      stream=True))
+            r = requests.get(server_addr + "/subscribe/transmissions",
+                             stream=True)
+            r.raise_for_status()
+            client = sseclient.SSEClient(r)
+            print("Connected. Waiting for events...\n")
 
             # Continuously wait for events
             for event in client.events():
