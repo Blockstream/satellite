@@ -684,13 +684,13 @@ location of `gr-framers` and `gr-blocksat`. Usually
    (vary the azimuth angle), until you begin to see a pattern that looks like
    this:
 
-![Spectrum Found](doc/spectrum_found.png?raw=true "Spectrum Found")
+![Spectrum Found](doc/spectrum_found_bpsk.png?raw=true "Spectrum Found")
 
 Notice in the spectrum plot that some energy is appearing within the range of
 frequencies that is under observation. Ideally you would see the prominent
 energy as a flat level spanning a frequency band (in the horizontal axis) of
-approximately 200 kHz, which corresponds to Blockstream Satellite's system
-bandwidth.
+approximately 250 kHz, which corresponds to Blockstream Satellite's nominal
+system bandwidth.
 
 **Still not found?** Try adjusting the elevation.
 
@@ -712,7 +712,7 @@ bandwidth.
    frequency. In the spectrum plot, this translates into the spectrum being
    centralized (around 0 Hz):
 
-![Coarse Frequency Correction](doc/spectrum_found_freq_corrected.png?raw=true "Coarse Frequency Correction")
+![Coarse Frequency Correction](doc/spectrum_found_freq_corrected_bpsk.png?raw=true "Coarse Frequency Correction")
 
 You can also get frequency correction information from the console logs, which
 will display a message following the pattern that follows:
@@ -736,7 +736,7 @@ will display a message following the pattern that follows:
    observe the plot entitled **"Frame Timing Metric"**. You should expect to see
    a clear peak there, as follows:
 
-![Frame Timing Metric](doc/frame_sync_found_timing_metric.png?raw=true "Frame Timing Metric")
+![Frame Timing Metric](doc/frame_sync_found_timing_metric_bpsk.png?raw=true "Frame Timing Metric")
 
 The peak should be strong and, importantly, it should remain in place. It can be
 in any position, but it must remain in the same position for the system to be
@@ -763,26 +763,27 @@ periodically in the console:
 If frame synchronization is not yet acquired, subtly adjust the azimuth,
 elevation and/or rotation of your LNB until you achieve improvements.
 
-5. Now switch to the `Phase Sync` page. You should see a constellation of 4
-point clouds. The more compact the point clouds are, the better your signal
-quality:
+5. Now switch to the `Phase Sync` page. You should see a constellation composed
+by two clouds of points, one close to "-1" and the other close to "+1". The more
+compact the point clouds are, the better your signal quality:
 
-![Constellation Diagram](doc/costs_loop_syms_found.png?raw=true "Constellation")
+![Constellation Diagram](doc/costas_loop_syms_found_bpsk.png?raw=true "Constellation")
 
 The higher the SNR, the more concentrated the clouds are. Hence, the next step
 is to try to optimize the SNR.
 
 To do so, first go back to `Freq. Sync` tab in the GUI. Prepare to keep an eye
-on the Blockstream Satellite signal (the 200 KHz flat level) while concurrently
+on the Blockstream Satellite signal (the 250 KHz flat level) while concurrently
 observing the SNR measurements displayed in the console. Then, make very gentle
 changes to elevation, azimuth and/or LNB skew. You should look for the logs in
 the console as the ones below. Try to get the best SNR value you can.
 
 ```
-[Timestamp] SNR [===================                     ] 8.9559 dB
-[Timestamp] SNR [===================                     ] 8.9760 dB
-[Timestamp] SNR [===================                     ] 9.0228 dB
-[Timestamp] SNR [===================                     ] 9.0793 dB
+[Timestamp] SNR [================                        ] 7.4401 dB
+[Timestamp] SNR [================                        ] 7.5041 dB
+[Timestamp] SNR [================                        ] 7.3762 dB
+[Timestamp] SNR [================                        ] 7.3644 dB
+[Timestamp] SNR [================                        ] 7.4068 dB
 ```
 
 6. Lastly, with the antenna fixed, we recommend performing some quick
