@@ -68,8 +68,11 @@ build/%.py: grc/%.grc
 	'dest=\"dapr_en_reset\", type=\"intx\", default=0/'\
 	'dest=\"dapr_en_reset\", action=\"store_true\", default=False/g' $@
 	@sed -i 's/'\
-	'dest=\"fs_eq\", type=\"intx\", default=0/'\
-	'dest=\"fs_eq\", action=\"store_true\", default=False/g' $@
+	'dest=\"fs_debug\", type=\"intx\", default=0/'\
+	'dest=\"fs_debug\", action=\"store_true\", default=False/g' $@
+	@sed -i 's/'\
+	'dest=\"cfo_debug\", type=\"intx\", default=0/'\
+	'dest=\"cfo_debug\", action=\"store_true\", default=False/g' $@
 	@sed -i 's/'\
 	'dest=\"fs_no_phase_corr\", type=\"intx\", default=0/'\
 	'dest=\"fs_no_phase_corr\", action=\"store_true\", default=False/g' $@

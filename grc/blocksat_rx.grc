@@ -93,7 +93,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(336, 308)</value>
+      <value>(328, 308)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -132,7 +132,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>sqrt(2)*numpy.real([-1.0000 - 1.0000j, -1.0000 - 1.0000j, -1.0000 - 1.0000j, -1.0000 - 1.0000j, -1.0000 - 1.0000j,  1.0000 + 1.0000j,  1.0000 + 1.0000j, -1.0000 - 1.0000j, -1.0000 - 1.0000j,  1.0000 + 1.0000j, -1.0000 - 1.0000j,  1.0000 + 1.0000j, -1.0000 - 1.0000j])</value>
+      <value>numpy.real([-1.0000 - 1.0000j, -1.0000 - 1.0000j, -1.0000 - 1.0000j, -1.0000 - 1.0000j, -1.0000 - 1.0000j,  1.0000 + 1.0000j,  1.0000 + 1.0000j, -1.0000 - 1.0000j, -1.0000 - 1.0000j,  1.0000 + 1.0000j, -1.0000 - 1.0000j,  1.0000 + 1.0000j, -1.0000 - 1.0000j])</value>
     </param>
   </block>
   <block>
@@ -159,7 +159,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>[-1.0000 - 1.0000j, -1.0000 - 1.0000j, -1.0000 - 1.0000j, -1.0000 - 1.0000j, -1.0000 - 1.0000j,  1.0000 + 1.0000j,  1.0000 + 1.0000j, -1.0000 - 1.0000j, -1.0000 - 1.0000j,  1.0000 + 1.0000j, -1.0000 - 1.0000j,  1.0000 + 1.0000j, -1.0000 - 1.0000j]</value>
+      <value>[ x*(1.0/sqrt(2)) for x in [-1.0000 - 1.0000j, -1.0000 - 1.0000j, -1.0000 - 1.0000j, -1.0000 - 1.0000j, -1.0000 - 1.0000j,  1.0000 + 1.0000j,  1.0000 + 1.0000j, -1.0000 - 1.0000j, -1.0000 - 1.0000j,  1.0000 + 1.0000j, -1.0000 - 1.0000j,  1.0000 + 1.0000j, -1.0000 - 1.0000j]]</value>
     </param>
   </block>
   <block>
@@ -441,33 +441,6 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(944, 116)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>fll_pull_in_range</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>2 * sym_rate * (1 + 1.5*excess_bw)</value>
-    </param>
-  </block>
-  <block>
-    <key>variable</key>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
       <value>(864, 244)</value>
     </param>
     <param>
@@ -657,7 +630,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(512, 308)</value>
+      <value>(504, 308)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -802,33 +775,6 @@
     <param>
       <key>value</key>
       <value>sym_rate * sps</value>
-    </param>
-  </block>
-  <block>
-    <key>variable</key>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(848, 116)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>scan_range</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>round(n_scan_iterations * fll_pull_in_range) if scan_mode else 0</value>
     </param>
   </block>
   <block>
@@ -1024,23 +970,23 @@
     <key>variable_tuning_control_def</key>
     <param>
       <key>cfo_rec</key>
-      <value>None</value>
+      <value>self.blocksat_ffw_coarse_freq_req_cc_0</value>
     </param>
     <param>
       <key>comment</key>
       <value></value>
     </param>
     <param>
+      <key>M</key>
+      <value>int(const_order)</value>
+    </param>
+    <param>
       <key>_enabled</key>
       <value>True</value>
     </param>
     <param>
-      <key>fll</key>
-      <value>self.digital_fll_band_edge_cc_1</value>
-    </param>
-    <param>
       <key>frame_synchronizer</key>
-      <value>self.frame_synchronizer_0.blocksat_frame_sync_fast_0</value>
+      <value>self.blocksat_frame_synchronizer_cc_0</value>
     </param>
     <param>
       <key>freq_gui_label</key>
@@ -1067,10 +1013,6 @@
       <value>self.variable_rx_logger_0</value>
     </param>
     <param>
-      <key>nco</key>
-      <value>None</value>
-    </param>
-    <param>
       <key>n_steps</key>
       <value>n_scan_iterations</value>
     </param>
@@ -1091,15 +1033,15 @@
       <value>scan_interval</value>
     </param>
     <param>
-      <key>scan_range</key>
-      <value>scan_range</value>
+      <key>scan_mode</key>
+      <value>bool(scan_mode)</value>
     </param>
   </block>
   <block>
     <key>variable_rx_logger</key>
     <param>
       <key>cfo_rec</key>
-      <value>self.digital_fll_band_edge_cc_1</value>
+      <value>self.blocksat_ffw_coarse_freq_req_cc_0</value>
     </param>
     <param>
       <key>comment</key>
@@ -1119,7 +1061,7 @@
     </param>
     <param>
       <key>frame_synchronizer</key>
-      <value>self.frame_synchronizer_0</value>
+      <value>self.blocksat_frame_synchronizer_cc_0</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -1229,7 +1171,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1248, 768)</value>
+      <value>(1256, 768)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1285,53 +1227,6 @@
     <param>
       <key>id</key>
       <value>blocks_null_sink_0_0</value>
-    </param>
-    <param>
-      <key>type</key>
-      <value>float</value>
-    </param>
-    <param>
-      <key>num_inputs</key>
-      <value>1</value>
-    </param>
-    <param>
-      <key>vlen</key>
-      <value>1</value>
-    </param>
-  </block>
-  <block>
-    <key>blocks_null_sink</key>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>bus_conns</key>
-      <value>[[0,],]</value>
-    </param>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(576, 1184)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>blocks_null_sink_0_0_0</value>
     </param>
     <param>
       <key>type</key>
@@ -1437,7 +1332,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(576, 980)</value>
+      <value>(560, 980)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1481,6 +1376,140 @@
     </param>
   </block>
   <block>
+    <key>blocksat_ffw_coarse_freq_req_cc</key>
+    <param>
+      <key>alpha</key>
+      <value>cfo_alpha</value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>debug</key>
+      <value>bool(cfo_debug)</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>fft_len</key>
+      <value>cfo_fft_len</value>
+    </param>
+    <param>
+      <key>frame_len</key>
+      <value>frame_size</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(232, 668)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>blocksat_ffw_coarse_freq_req_cc_0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>M</key>
+      <value>int(const_order)</value>
+    </param>
+    <param>
+      <key>sps</key>
+      <value>sps</value>
+    </param>
+    <param>
+      <key>sleep_per</key>
+      <value>cfo_sleep</value>
+    </param>
+  </block>
+  <block>
+    <key>blocksat_frame_synchronizer_cc</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>M</key>
+      <value>int(const_order)</value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>frame_len</key>
+      <value>frame_size</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(272, 1036)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>en_eq</key>
+      <value>False</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>blocksat_frame_synchronizer_cc_0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>en_phase_corr</key>
+      <value>not bool(fs_no_phase_corr)</value>
+    </param>
+    <param>
+      <key>preamble_syms</key>
+      <value>preamble_syms</value>
+    </param>
+    <param>
+      <key>n_success_to_lock</key>
+      <value>fs_lock_cnt_threshold</value>
+    </param>
+    <param>
+      <key>verbose</key>
+      <value>bool(fs_debug)</value>
+    </param>
+  </block>
+  <block>
     <key>blocksat_mer_measurement</key>
     <param>
       <key>alpha</key>
@@ -1508,7 +1537,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1032, 756)</value>
+      <value>(1040, 756)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1696,6 +1725,135 @@
     </param>
     <param>
       <key>_coordinate</key>
+      <value>(1272, 340)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>cfo_alpha</value>
+    </param>
+    <param>
+      <key>label</key>
+      <value>carrier frequency offset recovery averaging alpha</value>
+    </param>
+    <param>
+      <key>short_id</key>
+      <value></value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>eng_float</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>0.01</value>
+    </param>
+  </block>
+  <block>
+    <key>parameter</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(1272, 532)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>cfo_debug</value>
+    </param>
+    <param>
+      <key>label</key>
+      <value>True to enable debug prints from the CFO recovery block.</value>
+    </param>
+    <param>
+      <key>short_id</key>
+      <value></value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>intx</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>0</value>
+    </param>
+  </block>
+  <block>
+    <key>parameter</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(1272, 132)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>cfo_fft_len</value>
+    </param>
+    <param>
+      <key>label</key>
+      <value>carrier frequency offset recovery FFT length.</value>
+    </param>
+    <param>
+      <key>short_id</key>
+      <value></value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>intx</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>8192</value>
+    </param>
+  </block>
+  <block>
+    <key>parameter</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
       <value>(1272, 228)</value>
     </param>
     <param>
@@ -1717,6 +1875,49 @@
     <param>
       <key>type</key>
       <value>eng_float</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>1</value>
+    </param>
+  </block>
+  <block>
+    <key>parameter</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(1272, 436)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>cfo_sleep</value>
+    </param>
+    <param>
+      <key>label</key>
+      <value>the  CFO recovery sleep interval in FFT blocks.</value>
+    </param>
+    <param>
+      <key>short_id</key>
+      <value></value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>intx</value>
     </param>
     <param>
       <key>value</key>
@@ -1782,7 +1983,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1272, 340)</value>
+      <value>(1848, 484)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1872,7 +2073,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(800, 672)</value>
+      <value>(808, 672)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1955,65 +2156,6 @@
     </param>
   </block>
   <block>
-    <key>digital_fll_band_edge_cc</key>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>comment</key>
-      <value>Coarse Carrier Freq. Recovery</value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>1</value>
-    </param>
-    <param>
-      <key>rolloff</key>
-      <value>excess_bw</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(256, 672)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>digital_fll_band_edge_cc_1</value>
-    </param>
-    <param>
-      <key>w</key>
-      <value>fllbw</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>filter_size</key>
-      <value>rrc_delay * int(sps) + 1</value>
-    </param>
-    <param>
-      <key>samps_per_sym</key>
-      <value>sps</value>
-    </param>
-    <param>
-      <key>type</key>
-      <value>cc</value>
-    </param>
-  </block>
-  <block>
     <key>digital_pfb_clock_sync_xxx</key>
     <param>
       <key>alias</key>
@@ -2037,7 +2179,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(488, 676)</value>
+      <value>(512, 652)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -2082,167 +2224,6 @@
     <param>
       <key>type</key>
       <value>ccf</value>
-    </param>
-  </block>
-  <block>
-    <key>parameter</key>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(984, 4)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>fllbw</value>
-    </param>
-    <param>
-      <key>label</key>
-      <value>Frequency-locked Loop Bandwidth</value>
-    </param>
-    <param>
-      <key>short_id</key>
-      <value>b</value>
-    </param>
-    <param>
-      <key>type</key>
-      <value>eng_float</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>0.001</value>
-    </param>
-  </block>
-  <block>
-    <key>parameter</key>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(1248, 116)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>frame_sync_verbosity</value>
-    </param>
-    <param>
-      <key>label</key>
-      <value>Frame Sync Verbosity</value>
-    </param>
-    <param>
-      <key>short_id</key>
-      <value>v</value>
-    </param>
-    <param>
-      <key>type</key>
-      <value>intx</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>1</value>
-    </param>
-  </block>
-  <block>
-    <key>frame_synchronizer</key>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>comment</key>
-      <value>Frame Synchronization</value>
-    </param>
-    <param>
-      <key>M</key>
-      <value>int(const_order)</value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>fw_preamble</key>
-      <value>1</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(280, 1028)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>frame_synchronizer_0</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>payload_size</key>
-      <value>payload_size</value>
-    </param>
-    <param>
-      <key>pmf_peak_threshold</key>
-      <value>fs_peak_threshold</value>
-    </param>
-    <param>
-      <key>fix_phase</key>
-      <value>(0 if bool(fs_no_phase_corr) else 1)</value>
-    </param>
-    <param>
-      <key>preamble_size</key>
-      <value>preamble_size</value>
-    </param>
-    <param>
-      <key>preamble_syms</key>
-      <value>preamble_syms</value>
-    </param>
-    <param>
-      <key>equalize</key>
-      <value>(1 if bool(fs_eq) else 0)</value>
-    </param>
-    <param>
-      <key>verbosity</key>
-      <value>frame_sync_verbosity</value>
     </param>
   </block>
   <block>
@@ -2347,7 +2328,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1272, 436)</value>
+      <value>(1432, 532)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -2355,54 +2336,11 @@
     </param>
     <param>
       <key>id</key>
-      <value>fs_eq</value>
+      <value>fs_debug</value>
     </param>
     <param>
       <key>label</key>
-      <value>True to enable the single-tap equalization of the frame synchronizer.</value>
-    </param>
-    <param>
-      <key>short_id</key>
-      <value></value>
-    </param>
-    <param>
-      <key>type</key>
-      <value>intx</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>0</value>
-    </param>
-  </block>
-  <block>
-    <key>parameter</key>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(1432, 436)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>fs_no_phase_corr</value>
-    </param>
-    <param>
-      <key>label</key>
-      <value>True to disable the phase correction carried in the frame synchronizer.</value>
+      <value>True to enable debug prints from frame synchronizer.</value>
     </param>
     <param>
       <key>short_id</key>
@@ -2441,11 +2379,11 @@
     </param>
     <param>
       <key>id</key>
-      <value>fs_peak_threshold</value>
+      <value>fs_lock_cnt_threshold</value>
     </param>
     <param>
       <key>label</key>
-      <value>the preamble matched filter (PMF) peak detection threshold.</value>
+      <value>the number of consecutive matching frame time peak indexes to infer lock.</value>
     </param>
     <param>
       <key>short_id</key>
@@ -2453,11 +2391,54 @@
     </param>
     <param>
       <key>type</key>
-      <value>eng_float</value>
+      <value>intx</value>
     </param>
     <param>
       <key>value</key>
-      <value>0.7</value>
+      <value>20</value>
+    </param>
+  </block>
+  <block>
+    <key>parameter</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(1432, 436)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>fs_no_phase_corr</value>
+    </param>
+    <param>
+      <key>label</key>
+      <value>True to disable the phase correction information provided by the frame synchronizer.</value>
+    </param>
+    <param>
+      <key>short_id</key>
+      <value></value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>intx</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>0</value>
     </param>
   </block>
   <block>
@@ -2612,7 +2593,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(808, 4)</value>
+      <value>(880, 4)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -4687,7 +4668,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1032, 668)</value>
+      <value>(1040, 668)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -4741,7 +4722,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(32, 716)</value>
+      <value>(32, 700)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -4768,7 +4749,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(32, 1092)</value>
+      <value>(32, 1084)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -4829,6 +4810,24 @@
     <sink_key>0</sink_key>
   </connection>
   <connection>
+    <source_block_id>blocksat_ffw_coarse_freq_req_cc_0</source_block_id>
+    <sink_block_id>digital_pfb_clock_sync_xxx_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>blocksat_frame_synchronizer_cc_0</source_block_id>
+    <sink_block_id>blocksat_da_carrier_phase_rec_0_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>blocksat_frame_synchronizer_cc_0</source_block_id>
+    <sink_block_id>blocksat_ffw_coarse_freq_req_cc_0</sink_block_id>
+    <source_key>start_index</source_key>
+    <sink_key>start_index</sink_key>
+  </connection>
+  <connection>
     <source_block_id>blocksat_mer_measurement_pre_frame_sync</source_block_id>
     <sink_block_id>blocks_null_sink_0</sink_block_id>
     <source_key>0</source_key>
@@ -4865,32 +4864,8 @@
     <sink_key>0</sink_key>
   </connection>
   <connection>
-    <source_block_id>digital_fll_band_edge_cc_1</source_block_id>
-    <sink_block_id>digital_pfb_clock_sync_xxx_0</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
-  </connection>
-  <connection>
     <source_block_id>digital_pfb_clock_sync_xxx_0</source_block_id>
     <sink_block_id>digital_costas_loop_cc_0</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>frame_synchronizer_0</source_block_id>
-    <sink_block_id>blocksat_da_carrier_phase_rec_0_0</sink_block_id>
-    <source_key>1</source_key>
-    <sink_key>1</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>frame_synchronizer_0</source_block_id>
-    <sink_block_id>blocks_null_sink_0_0_0</sink_block_id>
-    <source_key>2</source_key>
-    <sink_key>0</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>frame_synchronizer_0</source_block_id>
-    <sink_block_id>blocksat_da_carrier_phase_rec_0_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
@@ -4908,13 +4883,13 @@
   </connection>
   <connection>
     <source_block_id>virtual_source_1</source_block_id>
-    <sink_block_id>digital_fll_band_edge_cc_1</sink_block_id>
+    <sink_block_id>blocksat_ffw_coarse_freq_req_cc_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
   <connection>
     <source_block_id>virtual_source_3</source_block_id>
-    <sink_block_id>frame_synchronizer_0</sink_block_id>
+    <sink_block_id>blocksat_frame_synchronizer_cc_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
