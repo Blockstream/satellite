@@ -1574,6 +1574,10 @@
   <block>
     <key>blocksat_da_carrier_phase_rec</key>
     <param>
+      <key>alpha</key>
+      <value>mer_alpha</value>
+    </param>
+    <param>
       <key>alias</key>
       <value></value>
     </param>
