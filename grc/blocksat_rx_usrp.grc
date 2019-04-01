@@ -1177,6 +1177,10 @@
       <value>1</value>
     </param>
     <param>
+      <key>phase_rec</key>
+      <value>self.blocksat_da_carrier_phase_rec_0</value>
+    </param>
+    <param>
       <key>snr_meter</key>
       <value>self.blocksat_mer_measurement_pre_frame_sync</value>
     </param>
@@ -1295,7 +1299,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1224, 696)</value>
+      <value>(1064, 680)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1464,7 +1468,7 @@
     </param>
     <param>
       <key>id</key>
-      <value>blocksat_da_carrier_phase_rec_0_0</value>
+      <value>blocksat_da_carrier_phase_rec_0</value>
     </param>
     <param>
       <key>maxoutbuf</key>
@@ -1661,7 +1665,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1032, 684)</value>
+      <value>(872, 668)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -2178,57 +2182,6 @@
     </param>
   </block>
   <block>
-    <key>digital_costas_loop_cc</key>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>comment</key>
-      <value>Carrier Phase Recovery</value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>1</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(808, 600)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>digital_costas_loop_cc_0</value>
-    </param>
-    <param>
-      <key>w</key>
-      <value>2*pi/loopbw</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>order</key>
-      <value>2**constellation_obj.bits_per_symbol()</value>
-    </param>
-    <param>
-      <key>use_snr</key>
-      <value>False</value>
-    </param>
-  </block>
-  <block>
     <key>digital_descrambler_bb</key>
     <param>
       <key>alias</key>
@@ -2742,49 +2695,6 @@
     <param>
       <key>value</key>
       <value>None</value>
-    </param>
-  </block>
-  <block>
-    <key>parameter</key>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(840, 4)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>loopbw</value>
-    </param>
-    <param>
-      <key>label</key>
-      <value>Costas Loop Bandwidth</value>
-    </param>
-    <param>
-      <key>short_id</key>
-      <value>l</value>
-    </param>
-    <param>
-      <key>type</key>
-      <value>intx</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>100</value>
     </param>
   </block>
   <block>
@@ -4724,7 +4634,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1032, 596)</value>
+      <value>(872, 580)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -4854,13 +4764,13 @@
     <sink_key>0</sink_key>
   </connection>
   <connection>
-    <source_block_id>blocksat_da_carrier_phase_rec_0_0</source_block_id>
+    <source_block_id>blocksat_da_carrier_phase_rec_0</source_block_id>
     <sink_block_id>blocks_null_sink_0_0</sink_block_id>
     <source_key>1</source_key>
     <sink_key>0</sink_key>
   </connection>
   <connection>
-    <source_block_id>blocksat_da_carrier_phase_rec_0_0</source_block_id>
+    <source_block_id>blocksat_da_carrier_phase_rec_0</source_block_id>
     <sink_block_id>virtual_sink_6</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
@@ -4873,7 +4783,7 @@
   </connection>
   <connection>
     <source_block_id>blocksat_frame_synchronizer_cc_0</source_block_id>
-    <sink_block_id>blocksat_da_carrier_phase_rec_0_0</sink_block_id>
+    <sink_block_id>blocksat_da_carrier_phase_rec_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
@@ -4902,18 +4812,6 @@
     <sink_key>0</sink_key>
   </connection>
   <connection>
-    <source_block_id>digital_costas_loop_cc_0</source_block_id>
-    <sink_block_id>blocksat_mer_measurement_pre_frame_sync</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>digital_costas_loop_cc_0</source_block_id>
-    <sink_block_id>virtual_sink_5</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
-  </connection>
-  <connection>
     <source_block_id>digital_descrambler_bb_0</source_block_id>
     <sink_block_id>framers_gr_hdlc_deframer_b_0</sink_block_id>
     <source_key>0</source_key>
@@ -4921,7 +4819,13 @@
   </connection>
   <connection>
     <source_block_id>digital_pfb_clock_sync_xxx_0</source_block_id>
-    <sink_block_id>digital_costas_loop_cc_0</sink_block_id>
+    <sink_block_id>blocksat_mer_measurement_pre_frame_sync</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>digital_pfb_clock_sync_xxx_0</source_block_id>
+    <sink_block_id>virtual_sink_5</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
