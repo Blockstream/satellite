@@ -77,6 +77,9 @@ build/%.py: grc/%.grc
 	'dest=\"fs_no_phase_corr\", type=\"intx\", default=0/'\
 	'dest=\"fs_no_phase_corr\", action=\"store_true\", default=False/g' $@
 	@sed -i 's/'\
+	'dest=\"fs_no_freq_corr\", type=\"intx\", default=0/'\
+	'dest=\"fs_no_freq_corr\", action=\"store_true\", default=False/g' $@
+	@sed -i 's/'\
 	'dest=\"preamble_stats\", type=\"intx\", default=0/'\
 	'dest=\"preamble_stats\", action=\"store_true\", default=False/g' $@
 	@chmod u+x $@

@@ -1748,6 +1748,10 @@
       <value>frame_size</value>
     </param>
     <param>
+      <key>en_freq_corr</key>
+      <value>not bool(fs_no_freq_corr)</value>
+    </param>
+    <param>
       <key>_coordinate</key>
       <value>(288, 1340)</value>
     </param>
@@ -2671,6 +2675,49 @@
     <param>
       <key>value</key>
       <value>20</value>
+    </param>
+  </block>
+  <block>
+    <key>parameter</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(1512, 628)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>fs_no_freq_corr</value>
+    </param>
+    <param>
+      <key>label</key>
+      <value>True to disable the fine frequency correction information provided by the frame synchronizer.</value>
+    </param>
+    <param>
+      <key>short_id</key>
+      <value></value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>intx</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>0</value>
     </param>
   </block>
   <block>
@@ -7374,7 +7421,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(288, 1492)</value>
+      <value>(288, 1508)</value>
     </param>
     <param>
       <key>gui_hint</key>
