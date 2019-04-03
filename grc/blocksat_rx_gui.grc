@@ -201,7 +201,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1680, 692)</value>
+      <value>(1680, 820)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -306,7 +306,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1904, 764)</value>
+      <value>(1904, 884)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -522,7 +522,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1888, 692)</value>
+      <value>(1888, 820)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -549,7 +549,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1768, 692)</value>
+      <value>(1768, 820)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -711,7 +711,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1640, 764)</value>
+      <value>(1640, 884)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -843,7 +843,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1512, 764)</value>
+      <value>(1512, 884)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1254,7 +1254,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1752, 764)</value>
+      <value>(1752, 884)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1289,7 +1289,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1856, 612)</value>
+      <value>(1856, 740)</value>
     </param>
     <param>
       <key>gui_hint</key>
@@ -1332,7 +1332,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1680, 612)</value>
+      <value>(1680, 740)</value>
     </param>
     <param>
       <key>gui_hint</key>
@@ -1595,7 +1595,7 @@
     </param>
     <param>
       <key>damp_factor</key>
-      <value>1/sqrt(2)</value>
+      <value>dapr_damping</value>
     </param>
     <param>
       <key>debug_stats</key>
@@ -2295,6 +2295,49 @@
     <param>
       <key>value</key>
       <value>0.001</value>
+    </param>
+  </block>
+  <block>
+    <key>parameter</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(1848, 580)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>dapr_damping</value>
+    </param>
+    <param>
+      <key>label</key>
+      <value>DA phase recovery damping factor.</value>
+    </param>
+    <param>
+      <key>short_id</key>
+      <value></value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>eng_float</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>1/sqrt(2)</value>
     </param>
   </block>
   <block>
@@ -9937,7 +9980,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1688, 836)</value>
+      <value>(1688, 956)</value>
     </param>
     <param>
       <key>gui_hint</key>
