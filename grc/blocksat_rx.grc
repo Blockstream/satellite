@@ -1469,6 +1469,10 @@
       <value></value>
     </param>
     <param>
+      <key>debug_level</key>
+      <value>fs_debug</value>
+    </param>
+    <param>
       <key>_enabled</key>
       <value>1</value>
     </param>
@@ -1515,10 +1519,6 @@
     <param>
       <key>n_success_to_lock</key>
       <value>fs_lock_cnt_threshold</value>
-    </param>
-    <param>
-      <key>verbose</key>
-      <value>bool(fs_debug)</value>
     </param>
   </block>
   <block>
@@ -2301,7 +2301,7 @@
     </param>
     <param>
       <key>label</key>
-      <value>True to enable debug prints from frame synchronizer.</value>
+      <value>debug level for frame synchronizer. Level 1 enables frame locking logs. Level 2 reveals the tuning of the frame start at the coarse CFO recovery block. Level 3 enables fine CFO estimation logs.</value>
     </param>
     <param>
       <key>short_id</key>
