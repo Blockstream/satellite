@@ -1226,53 +1226,6 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1120, 840)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>blocks_null_sink_0</value>
-    </param>
-    <param>
-      <key>type</key>
-      <value>float</value>
-    </param>
-    <param>
-      <key>num_inputs</key>
-      <value>1</value>
-    </param>
-    <param>
-      <key>vlen</key>
-      <value>1</value>
-    </param>
-  </block>
-  <block>
-    <key>blocks_null_sink</key>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>bus_conns</key>
-      <value>[[0,],]</value>
-    </param>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
       <value>(944, 1040)</value>
     </param>
     <param>
@@ -1597,6 +1550,10 @@
     <param>
       <key>_enabled</key>
       <value>True</value>
+    </param>
+    <param>
+      <key>frame_len</key>
+      <value>frame_size</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -4494,12 +4451,6 @@
     <sink_block_id>blocksat_ffw_coarse_freq_req_cc_0</sink_block_id>
     <source_key>start_index</source_key>
     <sink_key>start_index</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>blocksat_mer_measurement_pre_frame_sync</source_block_id>
-    <sink_block_id>blocks_null_sink_0</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
   </connection>
   <connection>
     <source_block_id>digital_pfb_clock_sync_xxx_0</source_block_id>

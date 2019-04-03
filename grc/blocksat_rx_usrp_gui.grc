@@ -1943,6 +1943,10 @@
       <value>True</value>
     </param>
     <param>
+      <key>frame_len</key>
+      <value>data_size</value>
+    </param>
+    <param>
       <key>_coordinate</key>
       <value>(912, 1292)</value>
     </param>
@@ -1988,6 +1992,10 @@
     <param>
       <key>_enabled</key>
       <value>True</value>
+    </param>
+    <param>
+      <key>frame_len</key>
+      <value>frame_size</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -5693,7 +5701,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1312, 932)</value>
+      <value>(1296, 940)</value>
     </param>
     <param>
       <key>gui_hint</key>
@@ -6897,7 +6905,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(912, 1356)</value>
+      <value>(912, 1372)</value>
     </param>
     <param>
       <key>gui_hint</key>

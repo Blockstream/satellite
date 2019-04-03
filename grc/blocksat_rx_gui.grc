@@ -1819,6 +1819,10 @@
       <value>True</value>
     </param>
     <param>
+      <key>frame_len</key>
+      <value>data_size</value>
+    </param>
+    <param>
       <key>_coordinate</key>
       <value>(1040, 1452)</value>
     </param>
@@ -1864,6 +1868,10 @@
     <param>
       <key>_enabled</key>
       <value>True</value>
+    </param>
+    <param>
+      <key>frame_len</key>
+      <value>frame_size</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -5295,7 +5303,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1248, 1436)</value>
+      <value>(1248, 1444)</value>
     </param>
     <param>
       <key>gui_hint</key>
@@ -5526,7 +5534,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1352, 1036)</value>
+      <value>(1352, 1044)</value>
     </param>
     <param>
       <key>gui_hint</key>
@@ -6730,7 +6738,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1040, 1516)</value>
+      <value>(1040, 1532)</value>
     </param>
     <param>
       <key>gui_hint</key>
