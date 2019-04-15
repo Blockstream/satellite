@@ -261,7 +261,9 @@ modified to include the given SDR interface.
 You’ll need to connect your SDR to a non-powered port on the LNB power
 supply. The powered port of the power supply, in turn, will be connected to the
 LNB. You’ll need to ensure that you have the necessary coaxial cables and
-connectors to make these interfaces.
+connectors to make these interfaces. The connections are illustrated below:
+
+![Hardware Connections](doc/hardware_connections.png?raw=true "Hardware Connections")
 
 **Note**: Not every RTL-SDR has the same interface connector. Some use the SMA
 connector and some use MCX. Be sure to order the correct cable and adapters to
