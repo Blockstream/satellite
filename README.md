@@ -7,18 +7,14 @@ In order to set up your receiver system, please read the following information
 carefully. For additional help, go to the #blockstream-satellite IRC channel on
 freenode.
 
-## Update on Mar 11, 2019
+## Required Version
 
 **IMPORTANT:** Please note that the Blockstream Satellite network was updated
 with backwards incompatible changes on March 11, 2019. From this date on, the
-required Blockstream Satellite receiver version is greater than or equal to
-`v1.3.0`. Meanwhile, Bitcoin FIBRE should be the version from [the master
+required Blockstream Satellite receiver version should be greater than or equal
+to `v1.3.0`. The most recent version is `v1.4.0`, which is the recommended one.
+Meanwhile, Bitcoin FIBRE should be the version from [the master
 branch](https://github.com/bitcoinfibre/bitcoinfibre/tree/master).
-
-The update involves changes to the modulation scheme, channel coding and
-transmission bandwidth. These are expected to improve reliability under low
-signal to noise ratio (SNR) and improve throughput by approximately 18%. More
-information can be found within the v1.3.0 release notes.
 
 # Getting Started
 
@@ -47,7 +43,7 @@ All of these steps are thoroughly explained next.
     - [2. Mount the Antenna](#2-mount-the-antenna)
     - [3. Prepare to Locate the Blockstream Satellite Signal](#3-prepare-to-locate-the-blockstream-satellite-signal)
     - [4. Connect the Equipment](#4-connect-the-equipment)
-    - [5. Run the Blockstream Satellite Receiver](#5-run-the-blockstream-satellite-receiver)
+    - [5. Compute the receiver frequency](#5-compute-the-receiver-frequency)
     - [6. Search for the Blockstream Satellite Signal](#6-search-for-the-blockstream-satellite-signal)
     - [7. Next Steps](#7-next-steps)
 - [Run the Receiver](#run-the-receiver)
@@ -89,21 +85,32 @@ with the frequency band that suits your coverage region.
 
 ### Satellite Frequency Bands
 
-Blockstream Satellite operates in Ku band and C band, depending on region. Ku
-band is used in North America, South America, Africa and Europe. C band is used
-in Asia-Pacific region.
+Blockstream Satellite operates in Ku high band, Ku low band and C band,
+depending on region. Ku high band is used in North America and South America. Ku
+low band is used in Africa and Europe. C band is used in Asia-Pacific region.
 
->C band:     3.4 GHZ - 4.2 GHz
+>C band: 3.7 GHZ - 4.2 GHz
 >
->Ku band: 11.7 GHz to 12.7 GHz
+>Ku low band: 10.7 to 11.7 GHz
 >
->Ka band:  17.7 GHz - 21.2 GHz
+>Ku high band: 11.7 to 12.75 GHz
 
 You can always use antennas designed for higher frequencies. For example, an
-antenna designed for Ka band will work for Ku band and C band, as it is designed
-for higher frequencies than the one used by Blockstream Satellite. However, a C
-band antenna will not work for Ku band, as it is designed for frequencies lower
-than Ku band.
+antenna designed for Ka band will work for Ku bands and C band, as it is
+designed for higher frequencies than the ones used by Blockstream
+Satellite. However, a C band antenna will not work for Ku bands, as it is
+designed for lower frequencies.
+
+The following table summarizes the transmission bands of the satellites we use:
+
+| Satellite          | Band    |
+|--------------------|---------|
+| Galaxy 18          | Ku High |
+| Eutelsat 113       | Ku High |
+| Telstar 11N Africa | Ku Low  |
+| Telstar 11N Europe | Ku Low  |
+| Telstar 18V        | C       |
+
 
 ## <a name="lnb"></a> 2. LNB
 
@@ -112,7 +119,7 @@ Blockstream Satellite:
 
 ### Frequency Range
 
-First, you must verify that the frequency range of the LNB encompasses the
+First, you must verify that the input frequency range of the LNB encompasses the
 frequency of the Blockstream Satellite signal in your coverage area. For
 example, if you are located in North America and you are covered by the Galaxy
 18 satellite, your Blockstream Satellite frequency is 12.02285 GHz. Thus, an LNB
@@ -121,22 +128,23 @@ operates from 10.7 GHz to 11.7 GHz would NOT work.
 
 **Note on “Universal” LNB:**
 
->A Universal LNB, also known as Universal Ku band LNB, is one that supports two
->distinct frequency sub-bands within the Ku band, the so-called "low band" (10.7
->to 11.7 GHz) and "high band" (11.7 to 12.75 GHz). This type of LNB can indeed
->be used in a Blockstream Satellite receiver setup. However, you should be aware
->that a 22 kHz tone must be sent to the Universal LNB in order to switch its
->sub-band. Since the setup described in this guide is receiver-only, it is not
->able to generate the 22 kHz tone by itself. In this case, a "22 kHz tone
->generator" is needed. The exception would be in case the default sub-band
->(typically the low band, from 10.7 to 11.7 GHz) that the Universal LNB operates
->already suits the frequency you need in your coverage area, in which case you
->can use the LNB without a tone generator.
+>A Universal LNB, also known as Universal Ku band LNB, is an LNB that supports
+>both "Ku low" and "Ku high" bands. We recommend using this type of LNB only
+>within Ku low band region, that is, within coverage of either Telstar 11N
+>Africa or Telstar 11N Europe.
 >
->In case you do need the other sub-band (i.e. the high band) of the Universal
->LNB, you will need to place the 22 kHz tone generator inline between the LNB
->and the power inserter. This is because the tone generator uses power from the
->inserter while delivering the tone directly to the LNB.
+>The rationale is that a 22 kHz tone must be sent to the Universal LNB in order
+>to switch its sub-band. However, since the setup described in this guide is
+>receiver-only, it is not able to generate the 22 kHz tone by itself. Now,
+>because the default Ku sub-band of Universal LNBs is typically the low band, it
+>is often acceptable to use these within Ku low band region, as the 22 kHz tone
+>generator won't be necessary.
+>
+>In case you do want to switch the sub-band of an Universal LNB in order to use
+>it within Ku high band region, you will need to place a 22 kHz tone generator
+>inline between the LNB and the power inserter. This is because the tone
+>generator uses power from the inserter while delivering the tone directly to
+>the LNB.
 >
 >Such tone generators can be found in the market as pure
 >generators. Alternatively, you can get a "satellite finder" device that embeds
@@ -185,8 +193,8 @@ traditional dielectric oscillator (DRO) LNB.
 
 You are advised to use a PLL LNBF with linear polarization and LO stability
 ideally within `+- 200 kHz` or less. The LNB should be suitable for the
-frequency of the satellite covering your location and preferably not a Universal
-LNB.
+frequency of the satellite covering your location. Also, to avoid the need of a
+tone generator, Universal LNBs are not recommended within Ku high band region.
 
 ## <a name="power"></a>  3. LNB Power Inserter
 
@@ -222,13 +230,31 @@ ring that will accept a generic LNB.
 ## <a name="sdr"></a>  5. Software Defined Radio Interface
 
 There are many Software Defined Radio (SDR) interfaces in the market today.
-Blockstream Satellite is currently confirmed to work with the RTL-SDR model
-R820T2. The latter is the SDR that is supported by the receiver codebase.
+Blockstream Satellite is currently predominantly used with the RTL-SDR, model
+RTL2832U & R820T2, which is a low-cost SDR dongle. This is the SDR interface
+that is mostly supported and the one that we recommend.
 
-SDRs other than the RTL-SDR may be used, but only if supported by [GNU
-Radio](https://www.gnuradio.org) and if able to receive frequencies from 950 MHz
-to 1450 MHz. Note, however, that in this case the Blockstream Satellite
-Receiver's source code must be modified to include the given SDR interface.
+We recommend specifically an RTL-SDR dongle that features a
+temperature-controlled crystal oscillator (TCXO), since this type of oscillator
+promotes better frequency stability. There are a few models in the market
+featuring TCXO with frequency accuracy within 0.5 ppm to 1.0 ppm.
+
+**IMPORTANT:** For users within the coverage of satellite **Telstar 11N
+Europe**, we recommend purchasing an RTL-SDR with **extended tuning range**. The
+reason is that the satellite frequency in this area is such that, when using an
+LNB for Ku low band (with `9.75` GHz LO), the RTL-SDR needs to be configured
+with a frequency that is too close to the maximum supported frequency of the
+RTL-SDR model that is recommended for other regions (with the R820T2 tuner). The
+extended range RTL-SDR uses another tuner (the E4000), whose frequency range is
+more than sufficient to cover the frequency that is necessary for Telstar 11N
+Europe.
+
+In addition to the RTL-SDR, there is also support for USRP SDRs, which is a
+higher-cost SDR product family from Ettus Research. Besides, any other SDR
+platform supported by [GNU Radio](https://www.gnuradio.org) can be used,
+provided that it is able to receive frequencies within roughly the 1 GHz to 2
+GHz range. Note, however, that in this case the Receiver's source code must be
+modified to include the given SDR interface.
 
 ## <a name="cable_conn"></a>  6. Cables, Connectors and Mounting Hardware.
 
@@ -610,12 +636,10 @@ cable.
 >RTL-SDR. The **powered** port, in turn, is labeled “Signal to SWM”. This is the
 >port that should be connected to the LNB.
 
-## 5. Run the Blockstream Satellite Receiver
+## 5. Compute the receiver frequency
 
 You are almost ready to run the receiver. The only missing step is to compute
 the frequency to be passed as argument to the receiver application.
-
-### <a name="freq_param"></a> Compute the frequency parameter
 
 The frequency parameter is computed based on the frequency of the satellite
 covering your location and the frequency of your LNB's local oscillator (LO)
@@ -641,6 +665,24 @@ that is:
    ^            ^          ^
 sat_freq - lnb_freq = freq_param
 ```
+
+The following table summarizes the frequencies that are required for the SDR
+when considering the typical LNB LO frequencies:
+
+
+|       LO Frequency |   5.15 GHz |   9.75 GHz |  10.60 GHz |  10.75 GHz |
+| ------------------ | ---------- | ---------- | ---------- | ---------- |
+|          Galaxy 18 |            |            | 1422850000 | 1272850000 |
+|       Eutelsat 113 |            |            | 1426150000 | 1276150000 |
+| Telstar 11N Africa |            | 1726750000 |            |            |
+| Telstar 11N Europe |            | 1754020000 |            |            |
+|        Telstar 18V | 1092500000 |            |            |            |
+
+The above frequencies are within the following frequency bands:
+
+|       LO Frequency |   5.15 GHz |   9.75 GHz |  10.60 GHz |  10.75 GHz |
+| ------------------ | ---------- | ---------- | ---------- | ---------- |
+|               Band |          C |     Ku Low |    Ku High |    Ku High |
 
 ### Run the Receiver application (GUI mode)
 
