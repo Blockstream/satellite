@@ -464,8 +464,8 @@ export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
 export LD_LIBRARY_PATH=/usr/local/lib64:$LD_LIBRARY_PATH
 ```
 
-Once the Python packages and the shared libraries are within reach, move to the
-next step.
+Once the Python packages and the shared libraries are within reach, move on to
+the next step.
 
 #### Build and install the receiver applications
 
@@ -732,70 +732,47 @@ location of `gr-framers` and `gr-blocksat`. Usually
 
 ## 6. Search for the Blockstream Satellite Signal
 
-1. After running `blocksat-rx-gui` according to the above guidelines, click on the
-   `Freq. Sync` tab in the GUI.
+1. Once `blocksat-rx-gui` is running, the first objective is to recognize the
+   Blockstream Satellite signal band on the Overview tab of the GUI. Ideally,
+   you would see a flat level spanning a frequency band (in the horizontal axis)
+   of approximately 250 kHz, which corresponds to Blockstream Satellite's
+   nominal system bandwidth.
 
-2. Keep the elevation angle fixed and very slowly move the antenna side to side
-   (vary the azimuth angle), until you begin to see a pattern that looks like
-   this:
+2. If you cannot see the signal using your initial pointing parameters, try
+   several small adjustments of elevation and azimuth around the angles that
+   were given to you by the dish alignment tool. For example, keep the elevation
+   angle fixed and very slowly move the antenna side to side (vary the azimuth
+   angle). Alternatively, keep azimuth fixed and slowly vary the elevation.
 
-![Spectrum Found](doc/spectrum_found_bpsk.png?raw=true "Spectrum Found")
-
-Notice in the spectrum plot that some energy is appearing within the range of
-frequencies that is under observation. Ideally you would see the prominent
-energy as a flat level spanning a frequency band (in the horizontal axis) of
-approximately 250 kHz, which corresponds to Blockstream Satellite's nominal
-system bandwidth.
-
-**Still not found?** Try adjusting the elevation.
-
->If after moving your antenna left and right across a wide range of azimuth over
->which you expect to see the signal you find that you still need to adjust your
->elevation, increase your elevation by 1 degree. Then, sweep the antenna left
->and right through a wide azimuth range again. You may need to repeat this
->increasing by several degrees and decreasing by several degrees of elevation
->before you are able to find the signal.
+>You can organize the procedure as follows. First change your elevation by 1
+>degree. Then, sweep the antenna left and right through a wide azimuth
+>range. Repeat this until you are able to find the signal.
 
 **REMEMBER:**
 
->Even though a single degree may seem like a minuscule movement, each degree is
->tens of thousands of kilometers over the 36,000 kilometers to geosynchronous
->orbit.
+>Even though a single degree may seem like a minuscule movement, each degree
+>represents thousands of kilometers over the geosynchronous orbit.
 
-3. Once the satellite signal is observed by the receiver, the latter applies a
-   coarse frequency correction to center the signal energy around the nominal
-   frequency. In the spectrum plot, this translates into the spectrum being
-   centralized (around 0 Hz):
+The screenshot below illustrates the signal band visible at both the "Spectrum"
+and "Spectrogram" plots of the Overview GUI tab. The signal on the right-hand
+side is roughly from 50 kHz to 300 kHz, so it looks like our
+signal. Importantly, note that in this case (captured on Eutelsat 113) there is
+also a nearby transmission on the left-hand side of the plot. Although by
+inspection we can tell that this other signal is not ours, the only way to
+really know this is by checking the frame synchronization, which is the next
+step.
 
-![Coarse Frequency Correction](doc/spectrum_found_freq_corrected_bpsk.png?raw=true "Coarse Frequency Correction")
+![Signal visible on Spectrogram](doc/overview_page_signal.png?raw=true "Signal visible on Spectrogram")
 
-You can also get frequency correction information from the console logs, which
-will display a message following the pattern that follows:
+3. Switch to the `Frame Sync` tab in the GUI. You should expect to see a clear peak
+   there, as follows.
 
-```
---------------------------------------------------------------------------------
-[Timestamp] Carrier Frequency Offset: xxx kHz (CORRECTED)
---------------------------------------------------------------------------------
-```
+![Frame Timing Peak](doc/pmf_peak.png?raw=true "Frame Timing Peak")
 
-**NOTE**
-
-> If you successfully see the flat 200 kHz signal band, but you don't see it
-> being centralized as above, you can try running in "scan mode". To do so, just
-> relaunch the application using the `-s` flag. For example, run:
->
->    `blocksat-rx-gui -f 1276150000 -g 40 -s`
-
-4. Once you have located the signal and frequency correction is operating
-   successfully, switch to the `Frame Sync` tab in the GUI. In particular,
-   observe the plot entitled **"Frame Timing Metric"**. You should expect to see
-   a clear peak there, as follows:
-
-![Frame Timing Metric](doc/frame_sync_found_timing_metric_bpsk.png?raw=true "Frame Timing Metric")
-
-The peak should be strong and, importantly, it should remain in place. It can be
-in any position, but it must remain in the same position for the system to be
-reliable.
+The peak can be toggling up and down and alternating colors, blue and red. What
+is really important is that it is strong and remains steadily in the same
+position. It can be in any position within the plot window, but it must remain
+in the same position for the system to be reliable.
 
 If a steady peak has indeed been achieved, it is very likely that your receiver
 has acquired the so-called "frame synchronization" state. Have a look at the
@@ -815,23 +792,62 @@ periodically in the console:
 --------------------------------------------------------------------------------
 ```
 
-If frame synchronization is not yet acquired, subtly adjust the azimuth,
-elevation and/or rotation of your LNB until you achieve improvements.
+If frame synchronization has not yet been acquired, you can do some
+troubleshooting. If you see a clear signal in the Overview tab of the GUI, first
+check the frequency offset of the signal. The receiver can correct a frequency
+offset within `+- 250 kHz`. If the signal band is centered at a frequency beyond
+this range, the options are **1)** to re-launch the receiver with a different
+frequency; or **2)** to re-launch the receiver in *scan mode*, specifically by
+adding `-s` flag to the `blocksat-rx-gui` command, as follows:
 
-5. Now switch to the `Phase Sync` page. You should see a constellation composed
-by two clouds of points, one close to "-1" and the other close to "+1". The more
-compact the point clouds are, the better your signal quality:
+```
+blocksat-rx-gui -f 1276150000 -s
+```
 
-![Constellation Diagram](doc/costas_loop_syms_found_bpsk.png?raw=true "Constellation")
+![High frequency offset seen on Spectrogram](doc/overview_page_signal_offset.png?raw=true "High frequency offset seen on Spectrogram")
 
-The higher the SNR, the more concentrated the clouds are. Hence, the next step
-is to try to optimize the SNR.
+The scenario of a frequency offset exceeding the correction range is illustrated
+in the screenshot above. Note that the signal band is clearly visible. However,
+it is centered at approximately `-325` kHz. Thus, the frequency recovery
+algorithm cannot correct the frequency and, as a result, frame synchronization
+is not acquired. This situation can also be diagnosed by looking at the
+"Freq. Sync" page of the GUI. The goal is to have the "red curve" (spectrum
+after frequency correction) centered around the origin of the horizontal axis,
+as illustrated below. However, if the signal center frequency is beyond the
+correction limit, this won't be the case. As mentioned earlier, either adjust
+the frequency parameter of the receiver or re-launch it in scan mode.
 
-To do so, first go back to `Freq. Sync` tab in the GUI. Prepare to keep an eye
-on the Blockstream Satellite signal (the 250 KHz flat level) while concurrently
-observing the SNR measurements displayed in the console. Then, make very gentle
-changes to elevation, azimuth and/or LNB skew. You should look for the logs in
-the console as the ones below. Try to get the best SNR value you can.
+![Spectrum Found](doc/spectrum_found_bpsk.png?raw=true "Spectrum Found")
+
+Now, if the signal band is clear and centered within `+-250` kHz, but you still
+can't see a peak in the "Frame Sync" page or, correspondingly, you can't get
+`Frame synchronization acquired` log in the console, it is possible that you are
+seeing the wrong signal or pointed to the wrong satellite. If you see two
+similar signal bands, both with an apparent `250` kHz flat level span, try
+adjusting the frequency parameter such that only one of them is "visible" at a
+time, based on the spectrum plots of the Overview tab. If that doesn't work,
+then it is likely not a signal problem, but rather a satellite problem. Try
+adjusting azimuth and/or elevation again to see if you can find a different
+satellite near the nominal angles that you got from the dish alignment tool.
+
+**ATTENTION:**
+
+In Europe, there is a nearby satellite that transmits a similar signal band on a
+similar frequency. Use the above instructions and particularly the "Frame Sync"
+tab of the GUI in order to know when pointed correctly.
+
+4. Now that frame synchronization has been acquired, we are mostly done. At this
+   point, we can only pursue some improvements to the signal quality.
+
+As a sanity check, switch to the `Phase Sync` page. You should see a
+constellation composed by two clouds of points, one close to "-1" and the other
+close to "+1". The more compact the point clouds are, the better your signal
+quality.
+
+![Constellation Diagram](doc/da_phase_rec_syms_bpsk.png?raw=true "Constellation")
+
+To evaluate signal quality, the easiest way is to check the SNR that is being
+printed in the console, as below:
 
 ```
 [Timestamp] SNR [================                        ] 7.4401 dB
@@ -841,10 +857,16 @@ the console as the ones below. Try to get the best SNR value you can.
 [Timestamp] SNR [================                        ] 7.4068 dB
 ```
 
-6. Lastly, with the antenna fixed, we recommend performing some quick
-experiments with the gain parameter of the receiver. This is a command line
-argument to the receiver application. Try different values between 0 and 50 and
-see if the SNR improves, for example:
+Keep an eye on these logs and then make very gentle adjustments to elevation,
+azimuth and/or LNB skew. You can try adjusting all three parameters, but the
+recommended approach is to try adjusting only one of them at a time. Make a
+small change and check whether it has improved the SNR. Try to stop at the
+optimal point in all of them.
+
+6. Lastly, with the antenna pointing and LNB polarization fixed, we recommend
+performing some quick experiments with the gain parameter of the receiver. This
+is a command line argument to the receiver application. Try different values
+between 0 and 50 and see if the SNR improves, for example:
 
 ```
 # Attempt 1
