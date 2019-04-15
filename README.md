@@ -275,7 +275,6 @@ There are currently binary packages to facilitate the installation in the
 following distribution/releases:
 
 - Ubuntu bionic (18.04)
-- Fedora 27
 - Fedora 28
 - CentOS 7<sup>*</sup>
 
@@ -291,7 +290,7 @@ This should install all dependencies, including GNU Radio and GrOsmoSDR. In case
 the `add-apt-repository` command is not available in your system, you will need
 to run `apt install software-properties-common`.
 
-If using Fedora 27 or 28, run:
+If using Fedora 28, run:
 
 ```
 dnf copr enable blockstream/satellite
@@ -342,8 +341,8 @@ In case you are flexible with the distribution/release that you can use, we
 advise using one of the following, where GNU Radio 3.7.11 is available:
 
 - Ubuntu bionic (18.04)
-- Fedora 27
 - Fedora 28
+- CentOS 7
 
 The following commands attempt to install GNU Radio version 3.7.11, but you can
 try 3.7.10 or any later version in case 3.7.11 is not available in your system:
