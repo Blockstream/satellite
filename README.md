@@ -38,6 +38,7 @@ All of these steps are thoroughly explained next.
 - [Software Installation](#software-installation)
     - [From Binary Packages](#from-binary-packages)
     - [From Source](#from-source)
+- [Installation on Raspberry Pi](#installation-on-raspberry-pi)
 - [Antenna Pointing](#antenna-pointing)
     - [1. Ideal Mounting Location](#1-ideal-mounting-location)
     - [2. Mount the Antenna](#2-mount-the-antenna)
@@ -524,6 +525,19 @@ $ sudo make install
 
 Further issues are listed at the [FAQ section](#frequent-issues-and-questions).
 
+# Installation on Raspberry Pi
+
+Blockstream Satellite v1.4.0 or later is confirmed to work with Raspberry Pi 3
+B+ using Ubuntu MATE 18.04.02 for 64-bit architecture. To install on Raspberry,
+proceed with the following steps:
+
+1. Download [Ubuntu MATE Bionic for aarch64 (ARMv8)](https://ubuntu-mate.org/download/)
+2. Flash the Ubuntu MATE OS into your microSD card. You can use a tool such as
+   [balenaEtcher](https://www.balena.io/etcher/)
+3. Follow the installation instructions for Ubuntu. Choose either to:
+    - [Install from binary packages](#from-binary-packages)
+    - [Build and install from Source](#from-source)
+
 # Antenna Pointing
 
 Aligning a satellite antenna is a precise procedure. Remember that the
@@ -846,7 +860,10 @@ Well done. Your receiver is properly set-up and you are now ready to run it
 continuously. You have two options now:
 
 1. Continue running in GUI mode, namely the above `blocksat-rx-gui` application.
-2. Run the lighter non-GUI receiver application, that is `blocksat-rx`.
+2. Run the lightweight non-GUI receiver application, named `blocksat-rx`.
+
+> If running on [Raspberry Pi](#installation-on-raspberry-pi), we recommend
+> using the non-GUI `blocksat-rx` application.
 
 Once the receiver is up and running, you can run the Bitcoin FIBRE application
 receiving data via the Blockstream Satellite Network.
