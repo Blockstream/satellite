@@ -642,34 +642,61 @@ cable.
 You are almost ready to run the receiver. The only missing step is to compute
 the frequency to be passed as argument to the receiver application.
 
-The frequency parameter is computed based on the frequency of the satellite
-covering your location and the frequency of your LNB's local oscillator (LO)
-frequency, so it is specific to your setup.  In particular, it is given by the
-difference between the two frequencies, as follows:
+The frequency parameter depends on the frequency of the satellite covering your
+location and the frequency of your LNB's local oscillator (LO) frequency, so it
+is specific to your setup. Also, the computation differs slightly for C band and
+Ku band.
+
+For Ku band (either high or low), the frequency parameter is computed as
+follows:
 
 ```
-frequency_parameter = your_satellite_frequency - your_lnb_lo_frequency
+frequency_parameter_ku = satellite_frequency - lnb_lo_frequency
+```
+
+Meanwhile, for C band, it is computed as:
+
+```
+frequency_parameter_c = lnb_lo_frequency - satellite_frequency
 ```
 
 To find your satellite's frequency, first go to
 [blockstream.com/satellite](https://blockstream.com/satellite/#satellite_network-coverage)
-and understand which one is your satellite (covering your location). You should
-see the frequency listed in MHz. Then adjust for your LNB LO frequency.
+and check which one is your satellite (covering your location). Then, find the
+frequency and the corresponding band of the satellite in the table that follows.
 
-For example, if your LNB has an LO frequency of 10750 MHz and you're connecting
-to Eutelsat 113 at 12026.15 MHz, the frequency parameter becomes 1276.15 MHz,
-that is:
+| Satellite          | Band    | Frequency    |
+|--------------------|---------|--------------|
+| Galaxy 18          | Ku High | 12022.85 MHz |
+| Eutelsat 113       | Ku High | 12026.15 MHz |
+| Telstar 11N Africa | Ku Low  | 11476.75 MHz |
+| Telstar 11N Europe | Ku Low  | 11504.02 MHz |
+| Telstar 18V        | C       | 4057.5 MHz   |
+
+For the LNB's LO frequency, check the product's information. The typical LNB LO
+frequencies for the bands of interest are summarized below:
+
+|       LO Frequency |   5.15 GHz |   9.75 GHz |  10.60 GHz |  10.75 GHz |
+| ------------------ | ---------- | ---------- | ---------- | ---------- |
+|               Band |          C |     Ku Low |    Ku High |    Ku High |
+
+Now, pick the correct formula for your signal band and compute the
+parameter. For example, if your LNB has an LO frequency of 10750 MHz and you're
+connecting to Eutelsat 113 at 12026.15 MHz (Ku high band), the frequency
+parameter becomes 1,276,150,000 Hz, that is:
 
 ```
-12026.15 - 10750.00 = 1276.15 MHz.
-   ^            ^          ^
-   ^            ^          ^
-sat_freq - lnb_freq = freq_param
+1,276,150,000 Hz       = 12,026,150,000 Hz   - 10,750,000,000 Hz
+   ^                          ^                     ^
+   ^                          ^                     ^
+frequency_parameter_ku = satellite_frequency - lnb_lo_frequency
 ```
 
-The following table summarizes the frequencies that are required for the SDR
-when considering the typical LNB LO frequencies:
+> NOTE: the blocksat receiver application expects the frequency parameter in Hz.
 
+The following table summarizes the frequencies (in Hz) that are required when
+launching the blocksat receiver application, considering the typical LNB LO
+frequencies:
 
 |       LO Frequency |   5.15 GHz |   9.75 GHz |  10.60 GHz |  10.75 GHz |
 | ------------------ | ---------- | ---------- | ---------- | ---------- |
@@ -679,52 +706,40 @@ when considering the typical LNB LO frequencies:
 | Telstar 11N Europe |            | 1754020000 |            |            |
 |        Telstar 18V | 1092500000 |            |            |            |
 
-The above frequencies are within the following frequency bands:
+## 6. Search for the Blockstream Satellite Signal
 
-|       LO Frequency |   5.15 GHz |   9.75 GHz |  10.60 GHz |  10.75 GHz |
-| ------------------ | ---------- | ---------- | ---------- | ---------- |
-|               Band |          C |     Ku Low |    Ku High |    Ku High |
-
-### Run the Receiver application (GUI mode)
-
-Assuming you have built and installed the receiver, now you can run:
+The next step is to run the blocksat receiver aplication. At this point, to
+facilitate the antenna alignment, we recommend using the blocksat receiver in
+GUI mode. Later on, once the antenna is pointed, you can switch to the
+lightweight console-only application. To launch the GUI receiver, run:
 
 ```
-blocksat-rx-gui -f [freq_in_hz] -g [gain]
+blocksat-rx-gui -f [freq_in_hz]
 ```
 
-<a name="rx_parameters"></a> **Parameters:**
-
-- `freq_in_hz`: the frequency parameter, **specified in units of Hz**. That is,
-in the previous example where the computed frequency was 1276.15 MHz, the
-parameter would be specified as 1276150000 Hz.
-- `gain`: the gain parameter is a value between 0 and 50. Higher gain values may
-be required for long cable runs or LNBs with weak output. Some experimentation
-may be required to identify the best value for your application, explained
-later.
+where `freq_in_hz` is the frequency parameter, **specified as an integer number
+in units of Hz**.
 
 **Example:**
 
 ```
-blocksat-rx-gui -f 1276150000 -g 40
+blocksat-rx-gui -f 1276150000
 ```
 
-### Possible Issues
-
-- Ensure that your `PYTHONPATH` environment variable is set to the installed
-location of `gr-framers` and `gr-blocksat`. Usually
-`/usr/local/lib64/python2.7/site-packages` on RedHat/Fedora or
-`/usr/local/lib64/python2.7/dist-packages` on Ubuntu.
-- Ensure your `LD_LIBRARY_PATH` environment variable is set. Typically
-`/usr/local/lib64`.
-
-## 6. Search for the Blockstream Satellite Signal
+>**Possible Issues**
+>
+>- Ensure that your `PYTHONPATH` environment variable is set to the installed
+>location of `gr-framers` and `gr-blocksat`. Usually
+>`/usr/local/lib64/python2.7/site-packages` on RedHat/Fedora or
+>`/usr/local/lib64/python2.7/dist-packages` on Ubuntu.
+>- Ensure your `LD_LIBRARY_PATH` environment variable is set. Typically
+>`/usr/local/lib64`.
 
 1. Once `blocksat-rx-gui` is running, the first objective is to recognize the
-   Blockstream Satellite signal band on the Overview tab of the GUI. Ideally,
-   you would see a flat level spanning a frequency band (in the horizontal axis)
-   of approximately 250 kHz, which corresponds to Blockstream Satellite's
-   nominal system bandwidth.
+   Blockstream Satellite signal band on the plots that are presented in the
+   Overview tab of the GUI. Ideally, you would see a flat level spanning a
+   frequency band (in the horizontal axis) of approximately 250 kHz, which
+   corresponds to Blockstream Satellite's nominal system bandwidth.
 
 2. If you cannot see the signal using your initial pointing parameters, try
    several small adjustments of elevation and azimuth around the angles that
@@ -781,7 +796,7 @@ periodically in the console:
 ```
 
 If frame synchronization has not yet been acquired, you can do some
-troubleshooting. If you see a clear signal in the Overview tab of the GUI, first
+troubleshooting. If you see a clear signal at the Overview tab of the GUI, first
 check the frequency offset of the signal. The receiver can correct a frequency
 offset within `+- 250 kHz`. If the signal band is centered at a frequency beyond
 this range, the options are **1)** to re-launch the receiver with a different
@@ -796,7 +811,7 @@ blocksat-rx-gui -f 1276150000 -s
 
 The scenario of a frequency offset exceeding the correction range is illustrated
 in the screenshot above. Note that the signal band is clearly visible. However,
-it is centered at approximately `-325` kHz. Thus, the frequency recovery
+it is centered at approximately `-325 kHz`. Thus, the frequency recovery
 algorithm cannot correct the frequency and, as a result, frame synchronization
 is not acquired. This situation can also be diagnosed by looking at the
 "Freq. Sync" page of the GUI. The goal is to have the "red curve" (spectrum
@@ -807,22 +822,20 @@ the frequency parameter of the receiver or re-launch it in scan mode.
 
 ![Spectrum Found](doc/spectrum_found_bpsk.png?raw=true "Spectrum Found")
 
-Now, if the signal band is clear and centered within `+-250` kHz, but you still
+Now, if the signal band is clear and centered within `+-250 kHz`, but you still
 can't see a peak in the "Frame Sync" page or, correspondingly, you can't get
 `Frame synchronization acquired` log in the console, it is possible that you are
 seeing the wrong signal or pointed to the wrong satellite. If you see two
-similar signal bands, both with an apparent `250` kHz flat level span, try
+similar signal bands, both with an apparent `250 kHz` flat level span, try
 adjusting the frequency parameter such that only one of them is "visible" at a
 time, based on the spectrum plots of the Overview tab. If that doesn't work,
 then it is likely not a signal problem, but rather a satellite problem. Try
 adjusting azimuth and/or elevation again to see if you can find a different
 satellite near the nominal angles that you got from the dish alignment tool.
 
-**ATTENTION:**
-
-In Europe, there is a nearby satellite that transmits a similar signal band on a
-similar frequency. Use the above instructions and particularly the "Frame Sync"
-tab of the GUI in order to know when pointed correctly.
+**ATTENTION:** In Europe, there is a nearby satellite that transmits a similar
+signal band on a similar frequency. Use the above instructions and particularly
+the "Frame Sync" tab of the GUI in order to know when pointed correctly.
 
 4. Now that frame synchronization has been acquired, we are mostly done. At this
    point, we can only pursue some improvements to the signal quality.
@@ -870,10 +883,14 @@ Well done. Your receiver is properly set-up and you are now ready to run it
 continuously. You have two options now:
 
 1. Continue running in GUI mode, namely the above `blocksat-rx-gui` application.
-2. Run the lighter non-GUI receiver application, that is `blocksat-rx`.
+2. Run the lightweight non-GUI receiver application, that is `blocksat-rx`.
 
-Once the receiver is up and running, you can run the Bitcoin FIBRE application
-receiving data via the Blockstream Satellite Network.
+## 8. Learn More
+
+In case you are interested in learning more about technical aspects of the
+receiver and particularly understanding the performance metrics that are
+displayed in the GUI, please visit the [Understanding the
+GUI guide](../../wiki/Understanding-the-GUI) guide in this wiki.
 
 # Run the Receiver
 
