@@ -53,6 +53,7 @@ All of these steps are thoroughly explained next.
     - [Split Receiver Mode](#split-receiver-mode)
 - [Run Bitcoin FIBRE](#run-bitcoin-fibre)
 - [Satellite API](#satellite-api)
+- [Running on Raspberry Pi](#running-on-raspberry-pi)
 - [Frequent issues and questions](#frequent-issues-and-questions)
 
 <!-- markdown-toc end -->
@@ -883,7 +884,7 @@ Well done. Your receiver is properly set-up and you are now ready to run it
 continuously. You have two options now:
 
 1. Continue running in GUI mode, namely the above `blocksat-rx-gui` application.
-2. Run the lightweight non-GUI receiver application, that is `blocksat-rx`.
+2. Run the lightweight non-GUI receiver application, named `blocksat-rx`.
 
 ## 8. Learn More
 
@@ -1061,13 +1062,16 @@ For more information about Bitcoin FIBRE, refer to:
 
 >Bitcoin FIBRE: http://bitcoinfibre.org
 
+Also, build instructions can be found
+[here](https://github.com/bitcoinfibre/bitcoinfibre/tree/master/doc#building).
+
 Note that the Blockstream Satellite receiver feeds received data into an output
 named pipe that is supposed to be read by the Bitcoin FIBRE application. Hence,
 you need to point FIBRE to the named pipe file accordingly. You can start
 `bitcoind` with the following parameters:
 
 ```
-./bitcoind -fecreaddevice=/tmp/blocksat/bitcoinfibre
+bitcoind -fecreaddevice=/tmp/blocksat/bitcoinfibre
 ```
 
 > **NOTE 1:** The Blockstream Satellite receiver will create the
@@ -1085,6 +1089,52 @@ there](api/examples/).
 For more information regarding the Satellite API, please visit
 [blockstream.com/satellite-api](https://blockstream.com/satellite-api/) or the
 documentation in the [`api` directory](api/).
+
+# Running on Raspberry Pi
+
+Blockstream Satellite v1.4.0 or later is confirmed to work with Raspberry Pi 3
+B+ using Ubuntu MATE 18.04.02 for 64-bit architecture. To install on Raspberry,
+proceed with the following steps:
+
+1. Download [Ubuntu MATE Bionic for aarch64
+   (ARMv8)](https://ubuntu-mate.org/download/).
+2. Flash the Ubuntu MATE OS into your microSD card. You can use a tool such as
+   [balenaEtcher](https://www.balena.io/etcher/).
+3. Run Raspberry Pi and install Blockstream Satellite there as usual. Follow the
+   [binary package installation instructions for Ubuntu](#from-binary-packages).
+4. Compile bitcoin FIBRE for Raspberry Pi. You can compile natively on Raspberry
+   Pi or cross-compile (recommended). Assuming the latter, first [cross-compile the dependencies](https://github.com/bitcoinfibre/bitcoinfibre/blob/master/depends/README.md),
+   then [cross-compile the main apps](https://github.com/bitcoinfibre/bitcoinfibre/blob/master/doc/build-unix.md#arm-cross-compilation).
+5. Ship the cross-compiled bitcoin FIBRE applications to Raspberry Pi.
+6. Run `blocksat-rx` and `bitcoin` as usual.
+
+> NOTE: we recommend running the non-GUI (`blocksat-rx`) application, due to CPU
+> limitations. You can use the GUI app (`blocksat-rx-gui`) for pointing the
+> dish, but once pointed, you should switch to `blocksat-rx`.
+
+## Bitcoin FIBRE's cross-compilation from Ubuntu 18.04
+
+The commands in the sequel can be used for bitcoin FIBRE's cross-compilation
+from an Ubuntu 18.04 x86 (`amd64`) machine, targeting the Raspberry Pi's 3 B+
+64-bit processor armv8 (`aarch64`).
+
+First install the `aarch64` toolchain:
+```
+sudo apt-get install gcc-aarch64-linux-gnu g++-aarch64-linux-gnu binutils-aarch64-linux-gnu
+```
+
+Then, from `bitcoinfibre`'s root folder, run:
+```
+cd depends
+make HOST=aarch64-linux-gnu NO_QT=1
+cd ..
+./autogen.sh
+./configure --prefix=$PWD/depends/aarch64-linux-gnu --enable-glibc-back-compat --enable-reduce-exports LDFLAGS=-static-libstdc++
+make CXXFLAGS='-pipe -O2 -fvisibility=hidden -DLINUX_ARM -DHAVE_ARM_NEON_H -DGF256_TRY_NEON'
+```
+
+Finally, ship the built applications such as `src/bitcoind` and
+`src/bitcoin-cli` to Raspberry Pi.
 
 # Frequent issues and questions
 
