@@ -2,7 +2,7 @@
 """
 Launch the DVB receiver
 """
-import argparse, subprocess, re, time
+import os, argparse, subprocess, re, time
 
 
 def find_adapter():
@@ -132,6 +132,146 @@ def dvbnet(ip_addr, netmask, adapter, pid=1, ule=True):
     return net_if
 
 
+def set_rp_filters(dvb_if):
+    """Disable reverse-path (RP) filtering for the DVB interface
+
+    There are two layers of RP filters, one specific to the network interface
+    and a highler level that controls the configurations for all network
+    interfaces. This function disables RP filtering on the top layer (for all
+    interfaces), but then enables RP fitlering individually for each interface,
+    except the DVB interface. This way, in the end only the DVB interface has RP
+    filtering disabled.
+
+    Args:
+        dvb_if : DVB network interface
+
+    """
+
+    print("\nBlocksat traffic is one-way and thus reverse path (RP) " +\
+          "filtering must be disabled.")
+    print("The automatic solution disables RP filtering on the DVB " + \
+          "interface and enables RP filtering on all other interfaces.")
+
+    resp = input("OK to proceed? [Y/n] ") or "Y"
+
+    if (resp.lower() == "y"):
+        # Check interfaces
+        ifs = os.listdir("/proc/sys/net/ipv4/conf/")
+
+        dvb_cfg =  subprocess.check_output([
+            "sudo",
+            "sysctl",
+            "net.ipv4.conf." + dvb_if + ".rp_filter"
+        ])
+
+        # Check current configuration of DVB interface and "all" rule:
+        dvb_cfg =  subprocess.check_output([
+            "sudo",
+            "sysctl",
+            "net.ipv4.conf." + dvb_if + ".rp_filter"
+        ]).split()[-1].decode()
+        all_cfg =  subprocess.check_output([
+            "sudo",
+            "sysctl",
+            "net.ipv4.conf.all.rp_filter"
+        ]).split()[-1].decode()
+
+        if (dvb_cfg == "0" and all_cfg == "0"):
+            print("Current RP filtering configurations are already sufficient")
+            print("Skipping...")
+            return
+
+        # Enable all RP filters
+        for interface in ifs:
+            if (interface == "all"):
+                continue
+
+            print("Enabling reverse path filter on interface %s" %(interface))
+            subprocess.check_output([
+                "sudo",
+                "sysctl",
+                "-w",
+                "net.ipv4.conf." + interface + ".rp_filter=1"
+            ])
+
+        # Disable the overall RP filter
+        subprocess.check_output([
+            "sudo",
+            "sysctl",
+            "-w",
+            "net.ipv4.conf.all.rp_filter=0"
+        ])
+
+        # And disable RP filtering on the DVB interface
+        print("Disabling reverse path filter on interface %s" %(dvb_if))
+        subprocess.check_output([
+            "sudo",
+            "sysctl",
+            "-w",
+            "net.ipv4.conf." + dvb_if + ".rp_filter=0"
+        ])
+    else:
+        print("Reverse path filtering configuration cancelled")
+
+
+def set_iptables_rule(ip, ports):
+    """Define rule on iptables to accept traffic via DVB interface
+
+    Args:
+        ip    : source IP address
+        ports : ports used for blocks traffic and API traffic
+
+    """
+
+    print("\nFirewall rules are necessary to accept Blocksat traffic")
+    print("Blocksat traffic will come from IP %s towards UDP ports %s" %(
+        ip, ",".join(ports)
+    ))
+
+    resp = input("Add corresponding ACCEPT rule on firewall? [Y/n] ") or "Y"
+
+    if (resp.lower() == "y"):
+        # Check current configuration
+        res = subprocess.check_output([
+            "sudo", "iptables", "-L", "--line-numbers"
+        ])
+
+        # Is the rule already configured?
+        for line in res.splitlines():
+            if (ip in line.decode()):
+                current_rule = line.decode().split()
+                if (current_rule[1] == "ACCEPT" and current_rule[4] == ip and
+                    current_rule[8] == ",".join(ports)):
+                    print("Firewall rule already configured")
+                    print(line.decode())
+                    print("Skipping...")
+                    return
+
+        # Set up iptables rule
+        subprocess.check_output([
+            "sudo",
+            "iptables",
+            "-I", "INPUT",
+            "-p", "udp",
+            "-s", ip,
+            "--match", "multiport",
+            "--dports", ",".join(ports),
+            "-j", "ACCEPT",
+        ])
+
+        # Check results
+        res = subprocess.check_output([
+            "sudo", "iptables", "-L", "--line-numbers"
+        ])
+
+        for line in res.splitlines():
+            if (ip in line.decode()):
+                print("Added iptables rule:")
+                print(line.decode())
+    else:
+        print("Firewall configuration cancelled")
+
+
 def main():
     parser = argparse.ArgumentParser("DVB Receiver Launcher")
     parser.add_argument('-c', '--chan-conf',
@@ -151,7 +291,16 @@ def main():
                         action='store_true',
                         help='Use MPE encapsulation instead of ULE ' +
                         '(default: False)')
+    parser.add_argument('--no-firewall',
+                        default=False,
+                        action='store_true',
+                        help='Do not ask to set firewall rule for DVB traffic ' +
+                        '(default: False)')
     args      = parser.parse_args()
+
+    # Constants
+    src_ip    = "192.168.200.2"
+    src_ports = ["4433", "4434"]
 
     # Find adapter
     adapter = find_adapter()
@@ -161,6 +310,12 @@ def main():
 
     # Launch the DVB network interface
     net_if = dvbnet(args.ip, args.netmask, adapter, ule=(not args.mpe))
+
+    # Set RP filters
+    set_rp_filters(net_if)
+
+    if (not args.no_firewall):
+        set_iptables_rule(src_ip, src_ports)
 
     while True:
         line = zap_ps.stderr.readline()
