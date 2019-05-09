@@ -66,6 +66,8 @@ def zap(adapter, conf_file, lnb="UNIVERSAL"):
 
     """
 
+    print("Tuning DVB receiver:")
+
     cmd = ["sudo", "dvbv5-zap", "-P", "-c", conf_file, "-a", adapter, "-l", lnb,
            "-r", "ch2", "-v"]
     print(" ".join(cmd))
@@ -133,7 +135,7 @@ def dvbnet(ip_addr, netmask, adapter, pid=1, ule=True):
 def main():
     parser = argparse.ArgumentParser("DVB Receiver Launcher")
     parser.add_argument('-c', '--chan-conf',
-                        default='~/channels.conf',
+                        default='channels.conf',
                         help='Channel configurations file ' +
                         '(default: ~/channels.conf)')
     parser.add_argument('-i', '--ip',
