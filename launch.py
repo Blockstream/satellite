@@ -76,6 +76,7 @@ def zap(adapter, conf_file, lnb="UNIVERSAL"):
     #   "-v" sets verbose
     return ps
 
+
 def dvbnet(ip_addr, netmask, adapter, pid=1, ule=True):
     """Start DVB network interface
 
@@ -85,6 +86,9 @@ def dvbnet(ip_addr, netmask, adapter, pid=1, ule=True):
         adapter   : DVB adapter index
         pid       : PID to listen to
         ule       : Whether to use ULE framing
+
+    Returns:
+        Network interface name
 
     """
 
@@ -99,6 +103,11 @@ def dvbnet(ip_addr, netmask, adapter, pid=1, ule=True):
 
     # Create interface in case it doesn't
     if (res is None):
+        if (ule):
+            print("Using ULE encapsulation")
+        else:
+            print("Using MPE encapsulation")
+
         ule_arg = "-U" if ule else ""
         res = subprocess.check_output(["sudo", "dvbnet", "-a", adapter, "-p",
                                    str(pid), ule_arg])
@@ -118,8 +127,7 @@ def dvbnet(ip_addr, netmask, adapter, pid=1, ule=True):
     else:
         print("%s already has an IP" %(net_if))
 
-    # Disable reverse path filtering
-    #sudo sysctl -w "net.ipv4.conf.dvb1_0.rp_filter=0"
+    return net_if
 
 
 def main():
@@ -136,19 +144,21 @@ def main():
                         default='255.255.255.252',
                         help='IP address set for the DVB net interface ' +
                         '(default: 255.255.255.252)')
+    parser.add_argument('--mpe',
+                        default=False,
+                        action='store_true',
+                        help='Use MPE encapsulation instead of ULE ' +
+                        '(default: False)')
     args      = parser.parse_args()
-    chan_conf = args.chan_conf
-    ip_addr   = args.ip
-    netmask   = args.netmask
 
     # Find adapter
     adapter = find_adapter()
 
     # Zap
-    zap_ps = zap(adapter, chan_conf)
+    zap_ps = zap(adapter, args.chan_conf)
 
     # Launch the DVB network interface
-    dvbnet(ip_addr, netmask, adapter)
+    net_if = dvbnet(args.ip, args.netmask, adapter, ule=(not args.mpe))
 
     while True:
         line = zap_ps.stderr.readline()
