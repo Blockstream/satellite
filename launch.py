@@ -66,11 +66,11 @@ def zap(adapter, conf_file, lnb="UNIVERSAL"):
 
     """
 
-    print("Tuning DVB receiver:")
+    print("\nTuning DVB receiver")
 
     cmd = ["sudo", "dvbv5-zap", "-P", "-c", conf_file, "-a", adapter, "-l", lnb,
            "-r", "ch2", "-v"]
-    print(" ".join(cmd))
+    print("Running: " + " ".join(cmd))
     ps = subprocess.Popen(cmd, stderr=subprocess.PIPE,
                           universal_newlines=True)
     #   "-P" accepts all PIDs
@@ -305,9 +305,6 @@ def main():
     # Find adapter
     adapter = find_adapter()
 
-    # Zap
-    zap_ps = zap(adapter, args.chan_conf)
-
     # Launch the DVB network interface
     net_if = dvbnet(args.ip, args.netmask, adapter, ule=(not args.mpe))
 
@@ -317,11 +314,15 @@ def main():
     if (not args.no_firewall):
         set_iptables_rule(src_ip, src_ports)
 
+    # Zap
+    zap_ps = zap(adapter, args.chan_conf)
+
     while True:
         line = zap_ps.stderr.readline()
         if (line):
-            print(line)
-        time.sleep(0.001)
+            print('\r' + line, end='')
+        else:
+            time.sleep(1)
 
 
 if __name__ == '__main__':
