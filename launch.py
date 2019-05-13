@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 Launch the DVB receiver
 """
@@ -68,7 +68,7 @@ def zap(adapter, conf_file, lnb="UNIVERSAL"):
 
     print("\nTuning DVB receiver")
 
-    cmd = ["sudo", "dvbv5-zap", "-P", "-c", conf_file, "-a", adapter, "-l", lnb,
+    cmd = ["dvbv5-zap", "-P", "-c", conf_file, "-a", adapter, "-l", lnb,
            "-r", "ch2", "-v"]
     print("Running: " + " ".join(cmd))
     ps = subprocess.Popen(cmd, stderr=subprocess.PIPE,
@@ -98,7 +98,7 @@ def dvbnet(ip_addr, netmask, adapter, pid=1, ule=True):
     net_if = "dvb" + adapter + "_0"
 
     try:
-        res = subprocess.check_output(["sudo", "ifconfig", net_if])
+        res = subprocess.check_output(["ifconfig", net_if])
     except subprocess.CalledProcessError as e:
         res = None
         pass
@@ -111,7 +111,7 @@ def dvbnet(ip_addr, netmask, adapter, pid=1, ule=True):
             print("Using MPE encapsulation")
 
         ule_arg = "-U" if ule else ""
-        res = subprocess.check_output(["sudo", "dvbnet", "-a", adapter, "-p",
+        res = subprocess.check_output(["dvbnet", "-a", adapter, "-p",
                                    str(pid), ule_arg])
         print(res.decode())
         has_ip = False
@@ -124,7 +124,7 @@ def dvbnet(ip_addr, netmask, adapter, pid=1, ule=True):
     if (not has_ip):
         print("Assign IP address %s to %s" %(ip_addr, net_if))
         # Assign IP
-        res = subprocess.check_output(["sudo", "ifconfig", net_if, ip_addr,
+        res = subprocess.check_output(["ifconfig", net_if, ip_addr,
                                        "netmask", netmask])
     else:
         print("%s already has an IP" %(net_if))
@@ -159,19 +159,16 @@ def set_rp_filters(dvb_if):
         ifs = os.listdir("/proc/sys/net/ipv4/conf/")
 
         dvb_cfg =  subprocess.check_output([
-            "sudo",
             "sysctl",
             "net.ipv4.conf." + dvb_if + ".rp_filter"
         ])
 
         # Check current configuration of DVB interface and "all" rule:
         dvb_cfg =  subprocess.check_output([
-            "sudo",
             "sysctl",
             "net.ipv4.conf." + dvb_if + ".rp_filter"
         ]).split()[-1].decode()
         all_cfg =  subprocess.check_output([
-            "sudo",
             "sysctl",
             "net.ipv4.conf.all.rp_filter"
         ]).split()[-1].decode()
@@ -188,7 +185,6 @@ def set_rp_filters(dvb_if):
 
             print("Enabling reverse path filter on interface %s" %(interface))
             subprocess.check_output([
-                "sudo",
                 "sysctl",
                 "-w",
                 "net.ipv4.conf." + interface + ".rp_filter=1"
@@ -196,7 +192,6 @@ def set_rp_filters(dvb_if):
 
         # Disable the overall RP filter
         subprocess.check_output([
-            "sudo",
             "sysctl",
             "-w",
             "net.ipv4.conf.all.rp_filter=0"
@@ -205,7 +200,6 @@ def set_rp_filters(dvb_if):
         # And disable RP filtering on the DVB interface
         print("Disabling reverse path filter on interface %s" %(dvb_if))
         subprocess.check_output([
-            "sudo",
             "sysctl",
             "-w",
             "net.ipv4.conf." + dvb_if + ".rp_filter=0"
@@ -233,7 +227,7 @@ def set_iptables_rule(ip, ports):
     if (resp.lower() == "y"):
         # Check current configuration
         res = subprocess.check_output([
-            "sudo", "iptables", "-L", "--line-numbers"
+            "iptables", "-L", "--line-numbers"
         ])
 
         # Is the rule already configured?
@@ -249,7 +243,6 @@ def set_iptables_rule(ip, ports):
 
         # Set up iptables rule
         subprocess.check_output([
-            "sudo",
             "iptables",
             "-I", "INPUT",
             "-p", "udp",
@@ -261,7 +254,7 @@ def set_iptables_rule(ip, ports):
 
         # Check results
         res = subprocess.check_output([
-            "sudo", "iptables", "-L", "--line-numbers"
+            "iptables", "-L", "--line-numbers"
         ])
 
         for line in res.splitlines():
@@ -273,11 +266,12 @@ def set_iptables_rule(ip, ports):
 
 
 def main():
+    cwd    = os.path.dirname(os.path.realpath(__file__))
     parser = argparse.ArgumentParser("DVB Receiver Launcher")
     parser.add_argument('-c', '--chan-conf',
-                        default='channels.conf',
+                        default=os.path.join(cwd, 'channels.conf'),
                         help='Channel configurations file ' +
-                        '(default: ~/channels.conf)')
+                        '(default: channels.conf)')
     parser.add_argument('-i', '--ip',
                         default='192.168.201.2',
                         help='IP address set for the DVB net interface ' +
