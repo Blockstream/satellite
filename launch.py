@@ -117,7 +117,7 @@ def dvbnet(ip_addr, netmask, adapter, pid=1, ule=True):
         has_ip = False
     else:
         print("Interface %s already exists" %(net_if))
-        ip_grep = re.findall("inet", res.decode())
+        ip_grep = re.findall("inet ", res.decode())
         has_ip  = (len(ip_grep) > 0)
 
     # Check if interface has IP:
