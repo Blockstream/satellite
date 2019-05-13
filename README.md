@@ -2,8 +2,9 @@
 
 ## Dependencies
 
-First install some required packages:
+First install some required packages.
 
+### Ubuntu/Debian:
 ```
 sudo apt apt update
 sudo apt install python3 net-tools iptables dvb-apps dvb-tools
@@ -11,6 +12,12 @@ sudo apt install python3 net-tools iptables dvb-apps dvb-tools
 
 > NOTE: `net-tools` and `iptables` are used in order to ensure `ifconfig` and
 > `iptables` tools are available.
+
+### Fedora:
+```
+sudo dnf update
+sudo dnf install python3 net-tools iptables dvb-apps v4l-utils
+```
 
 ## Run
 
