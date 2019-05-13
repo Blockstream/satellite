@@ -285,10 +285,15 @@ def main():
                         action='store_true',
                         help='Use MPE encapsulation instead of ULE ' +
                         '(default: False)')
-    parser.add_argument('--no-firewall',
+    parser.add_argument('--skip-rp',
                         default=False,
                         action='store_true',
-                        help='Do not ask to set firewall rule for DVB traffic ' +
+                        help='Skip settting of network reverse path filters ' +
+                        '(default: False)')
+    parser.add_argument('--skip-firewall',
+                        default=False,
+                        action='store_true',
+                        help='Skip setting of firewall rule for DVB traffic ' +
                         '(default: False)')
     args      = parser.parse_args()
 
@@ -303,9 +308,11 @@ def main():
     net_if = dvbnet(args.ip, args.netmask, adapter, ule=(not args.mpe))
 
     # Set RP filters
-    set_rp_filters(net_if)
+    if (not args.skip_rp):
+        set_rp_filters(net_if)
 
-    if (not args.no_firewall):
+    # Set firewall
+    if (not args.skip_firewall):
         set_iptables_rule(src_ip, src_ports)
 
     # Zap
