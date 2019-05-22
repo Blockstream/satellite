@@ -1022,7 +1022,7 @@
     </param>
     <param>
       <key>protocol_version</key>
-      <value>version</value>
+      <value>2</value>
     </param>
     <param>
       <key>user_pipe</key>
@@ -2769,49 +2769,6 @@
     </param>
     <param>
       <key>num_tabs</key>
-      <value>2</value>
-    </param>
-  </block>
-  <block>
-    <key>parameter</key>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(1168, 4)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>version</value>
-    </param>
-    <param>
-      <key>label</key>
-      <value>Blockstream Satellite Protocol Version</value>
-    </param>
-    <param>
-      <key>short_id</key>
-      <value></value>
-    </param>
-    <param>
-      <key>type</key>
-      <value>intx</value>
-    </param>
-    <param>
-      <key>value</key>
       <value>2</value>
     </param>
   </block>

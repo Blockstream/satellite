@@ -43,6 +43,8 @@ GR_FRAMERS_BUILD_RC   = build/gr-framers_build_record
 GR_BLOCKSAT_BUILD_DIR = gr-blocksat/build
 GR_BLOCKSAT_BUILD_RC  = gr-blocksat/build_record
 
+VERSION = $(shell git describe)
+
 .PHONY: build install clean uninstall blocksat install-blocksat clean-blocksat \
 uninstall-blocksat framers install-framers clean-framers uninstall-framers
 
@@ -79,6 +81,10 @@ build/%.py: grc/%.grc
 	@sed -i 's/'\
 	'dest=\"preamble_stats\", type=\"intx\", default=0/'\
 	'dest=\"preamble_stats\", action=\"store_true\", default=False/g' $@
+	@sed -i 's/'\
+	'option_class=eng_option, description=description/'\
+	'option_class=eng_option, description=description, version=\"'\
+	'Blockstream Satellite $(VERSION)\"/g' $@
 	@chmod u+x $@
 	python -m compileall $@
 	f=$@ && x=$${f%.py} && y="$${x//_/-}" &&\
