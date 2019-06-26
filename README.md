@@ -54,6 +54,7 @@ All of these steps are thoroughly explained next.
 - [Run Bitcoin FIBRE](#run-bitcoin-fibre)
 - [Satellite API](#satellite-api)
 - [Running on Raspberry Pi](#running-on-raspberry-pi)
+- [Running on Docker](#running-on-docker)
 - [Frequent issues and questions](#frequent-issues-and-questions)
 
 <!-- markdown-toc end -->
@@ -1135,6 +1136,35 @@ make CXXFLAGS='-pipe -O2 -fvisibility=hidden -DLINUX_ARM -DHAVE_ARM_NEON_H -DGF2
 
 Finally, ship the built applications such as `src/bitcoind` and
 `src/bitcoin-cli` to Raspberry Pi.
+
+# Running on Docker
+
+From the root folder, build the Docker image:
+
+```
+docker build . -t blocksat
+```
+
+> The Docker image is based on an Ubuntu bionic and installs blocksat directly
+> from binary packages.
+
+Next, run the container:
+```
+docker run --rm --privileged -v /dev/bus/usb:/dev/bus/usb -it blocksat
+```
+
+Note **privileged mode** is used in order to allow the container to access the
+RTL-SDR USB device of the host.
+
+> On a Mac OSX host, you will need to set up a
+> [docker-machine](https://docs.docker.com/machine/) in order share the SDR USB
+> device. Once this docker-machine is active, you can share the USB device via
+> the settings of the [machine
+> driver](https://docs.docker.com/machine/drivers/). Then, run the above `docker
+> run` command normally.
+
+Once inside the container, run `blocksat-rx` as usual.
+
 
 # Frequent issues and questions
 
