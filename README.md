@@ -251,6 +251,13 @@ extended range RTL-SDR uses another tuner (the E4000), whose frequency range is
 more than sufficient to cover the frequency that is necessary for Telstar 11N
 Europe.
 
+> NOTE: the extended range RTL-SDR (featuring the E4000 tuner) is **only**
+> recommended for the **Telstar 11N Europe** coverage region. This tuner has a
+> gap in the range of frequencies that it supports and it turns out that this
+> gap encompasses the frequencies that are typically used to receive the
+> Blockstream Satellite signal at three other regions: within Galaxy 18 (North
+> America), Eutelsat 113 (South America) and Telstar 18V (Asia-Pacific).
+
 In addition to the RTL-SDR, there is also support for USRP SDRs, which is a
 higher-cost SDR product family from Ettus Research. Besides, any other SDR
 platform supported by [GNU Radio](https://www.gnuradio.org) can be used,
