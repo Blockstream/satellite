@@ -227,6 +227,11 @@ def main():
         except requests.exceptions.ChunkedEncodingError:
             print("Reconnecting...")
             pass
+        except requests.exceptions.ConnectionError as e:
+            print(e)
+            logging.info("Connection failed - trying again...")
+            time.sleep(1)
+            pass
 
 
 if __name__ == '__main__':
