@@ -2,7 +2,7 @@
 """
 Launch the DVB receiver
 """
-import os, argparse, subprocess, re, time
+import os, argparse, subprocess, re, time, logging
 
 
 def find_adapter():
@@ -12,6 +12,8 @@ def find_adapter():
         Adapter index
 
     """
+    print("\n------------------------------ Find DVB Adapter " +
+          "--------------------------------")
     ps     = subprocess.Popen("dmesg", stdout=subprocess.PIPE)
     output = subprocess.check_output(["grep", "frontend"], stdin=ps.stdout,
                                      stderr=subprocess.STDOUT)
@@ -66,12 +68,14 @@ def zap(adapter, conf_file, lnb="UNIVERSAL"):
 
     """
 
-    print("\nTuning DVB receiver")
+    print("\n------------------------------ Tuning DVB Receiver " +
+          "-----------------------------")
+    print("Running dvbv5-zap")
 
     cmd = ["dvbv5-zap", "-P", "-c", conf_file, "-a", adapter, "-l", lnb,
            "-r", "ch2", "-v"]
-    print("Running: " + " ".join(cmd))
-    ps = subprocess.Popen(cmd, stderr=subprocess.PIPE,
+    logging.debug("> " + " ".join(cmd))
+    ps = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                           universal_newlines=True)
     #   "-P" accepts all PIDs
     #   "-r" sets up MPEG-TS record
@@ -79,26 +83,23 @@ def zap(adapter, conf_file, lnb="UNIVERSAL"):
     return ps
 
 
-def dvbnet(ip_addr, netmask, adapter, pid=1, ule=True):
+def dvbnet(adapter, net_if, pid=1, ule=True):
     """Start DVB network interface
 
     Args:
-        ip_addr   : Target IP address for the DVB interface
-        netmask   : Subnet mask
         adapter   : DVB adapter index
+        net_if    : DVB network interface name
         pid       : PID to listen to
         ule       : Whether to use ULE framing
 
-    Returns:
-        Network interface name
-
     """
 
-    # Check if interface already exists
-    net_if = "dvb" + adapter + "_0"
+    print("\n------------------------------ Network Interface " +
+          "-------------------------------")
 
+    # Check if interface already exists
     try:
-        res = subprocess.check_output(["ifconfig", net_if])
+        res = subprocess.check_output(["ip", "addr", "show", "dev", net_if])
     except subprocess.CalledProcessError as e:
         res = None
         pass
@@ -106,30 +107,54 @@ def dvbnet(ip_addr, netmask, adapter, pid=1, ule=True):
     # Create interface in case it doesn't
     if (res is None):
         if (ule):
-            print("Using ULE encapsulation")
+            print("Launch %s using ULE encapsulation" %(net_if))
         else:
-            print("Using MPE encapsulation")
+            print("Launch %s using MPE encapsulation" %(net_if))
+
+        adapter_dir = '/dev/dvb/adapter' + adapter
+        if (not os.access(adapter_dir, os.W_OK)):
+            raise PermissionError(
+                "You need write permission on %s. " %(adapter_dir) +
+                "Consider running as root." )
 
         ule_arg = "-U" if ule else ""
-        res = subprocess.check_output(["dvbnet", "-a", adapter, "-p",
-                                   str(pid), ule_arg])
+        cmd     = ["dvbnet", "-a", adapter, "-p", str(pid), ule_arg]
+        logging.debug("> " + " ".join(cmd))
+        res     = subprocess.check_output(cmd)
         print(res.decode())
-        has_ip = False
     else:
         print("Interface %s already exists" %(net_if))
-        ip_grep = re.findall("inet ", res.decode())
-        has_ip  = (len(ip_grep) > 0)
 
+
+def set_ip(net_if, ip_addr):
+    """Set the IP of the DVB network interface
+
+    Args:
+        net_if    : DVB network interface name
+        ip_addr   : Target IP address for the DVB interface slash subnet mask
+
+    """
+
+    print("\n----------------------------- Interface IP Address " +
+          "-----------------------------")
     # Check if interface has IP:
+    try:
+        res = subprocess.check_output(["ip", "addr", "show", "dev", net_if])
+    except subprocess.CalledProcessError as e:
+        res = None
+        pass
+
+    ip_grep = re.findall("inet ", res.decode())
+    has_ip  = (len(ip_grep) > 0)
+
     if (not has_ip):
         print("Assign IP address %s to %s" %(ip_addr, net_if))
         # Assign IP
-        res = subprocess.check_output(["ifconfig", net_if, ip_addr,
-                                       "netmask", netmask])
+        cmd = ["ip", "address", "add", ip_addr, "dev", net_if]
+        logging.debug("> " + " ".join(cmd))
+        res = subprocess.check_output(cmd)
     else:
         print("%s already has an IP" %(net_if))
-
-    return net_if
 
 
 def set_rp_filters(dvb_if):
@@ -147,11 +172,12 @@ def set_rp_filters(dvb_if):
 
     """
 
-    print("\nBlocksat traffic is one-way and thus reverse path (RP) " +\
-          "filtering must be disabled.")
-    print("The automatic solution disables RP filtering on the DVB " + \
-          "interface and enables RP filtering on all other interfaces.")
-
+    print("\n----------------------------- Reverse Path Filters " +
+          "-----------------------------")
+    print("Blocksat traffic is one-way and thus reverse path (RP) filtering " +
+          "must be\ndisabled. The automatic solution disables RP filtering " +
+          "on the DVB interface and\nenables RP filtering on all other " +
+          "interfaces.")
     resp = input("OK to proceed? [Y/n] ") or "Y"
 
     if (resp.lower() == "y"):
@@ -174,7 +200,7 @@ def set_rp_filters(dvb_if):
         ]).split()[-1].decode()
 
         if (dvb_cfg == "0" and all_cfg == "0"):
-            print("Current RP filtering configurations are already sufficient")
+            print("Current RP filtering configurations are already OK")
             print("Skipping...")
             return
 
@@ -217,10 +243,10 @@ def set_iptables_rule(ip, ports):
 
     """
 
-    print("\nFirewall rules are necessary to accept Blocksat traffic")
-    print("Blocksat traffic will come from IP %s towards UDP ports %s" %(
-        ip, ",".join(ports)
-    ))
+    print("\n------------------------------- Firewall Rules " +
+          "--------------------------------")
+    print("Configure firewall rules to accept Blocksat traffic arriving " +
+          "at interface %s\ntowards UDP ports %s." %(net_if, ",".join(ports)))
 
     resp = input("Add corresponding ACCEPT rule on firewall? [Y/n] ") or "Y"
 
@@ -273,13 +299,10 @@ def main():
                         help='Channel configurations file ' +
                         '(default: channels.conf)')
     parser.add_argument('-i', '--ip',
-                        default='192.168.201.2',
+                        default='192.168.201.2/24',
                         help='IP address set for the DVB net interface ' +
-                        '(default: 192.168.201.2)')
-    parser.add_argument('-n', '--netmask',
-                        default='255.255.255.252',
-                        help='IP address set for the DVB net interface ' +
-                        '(default: 255.255.255.252)')
+                        'with subnet mask in CIDR notation' +
+                        '(default: 192.168.201.2/24)')
     parser.add_argument('--mpe',
                         default=False,
                         action='store_true',
@@ -299,7 +322,15 @@ def main():
                         default='192.168.200.2',
                         help='IP address of the satellite Tx node ' +
                         '(default: 192.168.200.2)')
+    parser.add_argument('--debug', action='store_true',
+                        help='Debug mode (default: false)')
     args      = parser.parse_args()
+
+    if (args.debug):
+        logging.basicConfig(level=logging.DEBUG)
+        logging.debug('[Debug Mode]')
+    else:
+        logging.basicConfig(level=logging.INFO)
 
     # Constants
     src_ports = ["4433", "4434"]
@@ -307,8 +338,14 @@ def main():
     # Find adapter
     adapter = find_adapter()
 
+    # Interface name
+    net_if = "dvb" + adapter + "_0"
+
     # Launch the DVB network interface
-    net_if = dvbnet(args.ip, args.netmask, adapter, ule=(not args.mpe))
+    dvbnet(adapter, net_if, ule=(not args.mpe))
+
+    # Zap
+    zap_ps = zap(adapter, args.chan_conf)
 
     # Set RP filters
     if (not args.skip_rp):
@@ -318,9 +355,13 @@ def main():
     if (args.set_firewall):
         set_iptables_rule(args.tx_ip, src_ports)
 
-    # Zap
-    zap_ps = zap(adapter, args.chan_conf)
+    # Set IP
+    set_ip(net_if, args.ip)
 
+    print("\n----------------------------------- Listening " +
+          "----------------------------------")
+
+    # Loop indefinitely over zap stdout/sdterr
     while True:
         line = zap_ps.stderr.readline()
         if (line):
