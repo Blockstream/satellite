@@ -290,15 +290,18 @@ def main():
                         action='store_true',
                         help='Skip settting of network reverse path filters ' +
                         '(default: False)')
-    parser.add_argument('--skip-firewall',
+    parser.add_argument('--set-firewall',
                         default=False,
                         action='store_true',
-                        help='Skip setting of firewall rule for DVB traffic ' +
+                        help='Set firewall rules for DVB traffic ' +
                         '(default: False)')
+    parser.add_argument('--tx-ip',
+                        default='192.168.200.2',
+                        help='IP address of the satellite Tx node ' +
+                        '(default: 192.168.200.2)')
     args      = parser.parse_args()
 
     # Constants
-    src_ip    = "192.168.200.2"
     src_ports = ["4433", "4434"]
 
     # Find adapter
@@ -311,9 +314,9 @@ def main():
     if (not args.skip_rp):
         set_rp_filters(net_if)
 
-    # Set firewall
-    if (not args.skip_firewall):
-        set_iptables_rule(src_ip, src_ports)
+    # Set firewall rules
+    if (args.set_firewall):
+        set_iptables_rule(args.tx_ip, src_ports)
 
     # Zap
     zap_ps = zap(adapter, args.chan_conf)
