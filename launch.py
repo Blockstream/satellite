@@ -144,17 +144,27 @@ def set_ip(net_if, ip_addr):
         res = None
         pass
 
-    ip_grep = re.findall("inet ", res.decode())
-    has_ip  = (len(ip_grep) > 0)
+    has_ip = False
+    for line in res.splitlines():
+        if "inet" in line.decode():
+            inet_info = line.decode().split()
+            has_ip = True
+            ip_ok  = (inet_info[1] == ip_addr)
+            break
 
-    if (not has_ip):
+    if (has_ip and not ip_ok):
+        print("Flush current IP address of %s" %(net_if))
+        cmd = ["ip", "address", "flush", "dev", net_if]
+        logging.debug("> " + " ".join(cmd))
+        res = subprocess.check_output(cmd)
+
+    if (not has_ip or not ip_ok):
         print("Assign IP address %s to %s" %(ip_addr, net_if))
-        # Assign IP
         cmd = ["ip", "address", "add", ip_addr, "dev", net_if]
         logging.debug("> " + " ".join(cmd))
         res = subprocess.check_output(cmd)
     else:
-        print("%s already has an IP" %(net_if))
+        print("%s already has IP %s" %(net_if, ip_addr))
 
 
 def set_rp_filters(dvb_if):
