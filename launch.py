@@ -234,12 +234,12 @@ def set_rp_filters(dvb_if):
         print("Reverse path filtering configuration cancelled")
 
 
-def set_iptables_rule(ip, ports):
+def set_iptables_rule(net_if, ports):
     """Define rule on iptables to accept traffic via DVB interface
 
     Args:
-        ip    : source IP address
-        ports : ports used for blocks traffic and API traffic
+        net_if : DVB network interface name
+        ports  : ports used for blocks traffic and API traffic
 
     """
 
@@ -253,39 +253,63 @@ def set_iptables_rule(ip, ports):
     if (resp.lower() == "y"):
         # Check current configuration
         res = subprocess.check_output([
-            "iptables", "-L", "--line-numbers"
+            "iptables", "-L", "-v", "--line-numbers"
         ])
 
         # Is the rule already configured?
+        header1 = ""
+        header2 = ""
         for line in res.splitlines():
-            if (ip in line.decode()):
+            if ("Chain INPUT" in line.decode()):
+                header1 = line.decode()
+
+            if ("destination" in line.decode()):
+                header2 = line.decode()
+
+            if (net_if in line.decode()):
                 current_rule = line.decode().split()
-                if (current_rule[1] == "ACCEPT" and current_rule[4] == ip and
-                    current_rule[8] == ",".join(ports)):
-                    print("Firewall rule already configured")
+                if (current_rule[3] == "ACCEPT" and
+                    current_rule[4] == "udp" and
+                    current_rule[6] == net_if and
+                    current_rule[12] == ",".join(ports)):
+                    print("Firewall rule already configured\n")
+                    print(header1)
+                    print(header2)
                     print(line.decode())
                     print("Skipping...")
                     return
 
         # Set up iptables rule
-        subprocess.check_output([
+        cmd = [
             "iptables",
             "-I", "INPUT",
             "-p", "udp",
-            "-s", ip,
+            "-i", net_if,
             "--match", "multiport",
             "--dports", ",".join(ports),
             "-j", "ACCEPT",
-        ])
+        ]
+        logging.debug("> " + " ".join(cmd))
+        subprocess.check_output(cmd)
 
         # Check results
         res = subprocess.check_output([
-            "iptables", "-L", "--line-numbers"
+            "iptables", "-L", "-v", "--line-numbers"
         ])
 
+        header1 = ""
+        header2 = ""
         for line in res.splitlines():
-            if (ip in line.decode()):
-                print("Added iptables rule:")
+            if ("Chain INPUT" in line.decode()):
+                header1 = line.decode()
+
+            if ("destination" in line.decode()):
+                header2 = line.decode()
+
+            if (net_if in line.decode()):
+                print("Added iptables rule:\n")
+                print(header1)
+                print(header2)
                 print(line.decode())
     else:
         print("Firewall configuration cancelled")
@@ -313,15 +337,11 @@ def main():
                         action='store_true',
                         help='Skip settting of network reverse path filters ' +
                         '(default: False)')
-    parser.add_argument('--set-firewall',
+    parser.add_argument('--skip-firewall',
                         default=False,
                         action='store_true',
-                        help='Set firewall rules for DVB traffic ' +
-                        '(default: False)')
-    parser.add_argument('--tx-ip',
-                        default='192.168.200.2',
-                        help='IP address of the satellite Tx node ' +
-                        '(default: 192.168.200.2)')
+                        help='Skip configuration of firewall rules for DVB ' +
+                        'traffic (default: False)')
     parser.add_argument('--debug', action='store_true',
                         help='Debug mode (default: false)')
     args      = parser.parse_args()
@@ -352,8 +372,8 @@ def main():
         set_rp_filters(net_if)
 
     # Set firewall rules
-    if (args.set_firewall):
-        set_iptables_rule(args.tx_ip, src_ports)
+    if (not args.skip_firewall):
+        set_iptables_rule(net_if, src_ports)
 
     # Set IP
     set_ip(net_if, args.ip)
