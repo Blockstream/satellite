@@ -3,7 +3,7 @@
 Read API data directly via internet and output to pipe
 """
 
-import sys, argparse, textwrap, requests, struct, json, logging
+import sys, argparse, textwrap, requests, struct, json, logging, time
 import sseclient
 import pipe
 
