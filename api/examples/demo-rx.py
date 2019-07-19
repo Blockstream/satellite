@@ -4,7 +4,7 @@ Read API data directly via internet and output to pipe
 """
 
 import sys, argparse, textwrap, requests, struct, json, logging, time
-import sseclient
+import sseclient, urllib3, certifi
 import pipe
 
 
@@ -179,10 +179,11 @@ def main():
     print("Connecting with Satellite API server...")
     while (True):
         try:
-            # Server-side Event Client
-            r = requests.get(server_addr + "/subscribe/transmissions",
-                             stream=True)
-            r.raise_for_status()
+            # Server-sent Events (SSE) Client
+            http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED',
+                                       ca_certs=certifi.where())
+            r = http.request('GET', server_addr + "/subscribe/transmissions",
+                             preload_content=False)
             client = sseclient.SSEClient(r)
             print("Connected. Waiting for events...\n")
 
@@ -223,15 +224,15 @@ def main():
 
                     # Record the sequence number of the order that was received
                     last_seq_num = seq_num
-
-        except requests.exceptions.ChunkedEncodingError:
-            print("Reconnecting...")
-            pass
-        except requests.exceptions.ConnectionError as e:
-            print(e)
-            logging.info("Connection failed - trying again...")
+        except urllib3.exceptions.ProtocolError as e:
+            logging.debug(e)
+            print("Connection failed - trying again...")
             time.sleep(1)
             pass
+        except urllib3.exceptions.MaxRetryError as e:
+            logging.debug(e)
+            print("ERROR: Maximum number of connection retries exceeded")
+            exit()
 
 
 if __name__ == '__main__':

@@ -198,7 +198,7 @@ other information useful for opening payment channels. For example:
 
 ### GET /subscribe/:channels
 
-Subscribe to one or more [server-side
+Subscribe to one or more [server-sent
 events](https://en.wikipedia.org/wiki/Server-sent_events) channels. The
 `channels` parameter is a comma-separated list of event channels. Currently,
 only one channel is available: `transmissions`, to which an event is pushed each
