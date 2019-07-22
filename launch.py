@@ -190,19 +190,17 @@ def set_rp_filters(dvb_if):
           "interfaces.")
     resp = input("OK to proceed? [Y/n] ") or "Y"
 
+    # Sysctl-ready interface name: replace a dot (for VLAN interface) with slash
+    sysctl_dvb_if = dvb_if.replace(".", "/")
+
     if (resp.lower() == "y"):
         # Check interfaces
         ifs = os.listdir("/proc/sys/net/ipv4/conf/")
 
-        dvb_cfg =  subprocess.check_output([
-            "sysctl",
-            "net.ipv4.conf." + dvb_if + ".rp_filter"
-        ])
-
         # Check current configuration of DVB interface and "all" rule:
         dvb_cfg =  subprocess.check_output([
             "sysctl",
-            "net.ipv4.conf." + dvb_if + ".rp_filter"
+            "net.ipv4.conf." + sysctl_dvb_if + ".rp_filter"
         ]).split()[-1].decode()
         all_cfg =  subprocess.check_output([
             "sysctl",
@@ -216,17 +214,22 @@ def set_rp_filters(dvb_if):
 
         # Enable all RP filters
         for interface in ifs:
-            if (interface == "all"):
+            if (interface == "all" or interface == dvb_if):
                 continue
+
+            # Again, /proc/sys uses dot on VLANs normally, but sysctl does
+            # not. Instead, it substitutes with slash. Replace here before using
+            sysctl_interface = interface.replace(".", "/")
 
             print("Enabling reverse path filter on interface %s" %(interface))
             subprocess.check_output([
                 "sysctl",
                 "-w",
-                "net.ipv4.conf." + interface + ".rp_filter=1"
+                "net.ipv4.conf." + sysctl_interface + ".rp_filter=1"
             ])
 
         # Disable the overall RP filter
+        print("Disabling reverse path filter on \"all\" rule")
         subprocess.check_output([
             "sysctl",
             "-w",
@@ -238,7 +241,7 @@ def set_rp_filters(dvb_if):
         subprocess.check_output([
             "sysctl",
             "-w",
-            "net.ipv4.conf." + dvb_if + ".rp_filter=0"
+            "net.ipv4.conf." + sysctl_dvb_if + ".rp_filter=0"
         ])
     else:
         print("Reverse path filtering configuration cancelled")
