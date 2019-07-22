@@ -5,6 +5,10 @@ Launch the DVB receiver
 import os, argparse, subprocess, re, time, logging
 
 
+# Constants
+src_ports = ["4433", "4434"]
+
+
 def find_adapter():
     """Find the DVB adapter
 
@@ -328,45 +332,18 @@ def set_iptables_rule(net_if, ports):
         print("Firewall configuration cancelled")
 
 
-def main():
-    cwd    = os.path.dirname(os.path.realpath(__file__))
-    parser = argparse.ArgumentParser("DVB Receiver Launcher")
-    parser.add_argument('-c', '--chan-conf',
-                        default=os.path.join(cwd, 'channels.conf'),
-                        help='Channel configurations file ' +
-                        '(default: channels.conf)')
-    parser.add_argument('-i', '--ip',
-                        default='192.168.201.2/24',
-                        help='IP address set for the DVB net interface ' +
-                        'with subnet mask in CIDR notation' +
-                        '(default: 192.168.201.2/24)')
-    parser.add_argument('--mpe',
-                        default=False,
-                        action='store_true',
-                        help='Use MPE encapsulation instead of ULE ' +
-                        '(default: False)')
-    parser.add_argument('--skip-rp',
-                        default=False,
-                        action='store_true',
-                        help='Skip settting of network reverse path filters ' +
-                        '(default: False)')
-    parser.add_argument('--skip-firewall',
-                        default=False,
-                        action='store_true',
-                        help='Skip configuration of firewall rules for DVB ' +
-                        'traffic (default: False)')
-    parser.add_argument('--debug', action='store_true',
-                        help='Debug mode (default: false)')
-    args      = parser.parse_args()
+def launch(args):
+    """Launch the DVB interface from scractch
+
+    Handles the launch subcommand
+
+    """
 
     if (args.debug):
         logging.basicConfig(level=logging.DEBUG)
         logging.debug('[Debug Mode]')
     else:
         logging.basicConfig(level=logging.INFO)
-
-    # Constants
-    src_ports = ["4433", "4434"]
 
     # Find adapter
     adapter = find_adapter()
@@ -401,6 +378,94 @@ def main():
             print('\r' + line, end='')
         else:
             time.sleep(1)
+
+
+def reverse_path_subcommand(args):
+    """Call function that sets reverse path filters
+
+    Handles the reverse-path subcommand
+
+    """
+    set_rp_filters(args.interface)
+
+
+def firewall_subcommand(args):
+    """Call function that sets firewall rules
+
+    Handles the firewall subcommand
+
+    """
+    set_iptables_rule(args.interface, src_ports)
+
+
+def main():
+    """Main - parse command-line arguments and call subcommands
+
+    """
+
+    cwd        = os.path.dirname(os.path.realpath(__file__))
+    parser     = argparse.ArgumentParser(prog="blocksat-cfg",
+                                         description="Blocksat configuration helper")
+    subparsers = parser.add_subparsers(title='subcommands',
+                                       help='Target sub-command')
+
+    # Launch command
+    launch_parser = subparsers.add_parser('launch',
+                                          description="Set up the DVB interface",
+                                          help='Launch DVB interface')
+
+    launch_parser.add_argument('-c', '--chan-conf',
+                               default=os.path.join(cwd, 'channels.conf'),
+                               help='Channel configurations file ' +
+                               '(default: channels.conf)')
+
+    launch_parser.add_argument('-i', '--ip', default='192.168.201.2/24',
+                               help='IP address set for the DVB net interface '
+                               + 'with subnet mask in CIDR notation' +
+                               '(default: 192.168.201.2/24)')
+
+    launch_parser.add_argument('--mpe', default=False, action='store_true',
+                               help='Use MPE encapsulation instead of ULE ' +
+                               '(default: False)')
+
+    launch_parser.add_argument('--skip-rp', default=False, action='store_true',
+                               help='Skip settting of reverse path filters ' + \
+                               '(default: False)')
+
+    launch_parser.add_argument('--skip-firewall', default=False,
+                               action='store_true',
+                               help='Skip configuration of firewall rules ' + \
+                               '(default: False)')
+
+    launch_parser.set_defaults(func=launch)
+
+    # Reverse path configuration command
+    rp_parser = subparsers.add_parser('reverse-path', aliases=['rp'],
+                                      description="Set reverse path filters",
+                                      help='Set reverse path filters')
+
+    rp_parser.add_argument('-i', '--interface', required = True,
+                           help='Network interface (required)')
+
+    rp_parser.set_defaults(func=reverse_path_subcommand)
+
+    # Firewall configuration command
+    fwall_parser = subparsers.add_parser('firewall',
+                                         description="Set firewall rules",
+                                         help='Set firewall rules')
+
+    fwall_parser.add_argument('-i', '--interface', required = True,
+                              help='Network interface (required)')
+
+    fwall_parser.set_defaults(func=firewall_subcommand)
+
+    # Optional args
+    parser.add_argument('--debug', action='store_true',
+                        help='Debug mode (default: false)')
+
+    # Parse and call corresponding subcommand
+    args      = parser.parse_args()
+    args.func(args)
 
 
 if __name__ == '__main__':
