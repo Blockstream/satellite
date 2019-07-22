@@ -9,7 +9,7 @@ import os, argparse, subprocess, re, time, logging
 src_ports = ["4433", "4434"]
 
 
-def find_adapter():
+def find_adapter(prompt=True):
     """Find the DVB adapter
 
     Returns:
@@ -44,14 +44,19 @@ def find_adapter():
     for adapter in dvb_s2_adapters:
         print("Found DVB-S2 adapter: %s %s" %(adapter["vendor"],
                                               adapter["model"]))
-        response = None
-        while response not in {"y", "n"}:
-            raw_resp = input("Choose adapter? [Y/n] ") or "Y"
-            response = raw_resp.lower()
 
-        if (response.lower() == "y"):
-            chosen_adapter = adapter
-            break
+        if (prompt):
+            response = None
+            while response not in {"y", "n"}:
+                raw_resp = input("Choose adapter? [Y/n] ") or "Y"
+                response = raw_resp.lower()
+
+            if (response.lower() == "y"):
+                chosen_adapter = adapter
+                break
+
+    if (not prompt):
+        return
 
     if (chosen_adapter is None):
         raise ValueError("Please choose DVB-S2 adapter")
@@ -175,9 +180,9 @@ def set_rp_filters(dvb_if):
     """Disable reverse-path (RP) filtering for the DVB interface
 
     There are two layers of RP filters, one specific to the network interface
-    and a highler level that controls the configurations for all network
+    and a higher level that controls the configurations for all network
     interfaces. This function disables RP filtering on the top layer (for all
-    interfaces), but then enables RP fitlering individually for each interface,
+    interfaces), but then enables RP filtering individually for each interface,
     except the DVB interface. This way, in the end only the DVB interface has RP
     filtering disabled.
 
@@ -358,7 +363,7 @@ def set_iptables_rule(net_if, ports):
 
 
 def launch(args):
-    """Launch the DVB interface from scractch
+    """Launch the DVB interface from scratch
 
     Handles the launch subcommand
 
@@ -423,6 +428,15 @@ def firewall_subcommand(args):
     set_iptables_rule(args.interface, src_ports)
 
 
+def find_adapter_subcommand(args):
+    """Call function that finds the DVB adapter
+
+    Handles the find-adapter subcommand
+
+    """
+    find_adapter(prompt=False)
+
+
 def main():
     """Main - parse command-line arguments and call subcommands
 
@@ -483,6 +497,13 @@ def main():
                               help='Network interface (required)')
 
     fwall_parser.set_defaults(func=firewall_subcommand)
+
+    # Find adapter command
+    find_parser = subparsers.add_parser('find-adapter',
+                                        description="Find DVB adapter",
+                                        help='Find DVB adapter')
+
+    find_parser.set_defaults(func=find_adapter_subcommand)
 
     # Optional args
     parser.add_argument('--debug', action='store_true',
