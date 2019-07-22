@@ -198,9 +198,6 @@ def set_rp_filters(dvb_if):
     sysctl_dvb_if = dvb_if.replace(".", "/")
 
     if (resp.lower() == "y"):
-        # Check interfaces
-        ifs = os.listdir("/proc/sys/net/ipv4/conf/")
-
         # Check current configuration of DVB interface and "all" rule:
         dvb_cfg =  subprocess.check_output([
             "sysctl",
@@ -216,39 +213,67 @@ def set_rp_filters(dvb_if):
             print("Skipping...")
             return
 
-        # Enable all RP filters
-        for interface in ifs:
-            if (interface == "all" or interface == dvb_if):
-                continue
-
-            # Again, /proc/sys uses dot on VLANs normally, but sysctl does
-            # not. Instead, it substitutes with slash. Replace here before using
-            sysctl_interface = interface.replace(".", "/")
-
-            print("Enabling reverse path filter on interface %s" %(interface))
+        # If "all" rule is already disabled, it is only necessary to disable the
+        # target interface
+        if (all_cfg == "0"):
+            print("RP filter for \"all\" interfaces is already disabled")
+            print("Disabling RP filter on interface %s" %(dvb_if))
             subprocess.check_output([
                 "sysctl",
                 "-w",
-                "net.ipv4.conf." + sysctl_interface + ".rp_filter=1"
+                "net.ipv4.conf." + sysctl_dvb_if + ".rp_filter=0"
             ])
 
-        # Disable the overall RP filter
-        print("Disabling reverse path filter on \"all\" rule")
-        subprocess.check_output([
-            "sysctl",
-            "-w",
-            "net.ipv4.conf.all.rp_filter=0"
-        ])
+        # If "all" rule is enabled, we will need to disable it. Also to preserve
+        # RP filtering on all other interfaces, we will enable them manually.
+        else:
+            # Check interfaces
+            ifs = os.listdir("/proc/sys/net/ipv4/conf/")
 
-        # And disable RP filtering on the DVB interface
-        print("Disabling reverse path filter on interface %s" %(dvb_if))
-        subprocess.check_output([
-            "sysctl",
-            "-w",
-            "net.ipv4.conf." + sysctl_dvb_if + ".rp_filter=0"
-        ])
+            # Enable all RP filters
+            for interface in ifs:
+                if (interface == "all" or interface == dvb_if or
+                    interface == "lo"):
+                    continue
+
+                # Again, /proc/sys uses dot on VLANs normally, but sysctl does
+                # not. Instead, it substitutes with slash. Replace here before using
+                sysctl_interface = interface.replace(".", "/")
+
+                # Check current configuration
+                current_cfg =  subprocess.check_output([
+                    "sysctl",
+                    "net.ipv4.conf." + sysctl_interface + ".rp_filter"
+                ]).split()[-1].decode()
+
+                if (int(current_cfg) > 0):
+                    print("RP filter is already enabled on interface %s" %(
+                        interface))
+                else:
+                    print("Enabling RP filter on interface %s" %(interface))
+                    subprocess.check_output([
+                        "sysctl",
+                        "-w",
+                        "net.ipv4.conf." + sysctl_interface + ".rp_filter=1"
+                    ])
+
+            # Disable the overall RP filter
+            print("Disabling RP filter on \"all\" rule")
+            subprocess.check_output([
+                "sysctl",
+                "-w",
+                "net.ipv4.conf.all.rp_filter=0"
+            ])
+
+            # And disable RP filtering on the DVB interface
+            print("Disabling RP filter on interface %s" %(dvb_if))
+            subprocess.check_output([
+                "sysctl",
+                "-w",
+                "net.ipv4.conf." + sysctl_dvb_if + ".rp_filter=0"
+            ])
     else:
-        print("Reverse path filtering configuration cancelled")
+        print("RP filtering configuration cancelled")
 
 
 def set_iptables_rule(net_if, ports):
