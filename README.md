@@ -61,3 +61,13 @@ sudo ./set_rp_filters.py -i dvb1_0
 
 This script will run some `sysctl` configurations, which are not executed inside
 the container.
+
+## Running with standalone DVB modem
+
+```
+sudo ./blocksat-cfg.py rp -i ifname
+```
+
+```
+sudo ./blocksat-cfg.py firewall -i ifname --standalone
+```
