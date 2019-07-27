@@ -73,7 +73,18 @@ def parse_user_data(data):
     Args:
         data : Sequence of bytes with the raw received data buffer
 
+    Returns:
+        Boolean indicating whether the parsing was successful
+
     """
+
+    if (len(data) < USER_HEADER_LEN):
+        print("WARNING: message length is less than 260 bytes")
+        print("Have you used the api_data_sender app with --send-raw option or another")
+        print("transmission app? In this case, consider running the api_data_reader app")
+        print("with --save-raw option.")
+        print("We will fall back and save the raw data...")
+        return False
 
     # Parse the user-specific header
     user_header = struct.unpack(USER_HEADER_FORMAT, data[:USER_HEADER_LEN])
@@ -85,14 +96,24 @@ def parse_user_data(data):
     data_crc32 = zlib.crc32(user_data)
 
     if (data_crc32 != checksum):
-        raise ValueError("Checksum (%d) does not match the header value (%d)" %(
+        print("ERROR: Checksum (%d) does not match the header value (%d)" %(
             data_crc32, checksum
         ))
-
-    print("File: %s\tChecksum: %d\tSize: %d bytes" %(
-        filename, checksum, len(user_data)))
+        print("This could be because some data was lost over the satellite link")
+        print("or because the message was sent without a user-specific header")
+        print("containing a checksum. The latter would be the case if using the")
+        print("api_data_sender app with --send-raw option or if using another")
+        print("Blocksat message transmission app. In this case, consider running the")
+        print("api_data_reader app with --save-raw command-line option.")
+        print("We will fall back and save the raw data...")
+        return False
+    else:
+        print("File: %s\tChecksum: %d\tSize: %d bytes" %(
+            filename, checksum, len(user_data)))
 
     save_file(user_data, filename)
+
+    return True
 
 
 def parse_api_out_data(rd_buffer):
@@ -255,27 +276,32 @@ def main():
                 print("[%s]: Got %7d bytes\tSaving as plaintext" %(
                     datetime.now().strftime("%Y-%m-%d %H:%M:%S"), len(data)))
                 save_file(data)
+                logging.debug("Message: %s" %data)
                 continue
-            else:
-                # Try to decrypt the data
-                decrypted_data = str(gpg.decrypt(data))
 
-            if (len(decrypted_data) > 0):
+            # Try to decrypt the data when not in plaintext mode
+            decrypted_data = gpg.decrypt(data)
+
+            if (decrypted_data.ok):
                 print("[%s]: Got %7d bytes\t Decryption: OK    \t" %(
                     datetime.now().strftime("%Y-%m-%d %H:%M:%S"), len(data)))
-                print("Decrypted data has %d bytes" %(len(decrypted_data)))
+                print("Decrypted data has %d bytes" %(len(str(decrypted_data))))
 
                 # Parse the user-specific data structure. If ignoring the
                 # existence of an application-specific data structure, save the
                 # raw decrypted data directly to a file.
-                if (not save_raw):
-                    parse_user_data(decrypted_data)
+                if (save_raw):
+                    save_file(str(decrypted_data))
                 else:
-                    save_file(decrypted_data)
+                    parse_ok = parse_user_data(str(decrypted_data))
+
+                    # Save raw data in case parsing fails
+                    if (not parse_ok):
+                        save_file(str(decrypted_data))
             else:
                 print("[%s]: Got %7d bytes\t Decryption: FAILED\t" %(
                     datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                    len(data)) + "Message not for us")
+                    len(data)) +  "Not encrypted for us (%s)" %(decrypted_data.status))
 
 
 if __name__ == '__main__':

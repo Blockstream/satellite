@@ -234,6 +234,10 @@ gpg --encrypt --recipient pub_key_id_or_email filename
 where `pub_key_id_or_email` can be either the public key ID of the target
 recipient or its e-mail.
 
+> NOTE: In case the recipient information is located in the GnuPG home directory
+> that was created using `./generate_keys.py`, add `--homedir .gnupg` to the
+> above `gpg` command.
+
 Alternatively, you can run the API data reader in "plaintext mode". This will
 allow you to receive plaintext files uploaded directly via the [API
 website](https://blockstream.com/satellite-queue/), or any other plaintext
