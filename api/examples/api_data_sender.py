@@ -3,7 +3,7 @@
 Post data to the Satellite API for transmission via Blockstream Satellite
 """
 
-import os, sys, argparse, textwrap, struct, zlib, requests, json, logging
+import os, sys, argparse, textwrap, struct, zlib, requests, json, logging, time
 import gnupg
 from math import ceil
 
@@ -189,7 +189,10 @@ def main():
         '''),
         formatter_class=argparse.RawDescriptionHelpFormatter
     )
-    parser.add_argument('-f', '--file', help='File to send through API')
+
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument('-f', '--file', help='File to send through API')
+    group.add_argument('-m', '--message', help='Text message to send through API')
     parser.add_argument('-g', '--gnupghome', default=".gnupg",
                         help='GnuPG home directory (default: .gnupg)')
     parser.add_argument('-p', '--port',
@@ -208,6 +211,10 @@ def main():
                         action="store_true",
                         help='Send file directly, without any user-specific ' +
                         'data structure (default: false)')
+    parser.add_argument('--plaintext', default=False,
+                        action="store_true",
+                        help='Send as plaintext, i.e. without encryption ' +
+                        '(default: false)')
     parser.add_argument('--debug', action='store_true',
                         help='Debug mode (default: false)')
     # Optional actions
@@ -218,11 +225,13 @@ def main():
                        help='Delete an order (default: false)')
     args        = parser.parse_args()
     filename    = args.file
+    text_msg    = args.message
     gnupghome   = args.gnupghome
     port        = args.port
     server      = args.server
     net         = args.net
     send_raw    = args.send_raw
+    plaintext   = args.plaintext
 
     # Switch debug level
     if (args.debug):
@@ -264,25 +273,37 @@ def main():
     public_key = public_keys[0]
 
     # Read the file, append header, encrypt and transmit to the Satellite API
-    with open(filename, 'rb') as f:
-        data  = f.read()
+    if (text_msg is not None):
+        data     = text_msg.encode('utf-8')
+        basename = time.strftime("%Y%m%d%H%M%S")
+    else:
+        basename = os.path.basename(filename)
 
-        print("File has %d bytes" %(len(data)))
+        with open(filename, 'rb') as f:
+            data  = f.read()
+        assert(len(data) > 0)
 
-        # Pack data into data structure (header + data), if enabled
-        if (not send_raw):
-            # The header contains a CRC32 checksum of the data as well as a
-            # string with the file name.
-            header     = struct.pack(USER_HEADER_FORMAT,
-                                     os.path.basename(filename),
-                                     zlib.crc32(data))
-            plain_data = header + data
+    print("File has %d bytes" %(len(data)))
 
-            print("Packed in data structure with a total of %d bytes" %(
-                len(plain_data)))
-        else:
-            plain_data = data
+    # Pack data into data structure (header + data), if enabled
+    if (send_raw):
+        plain_data = data
+    else:
+        # The header contains a CRC32 checksum of the data as well as a
+        # string with the file name.
+        header     = struct.pack(USER_HEADER_FORMAT,
+                                 basename,
+                                 zlib.crc32(data))
+        plain_data = header + data
 
+        print("Packed in data structure with a total of %d bytes" %(
+            len(plain_data)))
+
+    # Encrypt, unless configured otherwise
+    if (plaintext):
+        msg_data     = plain_data
+        msg_len      = len(plain_data)
+    else:
         # Encrypt
         recipient   = public_key["fingerprint"]
         cipher_data = str(gpg.encrypt(plain_data, recipient))
@@ -294,40 +315,40 @@ def main():
         msg_data     = cipher_data
         msg_len      = len(cipher_data)
 
-        # Actual number of bytes used for satellite transmission
-        tx_len       = calc_tx_len(msg_len)
+    # Actual number of bytes used for satellite transmission
+    tx_len = calc_tx_len(msg_len)
 
-        print("Satellite transmission will use %d bytes" %(tx_len))
+    print("Satellite transmission will use %d bytes" %(tx_len))
 
-        # Ask user for bid
-        bid = ask_bid(tx_len)
+    # Ask user for bid
+    bid = ask_bid(tx_len)
 
-        # Post request to the API
-        r = requests.post(server_addr + '/order',
-                          data={'bid': bid},
-                          files={'file': msg_data})
+    # Post request to the API
+    r = requests.post(server_addr + '/order',
+                      data={'bid': bid},
+                      files={'file': msg_data})
 
-        # In case of failure, check the API error message
-        if (r.status_code != requests.codes.ok and
-            r.headers['content-type'] == "application/json"):
-            if "errors" in r.json():
-                for error in r.json()["errors"]:
-                    print("ERROR: " + error["title"] + "\n" + error["detail"])
+    # In case of failure, check the API error message
+    if (r.status_code != requests.codes.ok and
+        r.headers['content-type'] == "application/json"):
+        if "errors" in r.json():
+            for error in r.json()["errors"]:
+                print("ERROR: " + error["title"] + "\n" + error["detail"])
 
-        # Raise error if response status indicates failure
-        r.raise_for_status()
+    # Raise error if response status indicates failure
+    r.raise_for_status()
 
-        # Print the response
-        print("Data successfully transmitted")
-        print("--\nAuthentication Token:\n%s" %(r.json()["auth_token"]))
-        print("--\nUUID:\n%s" %(r.json()["uuid"]))
-        print("--\nLightning Invoice Number:\n%s" %(
-            r.json()["lightning_invoice"]["payreq"]))
-        print("--\nAmount Due:\n%s millisatoshis\n" %(
-            r.json()["lightning_invoice"]["msatoshi"]))
+    # Print the response
+    print("Data successfully transmitted")
+    print("--\nAuthentication Token:\n%s" %(r.json()["auth_token"]))
+    print("--\nUUID:\n%s" %(r.json()["uuid"]))
+    print("--\nLightning Invoice Number:\n%s" %(
+        r.json()["lightning_invoice"]["payreq"]))
+    print("--\nAmount Due:\n%s millisatoshis\n" %(
+        r.json()["lightning_invoice"]["msatoshi"]))
 
-        logging.debug("API Response:")
-        logging.debug(json.dumps(r.json(), indent=4, sort_keys=True))
+    logging.debug("API Response:")
+    logging.debug(json.dumps(r.json(), indent=4, sort_keys=True))
 
 
 if __name__ == '__main__':
