@@ -5,7 +5,7 @@ Read Satellite API data received via Blockstream Satellite
 
 import os, sys, argparse, textwrap, struct, zlib, time, logging
 from datetime import datetime
-import gnupg
+import gnupg, getpass
 import pipe
 
 
@@ -230,6 +230,10 @@ def main():
                        ' in the  \"downloads/\" folder. ' +
                        'NOTE: this saves all transmissions in the ' +
                        ' \"downloads/\" folder. (default: false)')
+    parser.add_argument('--password', default=False,
+                        action="store_true",
+                        help='Whether to access GPG keyring with a password ' +
+                        '(default: false)')
     parser.add_argument('--debug', action='store_true',
                         help='Debug mode (default: false)')
     args      = parser.parse_args()
@@ -249,6 +253,12 @@ def main():
     # GPG object
     if (not plaintext):
         gpg = gnupg.GPG(gnupghome = gnupghome)
+
+        # Is there a password for GPG keyring?
+        if (args.password):
+            gpg_password = getpass.getpass()
+        else:
+            gpg_password = None
 
     # Read the chosen named pipe continuously and append read data to a
     # buffer. Once complete data structures are ready, output them accordingly.
@@ -280,11 +290,31 @@ def main():
                 continue
 
             # Try to decrypt the data when not in plaintext mode
-            decrypted_data = gpg.decrypt(data)
+            decrypted_data = gpg.decrypt(data, passphrase = gpg_password)
 
             if (decrypted_data.ok):
-                print("[%s]: Got %7d bytes\t Decryption: OK    \t" %(
-                    datetime.now().strftime("%Y-%m-%d %H:%M:%S"), len(data)))
+                # Is the message digitally signed?
+                if (decrypted_data.fingerprint is not None):
+                    signed_by = decrypted_data.fingerprint
+
+                    # Was the signature verified?
+                    if decrypted_data.trust_level is not None:
+                        sign_str = "Signed by %s (verified w/ trust level: %s)" %(
+                            signed_by, decrypted_data.trust_text
+                        )
+                    else:
+                        sign_str = "Signed by %s (unverified)" %(signed_by)
+
+                    unsign_str = ""
+                else:
+                    unsign_str = "Not signed"
+                    sign_str = ""
+
+                print("[%s]: Got %7d bytes\t Decryption: OK    \t%s" %(
+                    datetime.now().strftime("%Y-%m-%d %H:%M:%S"), len(data),
+                    unsign_str))
+                if (len(sign_str) > 0):
+                    print(sign_str)
                 print("Decrypted data has %d bytes" %(len(str(decrypted_data))))
 
                 # Parse the user-specific data structure. If ignoring the

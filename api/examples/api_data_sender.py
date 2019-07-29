@@ -4,7 +4,7 @@ Post data to the Satellite API for transmission via Blockstream Satellite
 """
 
 import os, sys, argparse, textwrap, struct, zlib, requests, json, logging, time
-import gnupg
+import gnupg, getpass
 from math import ceil
 
 
@@ -41,7 +41,7 @@ class Order:
         if (r.status_code != requests.codes.ok):
             if "errors" in r.json():
                 for error in r.json()["errors"]:
-                    print("ERROR: " + error)
+                    print("ERROR: " + error["title"] + "\n" + error["detail"])
 
         r.raise_for_status()
 
@@ -88,7 +88,7 @@ class Order:
         if (r.status_code != requests.codes.ok):
             if "errors" in r.json():
                 for error in r.json()["errors"]:
-                    print("ERROR: " + error)
+                    print("ERROR: " + error["title"] + "\n" + error["detail"])
 
         r.raise_for_status()
 
@@ -115,7 +115,7 @@ class Order:
         if (r.status_code != requests.codes.ok):
             if "errors" in r.json():
                 for error in r.json()["errors"]:
-                    print("ERROR: " + error)
+                    print("ERROR: " + error["title"] + "\n" + error["detail"])
 
         r.raise_for_status()
 
@@ -207,6 +207,21 @@ def main():
                        default='https://api.blockstream.space',
                        help='Satellite API server address (default: ' +
                        'https://api.blockstream.space)')
+    parser.add_argument('-r', '--recipient', default=None,
+                        help='Public key fingerprint of the desired ' + \
+                        'recipient. If not defined, the recipient will ' + \
+                        'be automatically set to the host corresponding to ' + \
+                        'the first public key in the keyring. (default: None)')
+    parser.add_argument('--trust', default=False, action="store_true",
+                        help='Assume that recipient public key is fully ' +\
+                        ' trusted (default: False)')
+    parser.add_argument('--sign', default=False, action="store_true",
+                        help='Sign message in addition to encrypting ' +\
+                        ' (default: False)')
+    parser.add_argument('--sign-key', default=None,
+                        help='Fingerprint of key to use when signing the ' +\
+                        'encrypted data. If not set, default key from ' + \
+                        'keyring will be used for signing. (default: False)')
     parser.add_argument('--send-raw', default=False,
                         action="store_true",
                         help='Send file directly, without any user-specific ' +
@@ -214,6 +229,10 @@ def main():
     parser.add_argument('--plaintext', default=False,
                         action="store_true",
                         help='Send as plaintext, i.e. without encryption ' +
+                        '(default: false)')
+    parser.add_argument('--password', default=False,
+                        action="store_true",
+                        help='Whether to access GPG keyring with a password ' +
                         '(default: false)')
     parser.add_argument('--debug', action='store_true',
                         help='Debug mode (default: false)')
@@ -266,11 +285,11 @@ def main():
     # GPG object
     gpg = gnupg.GPG(gnupghome = gnupghome)
 
-    # Import public GPG keys
-    public_keys = gpg.list_keys()
-
-    # Use the first public key in case there are multiple
-    public_key = public_keys[0]
+    # Is there a password for GPG keyring?
+    if (args.password):
+        gpg_password = getpass.getpass()
+    else:
+        gpg_password = None
 
     # Read the file, append header, encrypt and transmit to the Satellite API
     if (text_msg is not None):
@@ -304,10 +323,37 @@ def main():
         msg_data     = plain_data
         msg_len      = len(plain_data)
     else:
-        # Encrypt
-        recipient   = public_key["fingerprint"]
-        cipher_data = str(gpg.encrypt(plain_data, recipient))
+        # Recipient public key
+        if (args.recipient is None):
+            # Use the first public key from keyring if recipient is not defined
+            public_keys = gpg.list_keys()
+            public_key  = public_keys[0]
+            recipient   = public_key["fingerprint"]
+            print("Encrypt for recipient %s" %(recipient))
+        else:
+            recipient   = args.recipient
+            print("Encrypt for chosen recipient %s" %(recipient))
 
+        # Digital signature, if desired
+        if (args.sign and args.sign_key is not None):
+            sign_cfg = args.sign_key
+            print("Sign message using key %s" %(args.sign_key))
+        elif (args.sign and args.sign_key is None):
+            sign_cfg = True
+            print("Sign message using default key")
+        else:
+            sign_cfg = False
+
+        # Encrypt
+        encrypted_obj = gpg.encrypt(plain_data, recipient,
+                                    always_trust = args.trust,
+                                    sign = sign_cfg,
+                                    passphrase = gpg_password)
+        if (not encrypted_obj.ok):
+            print(encrypted_obj.stderr)
+            raise ValueError(encrypted_obj.status)
+
+        cipher_data   = str(encrypted_obj)
         print("Encrypted version of the data structure has %d bytes" %(
             len(cipher_data)))
 

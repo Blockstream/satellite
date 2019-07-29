@@ -20,6 +20,12 @@ rather than receiving data via the satellite link.
 - [Example 2: Sending files directly](#example-2-sending-files-directly)
 - [Example 3: Testing the API while receiving data directly via Internet](#example-3-testing-the-api-while-receiving-data-directly-via-internet)
 - [Further Information](#further-information)
+    - [Bump and delete API orders](#bump-and-delete-api-orders)
+    - [Encryption and signature options](#encryption-and-signature-options)
+        - [Choosing recipient](#choosing-recipient)
+        - [Digital signature](#digital-signature)
+        - [Password-protected GPG keyring](#password-protected-gpg-keyring)
+    - [Text messages](#text-messages)
 
 <!-- markdown-toc end -->
 
@@ -318,6 +324,8 @@ server. That is, it needs to be launched as follows:
 
 ## Further Information
 
+### Bump and delete API orders
+
 The API data sender script also supports bumping and deletion of orders sent to
 the API.
 
@@ -336,3 +344,74 @@ To delete an order, run:
 Both of these commands will ask for the UUID and the authorization token of the
 order. These were originally printed to the console by the API data sender, when
 the latter was used to send the data to the API.
+
+### Encryption and signature options
+
+There are a few GPG options for the API data sender application that were not
+explained above.
+
+#### Choosing recipient
+
+You can define the specific recipient of your encrypted API messages. To do so,
+execute the sender app as follows:
+
+```
+./api_data_sender.py -f filename -r fingerprint
+```
+
+where fingerprint should be the public key fingerprint of the target recipient.
+
+In case you want to skip validation of the recipient's public key and assume it
+is fully trusted, you can run:
+
+```
+./api_data_sender.py -f filename -r fingerprint --trust
+```
+
+#### Digital signature
+
+You can also digitally sign the transmitted messages. To do so, run the sender
+app as follows:
+
+```
+./api_data_sender.py -f filename --sign
+```
+
+By default, messages will be signed using the default key from your keyring. You
+can also define the specific key to use when signing, as follows:
+
+```
+./api_data_sender.py -f filename --sign --sign-key fingerprint
+```
+
+where fingerprint in this case is the fingerprint of the private key you wish to
+use for signing.
+
+#### Password-protected GPG keyring
+
+In case the private key in your keyring is password-protected, you will need to
+use to inform your password when signing a message with the sender app. To do
+so, append `--password` when running the app. For example, as follows:
+
+```
+./api_data_sender.py -f filename --sign --password
+```
+
+Likewise, when decrypting messages with the reader app, if you need to inform
+your password, append `--password` to the API data reader command-line. For
+example, as follows:
+
+```
+./api_data_reader.py --password
+```
+
+### Text messages
+
+In addition to files, you can send text messages directly via command-line with
+the sender app.
+
+```
+./api_data_sender.py --plaintext --send-raw -m "Hello world"
+```
+
+
