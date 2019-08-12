@@ -81,8 +81,8 @@ def zap(adapter, conf_file, lnb="UNIVERSAL"):
           "-----------------------------")
     print("Running dvbv5-zap")
 
-    cmd = ["dvbv5-zap", "-P", "-c", conf_file, "-a", adapter, "-l", lnb,
-           "-r", "ch2", "-v"]
+    cmd = ["dvbv5-zap", "-P", "-c", conf_file, "-a", adapter, "-l", lnb, "-v",
+           "-r", "blocksat-ch"]
     logging.debug("> " + " ".join(cmd))
     ps = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                           universal_newlines=True)
