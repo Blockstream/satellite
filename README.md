@@ -24,14 +24,7 @@ sudo dnf install python3 iproute iptables dvb-apps v4l-utils
 Launch the DVB interface by running:
 
 ```
-./launch.py
-```
-
-This script requires administration privileges for some commands. Thus, you may
-need to run as root:
-
-```
-sudo ./launch.py
+sudo ./blocksat-cfg.py launch
 ```
 
 ## Running on Docker Container
@@ -56,7 +49,7 @@ After runnning, configure reverse path filters from the host (not from the
 container) by running:
 
 ```
-sudo ./set_rp_filters.py -i dvb1_0
+sudo ./blocksat-cfg.py -i dvb1_0
 ```
 
 This script will run some `sysctl` configurations, which are not executed inside
