@@ -92,7 +92,7 @@ def zap(adapter, conf_file, lnb="UNIVERSAL"):
     return ps
 
 
-def dvbnet(adapter, net_if, pid=1, ule=True):
+def dvbnet(adapter, net_if, pid=32, ule=True):
     """Start DVB network interface
 
     Args:
@@ -102,6 +102,8 @@ def dvbnet(adapter, net_if, pid=1, ule=True):
         ule       : Whether to use ULE framing
 
     """
+
+    assert(pid >= 32 and pid <= 8190), "PID not insider range 32 to 8190"
 
     print("\n------------------------------ Network Interface " +
           "-------------------------------")
