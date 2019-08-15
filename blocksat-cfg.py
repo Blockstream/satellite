@@ -64,13 +64,15 @@ def find_adapter(prompt=True):
     return chosen_adapter["adapter"]
 
 
-def zap(adapter, conf_file, lnb="UNIVERSAL"):
+def zap(adapter, conf_file, lnb="UNIVERSAL", output=None, timeout=None):
     """Run zapper
 
     Args:
         adapter   : DVB adapter index
         conf_file : Path to channel configurations file
         lnb       : LNB type
+        output    : Output filename (when recording)
+        timeout   : Run the zap for this specified duration
 
     Returns:
         Subprocess object
@@ -81,8 +83,14 @@ def zap(adapter, conf_file, lnb="UNIVERSAL"):
           "-----------------------------")
     print("Running dvbv5-zap")
 
-    cmd = ["dvbv5-zap", "-c", conf_file, "-a", adapter, "-l", lnb, "-v",
-           "blocksat-ch"]
+    cmd = ["dvbv5-zap", "-c", conf_file, "-a", adapter, "-l", lnb, "-v"]
+    if (output is not None):
+        cmd = cmd + ["-o", output]
+
+    if (timeout is not None):
+        cmd = cmd + ["-t", timeout]
+
+    cmd.append("blocksat-ch")
     logging.debug("> " + " ".join(cmd))
     ps = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                           universal_newlines=True)
@@ -488,7 +496,8 @@ def launch(args):
     dvbnet(adapter, net_if, ule=args.ule)
 
     # Zap
-    zap_ps = zap(adapter, args.chan_conf)
+    zap_ps = zap(adapter, args.chan_conf, output=args.record_file,
+                 timeout=args.timeout)
 
     # Set RP filters
     if (not args.skip_rp):
@@ -613,6 +622,14 @@ def main():
                                action='store_true',
                                help='Skip configuration of firewall rules ' + \
                                '(default: False)')
+
+    launch_parser.add_argument('-r', '--record-file', default=None,
+                               help='Record MPEG-TS traffic into target file \
+                               (default: None)')
+
+    launch_parser.add_argument('-t', '--timeout', default=None,
+                               help='Stop zapping after timeout - useful to \
+                               control recording time (default: None)')
 
     launch_parser.set_defaults(func=launch)
 
