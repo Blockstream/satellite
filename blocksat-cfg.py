@@ -659,7 +659,7 @@ def main():
     fwall_parser.set_defaults(func=firewall_subcommand)
 
     # Find adapter command
-    find_parser = subparsers.add_parser('find-adapter',
+    find_parser = subparsers.add_parser('find',
                                         description="Find DVB adapter",
                                         help='Find DVB adapter')
 
