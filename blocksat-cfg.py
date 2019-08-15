@@ -92,7 +92,7 @@ def zap(adapter, conf_file, lnb="UNIVERSAL"):
     return ps
 
 
-def dvbnet(adapter, net_if, pid=32, ule=True):
+def dvbnet(adapter, net_if, pid=32, ule=False):
     """Start DVB network interface
 
     Args:
@@ -441,7 +441,7 @@ def launch(args):
     net_if = "dvb" + adapter + "_0"
 
     # Launch the DVB network interface
-    dvbnet(adapter, net_if, ule=(not args.mpe))
+    dvbnet(adapter, net_if, ule=args.ule)
 
     # Zap
     zap_ps = zap(adapter, args.chan_conf)
@@ -522,8 +522,8 @@ def main():
                                + 'with subnet mask in CIDR notation' +
                                '(default: 192.168.201.2/24)')
 
-    launch_parser.add_argument('--mpe', default=False, action='store_true',
-                               help='Use MPE encapsulation instead of ULE ' +
+    launch_parser.add_argument('--ule', default=False, action='store_true',
+                               help='Use ULE encapsulation instead of MPE ' +
                                '(default: False)')
 
     launch_parser.add_argument('--skip-rp', default=False, action='store_true',
