@@ -137,6 +137,48 @@ def dvbnet(adapter, net_if, pid=32, ule=False):
         print("Interface %s already exists" %(net_if))
 
 
+def find_interface(adapter):
+    """Find DVB net interface
+
+    Args:
+        adapter: Corresponding DVB adapter
+
+    Returns:
+        interfaces : List of dvbnet interfaces
+
+    """
+
+    print("\n------------------------------ Find dvbnet interface " +
+          "--------------------------------")
+    cmd     = ["dvbnet", "-a", adapter, "-l"]
+    logging.debug("> " + " ".join(cmd))
+    res     = subprocess.check_output(cmd)
+
+    interfaces = list()
+    for line in res.splitlines():
+        if ("Found device" in line.decode()):
+            print(line.decode())
+            interfaces.append(line.decode().split()[2][:-1])
+
+    return interfaces
+
+
+def rm_interface(adapter, interface):
+    """Remove DVB net interface
+
+    Args:
+        adapter:   Corresponding DVB adapter
+        interface: dvbnet interface number
+    """
+
+    print("\n------------------------------ Remove dvbnet interface " +
+          "--------------------------------")
+    cmd     = ["dvbnet", "-a", adapter, "-d", interface]
+    logging.debug("> " + " ".join(cmd))
+    res     = subprocess.check_output(cmd)
+    print(res.decode())
+
+
 def set_ip(net_if, ip_addr):
     """Set the IP of the DVB network interface
 
@@ -496,6 +538,37 @@ def find_adapter_subcommand(args):
     find_adapter(prompt=False)
 
 
+def rm_subcommand(args):
+    """Remove DVB interface
+
+    """
+
+    # Find adapter
+    if (args.adapter is None):
+        adapter = find_adapter()
+    else:
+        adapter = args.adapter
+
+
+    interfaces = find_interface(adapter)
+
+    if (len(interfaces) > 0):
+        print("Choose net device to remove:")
+        resp       = input("%s or %s? " %(", ".join(interfaces[:-1]), interfaces[-1]))
+        chosen_dev = resp
+
+        if (chosen_dev not in interfaces):
+            raise ValueError("Wrong device")
+    elif (len(interfaces) == 1):
+        chosen_dev = interfaces[0]
+        print("Try removing device %s" %(chosen_dev))
+    else:
+        print("No DVB devices to remove")
+        return
+
+    rm_interface(adapter, chosen_dev)
+
+
 def main():
     """Main - parse command-line arguments and call subcommands
 
@@ -568,6 +641,17 @@ def main():
                                         help='Find DVB adapter')
 
     find_parser.set_defaults(func=find_adapter_subcommand)
+
+    # Remove adapter command
+    rm_parser = subparsers.add_parser('rm',
+                                      description="Remove DVB adapter",
+                                      help='Remove DVB adapter')
+
+    rm_parser.add_argument('-a', '--adapter',
+                           default=None,
+                           help='DVB adapter number (default: None)')
+
+    rm_parser.set_defaults(func=rm_subcommand)
 
     # Optional args
     parser.add_argument('--debug', action='store_true',
