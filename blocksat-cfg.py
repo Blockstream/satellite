@@ -81,12 +81,11 @@ def zap(adapter, conf_file, lnb="UNIVERSAL"):
           "-----------------------------")
     print("Running dvbv5-zap")
 
-    cmd = ["dvbv5-zap", "-P", "-c", conf_file, "-a", adapter, "-l", lnb, "-v",
-           "-r", "blocksat-ch"]
+    cmd = ["dvbv5-zap", "-c", conf_file, "-a", adapter, "-l", lnb, "-v",
+           "blocksat-ch"]
     logging.debug("> " + " ".join(cmd))
     ps = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                           universal_newlines=True)
-    #   "-P" accepts all PIDs
     #   "-r" sets up MPEG-TS record
     #   "-v" sets verbose
     return ps
