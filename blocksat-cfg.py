@@ -477,7 +477,10 @@ def launch(args):
         logging.basicConfig(level=logging.INFO)
 
     # Find adapter
-    adapter = find_adapter()
+    if (args.adapter is None):
+        adapter = find_adapter()
+    else:
+        adapter = args.adapter
 
     # Interface name
     net_if = "dvb" + adapter + "_0"
@@ -594,6 +597,10 @@ def main():
                                help='IP address set for the DVB net interface '
                                + 'with subnet mask in CIDR notation' +
                                '(default: 192.168.201.2/24)')
+
+    launch_parser.add_argument('-a', '--adapter',
+                               default=None,
+                               help='DVB adapter number (default: None)')
 
     launch_parser.add_argument('--ule', default=False, action='store_true',
                                help='Use ULE encapsulation instead of MPE ' +
