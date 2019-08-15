@@ -87,6 +87,27 @@ def zap(adapter, conf_file, lnb="UNIVERSAL", output=None, timeout=None):
     if (output is not None):
         cmd = cmd + ["-o", output]
 
+        if (os.path.exists(output)):
+            print("File %s already exists" %(output))
+
+            # The recording is such that MPEG TS packets are overwritten one by
+            # one. For instance, if previous ts file had 1000 MPEG TS packets,
+            # when overwriting, the tool would overwrite each packet
+            # individually. So if it was stopped for instance after the first 10
+            # MPEG TS packets, only the first 10 would be overwritten, the
+            # remaining MPEG TS packets would remain in the ts file.
+            #
+            # The other option is to remove the ts file completely and start a
+            # new one. This way, all previous ts packets are guaranteed to be
+            # erased.
+            raw_resp = input("Remove and start new (R) or Overwrite (O)? [R/O] ")
+            response = raw_resp.lower()
+
+            if (response == "r"):
+                os.remove(output)
+            elif (response != "o"):
+                raise ValueError("Unknown response")
+
     if (timeout is not None):
         cmd = cmd + ["-t", timeout]
 
