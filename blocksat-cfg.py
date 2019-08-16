@@ -83,7 +83,7 @@ def zap(adapter, conf_file, lnb="UNIVERSAL", output=None, timeout=None):
           "-----------------------------")
     print("Running dvbv5-zap")
 
-    cmd = ["dvbv5-zap", "-c", conf_file, "-a", adapter, "-l", lnb, "-v", "-m"]
+    cmd = ["dvbv5-zap", "-c", conf_file, "-a", adapter, "-l", lnb, "-v"]
 
     if (output is not None):
         cmd = cmd + ["-o", output]
@@ -108,6 +108,9 @@ def zap(adapter, conf_file, lnb="UNIVERSAL", output=None, timeout=None):
                 os.remove(output)
             elif (response != "o"):
                 raise ValueError("Unknown response")
+    else:
+        # Set "monitor mode" only if not recording
+        cmd.append("-m")
 
     if (timeout is not None):
         cmd = cmd + ["-t", timeout]
