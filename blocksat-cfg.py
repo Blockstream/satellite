@@ -2,7 +2,7 @@
 """
 Launch the DVB receiver
 """
-import os, argparse, subprocess, re, time, logging
+import os, sys, signal, argparse, subprocess, re, time, logging
 
 
 # Constants
@@ -83,7 +83,8 @@ def zap(adapter, conf_file, lnb="UNIVERSAL", output=None, timeout=None):
           "-----------------------------")
     print("Running dvbv5-zap")
 
-    cmd = ["dvbv5-zap", "-c", conf_file, "-a", adapter, "-l", lnb, "-v"]
+    cmd = ["dvbv5-zap", "-c", conf_file, "-a", adapter, "-l", lnb, "-v", "-m"]
+
     if (output is not None):
         cmd = cmd + ["-o", output]
 
@@ -112,11 +113,10 @@ def zap(adapter, conf_file, lnb="UNIVERSAL", output=None, timeout=None):
         cmd = cmd + ["-t", timeout]
 
     cmd.append("blocksat-ch")
+
     logging.debug("> " + " ".join(cmd))
-    ps = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                          universal_newlines=True)
-    #   "-r" sets up MPEG-TS record
-    #   "-v" sets verbose
+    ps = subprocess.Popen(cmd)
+
     return ps
 
 
@@ -498,12 +498,6 @@ def launch(args):
 
     """
 
-    if (args.debug):
-        logging.basicConfig(level=logging.DEBUG)
-        logging.debug('[Debug Mode]')
-    else:
-        logging.basicConfig(level=logging.INFO)
-
     # Find adapter
     if (args.adapter is None):
         adapter = find_adapter()
@@ -515,10 +509,6 @@ def launch(args):
 
     # Launch the DVB network interface
     dvbnet(adapter, net_if, ule=args.ule)
-
-    # Zap
-    zap_ps = zap(adapter, args.chan_conf, output=args.record_file,
-                 timeout=args.timeout)
 
     # Set RP filters
     if (not args.skip_rp):
@@ -534,13 +524,18 @@ def launch(args):
     print("\n----------------------------------- Listening " +
           "----------------------------------")
 
-    # Loop indefinitely over zap stdout/sdterr
-    while True:
-        line = zap_ps.stderr.readline()
-        if (line):
-            print('\r' + line, end='')
-        else:
-            time.sleep(1)
+    # Zap
+    zap_ps = zap(adapter, args.chan_conf, output=args.record_file,
+                 timeout=args.timeout)
+
+    def signal_handler(sig, frame):
+        print('Stopping...')
+        zap_ps.terminate()
+        sys.exit(zap_ps.poll())
+
+    signal.signal(signal.SIGINT, signal_handler)
+    zap_ps.wait()
+    sys.exit(zap_ps.poll())
 
 
 def reverse_path_subcommand(args):
@@ -701,8 +696,15 @@ def main():
     parser.add_argument('--debug', action='store_true',
                         help='Debug mode (default: false)')
 
-    # Parse and call corresponding subcommand
     args      = parser.parse_args()
+
+    if (args.debug):
+        logging.basicConfig(level=logging.DEBUG)
+        logging.debug('[Debug Mode]')
+    else:
+        logging.basicConfig(level=logging.INFO)
+
+    # Call corresponding subcommand
     args.func(args)
 
 
