@@ -64,7 +64,8 @@ def find_adapter(prompt=True):
     return chosen_adapter["adapter"]
 
 
-def zap(adapter, conf_file, lnb="UNIVERSAL", output=None, timeout=None):
+def zap(adapter, conf_file, lnb="UNIVERSAL", output=None, timeout=None,
+        monitor=False):
     """Run zapper
 
     Args:
@@ -73,6 +74,8 @@ def zap(adapter, conf_file, lnb="UNIVERSAL", output=None, timeout=None):
         lnb       : LNB type
         output    : Output filename (when recording)
         timeout   : Run the zap for this specified duration
+        monitor   : Monitor mode. Monitors DVB traffic stats (throughput and
+                    packets per second), but does not deliver data upstream.
 
     Returns:
         Subprocess object
@@ -108,12 +111,14 @@ def zap(adapter, conf_file, lnb="UNIVERSAL", output=None, timeout=None):
                 os.remove(output)
             elif (response != "o"):
                 raise ValueError("Unknown response")
-    else:
-        # Set "monitor mode" only if not recording
-        cmd.append("-m")
 
     if (timeout is not None):
         cmd = cmd + ["-t", timeout]
+
+    if (monitor):
+        assert(output is None), \
+            "Monitor mode does not work if recording (i.e. w/ -r flag)"
+        cmd.append("-m")
 
     cmd.append("blocksat-ch")
 
@@ -529,7 +534,7 @@ def launch(args):
 
     # Zap
     zap_ps = zap(adapter, args.chan_conf, output=args.record_file,
-                 timeout=args.timeout)
+                 timeout=args.timeout, monitor=args.monitor)
 
     def signal_handler(sig, frame):
         print('Stopping...')
@@ -649,6 +654,11 @@ def main():
     launch_parser.add_argument('-t', '--timeout', default=None,
                                help='Stop zapping after timeout - useful to \
                                control recording time (default: None)')
+
+    launch_parser.add_argument('-m', '--monitor', default=False,
+                               action='store_true',
+                               help='Launch dvbv5-zap in monitor mode - useful \
+                               to debug packet and bit rates (default: False)')
 
     launch_parser.set_defaults(func=launch)
 
