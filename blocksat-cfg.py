@@ -65,7 +65,7 @@ def find_adapter(prompt=True):
 
 
 def zap(adapter, conf_file, lnb="UNIVERSAL", output=None, timeout=None,
-        monitor=False):
+        monitor=False, scrolling=False):
     """Run zapper
 
     Args:
@@ -76,6 +76,8 @@ def zap(adapter, conf_file, lnb="UNIVERSAL", output=None, timeout=None,
         timeout   : Run the zap for this specified duration
         monitor   : Monitor mode. Monitors DVB traffic stats (throughput and
                     packets per second), but does not deliver data upstream.
+        scrolling : Whether to print zap logs by scrolling rather than printing
+                    always on the same line.
 
     Returns:
         Subprocess object
@@ -123,7 +125,12 @@ def zap(adapter, conf_file, lnb="UNIVERSAL", output=None, timeout=None,
     cmd.append("blocksat-ch")
 
     logging.debug("> " + " ".join(cmd))
-    ps = subprocess.Popen(cmd)
+
+    if (scrolling):
+        ps = subprocess.Popen(cmd, stdout=subprocess.PIPE,
+                              stderr=subprocess.PIPE, universal_newlines=True)
+    else:
+        ps = subprocess.Popen(cmd)
 
     return ps
 
@@ -534,7 +541,8 @@ def launch(args):
 
     # Zap
     zap_ps = zap(adapter, args.chan_conf, output=args.record_file,
-                 timeout=args.timeout, monitor=args.monitor)
+                 timeout=args.timeout, monitor=args.monitor,
+                 scrolling=args.scrolling)
 
     def signal_handler(sig, frame):
         print('Stopping...')
@@ -542,7 +550,19 @@ def launch(args):
         sys.exit(zap_ps.poll())
 
     signal.signal(signal.SIGINT, signal_handler)
-    zap_ps.wait()
+
+    if (args.scrolling):
+        # Loop indefinitely over zap
+        while (zap_ps.poll() is None):
+            line = zap_ps.stderr.readline()
+            if (line):
+                print('\r%s: '%(time.strftime("%Y-%m-%d %H:%M:%S",
+                                              time.gmtime())) +
+                      line, end='')
+            else:
+                time.sleep(1)
+    else:
+        zap_ps.wait()
     sys.exit(zap_ps.poll())
 
 
@@ -659,6 +679,12 @@ def main():
                                action='store_true',
                                help='Launch dvbv5-zap in monitor mode - useful \
                                to debug packet and bit rates (default: False)')
+
+    launch_parser.add_argument('-s', '--scrolling', default=False,
+                               action='store_true',
+                               help='Print dvbv5-zap logs line-by-line, i.e. \
+                               scrolling, rather than always on the same line \
+                               (default: False)')
 
     launch_parser.set_defaults(func=launch)
 
