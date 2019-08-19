@@ -280,31 +280,32 @@ def set_rp_filters(dvb_if):
 
     print("\n----------------------------- Reverse Path Filters " +
           "-----------------------------")
+
+    # Sysctl-ready interface name: replace a dot (for VLAN interface) with slash
+    sysctl_dvb_if = dvb_if.replace(".", "/")
+
+    # Check current configuration of DVB interface and "all" rule:
+    dvb_cfg =  subprocess.check_output([
+        "sysctl",
+        "net.ipv4.conf." + sysctl_dvb_if + ".rp_filter"
+    ]).split()[-1].decode()
+    all_cfg =  subprocess.check_output([
+        "sysctl",
+        "net.ipv4.conf.all.rp_filter"
+    ]).split()[-1].decode()
+
+    if (dvb_cfg == "0" and all_cfg == "0"):
+        print("Current RP filtering configurations are already OK")
+        print("Skipping...")
+        return
+
     print("Blocksat traffic is one-way and thus reverse path (RP) filtering " +
           "must be\ndisabled. The automatic solution disables RP filtering " +
           "on the DVB interface and\nenables RP filtering on all other " +
           "interfaces.")
     resp = input("OK to proceed? [Y/n] ") or "Y"
 
-    # Sysctl-ready interface name: replace a dot (for VLAN interface) with slash
-    sysctl_dvb_if = dvb_if.replace(".", "/")
-
     if (resp.lower() == "y"):
-        # Check current configuration of DVB interface and "all" rule:
-        dvb_cfg =  subprocess.check_output([
-            "sysctl",
-            "net.ipv4.conf." + sysctl_dvb_if + ".rp_filter"
-        ]).split()[-1].decode()
-        all_cfg =  subprocess.check_output([
-            "sysctl",
-            "net.ipv4.conf.all.rp_filter"
-        ]).split()[-1].decode()
-
-        if (dvb_cfg == "0" and all_cfg == "0"):
-            print("Current RP filtering configurations are already OK")
-            print("Skipping...")
-            return
-
         # If "all" rule is already disabled, it is only necessary to disable the
         # target interface
         if (all_cfg == "0"):
@@ -315,7 +316,6 @@ def set_rp_filters(dvb_if):
                 "-w",
                 "net.ipv4.conf." + sysctl_dvb_if + ".rp_filter=0"
             ])
-
         # If "all" rule is enabled, we will need to disable it. Also to preserve
         # RP filtering on all other interfaces, we will enable them manually.
         else:
@@ -368,8 +368,8 @@ def set_rp_filters(dvb_if):
         print("RP filtering configuration cancelled")
 
 
-def __filter_iptables_rules(net_if):
-    """Filter iptables rules corresponding to a target interface
+def __get_iptables_rules(net_if):
+    """Get iptables rules that are specifically applied to a target interface
 
     Args:
         net_if : network interface name
@@ -406,18 +406,19 @@ def __filter_iptables_rules(net_if):
     return rules
 
 
-def __config_input_rule(net_if, cmd):
-    """Helper to configure an iptables rule
-
-    Checks if rule already exists and, otherwise, adds it.
+def __is_iptables_rule_set(net_if, cmd):
+    """Check if an iptables rule is already configured
 
     Args:
         net_if : network interface name
         cmd    : list with iptables command
 
+    Returns:
+        True if rule is already set, False otherwise.
+
     """
 
-    for rule in __filter_iptables_rules(net_if):
+    for rule in __get_iptables_rules(net_if):
         if (rule['rule'][3] == "ACCEPT" and rule['rule'][6] == cmd[6] and
             (cmd[4] == "igmp" or (rule['rule'][4] == "udp" and
                                   rule['rule'][12] == cmd[10]))):
@@ -425,8 +426,20 @@ def __config_input_rule(net_if, cmd):
             print(rule['header1'])
             print(rule['header2'])
             print(" ".join(rule['rule']))
-            print("\nSkipping...\n")
-            return
+            print("\nSkipping...")
+            return True
+
+    return False
+
+
+def __add_iptables_rule(net_if, cmd):
+    """Add iptables rule
+
+    Args:
+        net_if : network interface name
+        cmd    : list with iptables command
+
+    """
 
     # Set up iptables rules
     logging.debug("> " + " ".join(cmd))
@@ -437,7 +450,7 @@ def __config_input_rule(net_if, cmd):
         "iptables", "-L", "-v", "--line-numbers"
     ])
 
-    for rule in __filter_iptables_rules(net_if):
+    for rule in __get_iptables_rules(net_if):
         if (rule['rule'][3] == "ACCEPT" and rule['rule'][6] == cmd[6] and
             (cmd[4] == "igmp" or (rule['rule'][4] == "udp" and
                                   rule['rule'][12] == cmd[10]))):
@@ -447,8 +460,8 @@ def __config_input_rule(net_if, cmd):
             print(" ".join(rule['rule']))
 
 
-def set_iptables_rules(net_if, ports, igmp=False):
-    """Define rule on iptables to accept blocksat traffic via DVB interface
+def configure_firewall(net_if, ports, igmp=False):
+    """Configure firewallrules to accept blocksat traffic via DVB interface
 
     Args:
         net_if : DVB network interface name
@@ -462,21 +475,23 @@ def set_iptables_rules(net_if, ports, igmp=False):
     print("Configure firewall rule to accept Blocksat traffic arriving " +
           "at interface %s\ntowards UDP ports %s." %(net_if, ",".join(ports)))
 
-    resp = input("Add corresponding ACCEPT firewall rule? [Y/n] ") or "Y"
+    cmd = [
+        "iptables",
+        "-I", "INPUT",
+        "-p", "udp",
+        "-i", net_if,
+        "--match", "multiport",
+        "--dports", ",".join(ports),
+        "-j", "ACCEPT",
+    ]
 
-    if (resp.lower() == "y"):
-        cmd = [
-            "iptables",
-            "-I", "INPUT",
-            "-p", "udp",
-            "-i", net_if,
-            "--match", "multiport",
-            "--dports", ",".join(ports),
-            "-j", "ACCEPT",
-        ]
-        __config_input_rule(net_if, cmd)
-    else:
-        print("\nFirewall configuration cancelled")
+    if (not __is_iptables_rule_set(net_if, cmd)):
+        resp = input("Add corresponding ACCEPT firewall rule? [Y/n] ") or "Y"
+
+        if (resp.lower() == "y"):
+            __add_iptables_rule(net_if, cmd)
+        else:
+            print("\nFirewall configuration cancelled")
 
 
     # We're done, unless we also need to configure an IGMP rule
@@ -491,19 +506,21 @@ def set_iptables_rules(net_if, ports, igmp=False):
     print("Configure also a firewall rule to accept IGMP queries. This is " +
           "necessary when using a standalone DVB modem.")
 
-    resp = input("Add corresponding ACCEPT rule on firewall? [Y/n] ") or "Y"
+    cmd = [
+        "iptables",
+        "-I", "INPUT",
+        "-p", "igmp",
+        "-i", net_if,
+        "-j", "ACCEPT",
+    ]
 
-    if (resp.lower() == "y"):
-        cmd = [
-            "iptables",
-            "-I", "INPUT",
-            "-p", "igmp",
-            "-i", net_if,
-            "-j", "ACCEPT",
-        ]
-        __config_input_rule(net_if, cmd)
-    else:
-        print("\nIGMP firewall rule cancelled")
+    if (not __is_iptables_rule_set(net_if, cmd)):
+        resp = input("Add corresponding ACCEPT rule on firewall? [Y/n] ") or "Y"
+
+        if (resp.lower() == "y"):
+            __add_iptables_rule(net_if, cmd)
+        else:
+            print("\nIGMP firewall rule cancelled")
 
 
 def launch(args):
@@ -531,13 +548,10 @@ def launch(args):
 
     # Set firewall rules
     if (not args.skip_firewall):
-        set_iptables_rules(net_if, src_ports)
+        configure_firewall(net_if, src_ports)
 
     # Set IP
     set_ip(net_if, args.ip)
-
-    print("\n----------------------------------- Listening " +
-          "----------------------------------")
 
     # Zap
     zap_ps = zap(adapter, args.chan_conf, output=args.record_file,
@@ -581,7 +595,7 @@ def firewall_subcommand(args):
     Handles the firewall subcommand
 
     """
-    set_iptables_rules(args.interface, src_ports, igmp=args.standalone)
+    configure_firewall(args.interface, src_ports, igmp=args.standalone)
 
 
 def find_adapter_subcommand(args):
