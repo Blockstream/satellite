@@ -3,6 +3,7 @@
 Launch the DVB receiver
 """
 import os, sys, signal, argparse, subprocess, re, time, logging
+from ipaddress import IPv4Interface
 
 
 # Constants
@@ -224,18 +225,19 @@ def rm_interface(adapter, interface):
     print(res.decode())
 
 
-def set_ip(net_if, ip_addr):
-    """Set the IP of the DVB network interface
+def _check_ip(net_if, ip_addr):
+    """Check if interface has IP and if it matches target IP
 
     Args:
-        net_if    : DVB network interface name
-        ip_addr   : Target IP address for the DVB interface slash subnet mask
+        net_if  : DVB network interface name
+        ip_addr : Target IP address for the DVB interface slash subnet mask
+
+    Returns:
+        (Bool, Bool) Tuple of booleans. The first indicates whether interface
+        already has an IP. The second indicates whether the interface IP (if
+        existing) matches with respect to a target IP.
 
     """
-
-    print("\n----------------------------- Interface IP Address " +
-          "-----------------------------")
-    # Check if interface has IP:
     try:
         res = subprocess.check_output(["ip", "addr", "show", "dev", net_if])
     except subprocess.CalledProcessError as e:
@@ -243,14 +245,37 @@ def set_ip(net_if, ip_addr):
         pass
 
     has_ip = False
+    ip_ok  = False
     for line in res.splitlines():
         if "inet" in line.decode():
+            has_ip    = True
+            # Check if IP matches target
             inet_info = line.decode().split()
-            has_ip = True
-            ip_ok  = (inet_info[1] == ip_addr)
+            inet_if   = IPv4Interface(inet_info[1])
+            target_if = IPv4Interface(ip_addr)
+            ip_ok     = (inet_if == target_if)
             break
 
+    return has_ip, ip_ok
+
+def set_ip(net_if, ip_addr, verbose=True):
+    """Set the IP of the DVB network interface
+
+    Args:
+        net_if    : DVB network interface name
+        ip_addr   : Target IP address for the DVB interface slash subnet mask
+        verbose   : Controls verbosity
+
+    """
+
+    if (verbose):
+        print("\n----------------------------- Interface IP Address " +
+              "-----------------------------")
+
+    has_ip, ip_ok = _check_ip(net_if, ip_addr)
+
     if (has_ip and not ip_ok):
+        print("Interface %s has an IP, but it is not %s" %(net_if, ip_addr))
         print("Flush current IP address of %s" %(net_if))
         cmd = ["ip", "address", "flush", "dev", net_if]
         logging.debug("> " + " ".join(cmd))
@@ -262,7 +287,8 @@ def set_ip(net_if, ip_addr):
         logging.debug("> " + " ".join(cmd))
         res = subprocess.check_output(cmd)
     else:
-        print("%s already has IP %s" %(net_if, ip_addr))
+        if (verbose):
+            print("%s already has IP %s" %(net_if, ip_addr))
 
 
 def set_rp_filters(dvb_if):
