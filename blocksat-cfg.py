@@ -2,7 +2,7 @@
 """
 Launch the DVB receiver
 """
-import os, sys, signal, argparse, subprocess, re, time, logging
+import os, sys, signal, argparse, subprocess, re, time, logging, threading
 from ipaddress import IPv4Interface
 
 
@@ -586,6 +586,7 @@ def launch(args):
                  timeout=args.timeout, monitor=args.monitor,
                  scrolling=args.scrolling)
 
+    # Handler for SIGINT
     def signal_handler(sig, frame):
         print('Stopping...')
         zap_ps.terminate()
@@ -593,6 +594,16 @@ def launch(args):
 
     signal.signal(signal.SIGINT, signal_handler)
 
+    # Timer to periodically check the interface IP
+    def reset_ip():
+        set_ip(net_if, args.ip, verbose=False)
+        timer        = threading.Timer(10, reset_ip)
+        timer.daemon = True
+        timer.start()
+
+    reset_ip()
+
+    # Listen to dvbv5-zap indefinitely
     if (args.scrolling):
         # Loop indefinitely over zap
         while (zap_ps.poll() is None):
