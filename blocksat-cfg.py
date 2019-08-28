@@ -40,6 +40,8 @@ def find_adapter(prompt=True):
 
     dvb_s2_adapters = [a for a in adapters if a["support"] == "DVB-S/S2"]
 
+    assert(len(dvb_s2_adapters) > 0), "No DVB-S2 adapters found"
+
     chosen_adapter = None
     for adapter in dvb_s2_adapters:
         print("Found DVB-S2 adapter: %s %s" %(adapter["vendor"],
@@ -621,13 +623,23 @@ def rm_subcommand(args):
 
     interfaces = find_interface(adapter)
 
-    if (len(interfaces) > 0):
+    if (len(interfaces) > 1):
         print("Choose net device to remove:")
-        resp       = input("%s or %s? " %(", ".join(interfaces[:-1]), interfaces[-1]))
-        chosen_dev = resp
+        chosen_dev = input("%s or %s? " %(", ".join(interfaces[:-1]),
+                                          interfaces[-1]))
 
         if (chosen_dev not in interfaces):
             raise ValueError("Wrong device")
+
+    if (len(interfaces) == 1):
+        resp = input("Remove interface %s? [Y/n] " %(interfaces[-1])) or "Y"
+
+        if (resp.lower() != "y"):
+            print("Aborting...")
+            return
+        else:
+            chosen_dev = interfaces[-1]
+
     elif (len(interfaces) == 1):
         chosen_dev = interfaces[0]
         print("Try removing device %s" %(chosen_dev))
