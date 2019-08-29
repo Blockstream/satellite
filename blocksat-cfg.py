@@ -255,7 +255,7 @@ def _check_ip(net_if, ip_addr):
     has_ip = False
     ip_ok  = False
     for line in res.splitlines():
-        if "inet" in line.decode():
+        if "inet" in line.decode() and "inet6" not in line.decode():
             has_ip    = True
             # Check if IP matches target
             inet_info = line.decode().split()
