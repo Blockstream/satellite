@@ -209,16 +209,24 @@ def find_interface(adapter):
     return interfaces
 
 
-def rm_interface(adapter, interface):
+def rm_interface(adapter, interface, verbose=True):
     """Remove DVB net interface
 
     Args:
-        adapter:   Corresponding DVB adapter
-        interface: dvbnet interface number
+        adapter   : Corresponding DVB adapter
+        interface : dvbnet interface number
+        verbose   : Controls verbosity
     """
 
-    print("\n------------------------------ Remove dvbnet interface " +
-          "--------------------------------")
+    if (verbose):
+        print("\n------------------------------ Remove dvbnet interface " +
+              "--------------------------------")
+
+    ifname  = "dvb" + adapter + "_" + interface
+    cmd     = ["ip", "link", "set", ifname, "down"]
+    logging.debug("> " + " ".join(cmd))
+    res     = subprocess.check_output(cmd)
+
     cmd     = ["dvbnet", "-a", adapter, "-d", interface]
     logging.debug("> " + " ".join(cmd))
     res     = subprocess.check_output(cmd)
