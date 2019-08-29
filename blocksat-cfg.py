@@ -671,6 +671,14 @@ def launch(args):
     sys.exit(zap_ps.poll())
 
 
+def cfg_standalone(args):
+    """Configurations for standalone DVB modem
+    """
+    set_rp_filters(args.interface)
+    configure_firewall(args.interface, src_ports,
+                       igmp=True)
+
+
 def reverse_path_subcommand(args):
     """Call function that sets reverse path filters
 
@@ -802,6 +810,16 @@ def main():
                                (default: False)')
 
     launch_parser.set_defaults(func=launch)
+
+    # Standalone command
+    stdl_parser = subparsers.add_parser('standalone',
+                                        description="Configure host to \
+                                        interface with standalone DVB modem",
+                                        help='Configure host to interface with \
+                                        standalone DVB modem')
+    stdl_parser.add_argument('-i', '--interface', required = True,
+                             help='Network interface (required)')
+    stdl_parser.set_defaults(func=cfg_standalone)
 
     # Reverse path configuration command
     rp_parser = subparsers.add_parser('reverse-path', aliases=['rp'],
