@@ -138,12 +138,12 @@ def zap(adapter, conf_file, lnb="UNIVERSAL", output=None, timeout=None,
     return ps
 
 
-def dvbnet(adapter, net_if, pid=32, ule=False):
+def dvbnet(adapter, ifname, pid=32, ule=False):
     """Start DVB network interface
 
     Args:
         adapter   : DVB adapter index
-        net_if    : DVB network interface name
+        ifname    : DVB network interface name
         pid       : PID to listen to
         ule       : Whether to use ULE framing
 
@@ -156,17 +156,56 @@ def dvbnet(adapter, net_if, pid=32, ule=False):
 
     # Check if interface already exists
     try:
-        res = subprocess.check_output(["ip", "addr", "show", "dev", net_if])
+        res = subprocess.check_output(["ip", "addr", "show", "dev", ifname])
     except subprocess.CalledProcessError as e:
         res = None
         pass
 
-    # Create interface in case it doesn't
-    if (res is None):
-        if (ule):
-            print("Launch %s using ULE encapsulation" %(net_if))
-        else:
-            print("Launch %s using MPE encapsulation" %(net_if))
+    interface_exists = (res is not None)
+
+    # Define whether or not to configure the DVB interface
+    if (interface_exists):
+        cfg_interface = False
+        print("Interface %s already exists" %(ifname))
+
+        # Do we want to configure an existing interface differently?
+        cmd     = ["dvbnet", "-a", adapter, "-l"]
+        logging.debug("> " + " ".join(cmd))
+        res     = subprocess.check_output(cmd)
+        for line in res.splitlines():
+            if ("Found device" in line.decode()):
+                split_line = line.decode().split()
+                # Current configurations
+                current_pid    = int(split_line[8].split(",")[0])
+                current_ule    = (split_line[10] == "ULE")
+                current_ifname = split_line[4].split(",")[0]
+
+                # Compare to desired configurations
+                if (current_pid != pid or current_ule != ule
+                    or current_ifname != ifname):
+                    cfg_interface = True
+
+                if (current_pid != pid):
+                    print("Current PID is %d. Set it to %d" %(current_pid, pid))
+
+                if (current_ule != ule):
+                    if (current_ule):
+                        print("Current encapsulation is ULE. Set it to MPE")
+                    else:
+                        print("Current encapsulation is MPE. Set it to ULE")
+
+                if (current_ifname != ifname):
+                    print("Current interface name is %s. Set it to %s" %(
+                        current_ifname, ifname))
+    else:
+        cfg_interface = True
+
+    # Create interface in case it doesn't exist or needs to be re-created
+    if (cfg_interface):
+        # If interface exists, but must be re-created, remove the existing one
+        # first
+        if (interface_exists):
+            rm_interface(adapter, current_ifname.split("_")[-1], verbose=False)
 
         adapter_dir = '/dev/dvb/adapter' + adapter
         if (not os.access(adapter_dir, os.W_OK)):
@@ -174,13 +213,18 @@ def dvbnet(adapter, net_if, pid=32, ule=False):
                 "You need write permission on %s. " %(adapter_dir) +
                 "Consider running as root." )
 
-        ule_arg = "-U" if ule else ""
+        if (ule):
+            print("Launch %s using ULE encapsulation" %(ifname))
+            ule_arg = "-U"
+        else:
+            print("Launch %s using MPE encapsulation" %(ifname))
+            ule_arg = ""
+
+        # Create interface for a given DVB adapter
         cmd     = ["dvbnet", "-a", adapter, "-p", str(pid), ule_arg]
         logging.debug("> " + " ".join(cmd))
         res     = subprocess.check_output(cmd)
         print(res.decode())
-    else:
-        print("Interface %s already exists" %(net_if))
 
 
 def find_interface(adapter):
