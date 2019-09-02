@@ -39,6 +39,28 @@ def find_adapter(prompt=True):
             "support"  : device[-1][:-4].replace('(', '').replace(')', '')
         })
 
+    # If nothing was obtained by inspecting dmesg logs, try searching for a
+    # range of adapter numbers. There is no command to list all adapters, so we
+    # have to try to list each one individually using `dvbnet -a adapter_no -l`.
+    if (len(adapters) == 0):
+        adapters = list()
+        for a in range(0,5):
+            cmd     = ["dvbnet", "-a", str(a), "-l"]
+            logging.debug("> " + " ".join(cmd))
+
+            with open(os.devnull, 'w') as devnull:
+                res = subprocess.call(cmd, stdout=devnull, stderr=devnull)
+                if (res == 0):
+                    output = subprocess.check_output(["dvb-fe-tool", "-a", str(a)])
+                    line   = output.splitlines()[0].decode().split()
+                    adapters.append({
+                        "adapter"  : str(a),
+                        "frontend" : line[5].replace(")","").split("frontend")[-1],
+                        "vendor"   : line[1],
+                        "model"    : " ".join(line[2:4]),
+                        "support"  : line[4]
+                    })
+
     dvb_s2_adapters = [a for a in adapters if a["support"] == "DVB-S/S2"]
 
     assert(len(dvb_s2_adapters) > 0), "No DVB-S2 adapters found"
