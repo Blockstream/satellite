@@ -148,6 +148,8 @@ def zap(adapter, conf_file, lnb="UNIVERSAL", output=None, timeout=None,
         cmd = cmd + ["-t", timeout]
 
     if (monitor):
+        assert(not scrolling), \
+            "Monitor mode does not work with scrolling (line-by-line) logs"
         assert(output is None), \
             "Monitor mode does not work if recording (i.e. w/ -r flag)"
         cmd.append("-m")
