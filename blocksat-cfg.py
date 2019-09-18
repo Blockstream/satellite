@@ -20,8 +20,13 @@ def find_adapter(prompt=True):
     print("\n------------------------------ Find DVB Adapter " +
           "--------------------------------")
     ps     = subprocess.Popen("dmesg", stdout=subprocess.PIPE)
-    output = subprocess.check_output(["grep", "frontend"], stdin=ps.stdout,
-                                     stderr=subprocess.STDOUT)
+    try:
+        output = subprocess.check_output(["grep", "frontend"], stdin=ps.stdout,
+                                         stderr=subprocess.STDOUT)
+    except subprocess.CalledProcessError as grepexc:
+        if (grepexc.returncode == 1):
+            output = ""
+            pass
     ps.wait()
 
     lines    = output.splitlines()
