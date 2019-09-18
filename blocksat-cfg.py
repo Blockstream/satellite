@@ -508,8 +508,8 @@ def __get_iptables_rules(net_if):
     return rules
 
 
-def __is_iptables_rule_set(net_if, cmd):
-    """Check if an iptables rule is already configured
+def __is_iptables_igmp_rule_set(net_if, cmd):
+    """Check if an iptables rule for IGMP is already configured
 
     Args:
         net_if : network interface name
@@ -522,8 +522,31 @@ def __is_iptables_rule_set(net_if, cmd):
 
     for rule in __get_iptables_rules(net_if):
         if (rule['rule'][3] == "ACCEPT" and rule['rule'][6] == cmd[6] and
-            (cmd[4] == "igmp" or (rule['rule'][4] == "udp" and
-                                  rule['rule'][12] == cmd[10]))):
+            rule['rule'][4] == "igmp"):
+            print("\nFirewall rule for IGMP already configured\n")
+            print(rule['header1'])
+            print(rule['header2'])
+            print(" ".join(rule['rule']))
+            print("\nSkipping...")
+            return True
+
+    return False
+
+def __is_iptables_udp_rule_set(net_if, cmd):
+    """Check if an iptables rule for UDP is already configured
+
+    Args:
+        net_if : network interface name
+        cmd    : list with iptables command
+
+    Returns:
+        True if rule is already set, False otherwise.
+
+    """
+
+    for rule in __get_iptables_rules(net_if):
+        if (rule['rule'][3] == "ACCEPT" and rule['rule'][6] == cmd[6] and
+            (rule['rule'][4] == "udp" and rule['rule'][12] == cmd[10])):
             print("\nFirewall rule already configured\n")
             print(rule['header1'])
             print(rule['header2'])
@@ -553,13 +576,21 @@ def __add_iptables_rule(net_if, cmd):
     ])
 
     for rule in __get_iptables_rules(net_if):
-        if (rule['rule'][3] == "ACCEPT" and rule['rule'][6] == cmd[6] and
-            (cmd[4] == "igmp" or (rule['rule'][4] == "udp" and
-                                  rule['rule'][12] == cmd[10]))):
-            print("Added iptables rule:\n")
-            print(rule['header1'])
-            print(rule['header2'])
-            print(" ".join(rule['rule']))
+        print_rule = False
+
+        if (rule['rule'][3] == "ACCEPT" and
+            rule['rule'][6] == cmd[6] and
+            rule['rule'][4] == cmd[4]):
+            if (cmd[4] == "igmp"):
+                print_rule = True
+            elif (cmd[4] == "udp" and rule['rule'][12] == cmd[10]):
+                print_rule = True
+
+            if (print_rule):
+                print("Added iptables rule:\n")
+                print(rule['header1'])
+                print(rule['header2'])
+                print(" ".join(rule['rule']) + "\n")
 
 
 def configure_firewall(net_if, ports, igmp=False):
@@ -587,7 +618,7 @@ def configure_firewall(net_if, ports, igmp=False):
         "-j", "ACCEPT",
     ]
 
-    if (not __is_iptables_rule_set(net_if, cmd)):
+    if (not __is_iptables_udp_rule_set(net_if, cmd)):
         resp = input("Add corresponding ACCEPT firewall rule? [Y/n] ") or "Y"
 
         if (resp.lower() == "y"):
@@ -616,7 +647,7 @@ def configure_firewall(net_if, ports, igmp=False):
         "-j", "ACCEPT",
     ]
 
-    if (not __is_iptables_rule_set(net_if, cmd)):
+    if (not __is_iptables_igmp_rule_set(net_if, cmd)):
         resp = input("Add corresponding ACCEPT rule on firewall? [Y/n] ") or "Y"
 
         if (resp.lower() == "y"):
