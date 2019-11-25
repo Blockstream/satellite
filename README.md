@@ -124,7 +124,7 @@ Blockstream Satellite:
 First, you must verify that the input frequency range of the LNB encompasses the
 frequency of the Blockstream Satellite signal in your coverage area. For
 example, if you are located in North America and you are covered by the Galaxy
-18 satellite, your Blockstream Satellite frequency is 12.02285 GHz. Thus, an LNB
+18 satellite, your Blockstream Satellite frequency is 12.01692 GHz. Thus, an LNB
 that operates from 11.7 GHz to 12.2 GHz would work. In contrast, an LNB that
 operates from 10.7 GHz to 11.7 GHz would NOT work.
 
@@ -676,7 +676,7 @@ frequency and the corresponding band of the satellite in the table that follows.
 
 | Satellite          | Band    | Frequency    |
 |--------------------|---------|--------------|
-| Galaxy 18          | Ku High | 12022.85 MHz |
+| Galaxy 18          | Ku High | 12016.92 MHz |
 | Eutelsat 113       | Ku High | 12026.15 MHz |
 | Telstar 11N Africa | Ku Low  | 11476.75 MHz |
 | Telstar 11N Europe | Ku Low  | 11504.02 MHz |
@@ -709,7 +709,7 @@ frequencies:
 
 |       LO Frequency |   5.15 GHz |   9.75 GHz |  10.60 GHz |  10.75 GHz |
 | ------------------ | ---------- | ---------- | ---------- | ---------- |
-|          Galaxy 18 |            |            | 1422850000 | 1272850000 |
+|          Galaxy 18 |            |            | 1416920000 | 1266920000 |
 |       Eutelsat 113 |            |            | 1426150000 | 1276150000 |
 | Telstar 11N Africa |            | 1726750000 |            |            |
 | Telstar 11N Europe |            | 1754020000 |            |            |
