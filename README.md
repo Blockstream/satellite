@@ -1126,7 +1126,12 @@ The commands in the sequel can be used for bitcoin FIBRE's cross-compilation
 from an Ubuntu 18.04 x86 (`amd64`) machine, targeting the Raspberry Pi's 3 B+
 64-bit processor armv8 (`aarch64`).
 
-First install the `aarch64` toolchain:
+First, install all build requirements:
+```
+sudo apt-get install build-essential libtool autotools-dev automake pkg-config bsdmainutils python3
+```
+
+Next, install the `aarch64` toolchain:
 ```
 sudo apt-get install gcc-aarch64-linux-gnu g++-aarch64-linux-gnu binutils-aarch64-linux-gnu
 ```
