@@ -86,6 +86,7 @@ def find_adapter(prompt=True):
             logging.debug(pformat(json.loads(adapter)))
 
     dvb_s2_adapters = [a for a in adapters if ("DVB-S/S2" in a["support"])]
+    logging.debug(dvb_s2_adapters)
 
     assert(len(dvb_s2_adapters) > 0), "No DVB-S2 adapters found"
 
@@ -189,21 +190,25 @@ def zap(adapter, frontend, conf_file, lnb="UNIVERSAL", output=None,
     return ps
 
 
-def dvbnet(adapter, ifname, pid=32, ule=False):
+def _dvbnet(adapter, ifname, pid, ule, existing_dvbnet_interfaces):
     """Start DVB network interface
 
     Args:
-        adapter   : DVB adapter index
-        ifname    : DVB network interface name
-        pid       : PID to listen to
-        ule       : Whether to use ULE framing
+        adapter                    : DVB adapter index
+        ifname                     : DVB network interface name
+        pid                        : PID to listen to
+        ule                        : Whether to use ULE framing
+        existing_dvbnet_interfaces : List of dvbnet interfaces already
+                                     configured for the adapter
 
     """
 
     assert(pid >= 32 and pid <= 8190), "PID not insider range 32 to 8190"
 
-    print("\n------------------------------ Network Interface " +
-          "-------------------------------")
+    if (ule):
+        encapsulation = 'ULE'
+    else:
+        encapsulation = 'MPE'
 
     # Check if interface already exists
     try:
@@ -212,42 +217,37 @@ def dvbnet(adapter, ifname, pid=32, ule=False):
         res = None
         pass
 
-    interface_exists = (res is not None)
+    os_interface_exists = (res is not None)
+    matching_dvbnet_if  = None
 
-    # Define whether or not to configure the DVB interface
-    if (interface_exists):
-        cfg_interface = False
-        print("Interface %s already exists" %(ifname))
+    # When the network interface exists in the OS, we also need to check if the
+    # matching dvbnet device is configured according to what we want now
+    if (os_interface_exists):
+        print("Network interface %s already exists" %(ifname))
 
-        # Do we want to configure an existing interface differently?
-        cmd     = ["dvbnet", "-a", adapter, "-l"]
-        logging.debug("> " + " ".join(cmd))
-        res     = subprocess.check_output(cmd)
-        for line in res.splitlines():
-            if ("Found device" in line.decode()):
-                split_line = line.decode().split()
-                # Current configurations
-                current_pid    = int(split_line[8].split(",")[0])
-                current_ule    = (split_line[10] == "ULE")
-                current_ifname = split_line[4].split(",")[0]
+        for interface in existing_dvbnet_interfaces:
+            if (interface['name'] == ifname):
+                matching_dvbnet_if = interface
+                break
 
-                # Compare to desired configurations
-                if (current_pid != pid or current_ule != ule
-                    or current_ifname != ifname):
-                    cfg_interface = True
+    # Our indication that interface exists comes from "ip addr show
+    # dev". However, it is possible that dvbnet does not have any interface
+    # associated to an adapter, so check if we found anything:
+    cfg_interface = False
+    if (len(existing_dvbnet_interfaces) > 0 and matching_dvbnet_if is not None):
+        # Compare to desired configurations
+        if (matching_dvbnet_if['pid'] != pid or
+            matching_dvbnet_if['encapsulation'] != encapsulation):
+            cfg_interface = True
 
-                if (current_pid != pid):
-                    print("Current PID is %d. Set it to %d" %(current_pid, pid))
+        if (matching_dvbnet_if['pid'] != pid):
+            print("Current PID is %d. Set it to %d" %(
+                matching_dvbnet_if['pid'], pid))
 
-                if (current_ule != ule):
-                    if (current_ule):
-                        print("Current encapsulation is ULE. Set it to MPE")
-                    else:
-                        print("Current encapsulation is MPE. Set it to ULE")
-
-                if (current_ifname != ifname):
-                    print("Current interface name is %s. Set it to %s" %(
-                        current_ifname, ifname))
+        if (matching_dvbnet_if['encapsulation'] != encapsulation):
+            print("Current encapsulation is %s. Set it to %s" %(
+                matching_dvbnet_if['encapsulation'], encapsulation
+            ))
     else:
         cfg_interface = True
 
@@ -255,8 +255,8 @@ def dvbnet(adapter, ifname, pid=32, ule=False):
     if (cfg_interface):
         # If interface exists, but must be re-created, remove the existing one
         # first
-        if (interface_exists):
-            rm_interface(adapter, current_ifname.split("_")[-1], verbose=False)
+        if (os_interface_exists):
+            _rm_interface(adapter, ifname, verbose=False)
 
         adapter_dir = '/dev/dvb/adapter' + adapter
         if (not os.access(adapter_dir, os.W_OK)):
@@ -276,10 +276,40 @@ def dvbnet(adapter, ifname, pid=32, ule=False):
         logging.debug("> " + " ".join(cmd))
         res     = subprocess.check_output(cmd)
         print(res.decode())
+    else:
+        print("Network interface %s already configured correctly" %(ifname))
+
+def dvbnet(adapter, ifnames, pids, ule=False):
+    """Start DVB network interfaces of a DVB adapter
+
+    An adapter can have multiple dvbnet interfaces, one for each PID.
+
+    Args:
+        adapter  : DVB adapter index
+        ifnames  : list of DVB network interface names
+        pids     : List of PIDs to listen to on each interface
+        ule      : Whether to use ULE framing
+
+    """
+    assert(isinstance(ifnames, list))
+    assert(isinstance(pids, list))
+    assert(len(ifnames) == len(pids)), \
+        "Interface names and PID number must be vectors of the same length"
+
+    # Find the dvbnet interfaces that already exist for the chosen adapter
+    existing_dvbnet_iif = find_dvbnet_interfaces(adapter)
+
+    print("\n------------------------------ Network Interface " +
+          "-------------------------------")
+
+    for ifname, pid in zip(ifnames, pids):
+        _dvbnet(adapter, ifname, pid, ule, existing_dvbnet_iif)
 
 
-def find_interface(adapter):
-    """Find DVB net interface
+def find_dvbnet_interfaces(adapter):
+    """Find dvbnet interface(s) of a DVB adapter
+
+    An adapter can have multiple dvbnet interfaces, one for each PID.
 
     Args:
         adapter: Corresponding DVB adapter
@@ -289,8 +319,8 @@ def find_interface(adapter):
 
     """
 
-    print("\n------------------------------ Find dvbnet interface " +
-          "--------------------------------")
+    print("\n-------------------------- Find dvbnet interface(s) " +
+          "----------------------------")
     cmd     = ["dvbnet", "-a", adapter, "-l"]
     logging.debug("> " + " ".join(cmd))
     res     = subprocess.check_output(cmd)
@@ -298,13 +328,20 @@ def find_interface(adapter):
     interfaces = list()
     for line in res.splitlines():
         if ("Found device" in line.decode()):
-            print(line.decode())
-            interfaces.append(line.decode().split()[2][:-1])
+            line_split    = line.decode().split()
+            interface = {
+                'dev'           : line_split[2][:-1],
+                'name'          : line_split[4][:-1],
+                'pid'           : int(line_split[8][:-1]),
+                'encapsulation' : line_split[10]
+            }
+            logging.debug(pformat(interface))
+            interfaces.append(interface)
 
     return interfaces
 
 
-def rm_interface(adapter, interface, verbose=True):
+def _rm_interface(adapter, ifname, verbose=True):
     """Remove DVB net interface
 
     Args:
@@ -316,15 +353,14 @@ def rm_interface(adapter, interface, verbose=True):
     if (verbose):
         print("\n------------------------------ Remove dvbnet interface " +
               "--------------------------------")
-
-    ifname  = "dvb" + adapter + "_" + interface
     cmd     = ["ip", "link", "set", ifname, "down"]
     logging.debug("> " + " ".join(cmd))
     res     = subprocess.check_output(cmd)
 
-    cmd     = ["dvbnet", "-a", adapter, "-d", interface]
+    if_number = ifname.split("_")[-1]
+    cmd       = ["dvbnet", "-a", adapter, "-d", if_number]
     logging.debug("> " + " ".join(cmd))
-    res     = subprocess.check_output(cmd)
+    res       = subprocess.check_output(cmd)
     print(res.decode())
 
 
@@ -361,7 +397,8 @@ def _check_ip(net_if, ip_addr):
 
     return has_ip, ip_ok
 
-def set_ip(net_if, ip_addr, verbose=True):
+
+def _set_ip(net_if, ip_addr, verbose):
     """Set the IP of the DVB network interface
 
     Args:
@@ -370,11 +407,6 @@ def set_ip(net_if, ip_addr, verbose=True):
         verbose   : Controls verbosity
 
     """
-
-    if (verbose):
-        print("\n----------------------------- Interface IP Address " +
-              "-----------------------------")
-
     has_ip, ip_ok = _check_ip(net_if, ip_addr)
 
     if (has_ip and not ip_ok):
@@ -394,23 +426,32 @@ def set_ip(net_if, ip_addr, verbose=True):
             print("%s already has IP %s" %(net_if, ip_addr))
 
 
-def set_rp_filters(dvb_if):
-    """Disable reverse-path (RP) filtering for the DVB interface
+def set_ip(net_ifs, ip_addrs, verbose=True):
+    """Set the IP of the DVB network interface
 
-    There are two layers of RP filters, one specific to the network interface
-    and a higher level that controls the configurations for all network
-    interfaces. This function disables RP filtering on the top layer (for all
-    interfaces), but then enables RP filtering individually for each interface,
-    except the DVB interface. This way, in the end only the DVB interface has RP
-    filtering disabled.
+    Args:
+        net_ifs   : List of DVB network interface names
+        ip_addrs  : List of IP addresses for the DVB interface slash subnet mask
+        verbose   : Controls verbosity
+
+    """
+    if (verbose):
+        print("\n----------------------------- Interface IP Address " +
+              "-----------------------------")
+
+    for net_if, ip_addr in zip(net_ifs, ip_addrs):
+        _set_ip(net_if, ip_addr, verbose)
+
+def _check_rp_filters(dvb_if):
+    """Check if reverse-path (RP) filters are configured on the interface
 
     Args:
         dvb_if : DVB network interface
 
-    """
+    Return:
+        True when configuration is already OK.
 
-    print("\n----------------------------- Reverse Path Filters " +
-          "-----------------------------")
+    """
 
     # Sysctl-ready interface name: replace a dot (for VLAN interface) with slash
     sysctl_dvb_if = dvb_if.replace(".", "/")
@@ -425,7 +466,111 @@ def set_rp_filters(dvb_if):
         "net.ipv4.conf.all.rp_filter"
     ]).split()[-1].decode()
 
-    if (dvb_cfg == "0" and all_cfg == "0"):
+    return (dvb_cfg == "0" and all_cfg == "0")
+
+
+def _set_rp_filters(dvb_if):
+    """Disable reverse-path (RP) filtering for the DVB interface
+
+    There are two layers of RP filters, one specific to the network interface
+    and a higher level that controls the configurations for all network
+    interfaces. This function disables RP filtering on the top layer (for all
+    interfaces), but then enables RP filtering individually for each interface,
+    except the DVB interface. This way, in the end only the DVB interface has RP
+    filtering disabled.
+
+    Args:
+        dvb_if : DVB network interface
+
+    """
+
+    # Sysctl-ready interface name: replace a dot (for VLAN interface) with slash
+    sysctl_dvb_if = dvb_if.replace(".", "/")
+
+    # Check "all" rule:
+    all_cfg =  subprocess.check_output([
+        "sysctl",
+        "net.ipv4.conf.all.rp_filter"
+    ]).split()[-1].decode()
+
+
+    # If "all" rule is already disabled, it is only necessary to disable the
+    # target interface
+    if (all_cfg == "0"):
+        print("RP filter for \"all\" interfaces is already disabled")
+        print("Disabling RP filter on interface %s" %(dvb_if))
+        subprocess.check_output([
+            "sysctl",
+            "-w",
+            "net.ipv4.conf." + sysctl_dvb_if + ".rp_filter=0"
+        ])
+    # If "all" rule is enabled, we will need to disable it. Also to preserve
+    # RP filtering on all other interfaces, we will enable them manually.
+    else:
+        # Check interfaces
+        ifs = os.listdir("/proc/sys/net/ipv4/conf/")
+
+        # Enable all RP filters
+        for interface in ifs:
+            if (interface == "all" or interface == dvb_if):
+                continue
+
+            # Again, /proc/sys uses dot on VLANs normally, but sysctl does
+            # not. Instead, it substitutes with slash. Replace here before using
+            sysctl_interface = interface.replace(".", "/")
+
+            # Check current configuration
+            current_cfg =  subprocess.check_output([
+                "sysctl",
+                "net.ipv4.conf." + sysctl_interface + ".rp_filter"
+            ]).split()[-1].decode()
+
+            if (int(current_cfg) > 0):
+                print("RP filter is already enabled on interface %s" %(
+                    interface))
+            else:
+                print("Enabling RP filter on interface %s" %(interface))
+                subprocess.check_output([
+                    "sysctl",
+                    "-w",
+                    "net.ipv4.conf." + sysctl_interface + ".rp_filter=1"
+                ])
+
+        # Disable the overall RP filter
+        print("Disabling RP filter on \"all\" rule")
+        subprocess.check_output([
+            "sysctl",
+            "-w",
+            "net.ipv4.conf.all.rp_filter=0"
+        ])
+
+        # And disable RP filtering on the DVB interface
+        print("Disabling RP filter on interface %s" %(dvb_if))
+        subprocess.check_output([
+            "sysctl",
+            "-w",
+            "net.ipv4.conf." + sysctl_dvb_if + ".rp_filter=0"
+        ])
+
+
+def set_rp_filters(dvb_ifs):
+    """Disable reverse-path (RP) filtering for the DVB interfaces
+
+    Args:
+        dvb_ifs : list of DVB network interfaces
+
+    """
+    assert(isinstance(dvb_ifs, list))
+
+    print("\n----------------------------- Reverse Path Filters " +
+          "-----------------------------")
+
+    # Check if RP filters are already configured properly
+    rp_filters_set = list()
+    for dvb_if in dvb_ifs:
+        rp_filters_set.append(_check_rp_filters(dvb_if))
+
+    if (all(rp_filters_set)):
         print("Current RP filtering configurations are already OK")
         print("Skipping...")
         return
@@ -437,69 +582,13 @@ def set_rp_filters(dvb_if):
     resp = input("OK to proceed? [Y/n] ") or "Y"
 
     if (resp.lower() == "y"):
-        # If "all" rule is already disabled, it is only necessary to disable the
-        # target interface
-        if (all_cfg == "0"):
-            print("RP filter for \"all\" interfaces is already disabled")
-            print("Disabling RP filter on interface %s" %(dvb_if))
-            subprocess.check_output([
-                "sysctl",
-                "-w",
-                "net.ipv4.conf." + sysctl_dvb_if + ".rp_filter=0"
-            ])
-        # If "all" rule is enabled, we will need to disable it. Also to preserve
-        # RP filtering on all other interfaces, we will enable them manually.
-        else:
-            # Check interfaces
-            ifs = os.listdir("/proc/sys/net/ipv4/conf/")
-
-            # Enable all RP filters
-            for interface in ifs:
-                if (interface == "all" or interface == dvb_if or
-                    interface == "lo"):
-                    continue
-
-                # Again, /proc/sys uses dot on VLANs normally, but sysctl does
-                # not. Instead, it substitutes with slash. Replace here before using
-                sysctl_interface = interface.replace(".", "/")
-
-                # Check current configuration
-                current_cfg =  subprocess.check_output([
-                    "sysctl",
-                    "net.ipv4.conf." + sysctl_interface + ".rp_filter"
-                ]).split()[-1].decode()
-
-                if (int(current_cfg) > 0):
-                    print("RP filter is already enabled on interface %s" %(
-                        interface))
-                else:
-                    print("Enabling RP filter on interface %s" %(interface))
-                    subprocess.check_output([
-                        "sysctl",
-                        "-w",
-                        "net.ipv4.conf." + sysctl_interface + ".rp_filter=1"
-                    ])
-
-            # Disable the overall RP filter
-            print("Disabling RP filter on \"all\" rule")
-            subprocess.check_output([
-                "sysctl",
-                "-w",
-                "net.ipv4.conf.all.rp_filter=0"
-            ])
-
-            # And disable RP filtering on the DVB interface
-            print("Disabling RP filter on interface %s" %(dvb_if))
-            subprocess.check_output([
-                "sysctl",
-                "-w",
-                "net.ipv4.conf." + sysctl_dvb_if + ".rp_filter=0"
-            ])
+        for dvb_if in dvb_ifs:
+            _set_rp_filters(dvb_if)
     else:
         print("RP filtering configuration cancelled")
 
 
-def __get_iptables_rules(net_if):
+def _get_iptables_rules(net_if):
     """Get iptables rules that are specifically applied to a target interface
 
     Args:
@@ -537,7 +626,7 @@ def __get_iptables_rules(net_if):
     return rules
 
 
-def __is_iptables_igmp_rule_set(net_if, cmd):
+def _is_iptables_igmp_rule_set(net_if, cmd):
     """Check if an iptables rule for IGMP is already configured
 
     Args:
@@ -549,7 +638,7 @@ def __is_iptables_igmp_rule_set(net_if, cmd):
 
     """
 
-    for rule in __get_iptables_rules(net_if):
+    for rule in _get_iptables_rules(net_if):
         if (rule['rule'][3] == "ACCEPT" and rule['rule'][6] == cmd[6] and
             rule['rule'][4] == "igmp"):
             print("\nFirewall rule for IGMP already configured\n")
@@ -561,7 +650,7 @@ def __is_iptables_igmp_rule_set(net_if, cmd):
 
     return False
 
-def __is_iptables_udp_rule_set(net_if, cmd):
+def _is_iptables_udp_rule_set(net_if, cmd):
     """Check if an iptables rule for UDP is already configured
 
     Args:
@@ -573,7 +662,7 @@ def __is_iptables_udp_rule_set(net_if, cmd):
 
     """
 
-    for rule in __get_iptables_rules(net_if):
+    for rule in _get_iptables_rules(net_if):
         if (rule['rule'][3] == "ACCEPT" and rule['rule'][6] == cmd[6] and
             (rule['rule'][4] == "udp" and rule['rule'][12] == cmd[10])):
             print("\nFirewall rule already configured\n")
@@ -586,7 +675,7 @@ def __is_iptables_udp_rule_set(net_if, cmd):
     return False
 
 
-def __add_iptables_rule(net_if, cmd):
+def _add_iptables_rule(net_if, cmd):
     """Add iptables rule
 
     Args:
@@ -604,7 +693,7 @@ def __add_iptables_rule(net_if, cmd):
         "iptables", "-L", "-v", "--line-numbers"
     ])
 
-    for rule in __get_iptables_rules(net_if):
+    for rule in _get_iptables_rules(net_if):
         print_rule = False
 
         if (rule['rule'][3] == "ACCEPT" and
@@ -622,7 +711,7 @@ def __add_iptables_rule(net_if, cmd):
                 print(" ".join(rule['rule']) + "\n")
 
 
-def configure_firewall(net_if, ports, igmp=False):
+def _configure_firewall(net_if, ports, igmp=False):
     """Configure firewallrules to accept blocksat traffic via DVB interface
 
     Args:
@@ -632,9 +721,8 @@ def configure_firewall(net_if, ports, igmp=False):
 
     """
 
-    print("\n------------------------------- Firewall Rules " +
-          "--------------------------------")
-    print("Configure firewall rule to accept Blocksat traffic arriving " +
+
+    print("- Configure firewall rule to accept Blocksat traffic arriving " +
           "at interface %s\ntowards UDP ports %s." %(net_if, ",".join(ports)))
 
     cmd = [
@@ -647,11 +735,11 @@ def configure_firewall(net_if, ports, igmp=False):
         "-j", "ACCEPT",
     ]
 
-    if (not __is_iptables_udp_rule_set(net_if, cmd)):
+    if (not _is_iptables_udp_rule_set(net_if, cmd)):
         resp = input("Add corresponding ACCEPT firewall rule? [Y/n] ") or "Y"
 
         if (resp.lower() == "y"):
-            __add_iptables_rule(net_if, cmd)
+            _add_iptables_rule(net_if, cmd)
         else:
             print("\nFirewall configuration cancelled")
 
@@ -676,13 +764,33 @@ def configure_firewall(net_if, ports, igmp=False):
         "-j", "ACCEPT",
     ]
 
-    if (not __is_iptables_igmp_rule_set(net_if, cmd)):
+    if (not _is_iptables_igmp_rule_set(net_if, cmd)):
         resp = input("Add corresponding ACCEPT rule on firewall? [Y/n] ") or "Y"
 
         if (resp.lower() == "y"):
-            __add_iptables_rule(net_if, cmd)
+            _add_iptables_rule(net_if, cmd)
         else:
             print("\nIGMP firewall rule cancelled")
+
+
+def configure_firewall(net_ifs, ports, igmp=False):
+    """Configure firewallrules to accept blocksat traffic via DVB interface
+
+    Args:
+        net_ifs : List of DVB network interface names
+        ports   : ports used for blocks traffic and API traffic
+        igmp    : Whether or not to configure rule to accept IGMP queries
+
+    """
+    assert(isinstance(net_ifs, list))
+    print("\n------------------------------- Firewall Rules " +
+          "---------------------------------")
+
+    for i, net_if in enumerate(net_ifs):
+        _configure_firewall(net_if, ports, igmp)
+
+        if (i < len(net_ifs) - 1):
+            print("")
 
 
 def launch(args):
@@ -692,6 +800,11 @@ def launch(args):
 
     """
 
+    assert(len(args.pid) == len(args.ip)), \
+        "Number of PIDs (%u) defined by argument --pid " %(len(args.pid)) + \
+        "does not match the number of IPs (%u) defined by " %(len(args.ip)) + \
+        "argument --ip. Please define one IP address for each PID."
+
     # Find adapter
     if (args.adapter is None):
         adapter, frontend = find_adapter()
@@ -699,22 +812,26 @@ def launch(args):
         adapter  = args.adapter
         frontend = args.frontend
 
-    # Interface name
-    net_if = "dvb" + adapter + "_" + frontend
+    # Launch the DVB network interface - one interface for each PID of interest
+    net_ifs  = list()
+    for i_device in range(0, len(args.pid)):
+        # Define interface name that is going to be generated by dvbnet
+        net_if = "dvb" + adapter + "_" + str(i_device)
+        net_ifs.append(net_if)
 
-    # Launch the DVB network interface
-    dvbnet(adapter, net_if, ule=args.ule)
+    # Create the interface(s)
+    dvbnet(adapter, net_ifs, args.pid, ule=args.ule)
 
     # Set RP filters
     if (not args.skip_rp):
-        set_rp_filters(net_if)
+        set_rp_filters(net_ifs)
 
     # Set firewall rules
     if (not args.skip_firewall):
-        configure_firewall(net_if, src_ports)
+        configure_firewall(net_ifs, src_ports)
 
     # Set IP
-    set_ip(net_if, args.ip)
+    set_ip(net_ifs, args.ip)
 
     # Zap
     zap_ps = zap(adapter, frontend, args.chan_conf, lnb=args.lnb,
@@ -731,7 +848,7 @@ def launch(args):
 
     # Timer to periodically check the interface IP
     def reset_ip():
-        set_ip(net_if, args.ip, verbose=False)
+        set_ip(net_ifs, args.ip, verbose=False)
         timer        = threading.Timer(10, reset_ip)
         timer.daemon = True
         timer.start()
@@ -757,8 +874,8 @@ def launch(args):
 def cfg_standalone(args):
     """Configurations for standalone DVB modem
     """
-    set_rp_filters(args.interface)
-    configure_firewall(args.interface, src_ports,
+    set_rp_filters([args.interface])
+    configure_firewall([args.interface], src_ports,
                        igmp=True)
 
 
@@ -768,7 +885,7 @@ def reverse_path_subcommand(args):
     Handles the reverse-path subcommand
 
     """
-    set_rp_filters(args.interface)
+    set_rp_filters([args.interface])
 
 
 def firewall_subcommand(args):
@@ -777,7 +894,7 @@ def firewall_subcommand(args):
     Handles the firewall subcommand
 
     """
-    configure_firewall(args.interface, src_ports, igmp=args.standalone)
+    configure_firewall([args.interface], src_ports, igmp=args.standalone)
 
 
 def find_adapter_subcommand(args):
@@ -800,34 +917,45 @@ def rm_subcommand(args):
     else:
         adapter = args.adapter
 
-
-    interfaces = find_interface(adapter)
+    interfaces     = find_dvbnet_interfaces(adapter)
+    chosen_devices = list()
 
     if (len(interfaces) > 1):
         print("Choose net device to remove:")
-        chosen_dev = input("%s or %s? " %(", ".join(interfaces[:-1]),
-                                          interfaces[-1]))
+        for i_dev, interface in enumerate(interfaces):
+            print("[%2u] %s" %(i_dev, interface['name']))
+        print("[ *] all")
 
-        if (chosen_dev not in interfaces):
-            raise ValueError("Wrong device")
+        try:
+            choice = input("Choose number: ")
+            if (choice == "*"):
+                i_chosen_devices = range(0, len(interfaces))
+            else:
+                i_chosen_devices = [int(choice)]
+        except ValueError:
+            raise ValueError("Please choose a number or \"*\" for all devices")
 
-    if (len(interfaces) == 1):
-        resp = input("Remove interface %s? [Y/n] " %(interfaces[-1])) or "Y"
+        for i_chosen_dev in i_chosen_devices:
+            if (i_chosen_dev > len(interfaces)):
+                raise ValueError("Invalid number")
+
+            chosen_devices.append(interfaces[i_chosen_dev]['name'])
+
+    elif (len(interfaces) == 0):
+        print("No DVB network interfaces to remove")
+        return
+    else:
+        # There is a single interface
+        chosen_devices.append(interfaces[0]['name'])
+
+    for chosen_dev in chosen_devices:
+        resp = input("Remove interface %s? [Y/n] " %(chosen_dev)) or "Y"
 
         if (resp.lower() != "y"):
             print("Aborting...")
             return
-        else:
-            chosen_dev = interfaces[-1]
 
-    elif (len(interfaces) == 1):
-        chosen_dev = interfaces[0]
-        print("Try removing device %s" %(chosen_dev))
-    else:
-        print("No DVB devices to remove")
-        return
-
-    rm_interface(adapter, chosen_dev)
+        _rm_interface(adapter, chosen_dev)
 
 
 def main():
@@ -850,11 +978,6 @@ def main():
                                default=os.path.join(cwd, 'channels.conf'),
                                help='Channel configurations file ' +
                                '(default: channels.conf)')
-
-    launch_parser.add_argument('-i', '--ip', default='192.168.201.2/24',
-                               help='IP address set for the DVB net interface '
-                               + 'with subnet mask in CIDR notation' +
-                               '(default: 192.168.201.2/24)')
 
     launch_parser.add_argument('-a', '--adapter',
                                default=None,
@@ -897,6 +1020,19 @@ def main():
                                help='Print dvbv5-zap logs line-by-line, i.e. \
                                scrolling, rather than always on the same line \
                                (default: False)')
+
+    launch_parser.add_argument('--pid', default=[32, 33],
+                               type=int,
+                               nargs='+',
+                               help='List of PIDs to be listened to by dvbnet \
+                               (default: 32,33)')
+
+    launch_parser.add_argument('-i', '--ip',
+                               default=['192.168.201.2/24', '192.168.201.3/24'],
+                               nargs='+',
+                               help='IP address set for each DVB net interface \
+                               with subnet mask in CIDR notation (default: \
+                               [192.168.201.2/24, 192.168.201.3/24])')
 
     launch_parser.set_defaults(func=launch)
 
@@ -966,7 +1102,10 @@ def main():
         logging.basicConfig(level=logging.INFO)
 
     # Call corresponding subcommand
-    args.func(args)
+    if hasattr(args, 'func'):
+        args.func(args)
+    else:
+        parser.print_help()
 
 
 if __name__ == '__main__':
