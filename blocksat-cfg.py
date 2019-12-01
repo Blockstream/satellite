@@ -8,14 +8,17 @@ from ipaddress import IPv4Interface
 
 
 # Constants
-src_ports = ["4433", "4434"]
-
+src_ports   = ["4433", "4434"]
+lnb_options = ["UNIVERSAL", "DBS", "EXTENDED", "STANDARD", "L10700", "L10750",
+               "L11300", "ENHANCED", "QPH031", "C-BAND", "C-MULT", "DISHPRO",
+               "110BS", "STACKED-BRASILSAT", "OI-BRASILSAT", "AMAZONAS",
+               "GVT-BRASILSAT"]
 
 def find_adapter(prompt=True):
     """Find the DVB adapter
 
     Returns:
-        Adapter index
+        Tuple with (adapter index, frontend index)
 
     """
     print("\n------------------------------ Find DVB Adapter " +
@@ -112,12 +115,13 @@ def find_adapter(prompt=True):
     return chosen_adapter["adapter"], chosen_adapter["frontend"]
 
 
-def zap(adapter, conf_file, lnb="UNIVERSAL", output=None, timeout=None,
-        monitor=False, scrolling=False):
+def zap(adapter, frontend, conf_file, lnb="UNIVERSAL", output=None,
+        timeout=None, monitor=False, scrolling=False):
     """Run zapper
 
     Args:
         adapter   : DVB adapter index
+        frontend  : frontend
         conf_file : Path to channel configurations file
         lnb       : LNB type
         output    : Output filename (when recording)
@@ -136,7 +140,7 @@ def zap(adapter, conf_file, lnb="UNIVERSAL", output=None, timeout=None,
           "-----------------------------")
     print("Running dvbv5-zap")
 
-    cmd = ["dvbv5-zap", "-c", conf_file, "-a", adapter, "-l", lnb, "-v"]
+    cmd = ["dvbv5-zap", "-c", conf_file, "-a", adapter, "-f", frontend, "-l", lnb, "-v"]
 
     if (output is not None):
         cmd = cmd + ["-o", output]
@@ -713,9 +717,9 @@ def launch(args):
     set_ip(net_if, args.ip)
 
     # Zap
-    zap_ps = zap(adapter, args.chan_conf, output=args.record_file,
-                 timeout=args.timeout, monitor=args.monitor,
-                 scrolling=args.scrolling)
+    zap_ps = zap(adapter, frontend, args.chan_conf, lnb=args.lnb,
+                 output=args.record_file, timeout=args.timeout,
+                 monitor=args.monitor, scrolling=args.scrolling)
 
     # Handler for SIGINT
     def signal_handler(sig, frame):
@@ -792,7 +796,7 @@ def rm_subcommand(args):
 
     # Find adapter
     if (args.adapter is None):
-        adapter = find_adapter()
+        adapter, frontend = find_adapter()
     else:
         adapter = args.adapter
 
@@ -856,7 +860,13 @@ def main():
                                default=None,
                                help='DVB adapter number (default: None)')
 
-    launch_parser.add_argument('--ule', default=False, action='store_true',
+    launch_parser.add_argument('-l', '--lnb',
+                               choices=lnb_options,
+                               default="UNIVERSAL",
+                               help='LNB type (default: "UNIVERSAL")')
+
+    launch_parser.add_argument('-U', '--ule', default=False,
+                               action='store_true',
                                help='Use ULE encapsulation instead of MPE ' +
                                '(default: False)')
 
