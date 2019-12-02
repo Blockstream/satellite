@@ -3,3 +3,5 @@ build/
 api/examples/downloads/
 api/examples/.*
 api/examples/*.pyc
+channels.conf
+config.json

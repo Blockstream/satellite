@@ -66,7 +66,7 @@ sudo dnf install python3 iproute iptables dvb-apps v4l-utils
 Launch the DVB-S2 interface by running:
 
 ```
-sudo ./blocksat-cfg.py launch
+sudo ./blocksat.py launch
 ```
 
 This script will set an arbitrary IP address to the network interface that is
@@ -83,7 +83,7 @@ networking configurations on your host. Such configurations are indicated and
 executed by running:
 
 ```
-sudo ./blocksat-cfg.py standalone -i ifname
+sudo ./blocksat.py standalone -i ifname
 ```
 
 where `ifname` is the name of the network interface that is connected (via
@@ -92,7 +92,7 @@ switches or directly) to the DVB-S2 modem.
 ## Docker
 
 The Docker image that is available in this repository installs all software
-dependencies and can be used to run the `blocksat-cfg` tool. Note, however, that
+dependencies and can be used to run the `blocksat` tool. Note, however, that
 if using a USB modem, the modem's drivers are install required on the Docker
 host (not the container).
 
@@ -117,14 +117,14 @@ docker run --rm \
 If using a standalone modem, substitute `launch` on the above command with
 `standalone`, according to the [run guidelines given above](#Running). Further
 arguments such as `-i` can also be provided after the command (i.e. `launch` or
-`standalone`) and will accordingly be processed by the `blocksat-cfg` tool
+`standalone`) and will accordingly be processed by the `blocksat` tool
 inside the container.
 
 After running, configure reverse path filters by running the following from the
 host (not from the container):
 
 ```
-sudo ./blocksat-cfg.py rp -i dvb0_0
+sudo ./blocksat.py rp -i dvb0_0
 ```
 
 ## Building dvb-apps from source
