@@ -112,59 +112,114 @@ lnbs = [
 
 v4l_lnbs = [
     {
-        'name' : "UNIVERSAL"
-    },
-    {
-        'name' : "DBS"
-    },
-    {
-        'name' : "EXTENDED"
-    },
-    {
-        'name' : "STANDARD"
-    },
-    {
-        'name' : "L10700"
-    },
-    {
-        'name' : "L10750"
-    },
-    {
-        'name' : "L11300"
-    },
-    {
-        'name' : "ENHANCED"
-    },
-    {
-        'name' : "QPH031"
-    },
-    {
-        'name' : "C-BAND"
-    },
-    {
-        'name' : "C-MULT"
-    },
-    {
-        'name' : "DISHPRO"
-    },
-    {
-        'name' : "110BS"
-    },
-    {
-        'name' : "STACKED-BRASILSAT"
-    },
-    {
-        'name' : "OI-BRASILSAT"
-    },
-    {
-        'name' : "AMAZONAS"
-    },
-    {
-        'name' : "GVT-BRASILSAT"
+	'alias' : "UNIVERSAL",
+	'lowfreq' : 9750,
+	'highfreq' : 10600,
+	'rangeswitch' : 11700,
+	'freqrange' : [
+	    ( 10800, 11800 ),
+	    ( 11600, 12700 ),
+        ]
+    }, {
+	'alias' : "DBS",
+	'lowfreq' : 11250,
+	'freqrange' : [
+	    ( 12200, 12700 )
+	]
+    }, {
+	'alias' : "EXTENDED",
+	'lowfreq' : 9750,
+	'highfreq' : 10600,
+	'rangeswitch' : 11700,
+	'freqrange' : [
+	    ( 10700, 11700 ),
+	    ( 11700, 12750 ),
+	]
+    }, {
+	'alias' : "STANDARD",
+	'lowfreq' : 10000,
+	'freqrange' : [
+	    ( 10945, 11450 )
+	]
+    }, {
+	'alias' : "L10700",
+	'lowfreq' : 10700,
+	'freqrange' : [
+	    ( 11750, 12750 )
+	]
+    }, {
+	'alias' : "L10750",
+	'lowfreq' : 10750,
+	'freqrange' : [
+	    ( 11700, 12200 )
+	]
+    }, {
+	'alias' : "L11300",
+	'lowfreq' : 11300,
+	'freqrange' : [
+	    ( 12250, 12750 )
+	]
+    }, {
+	'alias' : "ENHANCED",
+	'lowfreq' : 9750,
+	'freqrange' : [
+	    ( 10700, 11700 )
+	]
+    }, {
+	'alias' : "QPH031",
+	'lowfreq' : 10750,
+	'highfreq' : 11250,
+	'rangeswitch' : 12200,
+	'freqrange' : [
+	    ( 11700, 12200 ),
+	    ( 12200, 12700 ),
+	]
+    }, {
+	'alias' : "C-BAND",
+	'lowfreq' : 5150,
+	'freqrange' : [
+	    ( 3700, 4200 )
+	]
+    }, {
+	'alias' : "C-MULT",
+	'lowfreq' : 5150,
+	'highfreq' : 5750,
+	'freqrange' : [
+	    ( 3700, 4200 )
+	]
+    }, {
+	'alias' : "DISHPRO",
+	'lowfreq' : 11250,
+	'highfreq' : 14350,
+	'freqrange' : [
+	    ( 12200, 12700 )
+	]
+    }, {
+	'alias' : "110BS",
+	'lowfreq' : 10678,
+	'freqrange' : [
+	    ( 11710, 12751 )
+	]
+    }, {
+	'alias' : "STACKED-BRASILSAT",
+	'lowfreq' : 9710,
+	'highfreq' : 9750,
+	'freqrange' : [
+	    ( 10700, 11700 ),
+	]
+    }, {
+	'alias' : "OI-BRASILSAT",
+	'lowfreq' : 10000,
+	'highfreq' : 10445,
+	'rangeswitch' : 11700,
+	'freqrange' : [
+	    ( 10950, 11200 ),
+	    ( 11800, 12200 ),
+	]
     }
 ]
 
-lnb_options = [x['name'] for x in v4l_lnbs]
+lnb_options = [x['alias'] for x in v4l_lnbs]
 
 def _ask_yes_or_no(msg, default="y"):
     """Yes or no question
@@ -609,6 +664,35 @@ def _gen_chan_conf(info):
         f.write('\tVIDEO_PID = 32+33\n')
 
     print("File \"%s\" saved." %(cfg_file))
+
+
+def _find_v4l_lnb(info):
+    """Find suitable LNB within v4l-utils preset LNBs
+
+    The LNBs on list v4l_lnbs are defined at lib/libdvbv5/dvb-sat.c
+
+    """
+
+    target_lo_freq = int(info['lnb']['lo_freq'])
+
+    # Find options that match the LO freq
+    options = list()
+    for lnb in v4l_lnbs:
+        is_universal_option = 'highfreq' in lnb
+
+        if (lnb['lowfreq'] == target_lo_freq and
+            is_universal_option == info['lnb']['universal']):
+            options.append(lnb)
+
+        if ('highfreq' in lnb and
+            lnb['highfreq'] == target_lo_freq and
+            info['lnb']['universal']):
+            options.append(lnb)
+
+    # TODO complete polarization checking
+    assert(len(options) > 0), "LNB doesn't match a valid option"
+
+    return options[0]
 
 
 def configure(args):
@@ -1471,8 +1555,11 @@ def launch(args):
     # Set IP
     set_ip(net_ifs, args.ip)
 
+    # Find suitable LNB within v4l-utils preset LNBs
+    lnb = _find_v4l_lnb(user_info)
+
     # Zap
-    zap_ps = zap(adapter, frontend, args.chan_conf, lnb=args.lnb,
+    zap_ps = zap(adapter, frontend, args.chan_conf, lnb=lnb['alias'],
                  output=args.record_file, timeout=args.timeout,
                  monitor=args.monitor, scrolling=args.scrolling)
 
