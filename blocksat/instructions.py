@@ -4,7 +4,7 @@ import textwrap
 
 
 def _print_s400_instructions(info):
-    """Print instruction for configuration of the Novra S400
+    """Print instructions for configuration of the Novra S400
     """
     util._print_header("Novra S400")
 
@@ -65,6 +65,14 @@ def _print_s400_instructions(info):
                         "of the network interface that is connected to the "
                         "S400. This interface can be connected directly to "
                         "S400 or via switch(es)."))
+
+
+def _print_usb_rx_instructions():
+    """Print instructions for runnning with a Linux USB receiver
+    """
+    util._print_header("Next Steps")
+
+    print("Now run:\n\nsudo ./blocksat.py launch\n\n")
 
 
 def _print_sdr_instructions(info):

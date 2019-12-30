@@ -321,5 +321,6 @@ def configure(args):
         pass
     elif (user_setup['type'] == defs.linux_usb_setup_type):
         _cfg_chan_conf(user_info)
+        instructions._print_usb_rx_instructions()
 
 
