@@ -3,5 +3,6 @@ build/
 api/examples/downloads/
 api/examples/.*
 api/examples/*.pyc
+*.pyc
 channels.conf
 config.json

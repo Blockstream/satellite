@@ -6,664 +6,7 @@ import os, sys, signal, argparse, subprocess, re, time, logging, threading, json
 from pprint import pformat, pprint
 from ipaddress import IPv4Interface
 import textwrap
-
-
-# Constants
-src_ports   = ["4433", "4434"]
-pids        = [32, 33]
-satellites  = [
-    {
-        'name'    : "Galaxy 18",
-        'alias'   : "G18",
-        'dl_freq' : 12016.92,
-        'band'    : "Ku",
-        'pol'     : "H"
-    },
-    {
-        'name'    : "Eutelsat 113",
-        'alias'   : "E113",
-        'dl_freq' : 12026.15,
-        'band'    : "Ku",
-        'pol'     : "V"
-    },
-    {
-        'name'    : "Telstar 11N Africa",
-        'alias'   : "T11N AFR",
-        'dl_freq' : 11476.75,
-        'band'    : "Ku",
-        'pol'     : "H"
-    },
-    {
-        'name'    : "Telstar 11N Europe",
-        'alias'   : "T11N EU",
-        'dl_freq' : 11504.02,
-        'band'    : "Ku",
-        'pol'     : "V"
-    },
-    {
-        'name'    : "Telstar 18V",
-        'alias'   : "T18V",
-        'dl_freq' : 4057.5,
-        'band'    : "C",
-        'pol'     : "H"
-    },
-    {
-        'name'    : "Eutelsat 113 - Test carrier",
-        'alias'   : "E113",
-        'dl_freq' : 12066.9,
-        'band'    : "Ku",
-        'pol'     : "V"
-    }
-]
-
-linux_usb_setup_type  = "Linux USB"
-sdr_setup_type        = "Software-defined"
-standalone_setup_type = "Standalone"
-
-modems = [
-    {
-        'vendor' : "Novra",
-        'model'  : "S400",
-        'type'   : standalone_setup_type
-    },
-    {
-        'vendor' : "TBS",
-        'model'  : "5927",
-        'type'   : linux_usb_setup_type
-    },
-    {
-        'vendor' : "TBS",
-        'model'  : "5520SE",
-        'type'   : linux_usb_setup_type
-    },
-    {
-        'vendor' : "",
-        'model'  : "RTL-SDR",
-        'type'   : sdr_setup_type
-    }
-]
-
-ku_band_thresh = 11700.0
-
-lnbs = [
-    {
-        'vendor'    : "Avenger",
-        'model'     : "PLL321S-2",
-        'lo_freq'   : [9750.0, 10600],
-        'universal' : True,
-        'band'      : "Ku"
-
-    },
-    {
-        'vendor'    : "Maverick",
-        'model'     : "MK1",
-        "lo_freq"   : 10750.0,
-        'universal' : False,
-        'band'      : "Ku"
-    },
-    {
-        'vendor'    : "Titanium",
-        'model'     : "C1",
-        "lo_freq"   : 5150.0,
-        'universal' : False,
-        'band'      : "C"
-    }
-]
-
-v4l_lnbs = [
-    {
-	'alias' : "UNIVERSAL",
-	'lowfreq' : 9750,
-	'highfreq' : 10600,
-	'rangeswitch' : 11700,
-	'freqrange' : [
-	    ( 10800, 11800 ),
-	    ( 11600, 12700 ),
-        ]
-    }, {
-	'alias' : "DBS",
-	'lowfreq' : 11250,
-	'freqrange' : [
-	    ( 12200, 12700 )
-	]
-    }, {
-	'alias' : "EXTENDED",
-	'lowfreq' : 9750,
-	'highfreq' : 10600,
-	'rangeswitch' : 11700,
-	'freqrange' : [
-	    ( 10700, 11700 ),
-	    ( 11700, 12750 ),
-	]
-    }, {
-	'alias' : "STANDARD",
-	'lowfreq' : 10000,
-	'freqrange' : [
-	    ( 10945, 11450 )
-	]
-    }, {
-	'alias' : "L10700",
-	'lowfreq' : 10700,
-	'freqrange' : [
-	    ( 11750, 12750 )
-	]
-    }, {
-	'alias' : "L10750",
-	'lowfreq' : 10750,
-	'freqrange' : [
-	    ( 11700, 12200 )
-	]
-    }, {
-	'alias' : "L11300",
-	'lowfreq' : 11300,
-	'freqrange' : [
-	    ( 12250, 12750 )
-	]
-    }, {
-	'alias' : "ENHANCED",
-	'lowfreq' : 9750,
-	'freqrange' : [
-	    ( 10700, 11700 )
-	]
-    }, {
-	'alias' : "QPH031",
-	'lowfreq' : 10750,
-	'highfreq' : 11250,
-	'rangeswitch' : 12200,
-	'freqrange' : [
-	    ( 11700, 12200 ),
-	    ( 12200, 12700 ),
-	]
-    }, {
-	'alias' : "C-BAND",
-	'lowfreq' : 5150,
-	'freqrange' : [
-	    ( 3700, 4200 )
-	]
-    }, {
-	'alias' : "C-MULT",
-	'lowfreq' : 5150,
-	'highfreq' : 5750,
-	'freqrange' : [
-	    ( 3700, 4200 )
-	]
-    }, {
-	'alias' : "DISHPRO",
-	'lowfreq' : 11250,
-	'highfreq' : 14350,
-	'freqrange' : [
-	    ( 12200, 12700 )
-	]
-    }, {
-	'alias' : "110BS",
-	'lowfreq' : 10678,
-	'freqrange' : [
-	    ( 11710, 12751 )
-	]
-    }, {
-	'alias' : "STACKED-BRASILSAT",
-	'lowfreq' : 9710,
-	'highfreq' : 9750,
-	'freqrange' : [
-	    ( 10700, 11700 ),
-	]
-    }, {
-	'alias' : "OI-BRASILSAT",
-	'lowfreq' : 10000,
-	'highfreq' : 10445,
-	'rangeswitch' : 11700,
-	'freqrange' : [
-	    ( 10950, 11200 ),
-	    ( 11800, 12200 ),
-	]
-    }
-]
-
-lnb_options = [x['alias'] for x in v4l_lnbs]
-
-def _ask_yes_or_no(msg, default="y"):
-    """Yes or no question
-
-    Args:
-        msg     : the message or question to ask the user
-        default : default response
-
-    Returns:
-        True if answer is yes, False otherwise.
-
-    """
-    response = None
-
-    if (default == "y"):
-        options = "[Y/n]"
-    else:
-        options = "[N/y]"
-
-    question = msg + " " + options + " "
-
-    while response not in {"y", "n"}:
-        raw_resp = input(question) or default
-        response = raw_resp.lower()
-
-        if (response not in {"y", "n"}):
-            print("Please enter \"y\" or \"n\"")
-
-    return (response == "y")
-
-
-def _ask_multiple_choice(vec, msg, label, to_str):
-    """Multiple choice question
-
-    Args:
-        vec    : Vector with elements to choose from
-        msg    : Msg to prompt user for choice
-        label  : Description/label of what "vec" holdes
-        to_str : Function that prints information about elements
-
-    Returns:
-        Chosen element
-
-    """
-    assert(len(vec) > 1)
-
-    for i_elem, elem in enumerate(vec):
-        elem_str = to_str(elem)
-        print("[%2u] %s" %(i_elem, elem_str))
-
-    resp = None
-    while (not isinstance(resp, int)):
-        try:
-            resp = int(input("\n%s number: " %(label)))
-        except ValueError:
-            print("Please choose a number")
-            continue
-
-        if (resp >= len(vec)):
-            print("Please choose number from 0 to %u" %(len(vec) - 1))
-            resp = None
-            continue
-
-        choice = vec[resp]
-        print(to_str(choice))
-        return choice
-
-
-def _print_header(header, target_len=80):
-    """Print section header"""
-
-    prefix      = ""
-    suffix      = ""
-    header_len  = len(header) + 2
-    remaining   = target_len - header_len
-    prefix_len  = int(remaining / 2)
-    suffix_len  = int(remaining / 2)
-
-    if (remaining % 1 == 1):
-        prefix_len += 1
-
-    for i in range(0, prefix_len):
-        prefix += "-"
-
-    for i in range(0, suffix_len):
-        suffix += "-"
-
-    print("\n" + prefix + " " + header + " " + suffix)
-
-
-def _print_sub_header(header, target_len=60):
-    """Print sub-section header"""
-    _print_header(header, target_len=target_len)
-
-
-def _read_cfg_file():
-    """Read configuration file"""
-
-    cfg_file = "config.json"
-
-    if (os.path.isfile(cfg_file)):
-        with open(cfg_file) as fd:
-            info = json.load(fd)
-        return info
-
-
-def _cfg_satellite():
-    """Configure satellite covering the user"""
-
-    _print_header("Satellite")
-
-    print("Please inform the satellite covering your location")
-    print("Not sure? Check the coverage map at:\n" \
-          "https://blockstream.com/satellite/#satellite_network-coverage")
-
-    question = "Please, inform which satellite below covers your location:"
-    sat = _ask_multiple_choice(satellites,
-                               question,
-                               "Satellite",
-                               lambda sat : '{} ({})'.format(sat['name'],
-                                                             sat['alias']))
-    return sat
-
-
-def _cfg_rx_setup():
-    """Configure Rx setup - which receiver user is using """
-
-    _print_header("Receiver Setup")
-
-    question = "Please, inform your DVB-S2 receiver setup from the list below:"
-    modem = _ask_multiple_choice(modems,
-                                 question,
-                                 "Setup",
-                                 lambda x : '{} receiver, using {} {} modem'.format(
-                                     x['type'], x['vendor'], x['model']))
-    return modem
-
-
-def _cfg_custom_lnb(sat):
-    """Configure custom LNB based on user-entered specs
-
-    Args:
-        sat : user's satellite info
-
-    """
-
-    print("Please inform the specifications of you LNB:")
-
-    print("Frequency band:")
-    bands = ["C", "Ku"]
-    for i_band, band in enumerate(bands):
-        print("[%2u] %s" %(i_band, band))
-
-    resp = input("Enter number: ") or None
-
-    try:
-        custom_lnb_band = bands[int(resp)]
-    except ValueError:
-        raise ValueError("Please choose a number")
-
-    if (sat['band'].lower() != custom_lnb_band.lower()):
-        logging.error(
-            "You must use a %s band LNB in order to receive from %s" %(
-                sat['band'], sat['name']))
-        exit(1)
-
-    if (custom_lnb_band == "Ku"):
-        custom_lnb_universal = _ask_yes_or_no("Is it a Universal Ku band LNB?")
-
-        try:
-            print(textwrap.fill(
-                "An Universal Ku band LNB has two LO (local oscillator) " + \
-                " frequencies. Typically the two frequencies are 9750 MHz " +
-                "and 10600 MHz."))
-            if (_ask_yes_or_no("Does your LNB have LO frequencies 9750 MHz and 10600 MHz?")):
-                custom_lnb_lo_freq = [9750.0, 10600]
-            else:
-                resp = input("Inform the two LO frequencies in MHz, separated by comma: ")
-                custom_lnb_lo_freq = resp.split(",")
-
-        except ValueError:
-            raise ValueError("Please enter a number")
-
-    else:
-        custom_lnb_universal = False
-
-        try:
-            custom_lnb_lo_freq = (input("LNB LO frequency in MHz: "))
-        except ValueError:
-            raise ValueError("Please enter a number")
-
-    return {
-        'vendor'    : "",
-        'model'     : "",
-        "lo_freq"   : custom_lnb_lo_freq,
-        'universal' : custom_lnb_universal,
-        'band'      : custom_lnb_band
-    }
-
-
-def _cfg_lnb(sat):
-    """Configure LNB - either from preset or from custom specs
-
-    Args:
-        sat : user's satellite info
-
-    """
-
-    _print_header("LNB")
-
-    print("Please, inform some specifications of your LNB.")
-
-    print("\nAre you using one of the following LNBs?")
-    for i_lnb, lnb in enumerate(lnbs):
-        if (lnb['universal']):
-            print("[%2u] %s %s (Universal Ku band LNBF)" %(i_lnb,
-                                                           lnb['vendor'],
-                                                           lnb['model']))
-        else:
-            print("[%2u] %s %s" %(i_lnb, lnb['vendor'], lnb['model']))
-
-
-    if (_ask_yes_or_no("Are you using one of the LNBs above?")):
-        resp = None
-        while (not isinstance(resp, int)):
-            try:
-                resp = int(input("Which one? Enter LNB number: "))
-            except ValueError:
-                print("Please choose a number")
-                continue
-
-            if (resp >= len(lnbs)):
-                print("Please choose number from 0 to %u" %(len(lnbs) - 1))
-                resp = None
-                continue
-
-            lnb = lnbs[resp]
-            print("%s %s" %(lnb['vendor'], lnb['model']))
-            break
-    else:
-        lnb = _cfg_custom_lnb(sat)
-
-    if (sat['band'].lower() != lnb['band'].lower()):
-        logging.error("The LNB you chose cannot operate " + \
-                      "in %s band (band of satellite %s)" %(sat['band'],
-                                                            sat['alias']))
-        exit(1)
-
-    return lnb
-
-
-def _cfg_frequencies(sat, setup, lnb):
-    """Print summary of frequencies
-
-    Inform the downlink RF frequency, the LNB LO frequency and the L-band
-    frequency to be configured in the receiver.
-
-    Args:
-        sat   : user's satellite info
-        setup : user's setup info
-        lnb   : user's LNB info
-
-    """
-    _print_header("Frequencies")
-
-    if (sat['band'].lower() == "ku"):
-        if (lnb['universal']):
-            assert(isinstance(lnb['lo_freq'], list)), \
-                "An Universal LNB must have a list with two LO frequencies"
-            assert(len(lnb['lo_freq']) == 2), \
-                "An Universal LNB must have two LO frequencies"
-
-            if (sat['dl_freq'] > ku_band_thresh):
-                lo_freq = lnb['lo_freq'][1]
-            else:
-                lo_freq = lnb['lo_freq'][0]
-        else:
-            lo_freq = lnb['lo_freq']
-
-        if_freq = sat['dl_freq'] - lo_freq
-
-    elif (sat['band'].lower() == "c"):
-        lo_freq = lnb['lo_freq']
-        if_freq = lo_freq - sat['dl_freq']
-    else:
-        raise ValueError("Unknown satellite band")
-
-    print("So, here are the frequencies of interest:\n")
-
-    print("| Downlink %2s band frequency                     | %8.2f MHz |" %(sat['band'], sat['dl_freq']))
-    print("| Your LNB local oscillator (LO) frequency       | %8.2f MHz |" %(lo_freq))
-    print("| L-band frequency to configure on your receiver | %7.2f MHz  |" %(if_freq))
-    print()
-
-    if (lnb['universal']):
-        print("NOTE regarding Universal LNB:\n")
-        if (sat['dl_freq'] > ku_band_thresh):
-            print(textwrap.fill(("The DL frequency of {} is in Ku high "
-                                 "band (> {:.1f} MHz). Hence, you need to use "
-                                 "the higher frequency LO ({:.1f} MHz) of your "
-                                 "LNB. This requires a 22 kHz tone to be sent "
-                                 "to the LNB."
-            ).format(sat['alias'], ku_band_thresh, lo_freq)))
-            print()
-            if (setup['type'] == sdr_setup_type):
-                print(textwrap.fill(("With a software-defined setup, you will "
-                                     "need to place a 22 kHz tone generator "
-                                     "inline between the LNB and the power "
-                                     "inserter. Typically the tone generator "
-                                     "uses power from the power inserter while "
-                                     "delivering the tone directly to the "
-                                     "LNB.")))
-            else:
-                print("The {} {} modem can generate the 22 kHz tone.".format(
-                    setup['vendor'], setup['model']))
-        else:
-            print(textwrap.fill("The DL frequency of {} is in Ku low \
-            band (< {:.1f} MHz). Hence, you need to use the lower (default) \
-            frequency LO of your LNB.".format(sat['alias'], ku_band_thresh)))
-
-    return {
-        'dl'     : sat['dl_freq'],
-        'lo'     : lo_freq,
-        'l_band' : if_freq
-    }
-
-
-def _print_s400_instructions(info):
-    """Print instruction for configuration of the Novra S400
-    """
-    _print_header("Novra S400")
-
-    print("The Novra S400 is standalone modem, connected as follows:\n")
-
-    print(("LNB ----> S400 (RF1 Interface) -- "
-           "S400 (LAN 1 Interface) ----> Host / Network\n"))
-
-    print(textwrap.fill("The S400 will receive from satellite and will output "
-                        "multicast-addressed IP packets. The host will then "
-                        "listen to these packets. Hence, the next step is to "
-                        "configure both the S400 and the host."))
-
-    _print_sub_header("S400 Configurations")
-    print("Here is the list of configurations that are needed on the S400:")
-    print()
-    print("1. Go to Interfaces > RF1:\n")
-    print("- DVB Mode: \"DVB-S2\"")
-    print("- Carrier Freq.: {:.1f} MHz".format(info['freqs']['dl']))
-    print("- LBand: {:.1f} MHz".format(info['freqs']['l_band']))
-    print("- Symbol Rate: 1.0 MBaud")
-    print("- MODCOD: AUTO")
-    print("- Gold Code: 0")
-    print("- Input Stream ID: 0")
-    print("- LNB Power On: Enable")
-    print("- L.O. Frequencies: {:.1f} MHz".format(info['freqs']['lo']))
-    if (info['sat']['pol'] == "H"):
-        print("- Polarization: Horiz./L")
-    else:
-        print("- Polarization: Vert./R")
-
-    if (info['lnb']['universal'] and info['freqs']['dl'] > ku_band_thresh):
-        print("- Band (Tone): \"High/On\"")
-    else:
-        print("- Band (Tone): \"Low/On\"")
-    print("- Long Line Compensation: Disabled")
-    print()
-    print("2. Go to Interfaces > Data (LAN1):\n")
-    print(textwrap.fill("Configure the IP address of the data interface. "
-                        "This is the interface that will deliver IP "
-                        "packets (data packets) received over satellite."))
-    print()
-    print("3. Go to Interfaces > M&C (LAN2):\n")
-    print(textwrap.fill("Configure the IP address of the management and "
-                        "control (M&C) interface. "
-                        "This is the interface that will be used exclusively "
-                        "for M&C traffic."))
-    print()
-    print("4. Go to Services > Tun1:\n")
-    print("Scroll to \"Manage MPE PIDs\"")
-    for pid in pids:
-        print("- Enter %d on \"New PID\" and click \"Add\"." %(pid))
-
-    _print_sub_header("Host Configurations")
-    print("1. Run the following command on the host:")
-    print("\n```\nsudo ./blocksat.py standalone -i ifname\n```\n")
-    print(textwrap.fill("where \'ifname\' should be replaced with the name "
-                        "of the network interface that is connected to the "
-                        "S400. This interface can be connected directly to "
-                        "S400 or via switch(es)."))
-
-
-def _print_sdr_instructions(info):
-    """Print instruction for configuration of an SDR setup
-    """
-    _print_header("SDR Setup")
-
-    _print_sub_header("Connections")
-
-    print("An SDR-based setup is assembled as follows:\n")
-
-    print("LNB ----> Power Supply ----> RTL-SDR ----> Host\n")
-    print(("The power supply is typically a \"Single Wire Multiswitch\" (SWM) "
-          "supply. In this scenario, the LNB must be connected to the "
-           "**powered** port, labeled \“Signal to SWM\”, and the "
-           "**non-powered** port of the supply, labeled as \“Signal to IRD\", "
-           "must be connected to the RTL-SDR."))
-
-    _print_sub_header("Host Configuration")
-
-
-def _gen_chan_conf(info):
-    """Generate the channels.conf file"""
-
-    _print_header("Linux USB Setup")
-
-    print(textwrap.fill("This step will generate the channel configuration "
-                        "file that is required when launching the USB "
-                        "receiver in linux.") + "\n")
-
-    cfg_file = "channels.conf"
-
-    if (os.path.isfile(cfg_file)):
-        print("Found previous %s file:" %(cfg_file))
-
-        if (not _ask_yes_or_no("Remove and regenerate file?")):
-            print("Configuration aborted.")
-            return
-        else:
-            os.remove(cfg_file)
-
-    with open(cfg_file, 'w') as f:
-        f.write('[blocksat-ch]\n')
-        f.write('\tDELIVERY_SYSTEM = DVBS2\n')
-        f.write('\tFREQUENCY = %u\n' %(int(info['sat']['dl_freq']*1000)))
-        if (info['sat']['pol'] == 'V'):
-            f.write('\tPOLARIZATION = VERTICAL\n')
-        else:
-            f.write('\tPOLARIZATION = HORIZONTAL\n')
-        f.write('\tSYMBOL_RATE = 1000000\n')
-        f.write('\tINVERSION = AUTO\n')
-        f.write('\tMODULATION = QPSK\n')
-        f.write('\tVIDEO_PID = 32+33\n')
-
-    print("File \"%s\" saved." %(cfg_file))
+from blocksat import defs, config, util
 
 
 def _find_v4l_lnb(info):
@@ -677,7 +20,7 @@ def _find_v4l_lnb(info):
 
     # Find options that match the LO freq
     options = list()
-    for lnb in v4l_lnbs:
+    for lnb in defs.v4l_lnbs:
         is_universal_option = 'highfreq' in lnb
 
         if (lnb['lowfreq'] == target_lo_freq and
@@ -693,49 +36,6 @@ def _find_v4l_lnb(info):
     assert(len(options) > 0), "LNB doesn't match a valid option"
 
     return options[0]
-
-
-def configure(args):
-    """Configure Blocksat Receiver setup
-
-    """
-
-    cfg_file = "config.json"
-
-    user_info = _read_cfg_file()
-
-    if (user_info is not None):
-        print("Found previous configuration:")
-        pprint(user_info, width=40, compact=False)
-        if (not _ask_yes_or_no("Reset?")):
-            print("Configuration aborted.")
-            return
-
-    user_sat   = _cfg_satellite()
-    user_setup = _cfg_rx_setup()
-    user_lnb   = _cfg_lnb(user_sat)
-    user_freqs = _cfg_frequencies(user_sat, user_setup, user_lnb)
-
-    user_info = {
-        'sat'   : user_sat,
-        'setup' : user_setup,
-        'lnb'   : user_lnb,
-        'freqs' : user_freqs
-    }
-
-    logging.debug(pformat(user_info))
-
-    with open(cfg_file, 'w') as fd:
-        json.dump(user_info, fd)
-
-    print("Saved configurations on %s" %(cfg_file))
-
-    if (user_setup['type'] == standalone_setup_type):
-        _print_s400_instructions(user_info)
-    elif (user_setup['type'] == sdr_setup_type):
-        pass
-    elif (user_setup['type'] == linux_usb_setup_type):
-        _gen_chan_conf(user_info)
 
 def find_adapter(prompt=True):
     """Find the DVB adapter
@@ -819,7 +119,7 @@ def find_adapter(prompt=True):
                                               adapter["model"]))
 
         if (prompt):
-            if (_ask_yes_or_no("Choose adapter?")):
+            if (util._ask_yes_or_no("Choose adapter?")):
                 chosen_adapter = adapter
                 logging.debug("Chosen adapter:")
                 logging.debug(pformat(adapter))
@@ -1298,7 +598,7 @@ def set_rp_filters(dvb_ifs):
           "on the DVB interface and\nenables RP filtering on all other " +
           "interfaces.")
 
-    if (_ask_yes_or_no("OK to proceed?")):
+    if (util._ask_yes_or_no("OK to proceed?")):
         for dvb_if in dvb_ifs:
             _set_rp_filters(dvb_if)
     else:
@@ -1453,7 +753,7 @@ def _configure_firewall(net_if, ports, igmp=False):
     ]
 
     if (not _is_iptables_udp_rule_set(net_if, cmd)):
-        if (_ask_yes_or_no("Add corresponding ACCEPT firewall rule?")):
+        if (util._ask_yes_or_no("Add corresponding ACCEPT firewall rule?")):
             _add_iptables_rule(net_if, cmd)
         else:
             print("\nFirewall configuration cancelled")
@@ -1480,7 +780,7 @@ def _configure_firewall(net_if, ports, igmp=False):
     ]
 
     if (not _is_iptables_igmp_rule_set(net_if, cmd)):
-        if (_ask_yes_or_no("Add corresponding ACCEPT rule on firewall?")):
+        if (util._ask_yes_or_no("Add corresponding ACCEPT rule on firewall?")):
             _add_iptables_rule(net_if, cmd)
         else:
             print("\nIGMP firewall rule cancelled")
@@ -1519,13 +819,13 @@ def launch(args):
         "argument --ip. Please define one IP address for each PID."
 
     # User info
-    user_info = _read_cfg_file()
+    user_info = config._read_cfg_file()
 
     while (user_info is None):
         print("Missing configuration")
-        if (_ask_yes_or_no("Run now")):
+        if (util._ask_yes_or_no("Run now")):
             configure([])
-        user_info = _read_cfg_file()
+        user_info = config._read_cfg_file()
 
     # Find adapter
     if (args.adapter is None):
@@ -1550,16 +850,20 @@ def launch(args):
 
     # Set firewall rules
     if (not args.skip_firewall):
-        configure_firewall(net_ifs, src_ports)
+        configure_firewall(net_ifs, defs.src_ports)
 
     # Set IP
     set_ip(net_ifs, args.ip)
 
-    # Find suitable LNB within v4l-utils preset LNBs
-    lnb = _find_v4l_lnb(user_info)
+    # LNB name to use when calling dvbv5-zap
+    if (args.lnb_manual):
+        lnb = args.lnb
+    else:
+        # Find suitable LNB within v4l-utils preset LNBs
+        lnb = _find_v4l_lnb(user_info)['alias']
 
     # Zap
-    zap_ps = zap(adapter, frontend, args.chan_conf, lnb=lnb['alias'],
+    zap_ps = zap(adapter, frontend, args.chan_conf, lnb=lnb,
                  output=args.record_file, timeout=args.timeout,
                  monitor=args.monitor, scrolling=args.scrolling)
 
@@ -1600,7 +904,7 @@ def cfg_standalone(args):
     """Configurations for standalone DVB modem
     """
     set_rp_filters([args.interface])
-    configure_firewall([args.interface], src_ports,
+    configure_firewall([args.interface], defs.src_ports,
                        igmp=True)
 
 
@@ -1619,7 +923,7 @@ def firewall_subcommand(args):
     Handles the firewall subcommand
 
     """
-    configure_firewall([args.interface], src_ports, igmp=args.standalone)
+    configure_firewall([args.interface], defs.src_ports, igmp=args.standalone)
 
 
 def find_adapter_subcommand(args):
@@ -1674,7 +978,7 @@ def rm_subcommand(args):
         chosen_devices.append(interfaces[0]['name'])
 
     for chosen_dev in chosen_devices:
-        if (not _ask_yes_or_no("Remove interface %s?" %(chosen_dev))):
+        if (not util._ask_yes_or_no("Remove interface %s?" %(chosen_dev))):
             print("Aborting...")
             return
 
@@ -1697,7 +1001,7 @@ def main():
                                        description="Configure Blocksat Rx setup",
                                        help='Define receiver and Bitcoin FIBRE \
                                        configurations')
-    cfg_parser.set_defaults(func=configure)
+    cfg_parser.set_defaults(func=config.configure)
 
     # Launch command
     launch_parser = subparsers.add_parser('launch',
@@ -1713,8 +1017,13 @@ def main():
                                default=None,
                                help='DVB-S2 adapter number (default: None)')
 
+    launch_parser.add_argument('--lnb-manual',
+                               default=False,
+                               action='store_true',
+                               help='Select LNB manually (default: False)')
+
     launch_parser.add_argument('-l', '--lnb',
-                               choices=lnb_options,
+                               choices=defs.lnb_options,
                                default="UNIVERSAL",
                                help='LNB type (default: "UNIVERSAL")')
 
@@ -1751,11 +1060,11 @@ def main():
                                scrolling, rather than always on the same line \
                                (default: False)')
 
-    launch_parser.add_argument('--pid', default=[32, 33],
+    launch_parser.add_argument('--pid', default=defs.pids,
                                type=int,
                                nargs='+',
                                help='List of PIDs to be listened to by dvbnet \
-                               (default: 32,33)')
+                               (default: %s)' %(defs.pids))
 
     launch_parser.add_argument('-i', '--ip',
                                default=['192.168.201.2/24', '192.168.201.3/24'],
