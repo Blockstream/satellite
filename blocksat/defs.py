@@ -102,110 +102,110 @@ lnbs = [
 
 v4l_lnbs = [
     {
-	'alias' : "UNIVERSAL",
-	'lowfreq' : 9750,
-	'highfreq' : 10600,
-	'rangeswitch' : 11700,
-	'freqrange' : [
-	    ( 10800, 11800 ),
-	    ( 11600, 12700 ),
+        'alias' : "UNIVERSAL",
+        'lowfreq' : 9750,
+        'highfreq' : 10600,
+        'rangeswitch' : 11700,
+        'freqrange' : [
+            ( 10800, 11800 ),
+            ( 11600, 12700 ),
         ]
     }, {
-	'alias' : "DBS",
-	'lowfreq' : 11250,
-	'freqrange' : [
-	    ( 12200, 12700 )
-	]
+        'alias' : "DBS",
+        'lowfreq' : 11250,
+        'freqrange' : [
+            ( 12200, 12700 )
+        ]
     }, {
-	'alias' : "EXTENDED",
-	'lowfreq' : 9750,
-	'highfreq' : 10600,
-	'rangeswitch' : 11700,
-	'freqrange' : [
-	    ( 10700, 11700 ),
-	    ( 11700, 12750 ),
-	]
+        'alias' : "EXTENDED",
+        'lowfreq' : 9750,
+        'highfreq' : 10600,
+        'rangeswitch' : 11700,
+        'freqrange' : [
+            ( 10700, 11700 ),
+            ( 11700, 12750 ),
+        ]
     }, {
-	'alias' : "STANDARD",
-	'lowfreq' : 10000,
-	'freqrange' : [
-	    ( 10945, 11450 )
-	]
+        'alias' : "STANDARD",
+        'lowfreq' : 10000,
+        'freqrange' : [
+            ( 10945, 11450 )
+        ]
     }, {
-	'alias' : "L10700",
-	'lowfreq' : 10700,
-	'freqrange' : [
-	    ( 11750, 12750 )
-	]
+        'alias' : "L10700",
+        'lowfreq' : 10700,
+        'freqrange' : [
+            ( 11750, 12750 )
+        ]
     }, {
-	'alias' : "L10750",
-	'lowfreq' : 10750,
-	'freqrange' : [
-	    ( 11700, 12200 )
-	]
+        'alias' : "L10750",
+        'lowfreq' : 10750,
+        'freqrange' : [
+            ( 11700, 12200 )
+        ]
     }, {
-	'alias' : "L11300",
-	'lowfreq' : 11300,
-	'freqrange' : [
-	    ( 12250, 12750 )
-	]
+        'alias' : "L11300",
+        'lowfreq' : 11300,
+        'freqrange' : [
+            ( 12250, 12750 )
+        ]
     }, {
-	'alias' : "ENHANCED",
-	'lowfreq' : 9750,
-	'freqrange' : [
-	    ( 10700, 11700 )
-	]
+        'alias' : "ENHANCED",
+        'lowfreq' : 9750,
+        'freqrange' : [
+            ( 10700, 11700 )
+        ]
     }, {
-	'alias' : "QPH031",
-	'lowfreq' : 10750,
-	'highfreq' : 11250,
-	'rangeswitch' : 12200,
-	'freqrange' : [
-	    ( 11700, 12200 ),
-	    ( 12200, 12700 ),
-	]
+        'alias' : "QPH031",
+        'lowfreq' : 10750,
+        'highfreq' : 11250,
+        'rangeswitch' : 12200,
+        'freqrange' : [
+            ( 11700, 12200 ),
+            ( 12200, 12700 ),
+        ]
     }, {
-	'alias' : "C-BAND",
-	'lowfreq' : 5150,
-	'freqrange' : [
-	    ( 3700, 4200 )
-	]
+        'alias' : "C-BAND",
+        'lowfreq' : 5150,
+        'freqrange' : [
+            ( 3700, 4200 )
+        ]
     }, {
-	'alias' : "C-MULT",
-	'lowfreq' : 5150,
-	'highfreq' : 5750,
-	'freqrange' : [
-	    ( 3700, 4200 )
-	]
+        'alias' : "C-MULT",
+        'lowfreq' : 5150,
+        'highfreq' : 5750,
+        'freqrange' : [
+            ( 3700, 4200 )
+        ]
     }, {
-	'alias' : "DISHPRO",
-	'lowfreq' : 11250,
-	'highfreq' : 14350,
-	'freqrange' : [
-	    ( 12200, 12700 )
-	]
+        'alias' : "DISHPRO",
+        'lowfreq' : 11250,
+        'highfreq' : 14350,
+        'freqrange' : [
+            ( 12200, 12700 )
+        ]
     }, {
-	'alias' : "110BS",
-	'lowfreq' : 10678,
-	'freqrange' : [
-	    ( 11710, 12751 )
-	]
+        'alias' : "110BS",
+        'lowfreq' : 10678,
+        'freqrange' : [
+            ( 11710, 12751 )
+        ]
     }, {
-	'alias' : "STACKED-BRASILSAT",
-	'lowfreq' : 9710,
-	'highfreq' : 9750,
-	'freqrange' : [
-	    ( 10700, 11700 ),
-	]
+        'alias' : "STACKED-BRASILSAT",
+        'lowfreq' : 9710,
+        'highfreq' : 9750,
+        'freqrange' : [
+            ( 10700, 11700 ),
+        ]
     }, {
-	'alias' : "OI-BRASILSAT",
-	'lowfreq' : 10000,
-	'highfreq' : 10445,
-	'rangeswitch' : 11700,
-	'freqrange' : [
-	    ( 10950, 11200 ),
-	    ( 11800, 12200 ),
-	]
+        'alias' : "OI-BRASILSAT",
+        'lowfreq' : 10000,
+        'highfreq' : 10445,
+        'rangeswitch' : 11700,
+        'freqrange' : [
+            ( 10950, 11200 ),
+            ( 11800, 12200 ),
+        ]
     }
 ]
 
