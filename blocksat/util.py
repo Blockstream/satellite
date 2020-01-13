@@ -30,7 +30,7 @@ def _ask_yes_or_no(msg, default="y"):
     return (response == "y")
 
 
-def _ask_multiple_choice(vec, msg, label, to_str):
+def _ask_multiple_choice(vec, msg, label, to_str, help_msg = None):
     """Multiple choice question
 
     Args:
@@ -38,6 +38,7 @@ def _ask_multiple_choice(vec, msg, label, to_str):
         msg    : Msg to prompt user for choice
         label  : Description/label of what "vec" holdes
         to_str : Function that prints information about elements
+        help_msg : Optional help message
 
     Returns:
         Chosen element
@@ -45,9 +46,15 @@ def _ask_multiple_choice(vec, msg, label, to_str):
     """
     assert(len(vec) > 1)
 
+    print(msg)
+
     for i_elem, elem in enumerate(vec):
         elem_str = to_str(elem)
         print("[%2u] %s" %(i_elem, elem_str))
+
+    if (help_msg is not None):
+        print()
+        print(help_msg)
 
     resp = None
     while (not isinstance(resp, int)):

@@ -10,16 +10,16 @@ def _cfg_satellite():
 
     util._print_header("Satellite")
 
-    print("Please inform the satellite covering your location")
-    print("Not sure? Check the coverage map at:\n" \
-          "https://blockstream.com/satellite/#satellite_network-coverage")
+    help_msg = "Not sure? Check the coverage map at:\n" \
+               "https://blockstream.com/satellite/#satellite_network-coverage"
 
     question = "Please, inform which satellite below covers your location:"
     sat = util._ask_multiple_choice(defs.satellites,
                                     question,
                                     "Satellite",
                                     lambda sat : '{} ({})'.format(sat['name'],
-                                                                  sat['alias']))
+                                                                  sat['alias']),
+                                    help_msg)
     return sat
 
 
@@ -32,8 +32,10 @@ def _cfg_rx_setup():
     modem = util._ask_multiple_choice(defs.modems,
                                       question,
                                       "Setup",
-                                      lambda x : '{} receiver, using {} {} modem'.format(
-                                          x['type'], x['vendor'], x['model']))
+                                      lambda x : '{} receiver, using {} modem'.format(
+                                          x['type'],
+                                          (x['vendor'] + " " +
+                                           x['model']).strip()))
     return modem
 
 
@@ -45,7 +47,7 @@ def _cfg_custom_lnb(sat):
 
     """
 
-    print("Please inform the specifications of you LNB:")
+    print("\nPlease inform the specifications of your LNB:")
 
     print("Frequency band:")
     bands = ["C", "Ku"]
@@ -77,11 +79,15 @@ def _cfg_custom_lnb(sat):
             if (util._ask_yes_or_no("Does your LNB have LO frequencies 9750 MHz and 10600 MHz?")):
                 custom_lnb_lo_freq = [9750.0, 10600]
             else:
-                try:
-                    resp = input("Inform the two LO frequencies in MHz, separated by comma: ")
-                    custom_lnb_lo_freq = [float(x) for x in resp.split(",")]
-                except ValueError:
-                    raise ValueError("Please enter numbers separated by comma")
+                custom_lnb_lo_freq = []
+                while (len(custom_lnb_lo_freq) != 2):
+                    try:
+                        resp = input("Inform the two LO frequencies in MHz, "
+                                     "separated by comma: ")
+                        custom_lnb_lo_freq = [float(x) for x in resp.split(",")]
+                    except ValueError:
+                        continue
+
         else:
             # Non-universal Ku-band LNB
             try:
@@ -115,9 +121,8 @@ def _cfg_lnb(sat):
 
     util._print_header("LNB")
 
-    print("Please, inform some specifications of your LNB.")
+    print("Commonly used LNBs:")
 
-    print("\nAre you using one of the following LNBs?")
     for i_lnb, lnb in enumerate(defs.lnbs):
         if (lnb['universal']):
             print("[%2u] %s %s (Universal Ku band LNBF)" %(i_lnb,
@@ -126,8 +131,8 @@ def _cfg_lnb(sat):
         else:
             print("[%2u] %s %s" %(i_lnb, lnb['vendor'], lnb['model']))
 
-
-    if (util._ask_yes_or_no("Are you using one of the LNBs above?")):
+    print()
+    if (util._ask_yes_or_no("Are you using one of the above LNBs?")):
         resp = None
         while (not isinstance(resp, int)):
             try:
@@ -309,7 +314,9 @@ def configure(args):
     if (user_info is not None):
         print("Found previous configuration:")
         pprint(user_info, width=40, compact=False)
-        if (not util._ask_yes_or_no("Reset?")):
+        if (util._ask_yes_or_no("Reset?")):
+            os.remove(cfg_file)
+        else:
             print("Configuration aborted.")
             return
 

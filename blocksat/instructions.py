@@ -82,7 +82,8 @@ def _print_s400_instructions(info):
     print()
 
     print("3. Verify that the S400 is locked to Blockstream Satellite's signal")
-    _item("Check the top panel's \"RF 1 Lock\" indicator. It should be green "
+    _item("Check the \"RF 1 Lock\" indicator at the top of the page or the "
+          "status LED in the S400's front panel. It should be green (locked) "
           "if your antenna is already pointed correctly. If not, you can work "
           "on the antenna pointing afterwards.")
     print()
