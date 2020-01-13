@@ -81,22 +81,24 @@ lnbs = [
         'model'     : "PLL321S-2",
         'lo_freq'   : [9750.0, 10600],
         'universal' : True,
-        'band'      : "Ku"
-
+        'band'      : "Ku",
+        'pol'       : "Dual"
     },
     {
         'vendor'    : "Maverick",
         'model'     : "MK1",
         "lo_freq"   : 10750.0,
         'universal' : False,
-        'band'      : "Ku"
+        'band'      : "Ku",
+        'pol'       : "Dual"
     },
     {
         'vendor'    : "Titanium",
         'model'     : "C1",
         "lo_freq"   : 5150.0,
         'universal' : False,
-        'band'      : "C"
+        'band'      : "C",
+        'pol'       : "Dual"
     }
 ]
 

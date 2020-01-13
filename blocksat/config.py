@@ -102,20 +102,42 @@ def _cfg_custom_lnb(sat):
         except ValueError:
             raise ValueError("Please enter a number")
 
+
+    # Polarization
+    question = "Choose the LNB polarization:"
+    options = [
+        {
+            'id' : "Dual",
+            'text' : "Dual polarization (horizontal and vertical)"
+        },
+        {
+            'id' : "H",
+            'text' : "Horizontal"
+        },
+        {
+            'id' : "V",
+            'text' : "Vertical"
+        }]
+    pol = util._ask_multiple_choice(options, question,
+                                    "Polarization",
+                                    lambda x : '{}'.format(x['text']))
+
     return {
         'vendor'    : "",
         'model'     : "",
         "lo_freq"   : custom_lnb_lo_freq,
         'universal' : custom_lnb_universal,
-        'band'      : custom_lnb_band
+        'band'      : custom_lnb_band,
+        'pol'       : pol['id']
     }
 
 
-def _cfg_lnb(sat):
+def _cfg_lnb(sat, setup):
     """Configure LNB - either from preset or from custom specs
 
     Args:
-        sat : user's satellite info
+        sat   : user's satellite info
+        setup : user's rx setup info
 
     """
 
@@ -151,6 +173,21 @@ def _cfg_lnb(sat):
             break
     else:
         lnb = _cfg_custom_lnb(sat)
+
+
+    if ((lnb['pol'] != "Dual") and (lnb['pol'] != sat['pol'])):
+        lnb_pol = "Vertical" if lnb['pol'] == "V" else "Horizontal"
+        logging.warning(textwrap.fill(
+            "Your LNB has {} polarization and the signal from {} has the "
+            "opposite polarization.".format(lnb_pol, sat['name'])))
+        input("\nPress Enter to continue...")
+
+    if ((lnb['pol'] == "Dual") and (setup['type'] == defs.sdr_setup_type)):
+        logging.warning(textwrap.fill(
+            "Your LNB has dual polarization. Check the voltage of your power "
+            "supply in order to discover the polarization on which your LNB "
+            "will operate."))
+        input("\nPress Enter to continue...")
 
     if (sat['band'].lower() != lnb['band'].lower()):
         logging.error("The LNB you chose cannot operate " + \
@@ -223,12 +260,14 @@ def _cfg_frequencies(sat, setup, lnb):
                                      "delivering the tone directly to the "
                                      "LNB.")))
             else:
-                print("The {} {} modem can generate the 22 kHz tone.".format(
+                print("The {} {} modem will generate the 22 kHz tone.".format(
                     setup['vendor'], setup['model']))
         else:
             print(textwrap.fill("The DL frequency of {} is in Ku low \
             band (< {:.1f} MHz). Hence, you need to use the lower (default) \
             frequency LO of your LNB.".format(sat['alias'], defs.ku_band_thresh)))
+
+    input("\nPress Enter to continue...")
 
     return {
         'dl'     : sat['dl_freq'],
@@ -322,7 +361,7 @@ def configure(args):
 
     user_sat   = _cfg_satellite()
     user_setup = _cfg_rx_setup()
-    user_lnb   = _cfg_lnb(user_sat)
+    user_lnb   = _cfg_lnb(user_sat, user_setup)
     user_freqs = _cfg_frequencies(user_sat, user_setup, user_lnb)
 
     user_info = {
