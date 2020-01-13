@@ -235,7 +235,7 @@ def _cfg_frequencies(sat, setup, lnb):
 def _cfg_chan_conf(info):
     """Generate the channels.conf file"""
 
-    util._print_header("Linux USB Setup")
+    util._print_header("Channel Configurations for Linux USB Rx")
 
     print(textwrap.fill("This step will generate the channel configuration "
                         "file that is required when launching the USB "
@@ -333,12 +333,19 @@ def configure(args):
     util._print_header("JSON configuration file")
     print("Saved configurations on %s" %(cfg_file))
 
-    if (user_setup['type'] == defs.standalone_setup_type):
-        instructions._print_s400_instructions(user_info)
-    elif (user_setup['type'] == defs.sdr_setup_type):
-        pass
-    elif (user_setup['type'] == defs.linux_usb_setup_type):
+    if (user_setup['type'] == defs.linux_usb_setup_type):
         _cfg_chan_conf(user_info)
-        instructions._print_usb_rx_instructions()
+
+    util._print_header("Instructions")
+
+    print(textwrap.fill(
+        "Please refer to the instructions that follow in order to complete the "
+        "assembling of your receiver setup. You can read these instructions "
+        "any time by running:"))
+    print("""
+    ./blocksat.py instructions
+    """)
+
+    instructions.show([])
 
 
