@@ -5,17 +5,6 @@ from blocksat import util, defs, instructions
 import textwrap
 
 
-def _read_cfg_file():
-    """Read configuration file"""
-
-    cfg_file = "config.json"
-
-    if (os.path.isfile(cfg_file)):
-        with open(cfg_file) as fd:
-            info = json.load(fd)
-        return info
-
-
 def _cfg_satellite():
     """Configure satellite covering the user"""
 
@@ -277,6 +266,35 @@ def _cfg_chan_conf(info):
         f.write('\tVIDEO_PID = 32+33\n')
 
     print("File \"%s\" saved." %(cfg_file))
+
+
+def _read_cfg_file():
+    """Read configuration file"""
+
+    cfg_file = "config.json"
+
+    if (os.path.isfile(cfg_file)):
+        with open(cfg_file) as fd:
+            info = json.load(fd)
+        return info
+
+
+def read_cfg_file():
+    """Read configuration file
+
+    If not available, run configuration helper.
+
+    """
+
+    info = _read_cfg_file()
+
+    while (info is None):
+        print("Missing configuration")
+        if (util._ask_yes_or_no("Run now")):
+            configure([])
+        info = _read_cfg_file()
+
+    return info
 
 
 def configure(args):

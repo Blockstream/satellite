@@ -6,7 +6,7 @@ import os, sys, signal, argparse, subprocess, re, time, logging, threading, json
 from pprint import pformat, pprint
 from ipaddress import IPv4Interface
 import textwrap
-from blocksat import defs, config, util
+from blocksat import defs, config, util, instructions
 
 
 def _find_v4l_lnb(info):
@@ -819,13 +819,7 @@ def launch(args):
         "argument --ip. Please define one IP address for each PID."
 
     # User info
-    user_info = config._read_cfg_file()
-
-    while (user_info is None):
-        print("Missing configuration")
-        if (util._ask_yes_or_no("Run now")):
-            configure([])
-        user_info = config._read_cfg_file()
+    user_info = config.read_cfg_file()
 
     # Find adapter
     if (args.adapter is None):
@@ -1002,6 +996,12 @@ def main():
                                        help='Define receiver and Bitcoin FIBRE \
                                        configurations')
     cfg_parser.set_defaults(func=config.configure)
+
+    # Config command
+    inst_parser = subparsers.add_parser('instructions',
+                                       description="Instructions for Blocksat Rx setup",
+                                       help='Read instructions for the receiver setup')
+    inst_parser.set_defaults(func=instructions.show)
 
     # Launch command
     launch_parser = subparsers.add_parser('launch',

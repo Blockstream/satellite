@@ -1,5 +1,5 @@
 """Instructions for the user"""
-from blocksat import util, defs
+from blocksat import util, defs, config
 import textwrap
 
 
@@ -92,4 +92,17 @@ def _print_sdr_instructions(info):
            "must be connected to the RTL-SDR."))
 
     util._print_sub_header("Host Configuration")
+
+
+def show(args):
+    """Show instructions"""
+    info = config.read_cfg_file()
+
+    if (info['setup']['type'] == defs.standalone_setup_type):
+        _print_s400_instructions(info)
+    elif (info['setup']['type'] == defs.sdr_setup_type):
+        pass
+    elif (info['setup']['type'] == defs.linux_usb_setup_type):
+        _print_usb_rx_instructions()
+
 
