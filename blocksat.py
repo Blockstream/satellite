@@ -850,7 +850,7 @@ def launch(args):
     set_ip(net_ifs, args.ip)
 
     # LNB name to use when calling dvbv5-zap
-    if (args.lnb_manual):
+    if (args.lnb is not None):
         lnb = args.lnb
     else:
         # Find suitable LNB within v4l-utils preset LNBs
@@ -1017,15 +1017,12 @@ def main():
                                default=None,
                                help='DVB-S2 adapter number (default: None)')
 
-    launch_parser.add_argument('--lnb-manual',
-                               default=False,
-                               action='store_true',
-                               help='Select LNB manually (default: False)')
-
     launch_parser.add_argument('-l', '--lnb',
                                choices=defs.lnb_options,
-                               default="UNIVERSAL",
-                               help='LNB type (default: "UNIVERSAL")')
+                               default=None,
+                               help="LNB from v4l-utils to be used. "
+                               "If None, i.e. not specified, it will be set "
+                               "automatically (default: None)")
 
     launch_parser.add_argument('-U', '--ule', default=False,
                                action='store_true',
