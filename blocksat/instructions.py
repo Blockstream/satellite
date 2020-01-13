@@ -11,7 +11,7 @@ def _print_s400_instructions(info):
     """
     util._print_header("Novra S400")
 
-    print("The Novra S400 is standalone modem, connected as follows:\n")
+    print("The Novra S400 is a standalone modem, connected as follows:\n")
 
     print(("LNB ----> S400 (RF1 Interface) -- "
            "S400 (LAN 1 Interface) ----> Host / Network\n"))
@@ -113,10 +113,83 @@ def _print_s400_instructions(info):
                         "S400."))
 
 
-def _print_usb_rx_instructions():
+def _print_usb_rx_instructions(info):
     """Print instructions for runnning with a Linux USB receiver
     """
-    util._print_header("Next Steps")
+
+    name = (info['setup']['vendor'] + " " + info['setup']['model']).strip()
+
+    util._print_header(name)
+
+    print("The {} is a USB modem connected as follows:\n".format(name))
+
+    print(("LNB ----> {} (LNB Interface) -- "
+           "{} (USB Interface) ----> Host\n".format(name, name)))
+
+    print(textwrap.fill("The {} will receive data from satellite and will "
+                        "output data to the host over USB. The host, in turn, "
+                        "is responsible for configuring the modem using "
+                        "specific DVB-S2 tools. Hence, next, you need to "
+                        "prepare the host for driving the {}.".format(
+                            name, name)))
+    print()
+    print(textwrap.fill("Also, because the setup requires installation of "
+                        "device drivers, we recommend creating and using a "
+                        "virtual machine for this."))
+
+    input("\nPress Enter to continue...")
+
+    util._print_sub_header("Host Apps")
+
+    print("First, install all pre-requisites:")
+
+    install_info = """
+    On Ubuntu/Debian:
+
+    sudo apt apt update
+    sudo apt install python3 iproute2 iptables dvb-apps dvb-tools
+
+
+    On Fedora
+
+    sudo dnf update
+    sudo dnf install python3 iproute iptables dvb-apps v4l-utils
+    """
+    print(install_info)
+
+    input("\nPress Enter to continue...")
+
+    util._print_sub_header("{} Drivers".format(name))
+
+    print(textwrap.fill("Next, you need to install the drivers for "
+                        "the {}. Please, do note that driver installation can "
+                        "cause corruptions and, therefore, it is safer and "
+                        "strongly recommended to use a virtual machine.".format(
+                            name)))
+    _item("From the root folder, run:")
+    print("""
+    ./tbsdriver.sh
+    """)
+    print("Once the script completes the installation, reboot the machine.")
+    print()
+    print(textwrap.fill(
+        "If you are running this helper in the same machine, run the "
+        "following to see instructions again after rebooting."))
+    print("""
+    ./blocksat.py instructions
+    """)
+
+    input("\nPress Enter to continue...")
+
+    util._print_sub_header("Hardware Connections")
+
+    _item("Connect the LNB directly to \"LNB IN\" of the {} using a "
+          "coaxial cable (for example an RG6 cable).".format(name))
+    _item("Connect the {}'s USB interface to your computer.".format(name))
+
+    input("\nPress Enter to continue...")
+
+    util._print_sub_header("Launch")
 
     print("Now run:\n\nsudo ./blocksat.py launch\n\n")
 
@@ -149,6 +222,6 @@ def show(args):
     elif (info['setup']['type'] == defs.sdr_setup_type):
         pass
     elif (info['setup']['type'] == defs.linux_usb_setup_type):
-        _print_usb_rx_instructions()
+        _print_usb_rx_instructions(info)
 
 
