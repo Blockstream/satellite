@@ -1017,6 +1017,10 @@ def main():
                                default=None,
                                help='DVB-S2 adapter number (default: None)')
 
+    launch_parser.add_argument('-f', '--frontend',
+                               default=None,
+                               help='DVB-S2 adapter\'s frontend number (default: None)')
+
     launch_parser.add_argument('-l', '--lnb',
                                choices=defs.lnb_options,
                                default=None,
