@@ -1,144 +1,103 @@
-# DVB
+# Blockstream Satellite
+
+This repository contains tools and instructions for running a Blockstream
+Satellite receiver.
+
+The Blockstream Satellite network broadcasts the Bitcoin blockchain using the
+[second-generation Digital Video Broadcasting Satellite (DVB-S2)
+standard](https://en.wikipedia.org/wiki/DVB-S2). To receive this signal, you
+will need a DVB-S2 demodulator, for which there are a couple of options. The
+output of the demodulator will be a data stream that you will feed to a host
+running the [Bitcoin FIBRE](http://bitcoinfibre.org) application. This
+application, in turn, will decode the blocks received over satellite and keep
+the blockchain in sync.
+
+Find out if your location has coverage by looking at our [Coverage
+   Map](https://blockstream.com/satellite/#satellite_network-coverage).
+
+To assemble a receiver setup, you will need to go through the following steps:
+
+1. Get the required hardware, such as the DVB-S2 demodulator, the satellite
+   dish/antenna and the low-noise block downconverter (LNB).
+2. Install all software requirements and configure the receiver setup.
+3. Align your satellite dish appropriately to receive the Blockstream Satellite
+   signal.
+
+You can find detailed guidance for these steps along this documentation.
 
 ## Hardware
 
-### USB DVB-S2 Receivers
+There are 3 supported setup options with varying levels of budget, performance
+and CPU usage. They are summarized in the table below:
 
-This type of receiver connects to your host (Linux PC) directly via USB and
-combines processing executed in the modem with some processing carried out by
-the host. Hence, it requires specific drivers, which are described next.
+| **Setup**                        | Budget          | Performance/Reliability | CPU Usage  |
+|----------------------------------|-----------------|-------------------------|------------|
+| **Software-defined Radio (SDR)** | Most Affordable | Limited                 | High       |
+| **Linux USB Receiver**           | Moderate        | Excellent               | Negligible |
+| **Standalone Demodulator**       | Higher          | Excellent               | None       |
 
-1. **TBS5520SE Multi-standard Universal TV Tuner USB Box**
-    - [User guide](https://www.tbsiptv.com/download/tbs5520se/tbs5520se_user_guide.pdf)
-    - [Datasheet](https://www.tbsiptv.com/download/tbs5520se/tbs5520se_multi_standard_universal_tv_tuner_box_data_sheet.pdf)
-2. **TBS5927 Professional DVB-S2 TV Tuner USB**
-    - [User guide](https://www.tbsiptv.com/download/tbs5927/tbs5957_user_guide.pdf)
-    - [Datasheet](https://www.tbsiptv.com/download/tbs5927/tbs5927_professtional_dvb-S2_TV_Tuner_USB_data_sheet.pdf)
+In all options, the following hardware components are required:
 
-To install the required drivers, run:
+| Component                | Region-Specific | General Requirements |
+|--------------------------|-----------------|----------------------------|
+| Satellite dish (antenna) | Yes             | Diameter of 45cm or larger |
+| LNB                      | Yes             | Must be a **PLL LNB** with linear polarization and stability of `+- 250 kHz` or less |
+| LNB mounting bracket     | No              |                            |
+| Coaxial Cable            | No              | RG6 Cable                  |
 
-```
-./tbsdriver.sh
-```
+Note both the satellite dish and the LNB are **region-specific**, that is, they
+must attend to the specifications of the satellite that covers your region. This
+is because they must be appropriate for the frequency band of your satellite.
 
-Reboot after successful completion.
+Additionally, each of the above three setups has specific complementary
+components, which are summarized below:
 
-Further information can be found
-[here](https://github.com/tbsdtv/linux_media/wiki).
+| Setup | Specific Components |
+|--------------------|---------|
+| Software-defined Radio (SDR) | RTL-SDR dongle, LNB Power Supply, SMA Cable and SMA to F adapter |
+| Linux USB Receiver | TBS5927 Professional DVB-S2 TV Tuner USB |
+| Standalone Demodulator | Novra S400 PRO DVB satellite Receiver and Ethernet Cable  |
 
-### Standalone DVB-S2 Modems
+Please refer to the comprehensive [hardware guide](doc/hardware.md) in order to
+pick the appropriate components.
 
-This type of receiver handles the full DVB-S2 processing and unpacking of IP
-packets from DVB-S2 frames, with no need for a host PC. It will typically
-contain an Ethernet/LAN output interface, through which it will output the IP
-traffic. To receive this traffic, the host PC will need to be on the same LAN as
-the modem or directly connected to it via Ethernet.
+## Software and Setup Configuration
 
-## Software Dependencies
-
-### Ubuntu/Debian:
-
-```
-sudo apt apt update
-sudo apt install python3 iproute2 iptables dvb-apps dvb-tools
-```
-
-> NOTE 1: `iproute2` and `iptables` are used in order to ensure `ip` and
-> `iptables` tools are available.
->
-> NOTE 2: `dvb-apps` and `dvb-tools` are not required if using a standalone
-> DVB-S2 modem. They are only required if using a USB modem.
-
-
-### Fedora:
-```
-sudo dnf update
-sudo dnf install python3 iproute iptables dvb-apps v4l-utils
-```
-
-> NOTE: `dvb-apps` and `v4l-utils` are not required if using a standalone DVB-S2
-> modem. They are only required if using a USB modem.
-
-## Running
-
-### Running with a USB DVB-S2 modem:
-
-Launch the DVB-S2 interface by running:
+Setup configurations are dependent on your demodulator choice and on the
+satellite that covers your region. To obtain the configuration instructions that
+are suitable to your setup, please run the configuration helper as follows:
 
 ```
-sudo ./blocksat.py launch
+python3 blocksat.py cfg
 ```
 
-This script will set an arbitrary IP address to the network interface that is
-created in Linux in order to handle the IP traffic received via the satellite
-link. To define a specific IP instead, run the above with `--ip target_ip`
-argument, where `target_ip` is the IP of interest.
+Next, build and install Bitcoin FIBRE, following the [FIBRE installation
+guide](doc/fibre.md).
 
-### Running with a standalone DVB-S2 modem
+## Antenna Pointing
 
-As mentioned earlier, in standalone mode you will need a network interface on
-your host connected to the same LAN as the DVB-S2 modem or directly to it via
-Ethernet. In this case, in order to receive the traffic, you will only need some
-networking configurations on your host. Such configurations are indicated and
-executed by running:
+Aligning a satellite antenna is a precise procedure. Remember that the
+satellites are over 35,000 km (22,000 mi) away. A tenth of a degree of error
+will miss the satellite by more than 3500 km. Hence, this is likely the most
+time-consuming step of the process.
 
-```
-sudo ./blocksat.py standalone -i ifname
-```
+Please refer to comprehensive instructions in our [antenna alignment
+guide](doc/antenna-pointing.md).
 
-where `ifname` is the name of the network interface that is connected (via
-switches or directly) to the DVB-S2 modem.
+## User Guide
 
-## Docker
+- [Frequency Bands](doc/frequency.md)
+- [Hardware Guide](doc/hardware.md)
+- Receiver Configuration:
+    - [Novra S400](doc/s400.md)
+    - [TBS5927](doc/tbs.md)
+    - [SDR Setup](doc/sdr.md)
+- [Antenna Pointing](doc/antenna-pointing.md)
+- [Bitcoin FIBRE](doc/fibre.md)
+- [Satellite API](doc/satellite-api.md)
 
-The Docker image that is available in this repository installs all software
-dependencies and can be used to run the `blocksat` tool. Note, however, that
-if using a USB modem, the modem's drivers are install required on the Docker
-host (not the container).
+## Support
 
-First, build the image:
+For additional help, you can join the **#blockstream-satellite** IRC channel on
+freenode.
 
-```
-docker build -t blocksat/dvb .
-```
-
-Run the container:
-
-```
-docker run --rm \
-	--device=/dev/dvb \
-	--network=host \
-	--cap-add=NET_ADMIN \
-	--cap-add=SYS_ADMIN \
-	-it blocksat/dvb \
-	launch
-```
-
-If using a standalone modem, substitute `launch` on the above command with
-`standalone`, according to the [run guidelines given above](#Running). Further
-arguments such as `-i` can also be provided after the command (i.e. `launch` or
-`standalone`) and will accordingly be processed by the `blocksat` tool
-inside the container.
-
-After running, configure reverse path filters by running the following from the
-host (not from the container):
-
-```
-sudo ./blocksat.py rp -i dvb0_0
-```
-
-## Building dvb-apps from source
-
-```
-hg clone http://linuxtv.org/hg/dvb-apps
-cd dvb-apps
-make
-sudo make install
-```
-
-For Kernel version greater than or equal to 4.14, [this
-solution](https://gist.github.com/Kaeltis/d87dc76fc604f8b3373231dcd2d76568) can
-be used to complete the compilation.
-
-More information can be found
-[here](https://www.linuxtv.org/wiki/index.php/LinuxTV_dvb-apps).

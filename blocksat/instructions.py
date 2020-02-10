@@ -50,7 +50,7 @@ def _print_s400_instructions(info):
 
     util._print_sub_header("S400 FW Version")
     print("In the web UI, go to System > About:")
-    print("Confirm that S400's the Configuration Agent's version is 1.5.10 or higher.")
+    print("Confirm that the version of the Configuration Agent is 1.5.10 or higher.")
     print()
 
     input("\nPress Enter to continue...")

@@ -2,16 +2,16 @@
 
 There are two Docker images in this repository:
 
-- `usb.docker`: should be used for Linux USB receiver setups and it also works
-  with standalone demodulators.
-- `sdr.docker`: should be used for SDR-based setups.
+- `usb.docker`: for Linux USB receiver setups.
+- `sdr.docker`: for SDR-based setups.
 
-If using a USB demodulator, however, the drivers need to be installed on the
-Docker host (not the container).
+If using a USB demodulator, however, note the drivers need to be installed on
+the Docker host (not the container). Please refer to the [USB demodulator
+guide](tbs.md#tbs-5927-drivers).
 
 ## Linux USB Container
 
-First, build the image:
+Build the image with:
 
 ```
 docker build -t blockstream/blocksat-usb -f usb.docker ..
@@ -28,7 +28,7 @@ docker run --rm \
 	--cap-add=NET_ADMIN \
 	--cap-add=SYS_ADMIN \
 	-it blockstream/blocksat-usb \
-	launch
+	usb
 ```
 
 After running, configure reverse path filters by running the following from the
@@ -36,6 +36,7 @@ host (not from the container):
 
 ```
 sudo ./blocksat.py rp -i dvb0_0
+sudo ./blocksat.py rp -i dvb0_1
 ```
 
 ## SDR Container
