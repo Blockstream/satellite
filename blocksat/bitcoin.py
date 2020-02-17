@@ -1,5 +1,6 @@
 """Bitcoin .conf generator"""
 import os
+from argparse import ArgumentDefaultsHelpFormatter
 from blocksat import config, defs, util
 import textwrap
 import argparse
@@ -15,7 +16,8 @@ def subparser(subparsers):
     """Argument parser of bitcoin-conf command"""
     p = subparsers.add_parser('bitcoin-conf',
                               description="Generate Bitcoin configuration file",
-                              help='Generate Bitcoin configuration file')
+                              help='Generate Bitcoin configuration file',
+                              formatter_class=ArgumentDefaultsHelpFormatter)
     p.add_argument('-d', '--datadir', default=None,
                    help='Path to the data directory where the generated '
                    'bitcoin.conf will be saved')

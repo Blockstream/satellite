@@ -989,7 +989,8 @@ def main():
 
     cwd        = os.path.dirname(os.path.realpath(__file__))
     parser     = argparse.ArgumentParser(prog="blocksat",
-                                         description="Blocksat Receiver Helper")
+                                         description="Blocksat Receiver Helper",
+                                         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     subparsers = parser.add_subparsers(title='subcommands',
                                        help='Target sub-command')
 
@@ -1002,73 +1003,66 @@ def main():
     # Launch command
     launch_parser = subparsers.add_parser('launch',
                                           description="Set up the USB DVB-S2 interface",
-                                          help='Launch USB DVB-S2 interface')
+                                          help='Launch USB DVB-S2 interface',
+                                          formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
     launch_parser.add_argument('-c', '--chan-conf',
                                default=os.path.join(cwd, 'channels.conf'),
-                               help='Channel configurations file ' +
-                               '(default: channels.conf)')
+                               help='Channel configurations file')
 
     launch_parser.add_argument('-a', '--adapter',
                                default=None,
-                               help='DVB-S2 adapter number (default: None)')
+                               help='DVB-S2 adapter number')
 
     launch_parser.add_argument('-f', '--frontend',
                                default=None,
-                               help='DVB-S2 adapter\'s frontend number (default: None)')
+                               help='DVB-S2 adapter\'s frontend number')
 
     launch_parser.add_argument('-l', '--lnb',
                                choices=defs.lnb_options,
                                default=None,
                                help="LNB from v4l-utils to be used. "
                                "If None, i.e. not specified, it will be set "
-                               "automatically (default: None)")
+                               "automatically")
 
     launch_parser.add_argument('-U', '--ule', default=False,
                                action='store_true',
-                               help='Use ULE encapsulation instead of MPE ' +
-                               '(default: False)')
+                               help='Use ULE encapsulation instead of MPE')
 
     launch_parser.add_argument('--skip-rp', default=False, action='store_true',
-                               help='Skip settting of reverse path filters ' + \
-                               '(default: False)')
+                               help='Skip settting of reverse path filters')
 
     launch_parser.add_argument('--skip-firewall', default=False,
                                action='store_true',
-                               help='Skip configuration of firewall rules ' + \
-                               '(default: False)')
+                               help='Skip configuration of firewall rules')
 
     launch_parser.add_argument('-r', '--record-file', default=None,
-                               help='Record MPEG-TS traffic into target file \
-                               (default: None)')
+                               help='Record MPEG-TS traffic into target file')
 
     launch_parser.add_argument('-t', '--timeout', default=None,
                                help='Stop zapping after timeout - useful to \
-                               control recording time (default: None)')
+                               control recording time')
 
     launch_parser.add_argument('-m', '--monitor', default=False,
                                action='store_true',
                                help='Launch dvbv5-zap in monitor mode - useful \
-                               to debug packet and bit rates (default: False)')
+                               to debug packet and bit rates')
 
     launch_parser.add_argument('-s', '--scrolling', default=False,
                                action='store_true',
                                help='Print dvbv5-zap logs line-by-line, i.e. \
-                               scrolling, rather than always on the same line \
-                               (default: False)')
+                               scrolling, rather than always on the same line')
 
     launch_parser.add_argument('--pid', default=defs.pids,
                                type=int,
                                nargs='+',
-                               help='List of PIDs to be listened to by dvbnet \
-                               (default: %s)' %(defs.pids))
+                               help='List of PIDs to be listened to by dvbnet')
 
     launch_parser.add_argument('-i', '--ip',
                                default=['192.168.201.2/24', '192.168.201.3/24'],
                                nargs='+',
                                help='IP address set for each DVB-S2 net \
-                               interface with subnet mask in CIDR notation \
-                               (default: [192.168.201.2/24, 192.168.201.3/24])')
+                               interface with subnet mask in CIDR notation')
 
     launch_parser.set_defaults(func=launch)
 
@@ -1077,51 +1071,55 @@ def main():
                                         description="Configure host to receive \
                                         data from standalone DVB-S2 modem",
                                         help='Configure host to receive from \
-                                        standalone DVB-S2 modem')
+                                        standalone DVB-S2 modem',
+                                        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     stdl_parser.add_argument('-i', '--interface', required = True,
-                             help='Network interface (required)')
+                             help='Network interface')
     stdl_parser.set_defaults(func=cfg_standalone)
 
     # Reverse path configuration command
     rp_parser = subparsers.add_parser('reverse-path', aliases=['rp'],
                                       description="Set reverse path filters",
-                                      help='Set reverse path filters')
+                                      help='Set reverse path filters',
+                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
     rp_parser.add_argument('-i', '--interface', required = True,
-                           help='Network interface (required)')
+                           help='Network interface')
 
     rp_parser.set_defaults(func=reverse_path_subcommand)
 
     # Firewall configuration command
     fwall_parser = subparsers.add_parser('firewall',
                                          description="Set firewall rules",
-                                         help='Set firewall rules')
+                                         help='Set firewall rules',
+                                         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
     fwall_parser.add_argument('-i', '--interface', required = True,
-                              help='Network interface (required)')
+                              help='Network interface')
 
     fwall_parser.add_argument('--standalone', default=False,
                               action='store_true',
-                              help='Configure for standalone DVB-S2 modem ' + \
-                              '(default: False)')
+                              help='Configure for standalone DVB-S2 modem')
 
     fwall_parser.set_defaults(func=firewall_subcommand)
 
     # Find adapter command
     find_parser = subparsers.add_parser('find',
                                         description="Find DVB-S2 adapter",
-                                        help='Find DVB-S2 adapter')
+                                        help='Find DVB-S2 adapter',
+                                        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
     find_parser.set_defaults(func=find_adapter_subcommand)
 
     # Remove adapter command
     rm_parser = subparsers.add_parser('rm',
                                       description="Remove DVB-S2 adapter",
-                                      help='Remove DVB-S2 adapter')
+                                      help='Remove DVB-S2 adapter',
+                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
     rm_parser.add_argument('-a', '--adapter',
                            default=None,
-                           help='DVB-S2 adapter number (default: None)')
+                           help='DVB-S2 adapter number')
 
     rm_parser.set_defaults(func=rm_subcommand)
 
@@ -1133,7 +1131,7 @@ def main():
 
     # Optional args
     parser.add_argument('--debug', action='store_true',
-                        help='Debug mode (default: false)')
+                        help='Debug mode')
 
     args      = parser.parse_args()
 

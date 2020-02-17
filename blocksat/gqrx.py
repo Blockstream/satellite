@@ -1,5 +1,6 @@
 """Generate gqrx configurations"""
 import os
+from argparse import ArgumentDefaultsHelpFormatter
 from blocksat import config, util
 import textwrap
 import argparse
@@ -8,10 +9,10 @@ import argparse
 def subparser(subparsers):
     p = subparsers.add_parser('gqrx-conf',
                               description="Generate gqrx configurations",
-                              help='Generate gqrx configurations')
+                              help='Generate gqrx configurations',
+                              formatter_class=ArgumentDefaultsHelpFormatter)
     p.add_argument('-p', '--path', default=None,
-                   help='Path where gqrx configuration file should be saved \
-                   (default: ~/.config/gqrx/)')
+                   help='Path where gqrx configuration file should be saved')
 
     p.set_defaults(func=configure)
 

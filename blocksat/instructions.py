@@ -1,4 +1,5 @@
 """Instructions for the user"""
+from argparse import ArgumentDefaultsHelpFormatter
 from blocksat import util, defs, config
 import textwrap
 
@@ -218,7 +219,8 @@ def subparser(subparsers):
     """Argument parser of instructions command"""
     p = subparsers.add_parser('instructions',
                               description="Instructions for Blocksat Rx setup",
-                              help='Read instructions for the receiver setup')
+                              help='Read instructions for the receiver setup',
+                              formatter_class=ArgumentDefaultsHelpFormatter)
     p.set_defaults(func=show)
     return p
 

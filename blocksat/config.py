@@ -1,5 +1,6 @@
 """User setup configuration"""
 import os, json, logging
+from argparse import ArgumentDefaultsHelpFormatter
 from pprint import pprint, pformat
 from blocksat import util, defs, instructions
 import textwrap
@@ -372,7 +373,8 @@ def subparser(subparsers):
     p = subparsers.add_parser('cfg',
                               description="Configure Blocksat Rx setup",
                               help='Define receiver and Bitcoin FIBRE \
-                              configurations')
+                              configurations',
+                              formatter_class=ArgumentDefaultsHelpFormatter)
 
     p.set_defaults(func=configure)
     return p
