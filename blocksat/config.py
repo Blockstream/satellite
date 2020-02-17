@@ -41,6 +41,26 @@ def _cfg_rx_setup():
                                           x['type'],
                                           (x['vendor'] + " " +
                                            x['model']).strip()))
+
+    if (modem['type'] == defs.standalone_setup_type):
+        try:
+            devices = os.listdir('/sys/class/net/')
+        except FileNotFoundError:
+            devices = None
+            pass
+
+        question = "Which network interface is connected to the {}?".format(
+            modem['model'])
+        if (devices is not None):
+            netdev = util._ask_multiple_choice(devices,
+                                               question,
+                                               "Interface",
+                                               lambda x : '{}'.format(x))
+        else:
+            netdev = input(question + " ")
+
+        modem['netdev'] = netdev.strip()
+
     return modem
 
 
