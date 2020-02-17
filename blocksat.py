@@ -6,7 +6,7 @@ import os, sys, signal, argparse, subprocess, re, time, logging, threading, json
 from pprint import pformat, pprint
 from ipaddress import IPv4Interface
 import textwrap
-from blocksat import defs, config, util, instructions
+from blocksat import defs, config, util, instructions, gqrx
 
 
 def _find_v4l_lnb(info):
@@ -1124,6 +1124,9 @@ def main():
                            help='DVB-S2 adapter number (default: None)')
 
     rm_parser.set_defaults(func=rm_subcommand)
+
+    # Generate gqrx configuration
+    gqrx_parser = gqrx.subparser(subparsers)
 
     # Optional args
     parser.add_argument('--debug', action='store_true',
