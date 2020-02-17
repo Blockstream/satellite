@@ -341,6 +341,17 @@ def read_cfg_file():
     return info
 
 
+def subparser(subparsers):
+    """Argument parser of config command"""
+    p = subparsers.add_parser('cfg',
+                              description="Configure Blocksat Rx setup",
+                              help='Define receiver and Bitcoin FIBRE \
+                              configurations')
+
+    p.set_defaults(func=configure)
+    return p
+
+
 def configure(args):
     """Configure Blocksat Receiver setup
 

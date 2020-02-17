@@ -991,17 +991,10 @@ def main():
                                        help='Target sub-command')
 
     # Config command
-    cfg_parser = subparsers.add_parser('cfg',
-                                       description="Configure Blocksat Rx setup",
-                                       help='Define receiver and Bitcoin FIBRE \
-                                       configurations')
-    cfg_parser.set_defaults(func=config.configure)
+    cfg_parser = config.subparser(subparsers)
 
     # Config command
-    inst_parser = subparsers.add_parser('instructions',
-                                       description="Instructions for Blocksat Rx setup",
-                                       help='Read instructions for the receiver setup')
-    inst_parser.set_defaults(func=instructions.show)
+    inst_parser = instructions.subparser(subparsers)
 
     # Launch command
     launch_parser = subparsers.add_parser('launch',

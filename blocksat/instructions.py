@@ -214,6 +214,15 @@ def _print_sdr_instructions(info):
     util._print_sub_header("Host Configuration")
 
 
+def subparser(subparsers):
+    """Argument parser of instructions command"""
+    p = subparsers.add_parser('instructions',
+                              description="Instructions for Blocksat Rx setup",
+                              help='Read instructions for the receiver setup')
+    p.set_defaults(func=show)
+    return p
+
+
 def show(args):
     """Show instructions"""
     info = config.read_cfg_file()
