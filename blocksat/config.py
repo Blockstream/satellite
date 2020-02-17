@@ -3,6 +3,7 @@ import os, json, logging
 from pprint import pprint, pformat
 from blocksat import util, defs, instructions
 import textwrap
+from decimal import Decimal, getcontext
 
 
 def _cfg_satellite():
@@ -211,6 +212,7 @@ def _cfg_frequencies(sat, setup, lnb):
 
     """
     util._print_header("Frequencies")
+    getcontext().prec = 8
 
     if (sat['band'].lower() == "ku"):
         if (lnb['universal']):
@@ -226,15 +228,15 @@ def _cfg_frequencies(sat, setup, lnb):
         else:
             lo_freq = lnb['lo_freq']
 
-        if_freq = sat['dl_freq'] - lo_freq
+        if_freq = float(Decimal(sat['dl_freq']) - Decimal(lo_freq))
 
     elif (sat['band'].lower() == "c"):
         lo_freq = lnb['lo_freq']
-        if_freq = lo_freq - sat['dl_freq']
+        if_freq = float(Decimal(lo_freq) - Decimal(sat['dl_freq']))
     else:
         raise ValueError("Unknown satellite band")
 
-    print("So, here are the frequencies of interest:\n")
+    print("Here are the frequencies of interest:\n")
 
     print("| Downlink %2s band frequency                     | %8.2f MHz |" %(sat['band'], sat['dl_freq']))
     print("| Your LNB local oscillator (LO) frequency       | %8.2f MHz |" %(lo_freq))
