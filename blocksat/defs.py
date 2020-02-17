@@ -1,48 +1,58 @@
 # Constants
-src_ports   = ["4433", "4434"]
-pids        = [32, 33]
+mcast_ip       = "239.0.0.2"
+fibre_port     = "4434"
+fibre_dst_addr = mcast_ip + ":" + fibre_port
+src_ports      = ["4433", "4434"]
+pids           = [32, 33]
+
 satellites  = [
     {
         'name'    : "Galaxy 18",
         'alias'   : "G18",
         'dl_freq' : 12016.92,
         'band'    : "Ku",
-        'pol'     : "H"
+        'pol'     : "H",
+        'ip'      : "192.168.200.2"
     },
     {
         'name'    : "Eutelsat 113",
         'alias'   : "E113",
         'dl_freq' : 12026.15,
         'band'    : "Ku",
-        'pol'     : "V"
+        'pol'     : "V",
+        'ip'      : "192.168.200.3"
     },
     {
         'name'    : "Telstar 11N Africa",
         'alias'   : "T11N AFR",
         'dl_freq' : 11476.75,
         'band'    : "Ku",
-        'pol'     : "H"
+        'pol'     : "H",
+        'ip'      : "192.168.200.4"
     },
     {
         'name'    : "Telstar 11N Europe",
         'alias'   : "T11N EU",
         'dl_freq' : 11504.02,
         'band'    : "Ku",
-        'pol'     : "V"
+        'pol'     : "V",
+        'ip'      : "192.168.200.5"
     },
     {
         'name'    : "Telstar 18V",
         'alias'   : "T18V",
         'dl_freq' : 4057.5,
         'band'    : "C",
-        'pol'     : "H"
+        'pol'     : "H",
+        'ip'      : "192.168.200.6"
     },
     {
         'name'    : "Eutelsat 113 - Test carrier",
         'alias'   : "E113",
         'dl_freq' : 12066.9,
         'band'    : "Ku",
-        'pol'     : "V"
+        'pol'     : "V",
+        'ip'      : "192.168.200.7"
     }
 ]
 
