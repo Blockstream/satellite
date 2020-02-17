@@ -821,6 +821,9 @@ def launch(args):
     # User info
     user_info = config.read_cfg_file()
 
+    if (user_info is None):
+        return
+
     # Find adapter
     if (args.adapter is None):
         adapter, frontend = find_adapter()

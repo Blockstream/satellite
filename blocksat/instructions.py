@@ -227,6 +227,9 @@ def show(args):
     """Show instructions"""
     info = config.read_cfg_file()
 
+    if (info is None):
+        return
+
     if (info['setup']['type'] == defs.standalone_setup_type):
         _print_s400_instructions(info)
     elif (info['setup']['type'] == defs.sdr_setup_type):

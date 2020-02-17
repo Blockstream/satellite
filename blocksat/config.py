@@ -6,6 +6,10 @@ import textwrap
 from decimal import Decimal, getcontext
 
 
+cfg_file  = "config.json"
+chan_file = "channels.conf"
+
+
 def _cfg_satellite():
     """Configure satellite covering the user"""
 
@@ -287,18 +291,16 @@ def _cfg_chan_conf(info):
                         "file that is required when launching the USB "
                         "receiver in Linux.") + "\n")
 
-    cfg_file = "channels.conf"
-
-    if (os.path.isfile(cfg_file)):
-        print("Found previous %s file:" %(cfg_file))
+    if (os.path.isfile(chan_file)):
+        print("Found previous %s file:" %(chan_file))
 
         if (not util._ask_yes_or_no("Remove and regenerate file?")):
             print("Configuration aborted.")
             return
         else:
-            os.remove(cfg_file)
+            os.remove(chan_file)
 
-    with open(cfg_file, 'w') as f:
+    with open(chan_file, 'w') as f:
         f.write('[blocksat-ch]\n')
         f.write('\tDELIVERY_SYSTEM = DVBS2\n')
         f.write('\tFREQUENCY = %u\n' %(int(info['sat']['dl_freq']*1000)))
@@ -311,13 +313,11 @@ def _cfg_chan_conf(info):
         f.write('\tMODULATION = QPSK\n')
         f.write('\tVIDEO_PID = 32+33\n')
 
-    print("File \"%s\" saved." %(cfg_file))
+    print("File \"%s\" saved." %(chan_file))
 
 
 def _read_cfg_file():
     """Read configuration file"""
-
-    cfg_file = "config.json"
 
     if (os.path.isfile(cfg_file)):
         with open(cfg_file) as fd:
@@ -335,9 +335,13 @@ def read_cfg_file():
     info = _read_cfg_file()
 
     while (info is None):
-        print("Missing configuration")
-        if (util._ask_yes_or_no("Run now")):
+        print("Missing {} configuration file".format(cfg_file))
+        if (util._ask_yes_or_no("Run configuration helper now?")):
             configure([])
+        else:
+            print("Abort")
+            return
+
         info = _read_cfg_file()
 
     return info
@@ -358,9 +362,6 @@ def configure(args):
     """Configure Blocksat Receiver setup
 
     """
-
-    cfg_file = "config.json"
-
     user_info = _read_cfg_file()
 
     if (user_info is not None):
