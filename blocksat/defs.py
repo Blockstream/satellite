@@ -4,6 +4,12 @@ fibre_port     = "4434"
 fibre_dst_addr = mcast_ip + ":" + fibre_port
 src_ports      = ["4433", "4434"]
 pids           = [32, 33]
+samp_rate      = 2e6
+sym_rate       = 1e6
+rolloff        = 0.2
+
+low_rate_modcod  = "0x0002"
+high_rate_modcod = "0x1000"
 
 satellites  = [
     {

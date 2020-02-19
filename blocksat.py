@@ -6,7 +6,7 @@ import os, sys, signal, argparse, subprocess, re, time, logging, threading, json
 from pprint import pformat, pprint
 from ipaddress import IPv4Interface
 import textwrap
-from blocksat import defs, config, util, instructions, gqrx, bitcoin
+from blocksat import defs, config, util, instructions, gqrx, bitcoin, sdr
 
 
 def _find_v4l_lnb(info):
@@ -1128,6 +1128,9 @@ def main():
 
     # Generate bitcoin.conf configuration
     bit_parser = bitcoin.subparser(subparsers)
+
+    # SDR
+    sdr_parser = sdr.subparser(subparsers)
 
     # Optional args
     parser.add_argument('--debug', action='store_true',
