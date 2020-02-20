@@ -193,7 +193,7 @@ def _print_usb_rx_instructions(info):
 
     util._print_sub_header("Launch")
 
-    print("Now run:\n\nsudo ./blocksat.py launch\n\n")
+    print("Now run:\n\nsudo ./blocksat.py usb\n\n")
 
 
 def _print_sdr_instructions(info):
