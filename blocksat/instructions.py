@@ -168,7 +168,7 @@ def _print_usb_rx_instructions(info):
                         "cause corruptions and, therefore, it is safer and "
                         "strongly recommended to use a virtual machine.".format(
                             name)))
-    _item("From the root folder, run:")
+    _item("From the util/ folder, run:")
     print("""
     ./tbsdriver.sh
     """)
