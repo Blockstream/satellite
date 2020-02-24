@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 """
 Post data to the Satellite API for transmission via Blockstream Satellite
 """
