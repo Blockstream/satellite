@@ -53,8 +53,8 @@ build: $(GRC_PY_FILES)
 
 build/%.py: grc/%.grc
 	@echo "Check gr-framers and gr-blocksat installations"
-	@python -c "import framers"
-	@python -c "import blocksat"
+	@python2 -c "import framers"
+	@python2 -c "import blocksat"
 	mkdir -p build
 	grcc $< -d $(@D)
 	@sed -i 's/'\
