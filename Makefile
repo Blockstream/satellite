@@ -86,7 +86,7 @@ build/%.py: grc/%.grc
 	'option_class=eng_option, description=description, version=\"'\
 	'Blockstream Satellite $(VERSION)\"/g' $@
 	@chmod u+x $@
-	python -m compileall $@
+	python2 -m compileall $@
 	f=$@ && x=$${f%.py} && y="$${x//_/-}" &&\
 	echo "#!/bin/bash" > $$y &&\
 	echo "/usr/bin/env python $(libdir)/blocksat-rx/$(@F)c \"\$$@\"" >> $$y
