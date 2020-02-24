@@ -89,7 +89,7 @@ build/%.py: grc/%.grc
 	python2 -m compileall $@
 	f=$@ && x=$${f%.py} && y="$${x//_/-}" &&\
 	echo "#!/bin/bash" > $$y &&\
-	echo "/usr/bin/env python $(libdir)/blocksat-rx/$(@F)c \"\$$@\"" >> $$y
+	echo "/usr/bin/env python2 $(libdir)/blocksat-rx/$(@F)c \"\$$@\"" >> $$y
 
 # Build GR Framers
 framers: $(GR_FRAMERS_BUILD_RC)
