@@ -54,7 +54,12 @@ satellites in the sky so that you can ensure you have good line of sight. We
 advise to use such apps, as they can be quite helpful.
 
 **IMPORTANT:** If using a compass app on a smartphone, make sure to configure
-the app such that it displays "true north", instead of the "magnetic north".
+the app such that it displays **true north**, instead of the **magnetic
+north**. This is because the azimuth angle that is provided by our dish
+alignment tool refers to true north. Also, if using an ordinary compass, or a
+compass-based satellite finder, please make sure to convert the true azimuth
+obtained from the dish alignment tool into magnetic azimuth. To do so, you will
+need to check the *magnetic declination* at your location.
 
 Next, install the satellite antenna according to the directions accompanying it,
 or have it done professionally. If you install it yourself, proceed with the
@@ -191,7 +196,8 @@ initial C/N level of 3.9 dB:
 At this point, since the S400 is already locked, you should experiment with very
 subtle adjustments to the pointing angles until you can maximize the C/N. The
 higher the C/N, the better. The following example shows an example result, where
-after improving the dish pointing the C/N level approximately 3 dB better:
+after improving the dish pointing the C/N level became approximately 3 dB
+better:
 
 ![S400 RF Improved](img/s400_rf_status_better_snr.png?raw=true "S400 RF Improved")
 
@@ -219,14 +225,14 @@ is an example:
 
 ![Signal visible on Gqrx](img/gqrx-offset.png?raw=true "Signal visible on Gqrx")
 
-Note in this case gqrx is configured to a center frequency of 12066.9 MHz, and
-there is indeed a visible signal band of approximately 1 MHz. However, this band
-is offset from the center, being located instead around 12066.6 MHz. This is
-perfectly acceptable, since LNBs introduce frequency offset. With that, we know
-that the dish is reasonably well pointed already, and that in this particular
-setup there is a frequency offset around -300 kHz. If the center frequency is
-re-configured to 12066.6 MHz, then we can see the 1 MHz band well centered, like
-so:
+Note that in this case gqrx is configured to a center frequency of 12066.9 MHz,
+and there is indeed a visible signal band of approximately 1 MHz. However, this
+band is offset from the center, being located instead around 12066.6 MHz. This
+is perfectly acceptable, since LNBs introduce frequency offset. With that, we
+know that the dish is reasonably well pointed already, and that in this
+particular setup there is a frequency offset around -300 kHz. If the center
+frequency is re-configured to 12066.6 MHz, then we can see the 1 MHz band well
+centered, like so:
 
 ![Signal centered on Gqrx](img/gqrx-centered.png?raw=true "Signal centered on Gqrx")
 
@@ -238,12 +244,12 @@ signal band becomes visible in gqrx. If not, try another adjustment and so on.
 
 > NOTE:
 >
-> If you see two similar signal bands near each other, try to identify first
-> which one is more likely to be the Blockstream Satellite signal. The correct
-> signal should span a flat level of 1 MHz, with 100 kHz of roll-off on each
-> side (our roll-off factor is 0.2). If the two signal bands still look similar,
-> please take note of the center frequency of both bands and try them both in
-> the next steps.
+> If you see two similar signal bands near each other, try to identify which one
+> is more likely to be the Blockstream Satellite signal. The correct signal
+> should span a flat level of 1 MHz, with 100 kHz of roll-off on each side (our
+> roll-off factor is 0.2). If the two signal bands are close to 1 MHz, please
+> take note of the center frequency of both bands and try them both in the next
+> steps.
 >
 > Furthermore, please note that in some cases not only there are similar signal
 > bands on the same satellite, but also different satellites with similar bands.
@@ -306,18 +312,18 @@ that, the preprocessed spectrum plot should be reasonably centered, as follows:
 
 ![Leandvb spectrum w/ centered signal](img/leandvb-spectrum-centered.png?raw=true "Leandvb spectrum w/ centered signal")
 
-At this point, you should expect the "PLS cstln" plot to be as follows, showing
-four visible clouds:
+At this point, if the antenna pointing is already reasonably good, you might see
+the "PLS cstln" plot, showing four visible clouds:
 
 ![PLS symbols](img/leandvb-pls-syms.png?raw=true "PLS symbols")
 
 This indicates the receiver application is locked to Blockstream Satellite
-signal. Also, the more compact the point clouds are, the better your signal
-quality.
+signal. Note that, the more compact the four clouds of points are in this plot
+(around the white `+` marker), generally the better the signal quality.
 
-If you cannot see the PLS symbols nor the timeline metrics, it means you are not
-locked to the signal. You can troubleshoot further in debug mode, by running
-like so:
+If you cannot see the PLS symbols nor the *timeline plot*, it means you are not
+locked to the signal yet. You can troubleshoot further in debug mode, by running
+like so (with argument `-d`):
 
 ```
 ./blocksat.py sdr -g [gain] --derotate [freq_offset] --gui -d
@@ -354,12 +360,13 @@ Output:
 If you are not able to lock to the signal, you should try further adjustments to
 the antenna.  Assuming you have identified the signal on gqrx before, you can
 infer that the pointing is already very close and, therefore, only subtle
-adjustments are required at this point to improve the signal quality. Try fine
-adjustments until you are able to get a lock on the receiver application.
+adjustments are required at this point in order for the signal quality to become
+sufficient for locking. Try fine adjustments until you are able to get a lock on
+the receiver application.
 
 Finally, once you are locked, you can still try to improve the signal
 quality. There are a few ways in which you can obtain an indication of signal
-quality. One way is to look at the timeline plot, like the one shown below:
+quality. One way is to look at the timeline plot, like the one below:
 
 ![leandvb timeline metrics](img/leandvb-timeline.png?raw=true "leandvb timeline metrics")
 
@@ -398,13 +405,13 @@ get and then set the dish pointing fixed to the best direction.
 ## Optimize SNR
 
 Blockstream Satellite's signal is composed by two multiplexed streams, one of
-which requires higher signal quality to be decoded than the other. In order to
-receive both streams reliably. The two streams are summarized next:
+which requires higher signal quality to be decoded than the other. The two
+streams are summarized next:
 
 | Stream          | Throughput | Recommended Minimum SNR | Purpose               |
 |-----------------|------------|-------------------------|-----------------------|
 | Low-throughput  | ~100 kbps  | 3 dB                    | Repeats the past 24h of blocks and keeps receiver nodes in sync  |
-| High-throughput | ~1 Mbps    | 7 dB                    | Broadcasts the entire blockchain and keeps receiver nodes in sync with lower latency. |
+| High-throughput | ~1 Mbps    | 7 dB                    | Broadcasts the entire blockchain and keeps receiver nodes in sync with lower latency |
 
 As explained in the [hardware guide](hardware.md#satellite-dish), it may only be
 feasible to receive the high-throughput stream with a dish of 90 cm or higher.
@@ -427,7 +434,7 @@ continuously try to receive both high and low-throughput streams. For example,
 if you start with insufficient SNR for the high-throughput stream, but at some
 point the SNR improves and becomes sufficient, then the demodulator will start
 to get high-throughput packets. This holds only for the TBS 5927 and the Novra
-S400 demodulator. In contrast, this is **not currently possible** in the SDR
+S400 demodulators. In contrast, this is **not currently possible** in the SDR
 setup. In the SDR setup, you will need to specify which stream you want to try
 receiving, as explained in the [SDR Guide](sdr.md#running).
 

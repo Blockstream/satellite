@@ -80,7 +80,7 @@ your Blockstream Satellite setup.
 | Stream          | Throughput | Minimum Dish Size                 | Purpose               |
 |-----------------|------------|-----------------------------------|-----------------------|
 | Low-throughput  | ~100 kbps  | 45 cm in Ku band, 60 cm in C Band | Repeats the past 24h of blocks and keeps receiver nodes in sync  |
-| High-throughput | ~1 Mbps    | 90 cm                             | Broadcasts the entire blockchain and keeps receiver nodes in sync with lower latency. |
+| High-throughput | ~1 Mbps    | 90 cm                             | Broadcasts the entire blockchain and keeps receiver nodes in sync with lower latency |
 
 > NOTE: the minimum dish size specified for the high-throughput stream is a safe
 > choice. However, depending on location, it may be possible to receive this
