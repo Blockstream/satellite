@@ -1,7 +1,7 @@
-certifi==2018.11.29
+certifi==2019.11.28
 chardet==3.0.4
-idna==2.7
-python-gnupg==0.4.4
-requests==2.20.1
+idna==2.9
+python-gnupg==0.4.5
+requests==2.23.0
 sseclient-py==1.7
-urllib3==1.24.2
+urllib3==1.25.8
