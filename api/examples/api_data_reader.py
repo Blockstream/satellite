@@ -14,7 +14,7 @@ import gnupg, getpass
 BLOCKSAT_PKT_HEADER_FORMAT = '!c3xI'
 BLOCKSAT_PKT_HEADER_LEN    = 8
 TYPE_API_DATA              = b'\x01'
-USER_HEADER_FORMAT         = '255sxi' # Message header from `api_data_sender.py`
+USER_HEADER_FORMAT         = '255sxI' # Message header from `api_data_sender.py`
 USER_HEADER_LEN            = 255 + 1 + 4
 MAX_READ                   = 2**16
 DOWNLOAD_DIR               = "downloads"
@@ -29,10 +29,12 @@ def save_file(data, filename=None):
     not specified, use a timestamp as the file name.
 
     Args:
-        data     : Data to save
+        data     : Data to save (bytes)
         filename : Name of the file to save (optional)
 
     """
+    assert(isinstance(data, bytes))
+
     # Save file into a specific directory
     if not os.path.exists(DOWNLOAD_DIR):
         os.makedirs(DOWNLOAD_DIR)
@@ -57,7 +59,7 @@ def parse_user_data(data):
     using the checksum and saves the file with the given file name.
 
     Args:
-        data : Sequence of bytes with the raw received data buffer
+        data : Bytes object with the raw received data buffer
 
     Returns:
         Boolean indicating whether the parsing was successful
@@ -77,7 +79,7 @@ def parse_user_data(data):
 
     # Parse the user-specific header
     user_header = struct.unpack(USER_HEADER_FORMAT, data[:USER_HEADER_LEN])
-    filename    = user_header[0].rstrip('\0')
+    filename    = user_header[0].rstrip(b'\0').decode()
     checksum    = user_header[1]
 
     # Validate data integrity
@@ -113,24 +115,21 @@ def unpack(udp_payload):
     """Unpack Blocksat Packet from UDP payload
 
     Args:
-        udp_payload : UDP payload received via socket
+        udp_payload : UDP payload received via socket (bytes)
 
     Returns:
-        Tuple with the Blocksat Packet's payload and sequence number
+        Tuple with the Blocksat Packet's payload (bytes) and sequence number
 
     """
 
-    header         = struct.unpack(BLOCKSAT_PKT_HEADER_FORMAT,
-                                   udp_payload[:BLOCKSAT_PKT_HEADER_LEN])
-    pkt_type       = chr(ord(header[0]) & ord(b'\x01'))
-    more_fragments = (ord(header[0]) & ord(b'\x80')) != 0
-    seq_num        = header[1]
-    payload        = udp_payload[BLOCKSAT_PKT_HEADER_LEN:]
-
-    assert(pkt_type == TYPE_API_DATA)
+    pkt_type, seq_num = struct.unpack(BLOCKSAT_PKT_HEADER_FORMAT,
+                                      udp_payload[:BLOCKSAT_PKT_HEADER_LEN])
+    # Sanity checks
+    assert(ord(pkt_type) & 1), "Not an API packet"
+    more_fragments = (ord(pkt_type) & ord(b'\x80'))
     assert(more_fragments == False),\
-        "Blocksat Packet fragmentation over UDP is not supported"
-
+           "Blocksat Packet fragmentation over UDP is not supported"
+    payload = udp_payload[BLOCKSAT_PKT_HEADER_LEN:]
     return (payload, seq_num)
 
 
@@ -162,7 +161,7 @@ def open_udp_sock(sock_addr, ifname):
 
         # Get the network interface index
         if (ifname is not None):
-            ifreq   = struct.pack('16si', ifname, 0)
+            ifreq   = struct.pack('16si', ifname.encode(), 0)
             res     = fcntl.ioctl(sock.fileno(), SIOCGIFINDEX, ifreq)
             ifindex = int(struct.unpack('16si', res)[1])
             logging.debug("Join multicast group %s on network interface %d" %(
@@ -223,7 +222,7 @@ def main():
     intf_arg.add_argument('-i', '--interface',
                           help="Network interface that receives API data. ")
 
-    intf_arg.add_argument('--demo',
+    intf_arg.add_argument('-d', '--demo',
                           action="store_true",
                           help="Use the same interface as demo-rx, i.e. an " +
                           "automatically defined interface. (default: False)")
@@ -249,9 +248,9 @@ def main():
                           'folder. NOTE: this saves all transmissions in the ' +
                           ' \"downloads/\" folder. (default: false)')
 
-    parser.add_argument('--password', default=False,
+    parser.add_argument('--no-password', default=False,
                         action="store_true",
-                        help='Whether to access GPG keyring with a password ' +
+                        help='Set to access GPG keyring without a password ' +
                         '(default: false)')
 
     parser.add_argument('--debug', action='store_true',
@@ -281,10 +280,11 @@ def main():
         gpg = gnupg.GPG(gnupghome = gnupghome)
 
         # Is there a password for GPG keyring?
-        if (args.password):
-            gpg_password = getpass.getpass()
-        else:
+        if (args.no_password):
             gpg_password = None
+        else:
+            gpg_password = getpass.getpass(prompt='GPG keyring password for '
+                                           'decryption: ')
 
     # Open interface to API data
     sock = open_udp_sock(sock_addr, interface)
@@ -337,13 +337,13 @@ def main():
                 # existence of an application-specific data structure, save the
                 # raw decrypted data directly to a file.
                 if (save_raw):
-                    save_file(str(decrypted_data))
+                    save_file(decrypted_data.data)
                 else:
-                    parse_ok = parse_user_data(str(decrypted_data))
+                    parse_ok = parse_user_data(decrypted_data.data)
 
                     # Save raw data in case parsing fails
                     if (not parse_ok):
-                        save_file(str(decrypted_data))
+                        save_file(decrypted_data.data)
             else:
                 logging.info(
                     "Size: %7d bytes\t Decryption: FAILED\t" %(len(data)) +

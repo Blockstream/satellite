@@ -75,7 +75,7 @@ def open_sock(ifname, port, multiaddr):
 
     # Get index of target interface
     if (ifname is not None):
-        ifreq    = struct.pack('16si', ifname, 0)
+        ifreq    = struct.pack('16si', ifname.encode(), 0)
         res      = fcntl.ioctl(sock.fileno(), SIOCGIFINDEX, ifreq)
         ifindex  = int(struct.unpack('16si', res)[1])
     else:

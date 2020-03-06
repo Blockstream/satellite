@@ -9,7 +9,7 @@ from math import ceil
 
 
 # Example user-specific message header
-USER_HEADER_FORMAT = '255sxi'
+USER_HEADER_FORMAT = '255sxI'
 
 class Order:
     """API Transmission Order
@@ -20,11 +20,11 @@ class Order:
     """
     def __init__(self, server):
         # Get order UUID and Authorization Token from user input
-        uuid = raw_input("UUID: ") or None
+        uuid = input("UUID: ") or None
         if (uuid is None):
             raise ValueError("Order UUID is required")
 
-        auth_token = raw_input("Authentication Token: ") or None
+        auth_token = input("Authentication Token: ") or None
         if (auth_token is None):
             raise ValueError("Authentication Token is required")
 
@@ -129,15 +129,31 @@ class Order:
 def calc_tx_len(msg_len):
     """Compute the number of bytes actually transmitted for a message
 
-    The message is carried in the payload of Blocksat packets. Each packet can
-    fits up to 2048 bytes and adds 16 bytes of overhead.
+    The message is carried in the payload of UDP datagrams, sent over IPv4 and
+    with a layer-2 MTU of 1500 bytes. Fragmentation is used if the IPv4 payload
+    (the UDP datagram) exceeds 1500 bytes.
 
     Args:
         msg_len : Length of the user message to be transmitted
 
     """
+    mtu = 1500
+    blocksat_header     = 8
+    udp_header          = 8
+    udp_len             = udp_header + blocksat_header + msg_len
 
-    return msg_len + int(16 * ceil(float(msg_len) / 2048))
+    # Is it going to be fragmented?
+    ip_header           = 20
+    n_frags             = ceil(udp_len / (mtu - ip_header))
+
+    # Including all fragments, the total IPv4 overhead (of all IP headers) is:
+    total_ip_overhead = ip_header * n_frags
+
+    # Total overhead at MPE layer:
+    mpe_header = 16
+    total_mpe_overhead = mpe_header * n_frags
+
+    return total_mpe_overhead + total_ip_overhead + udp_len
 
 
 def ask_bid(data_size, prev_bid=None):
@@ -157,11 +173,11 @@ def ask_bid(data_size, prev_bid=None):
     else:
         min_bid = data_size * 50
 
-    bid     = raw_input("Your " +
-                        ("new total " if prev_bid is not None else "") +
-                        "bid to transmit %d bytes " %(data_size) +
-                        "(in millisatoshis): [%d] " %(min_bid)) \
-                        or min_bid
+    bid     = input("Your " +
+                    ("new total " if prev_bid is not None else "") +
+                    "bid to transmit %d bytes " %(data_size) +
+                    "(in millisatoshis): [%d] " %(min_bid)) \
+                    or min_bid
     bid     = int(bid)
 
     if (prev_bid is not None):
@@ -190,7 +206,7 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter
     )
 
-    group = parser.add_mutually_exclusive_group()
+    group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument('-f', '--file', help='File to send through API')
     group.add_argument('-m', '--message', help='Text message to send through API')
     parser.add_argument('-g', '--gnupghome', default=".gnupg",
@@ -230,10 +246,10 @@ def main():
                         action="store_true",
                         help='Send as plaintext, i.e. without encryption ' +
                         '(default: false)')
-    parser.add_argument('--password', default=False,
+    parser.add_argument('--no-password', default=False,
                         action="store_true",
-                        help='Whether to access GPG keyring with a password ' +
-                        '(default: false)')
+                        help='Whether to access GPG keyring without a ' +
+                        'password (default: false)')
     parser.add_argument('--debug', action='store_true',
                         help='Debug mode (default: false)')
     # Optional actions
@@ -286,20 +302,21 @@ def main():
     gpg = gnupg.GPG(gnupghome = gnupghome)
 
     # Is there a password for GPG keyring?
-    if (args.password):
-        gpg_password = getpass.getpass()
+    if (args.sign and (not args.no_password)):
+        gpg_password = getpass.getpass(prompt='Password to private key '
+                                       'used for message signing: ')
     else:
         gpg_password = None
 
     # Read the file, append header, encrypt and transmit to the Satellite API
     if (text_msg is not None):
-        data     = text_msg.encode('utf-8')
+        data     = text_msg.encode()
         basename = time.strftime("%Y%m%d%H%M%S")
     else:
         basename = os.path.basename(filename)
 
         with open(filename, 'rb') as f:
-            data  = f.read()
+            data = f.read()
         assert(len(data) > 0)
 
     print("File has %d bytes" %(len(data)))
@@ -308,11 +325,12 @@ def main():
     if (send_raw):
         plain_data = data
     else:
+        crc32 = zlib.crc32(data)
+        logging.debug("File name: {}".format(basename))
+        logging.debug("Checksum: {:d}".format(crc32))
         # The header contains a CRC32 checksum of the data as well as a
         # string with the file name.
-        header     = struct.pack(USER_HEADER_FORMAT,
-                                 basename,
-                                 zlib.crc32(data))
+        header     = struct.pack(USER_HEADER_FORMAT, basename.encode(), crc32)
         plain_data = header + data
 
         print("Packed in data structure with a total of %d bytes" %(
@@ -320,8 +338,7 @@ def main():
 
     # Encrypt, unless configured otherwise
     if (plaintext):
-        msg_data     = plain_data
-        msg_len      = len(plain_data)
+        msg_data = plain_data
     else:
         # Recipient public key
         if (args.recipient is None):
@@ -329,20 +346,22 @@ def main():
             public_keys = gpg.list_keys()
             public_key  = public_keys[0]
             recipient   = public_key["fingerprint"]
-            print("Encrypt for recipient %s" %(recipient))
         else:
-            recipient   = args.recipient
-            print("Encrypt for chosen recipient %s" %(recipient))
+            recipient = args.recipient
+        print("Encrypt for recipient %s" %(recipient))
 
         # Digital signature, if desired
         if (args.sign and args.sign_key is not None):
             sign_cfg = args.sign_key
-            print("Sign message using key %s" %(args.sign_key))
         elif (args.sign and args.sign_key is None):
-            sign_cfg = True
-            print("Sign message using default key")
+            private_keys = gpg.list_keys(True)
+            private_key  = private_keys[0]
+            sign_cfg     = private_key["fingerprint"]
         else:
             sign_cfg = False
+
+        if (args.sign):
+            print("Sign message using key %s" %(sign_cfg))
 
         # Encrypt
         encrypted_obj = gpg.encrypt(plain_data, recipient,
@@ -353,14 +372,15 @@ def main():
             print(encrypted_obj.stderr)
             raise ValueError(encrypted_obj.status)
 
-        cipher_data   = str(encrypted_obj)
+        cipher_data = encrypted_obj.data
         print("Encrypted version of the data structure has %d bytes" %(
             len(cipher_data)))
 
         # Final message sent to API for transmission
-        msg_data     = cipher_data
-        msg_len      = len(cipher_data)
+        msg_data = cipher_data
 
+    # Final user data length:
+    msg_len = len(msg_data)
     # Actual number of bytes used for satellite transmission
     tx_len = calc_tx_len(msg_len)
 
@@ -380,7 +400,12 @@ def main():
         try:
             if "errors" in r.json():
                 for error in r.json()["errors"]:
-                    print("ERROR: " + error["title"] + "\n" + error["detail"])
+                    if (isinstance(error, dict) and "title" in error and
+                        "detail" in error):
+                        print("ERROR: " + error["title"] + "\n" +
+                              error["detail"])
+                    else:
+                        print("ERROR: " + error)
         except ValueError:
             print(r.text)
 
