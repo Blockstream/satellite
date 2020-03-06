@@ -203,61 +203,58 @@ def main():
         Supports commands to bump and delete an order that was sent previously.
 
         '''),
-        formatter_class=argparse.RawDescriptionHelpFormatter
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
 
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument('-f', '--file', help='File to send through API')
     group.add_argument('-m', '--message', help='Text message to send through API')
     parser.add_argument('-g', '--gnupghome', default=".gnupg",
-                        help='GnuPG home directory (default: .gnupg)')
+                        help='GnuPG home directory')
     parser.add_argument('-p', '--port',
                         default=None,
-                        help='Satellite API server port (default: None)')
+                        help='Satellite API server port')
     group = parser.add_mutually_exclusive_group()
     group.add_argument('--net', choices=['main', 'test'],
                        default=None,
                        help='Choose Mainnet (main) or Testnet (test) ' +
-                       'Satellite API (default: main)')
+                       'Satellite API')
     group.add_argument('-s', '--server',
                        default='https://api.blockstream.space',
-                       help='Satellite API server address (default: ' +
-                       'https://api.blockstream.space)')
+                       help='Satellite API server address')
     parser.add_argument('-r', '--recipient', default=None,
                         help='Public key fingerprint of the desired ' + \
                         'recipient. If not defined, the recipient will ' + \
                         'be automatically set to the host corresponding to ' + \
-                        'the first public key in the keyring. (default: None)')
+                        'the first public key in the keyring')
     parser.add_argument('--trust', default=False, action="store_true",
                         help='Assume that recipient public key is fully ' +\
-                        ' trusted (default: False)')
+                        ' trusted')
     parser.add_argument('--sign', default=False, action="store_true",
-                        help='Sign message in addition to encrypting ' +\
-                        ' (default: False)')
+                        help='Sign message in addition to encrypting ')
     parser.add_argument('--sign-key', default=None,
                         help='Fingerprint of key to use when signing the ' +\
                         'encrypted data. If not set, default key from ' + \
-                        'keyring will be used for signing. (default: False)')
+                        'keyring will be used for signing')
     parser.add_argument('--send-raw', default=False,
                         action="store_true",
                         help='Send file directly, without any user-specific ' +
-                        'data structure (default: false)')
+                        'data structure')
     parser.add_argument('--plaintext', default=False,
                         action="store_true",
-                        help='Send as plaintext, i.e. without encryption ' +
-                        '(default: false)')
+                        help='Send as plaintext, i.e. without encryption ')
     parser.add_argument('--no-password', default=False,
                         action="store_true",
                         help='Whether to access GPG keyring without a ' +
-                        'password (default: false)')
+                        'password')
     parser.add_argument('--debug', action='store_true',
-                        help='Debug mode (default: false)')
+                        help='Debug mode')
     # Optional actions
     group = parser.add_mutually_exclusive_group()
     group.add_argument('-b', '--bump', action='store_true',
-                       help='Bump the bid of an order (default: false)')
+                       help='Bump the bid of an order')
     group.add_argument('-d', '--delete', action='store_true',
-                       help='Delete an order (default: false)')
+                       help='Delete an order')
     args        = parser.parse_args()
     filename    = args.file
     text_msg    = args.message

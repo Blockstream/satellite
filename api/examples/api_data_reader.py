@@ -209,26 +209,27 @@ def main():
         file in the "downloads/" directory.
 
         '''),
-        formatter_class=argparse.RawDescriptionHelpFormatter
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
 
     parser.add_argument('--sock-addr',
                         default="239.0.0.2:4433",
                         help='Multicast UDP address (ip:port) used to ' +
-                        'listen for API data (default: 239.0.0.2:4433)')
+                        'listen for API data')
 
     intf_arg = parser.add_mutually_exclusive_group(required=True)
 
-    intf_arg.add_argument('-i', '--interface',
-                          help="Network interface that receives API data. ")
+    intf_arg.add_argument('-i', '--interface', default=None,
+                          help="Network interface that receives API data")
 
     intf_arg.add_argument('-d', '--demo',
                           action="store_true",
+                          default=False,
                           help="Use the same interface as demo-rx, i.e. the " +
-                          "loopback interface. (default: False)")
+                          "loopback interface")
 
     parser.add_argument('-g', '--gnupghome', default=".gnupg",
-                        help='GnuPG home directory (default: .gnupg)')
+                        help='GnuPG home directory')
 
     encr_arg = parser.add_mutually_exclusive_group()
 
@@ -236,8 +237,7 @@ def main():
                           action="store_true",
                           help='Save the raw decrypted data in the ' +
                           '\"downloads/\" folder while ignoring the ' +
-                          'existence of a user-specific data structure. ' +
-                          '(default: false)')
+                          'existence of a user-specific data structure. ')
 
     encr_arg.add_argument('--plaintext', default=False,
                           action="store_true",
@@ -246,15 +246,14 @@ def main():
                           'plaintext and save them as individual files ' +
                           'named by timestamps in the  \"downloads/\" ' +
                           'folder. NOTE: this saves all transmissions in the ' +
-                          ' \"downloads/\" folder. (default: false)')
+                          ' \"downloads/\" folder')
 
     parser.add_argument('--no-password', default=False,
                         action="store_true",
-                        help='Set to access GPG keyring without a password ' +
-                        '(default: false)')
+                        help='Set to access GPG keyring without a password ')
 
     parser.add_argument('--debug', action='store_true',
-                        help='Debug mode (default: false)')
+                        help='Debug mode')
     args      = parser.parse_args()
     sock_addr = args.sock_addr
     interface = "lo" if args.demo else args.interface

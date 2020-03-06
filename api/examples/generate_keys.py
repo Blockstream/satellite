@@ -9,11 +9,12 @@ def main():
     """Generate GPG Keys
     """
     parser = argparse.ArgumentParser(
-        description='Generates GPG keys')
+        description='Generates GPG keys',
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('-g', '--gnupghome', default=".gnupg",
-                        help='GnuPG home directory (default: .gnupg)')
-    parser.add_argument('-v', '--verbose', action='store_true',
-                        help="Verbose mode (default: False)")
+                        help='GnuPG home directory')
+    parser.add_argument('-v', '--verbose', action='store_true', default=False,
+                        help="Verbose mode")
     args        = parser.parse_args()
 
     name_real    = input("User name represented by the key: ")

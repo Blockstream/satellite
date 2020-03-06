@@ -114,12 +114,12 @@ def main():
         internet, rather than receiving via satellite.
 
         '''),
-        formatter_class=argparse.RawDescriptionHelpFormatter
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
 
     parser.add_argument('-d', '--dest', default="239.0.0.2:4433",
                         help='Destination address (ip:port) to which ' +
-                        'API data will be sent (default: 239.0.0.2:4433)')
+                        'API data will be sent')
 
     parser.add_argument('-i', '--interface',
                         help="Network interface over which to send API data",
@@ -129,20 +129,19 @@ def main():
     group.add_argument('--net', choices=['main', 'test'],
                        default=None,
                        help='Choose Mainnet (main) or Testnet (test) ' +
-                       'Satellite API server (default: main)')
+                       'Satellite API server')
     group.add_argument('-s', '--server',
                        default='https://api.blockstream.space',
-                       help='Satellite API server address (default: ' +
-                       'https://api.blockstream.space)')
+                       help='Satellite API server address')
 
     parser.add_argument('-p', '--port', default=None,
-                        help='Satellite API server port (default: None)')
+                        help='Satellite API server port')
 
     parser.add_argument('--ttl', type=int, default=1,
-                        help='Time to live of multicast packets (default: 1)')
+                        help='Time to live of multicast packets')
 
     parser.add_argument('--debug', action='store_true',
-                        help='Debug mode (default: false)')
+                        help='Debug mode')
 
     args   = parser.parse_args()
     server = args.server
