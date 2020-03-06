@@ -40,7 +40,9 @@ three parameters that are explained next:
 
 The three angles are illustrated below:
 
-![Dish Pointing Angles](img/dish_angles.png?raw=true "Dish Pointing Angles")
+Azimuth                                        |  Elevation                                           | Polarity                                                  |
+:---------------------------------------------:|:----------------------------------------------------:|:---------------------------------------------------------:|
+![Azimuth](img/azimuth.png?raw=true "Azimuth") | ![Elevation](img/elevation.png?raw=true "Elevation") | ![Polarity](img/lnb_polarization.png?raw=true "Polarity") |
 
 Next, visually inspect the direction your antenna must point to. Use a compass
 or smartphone app to identify the direction. Ensure that there are no obstacles
