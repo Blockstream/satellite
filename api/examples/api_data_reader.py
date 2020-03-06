@@ -224,8 +224,8 @@ def main():
 
     intf_arg.add_argument('-d', '--demo',
                           action="store_true",
-                          help="Use the same interface as demo-rx, i.e. an " +
-                          "automatically defined interface. (default: False)")
+                          help="Use the same interface as demo-rx, i.e. the " +
+                          "loopback interface. (default: False)")
 
     parser.add_argument('-g', '--gnupghome', default=".gnupg",
                         help='GnuPG home directory (default: .gnupg)')
@@ -257,7 +257,7 @@ def main():
                         help='Debug mode (default: false)')
     args      = parser.parse_args()
     sock_addr = args.sock_addr
-    interface = args.interface
+    interface = "lo" if args.demo else args.interface
     gnupghome = args.gnupghome
     save_raw  = args.save_raw
     plaintext = args.plaintext

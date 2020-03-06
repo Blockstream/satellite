@@ -324,10 +324,9 @@ the API data reader with:
 ./api_data_reader.py --demo
 ```
 
-> NOTE: the Demo Rx application will pick an appropriate network interface in
-> order to send API messages. When the API data reader is launched with option
-> `--demo`, it will pick the same network interface as the Demo Rx, so the
-> communication between them will work.
+> NOTE: the Demo Rx application will send the UDP datagrams containing API data
+> over the loopback interface. When the API data reader is launched with option
+> `--demo`, it will correspondingly listen to the loopback interface.
 
 Finally, send a file with the API data sender application and wait until it pops
 in the data reader.

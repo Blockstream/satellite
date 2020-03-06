@@ -90,15 +90,6 @@ def open_sock(ifname, port, multiaddr):
                     socket.IP_MULTICAST_IF,
                     ip_mreqn)
 
-    # Enable multicast loop
-    #
-    # NOTE: this will allow the API data reader application to receive the UDP
-    # segments.
-    multicast_loop_on = struct.pack('b', 1)
-    sock.setsockopt(socket.IPPROTO_IP,
-                    socket.IP_MULTICAST_LOOP,
-                    multicast_loop_on)
-
     # Set multicast TTL
     ttl = struct.pack('b', 1)
     sock.setsockopt(socket.IPPROTO_IP,
@@ -132,7 +123,7 @@ def main():
 
     parser.add_argument('-i', '--interface',
                         help="Network interface over which to send API data",
-                        default=None)
+                        default="lo")
 
     group = parser.add_mutually_exclusive_group()
     group.add_argument('--net', choices=['main', 'test'],
