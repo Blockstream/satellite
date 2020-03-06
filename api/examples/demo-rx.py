@@ -55,7 +55,7 @@ def fetch_api_data(server_addr, seq_num):
         return data
 
 
-def open_sock(ifname, port, multiaddr):
+def open_sock(ifname, port, multiaddr, ttl=1):
     """Open socket
 
     Args:
@@ -64,6 +64,7 @@ def open_sock(ifname, port, multiaddr):
         multiaddr : Multicast group to which this application transmits
 
     """
+    assert(ttl <= 255)
 
     # Open output socket
     sock = socket.socket(socket.AF_INET,
@@ -91,10 +92,9 @@ def open_sock(ifname, port, multiaddr):
                     ip_mreqn)
 
     # Set multicast TTL
-    ttl = struct.pack('b', 1)
     sock.setsockopt(socket.IPPROTO_IP,
                     socket.IP_MULTICAST_TTL,
-                    ttl)
+                    struct.pack('b', ttl))
 
     return sock
 
@@ -138,6 +138,9 @@ def main():
     parser.add_argument('-p', '--port', default=None,
                         help='Satellite API server port (default: None)')
 
+    parser.add_argument('--ttl', type=int, default=1,
+                        help='Time to live of multicast packets (default: 1)')
+
     parser.add_argument('--debug', action='store_true',
                         help='Debug mode (default: false)')
 
@@ -180,7 +183,7 @@ def main():
     logging.debug("Send Satellite API packets to %s:%s" %(dest_ip, dest_port))
 
     # Open socket
-    sock = open_sock(args.interface, dest_port, dest_ip)
+    sock = open_sock(args.interface, dest_port, dest_ip, args.ttl)
 
     # Always keep a record of the last received sequence number
     last_seq_num = None
