@@ -9,6 +9,13 @@ If using a USB demodulator, however, note the drivers need to be installed on
 the Docker host (not the container). Please refer to the [USB demodulator
 guide](tbs.md#tbs-5927-drivers).
 
+Both images expect a source distribution tarball of the `blocksat-cli`
+package. Hence, before proceeding, on the root directory, run:
+
+```
+python3 setup.py sdist
+```
+
 ## Linux USB Container
 
 Build the image with:
