@@ -7,7 +7,7 @@ import argparse
 
 
 def subparser(subparsers):
-    p = subparsers.add_parser('gqrx-conf',
+    p = subparsers.add_parser('gqrx-conf', aliases=['gqrx'],
                               description="Generate gqrx configurations",
                               help='Generate gqrx configurations',
                               formatter_class=ArgumentDefaultsHelpFormatter)

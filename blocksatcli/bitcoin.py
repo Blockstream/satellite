@@ -14,7 +14,7 @@ def _udpmulticast(dev, src_addr, dst_addr=defs.fibre_dst_addr, trusted="1",
 
 def subparser(subparsers):
     """Argument parser of bitcoin-conf command"""
-    p = subparsers.add_parser('bitcoin-conf',
+    p = subparsers.add_parser('bitcoin-conf', aliases=['btc'],
                               description="Generate Bitcoin configuration file",
                               help='Generate Bitcoin configuration file',
                               formatter_class=ArgumentDefaultsHelpFormatter)
