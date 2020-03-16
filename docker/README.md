@@ -35,8 +35,8 @@ After running, configure reverse path filters by running the following from the
 host (not from the container):
 
 ```
-sudo ./blocksat.py rp -i dvb0_0
-sudo ./blocksat.py rp -i dvb0_1
+blocksat-cli rp -i dvb0_0
+blocksat-cli rp -i dvb0_1
 ```
 
 ## SDR Container

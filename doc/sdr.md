@@ -148,7 +148,7 @@ After installing, you can generate the configurations that are needed for gqrx
 by running:
 
 ```
-./blocksat.py gqrx-conf
+blocksat-cli gqrx-conf
 ```
 
 > NOTE: this assumes you are going to use gqrx with an RTL-SDR dongle.
@@ -158,7 +158,7 @@ by running:
 You should now be ready to launch the SDR receiver. You can run it by executing:
 
 ```
-./blocksat.py sdr
+blocksat-cli sdr
 ```
 
 More specifically, as thoroughly explained in the [Antenna Pointing
@@ -166,7 +166,7 @@ Guide](antenna-pointing#sdr-based), you might want to run with specific gain and
 de-rotation parameters that are suitable in your setup, like so:
 
 ```
-./blocksat.py sdr -g [gain] --derotate [freq_offset]
+blocksat-cli sdr -g [gain] --derotate [freq_offset]
 ```
 
 where `[gain]` and `[freq_offset]` should be substituted by the appropriate
@@ -181,7 +181,7 @@ By default, the application will try to decode the low-throughput stream. To try
 decoding the high-throughput stream, run with option `-m high`, as follows:
 
 ```
-./blocksat.py sdr -g [gain] --derotate [freq_offset] -m high
+blocksat-cli sdr -g [gain] --derotate [freq_offset] -m high
 ```
 
 ## Docker

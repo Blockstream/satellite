@@ -428,7 +428,7 @@ def configure(args):
         "assembling of your receiver setup. You can read these instructions "
         "any time by running:"))
     print("""
-    ./blocksat.py instructions
+    blocksat-cli instructions
     """)
 
     instructions.show([])

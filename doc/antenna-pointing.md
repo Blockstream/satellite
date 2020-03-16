@@ -112,7 +112,7 @@ Assuming the TBS5927 is launched after executing the command that follows (see
 on the terminal.
 
 ```
-sudo ./blocksat.py usb
+blocksat-cli usb
 ```
 
 Initially, while the TBS5927 is still searching for the Blockstream Satellite
@@ -262,14 +262,14 @@ receiver application. As explained in the [SDR guide](sdr.md#running), you can
 start it with:
 
 ```
-./blocksat.py sdr
+blocksat-cli sdr
 ```
 
 For pointing, however, it is useful to run it in GUI mode, which will then open
 up some real-time plots. Run:
 
 ```
-./blocksat.py sdr --gui
+blocksat-cli sdr --gui
 ```
 
 At this point, before proceeding, it is helpful to inspect whether the gain is
@@ -281,7 +281,7 @@ specified using option `-g`, like so:
 ![Pre-processed IQ](img/leandvb-pre-processed-iq.png?raw=true "Pre-processed IQ")
 
 ```
-./blocksat.py sdr -g [gain]
+blocksat-cli sdr -g [gain]
 ```
 
 The default gain is 30, and you can then experiment with lower values.
@@ -306,7 +306,7 @@ the frequency offset of roughly -300 kHz that we already knew about (from gqrx):
 To correct the known offset, you can run with option `--derotate`, as follows:
 
 ```
-./blocksat.py sdr -g [gain] --derotate [freq_offset]
+blocksat-cli sdr -g [gain] --derotate [freq_offset]
 ```
 
 where `freq_offset` represents the offset in kHz that you want to correct. With
@@ -328,7 +328,7 @@ locked to the signal yet. You can troubleshoot further in debug mode, by running
 like so (with argument `-d`):
 
 ```
-./blocksat.py sdr -g [gain] --derotate [freq_offset] --gui -d
+blocksat-cli sdr -g [gain] --derotate [freq_offset] --gui -d
 ```
 
 If you see the following logs continuously being printed in the console, it
@@ -378,7 +378,7 @@ console in non-GUI mode. To do so, run with option `-dd` (debug level 2), as
 follows:
 
 ```
-./blocksat.py sdr -g [gain] --derotate [freq_offset] -dd
+blocksat-cli sdr -g [gain] --derotate [freq_offset] -dd
 ```
 
 As a result, you should see a large amount of logs including the MER information

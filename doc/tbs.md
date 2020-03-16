@@ -57,7 +57,7 @@ Some configurations depend on your specific setup. To obtain detailed
 instructions, please run the configuration helper as follows:
 
 ```
-./blocksat.py cfg
+blocksat-cli cfg
 ```
 
 Furthermore, in order to run the demodulator, it is necessary to have the
@@ -92,7 +92,7 @@ sudo dnf install python3 iproute iptables dvb-apps v4l-utils
 Finally, launch the DVB-S2 interface by running:
 
 ```
-sudo ./blocksat.py usb
+blocksat-cli usb
 ```
 
 This script will set an arbitrary IP address to the network interface that is

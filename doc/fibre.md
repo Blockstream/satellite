@@ -93,7 +93,7 @@ simplify this process, we provide a `bitcoin.conf` generator, which you can run
 as follows:
 
 ```
-./blocksat.py bitcoin-conf -d [datadir]
+blocksat-cli bitcoin-conf -d [datadir]
 ```
 
 where `[datadir]` should be the target Bitcoin [data

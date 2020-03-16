@@ -488,7 +488,7 @@ where `ifname` is the name of the network interface that `demo-rx` and
 Alternatively, configure firewall rules using the blocksat CLI:
 
 ```
-./blocksat.py firewall -i ifname
+blocksat-cli firewall -i ifname
 ```
 
 You can also control the network interface that is used by `demo-rx` and

@@ -109,7 +109,7 @@ def _print_s400_instructions(info):
 
     util._print_sub_header("Host Configuration")
     print("1. Run the following command on the host:")
-    print("\n```\nsudo ./blocksat.py standalone -i ifname\n```\n")
+    print("\n```\nblocksat-cli standalone -i ifname\n```\n")
     print(textwrap.fill("where \'ifname\' should be replaced with the name "
                         "of the network interface that is connected to the "
                         "S400."))
@@ -178,7 +178,7 @@ def _print_usb_rx_instructions(info):
         "If you are running this helper in the same machine, run the "
         "following to see instructions again after rebooting."))
     print("""
-    ./blocksat.py instructions
+    blocksat-cli instructions
     """)
 
     input("\nPress Enter to continue...")
@@ -193,7 +193,7 @@ def _print_usb_rx_instructions(info):
 
     util._print_sub_header("Launch")
 
-    print("Now run:\n\nsudo ./blocksat.py usb\n\n")
+    print("Now run:\n\nblocksat-cli usb\n\n")
 
 
 def _print_sdr_instructions(info):

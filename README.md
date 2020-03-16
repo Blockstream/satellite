@@ -65,10 +65,17 @@ pick the appropriate components.
 
 Setup configurations are dependent on your demodulator choice and on the
 satellite that covers your region. To obtain the configuration instructions that
-are suitable to your setup, please run the configuration helper as follows:
+are suitable to your setup, please run the configuration helper of the
+Blockstream Satellite command-line interface (CLI).
 
+First install the CLI as follows:
 ```
-python3 blocksat.py cfg
+python3 setup.py install
+```
+
+Then, run the configuration helper:
+```
+blocksat-cli cfg
 ```
 
 Next, build and install Bitcoin FIBRE, following the [FIBRE installation
