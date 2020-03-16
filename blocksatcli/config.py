@@ -6,9 +6,9 @@ from . import util, defs, instructions
 import textwrap
 from decimal import Decimal, getcontext
 
-
-cfg_file  = "config.json"
-chan_file = "channels.conf"
+cfg_dir   = os.path.join(os.path.expanduser("~"), ".blocksat")
+cfg_file  = os.path.join(cfg_dir, "config.json")
+chan_file = os.path.join(cfg_dir, "channels.conf")
 
 
 def _cfg_satellite():
@@ -408,6 +408,9 @@ def configure(args):
     }
 
     logging.debug(pformat(user_info))
+
+    if not os.path.exists(cfg_dir):
+        os.makedirs(cfg_dir)
 
     with open(cfg_file, 'w') as fd:
         json.dump(user_info, fd)
