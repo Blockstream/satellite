@@ -19,7 +19,7 @@ def _get_iptables_rules(net_if):
 
     # Get rules
     res = subprocess.check_output([
-        "iptables", "-L", "-v", "--line-numbers"
+        "sudo", "iptables", "-L", "-v", "--line-numbers"
     ])
 
     # Parse
@@ -107,7 +107,7 @@ def _add_iptables_rule(net_if, cmd):
 
     # Check results
     res = subprocess.check_output([
-        "iptables", "-L", "-v", "--line-numbers"
+        "sudo", "iptables", "-L", "-v", "--line-numbers"
     ])
 
     for rule in _get_iptables_rules(net_if):
@@ -143,6 +143,7 @@ def _configure_firewall(net_if, ports, igmp=False):
           "at interface %s\ntowards UDP ports %s." %(net_if, ",".join(ports)))
 
     cmd = [
+        "sudo",
         "iptables",
         "-I", "INPUT",
         "-p", "udp",
@@ -172,6 +173,7 @@ def _configure_firewall(net_if, ports, igmp=False):
           "necessary when using a standalone DVB modem.")
 
     cmd = [
+        "sudo",
         "iptables",
         "-I", "INPUT",
         "-p", "igmp",

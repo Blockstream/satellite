@@ -4,6 +4,7 @@ from ipaddress import IPv4Interface
 import os, sys, signal, argparse, subprocess, time, logging, threading, json
 from argparse import ArgumentDefaultsHelpFormatter
 from . import config, util, defs, rp, firewall
+import textwrap
 
 
 def _find_v4l_lnb(info):
@@ -83,13 +84,13 @@ def _set_ip(net_if, ip_addr, verbose):
     if (has_ip and not ip_ok):
         print("Interface %s has an IP, but it is not %s" %(net_if, ip_addr))
         print("Flush current IP address of %s" %(net_if))
-        cmd = ["ip", "address", "flush", "dev", net_if]
+        cmd = ["sudo", "ip", "address", "flush", "dev", net_if]
         logging.debug("> " + " ".join(cmd))
         res = subprocess.check_output(cmd)
 
     if (not has_ip or not ip_ok):
         print("Assign IP address %s to %s" %(ip_addr, net_if))
-        cmd = ["ip", "address", "add", ip_addr, "dev", net_if]
+        cmd = ["sudo", "ip", "address", "add", ip_addr, "dev", net_if]
         logging.debug("> " + " ".join(cmd))
         res = subprocess.check_output(cmd)
     else:
@@ -280,10 +281,6 @@ def _dvbnet_single(adapter, ifname, pid, ule, existing_dvbnet_interfaces):
             _rm_dvbnet_interface(adapter, ifname, verbose=False)
 
         adapter_dir = '/dev/dvb/adapter' + adapter
-        if (not os.access(adapter_dir, os.W_OK)):
-            raise PermissionError(
-                "You need write permission on %s. " %(adapter_dir) +
-                "Consider running as root." )
 
         if (ule):
             print("Launch %s using ULE encapsulation" %(ifname))
@@ -292,8 +289,17 @@ def _dvbnet_single(adapter, ifname, pid, ule, existing_dvbnet_interfaces):
             print("Launch %s using MPE encapsulation" %(ifname))
             ule_arg = ""
 
+        cmd = ["dvbnet", "-a", adapter, "-p", str(pid), ule_arg]
+
+        has_w_access = os.access(adapter_dir, os.W_OK)
+        if (not has_w_access):
+            cmd.insert(0, "sudo")
+            print(textwrap.fill(
+                "You don't have write access to {}. Hence, \"sudo\" will "
+                "be inserted in the following command:".format(adapter_dir)))
+            print("\n> " + " ".join(cmd) + "\n")
+
         # Create interface for a given DVB adapter
-        cmd     = ["dvbnet", "-a", adapter, "-p", str(pid), ule_arg]
         logging.debug("> " + " ".join(cmd))
         res     = subprocess.check_output(cmd)
         print(res.decode())
@@ -375,7 +381,7 @@ def _rm_dvbnet_interface(adapter, ifname, verbose=True):
     if (verbose):
         print("\n------------------------------ Remove dvbnet interface " +
               "--------------------------------")
-    cmd     = ["ip", "link", "set", ifname, "down"]
+    cmd     = ["sudo", "ip", "link", "set", ifname, "down"]
     logging.debug("> " + " ".join(cmd))
     res     = subprocess.check_output(cmd)
 
