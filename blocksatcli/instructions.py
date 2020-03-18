@@ -1,7 +1,7 @@
 """Instructions for the user"""
 from argparse import ArgumentDefaultsHelpFormatter
 from . import util, defs, config
-import textwrap
+import textwrap, logging
 
 
 def _item(text):
@@ -215,6 +215,73 @@ def _print_sdr_instructions(info):
     util._print_sub_header("Host Configuration")
 
 
+def _print_freq_info(info):
+    """Print summary of frequencies of interest"""
+    sat     = info['sat']
+    setup   = info['setup']
+    lnb     = info['lnb']
+    lo_freq = info['freqs']['lo']
+    l_freq  = info['freqs']['l_band']
+
+    util._print_header("Frequencies")
+
+    print("| Downlink %2s band frequency                     | %8.2f MHz |" %(sat['band'], sat['dl_freq']))
+    print("| Your LNB local oscillator (LO) frequency       | %8.2f MHz |" %(lo_freq))
+    print("| L-band frequency to configure on your receiver | %7.2f MHz  |" %(l_freq))
+    print()
+
+    if (lnb['universal']):
+        print("NOTE regarding Universal LNB:\n")
+        if (sat['dl_freq'] > defs.ku_band_thresh):
+            print(textwrap.fill(("The DL frequency of {} is in Ku high "
+                                 "band (> {:.1f} MHz). Hence, you need to use "
+                                 "the higher frequency LO ({:.1f} MHz) of your "
+                                 "LNB. This requires a 22 kHz tone to be sent "
+                                 "to the LNB."
+            ).format(sat['alias'], defs.ku_band_thresh, lo_freq)))
+            print()
+            if (setup['type'] == defs.sdr_setup_type):
+                print(textwrap.fill(("With a software-defined setup, you will "
+                                     "need to place a 22 kHz tone generator "
+                                     "inline between the LNB and the power "
+                                     "inserter. Typically the tone generator "
+                                     "uses power from the power inserter while "
+                                     "delivering the tone directly to the "
+                                     "LNB.")))
+            else:
+                print("The {} {} modem will generate the 22 kHz tone.".format(
+                    setup['vendor'], setup['model']))
+        else:
+            print(textwrap.fill("The DL frequency of {} is in Ku low \
+            band (< {:.1f} MHz). Hence, you need to use the lower (default) \
+            frequency LO of your LNB.".format(sat['alias'], defs.ku_band_thresh)))
+
+    input("\nPress Enter to continue...")
+
+
+def _print_lnb_info(info):
+    """Print important waraning based on LNB choice"""
+    lnb   = info['lnb']
+    sat   = info['sat']
+    setup = info['setup']
+
+    if ((lnb['pol'] != "Dual") and (lnb['pol'] != sat['pol'])):
+        util._print_header("LNB Information")
+        lnb_pol = "Vertical" if lnb['pol'] == "V" else "Horizontal"
+        logging.warning(textwrap.fill(
+            "Your LNB has {} polarization and the signal from {} has the "
+            "opposite polarization.".format(lnb_pol, sat['name'])))
+        input("\nPress Enter to continue...")
+
+    if ((lnb['pol'] == "Dual") and (setup['type'] == defs.sdr_setup_type)):
+        util._print_header("LNB Information")
+        logging.warning(textwrap.fill(
+            "Your LNB has dual polarization. Check the voltage of your power "
+            "supply in order to discover the polarization on which your LNB "
+            "will operate."))
+        input("\nPress Enter to continue...")
+
+
 def subparser(subparsers):
     """Argument parser of instructions command"""
     p = subparsers.add_parser('instructions',
@@ -231,6 +298,9 @@ def show(args):
 
     if (info is None):
         return
+
+    _print_freq_info(info)
+    _print_lnb_info(info)
 
     if (info['setup']['type'] == defs.standalone_setup_type):
         _print_s400_instructions(info)

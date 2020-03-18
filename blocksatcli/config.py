@@ -154,12 +154,11 @@ def _cfg_custom_lnb(sat):
     }
 
 
-def _cfg_lnb(sat, setup):
+def _cfg_lnb(sat):
     """Configure LNB - either from preset or from custom specs
 
     Args:
         sat   : user's satellite info
-        setup : user's rx setup info
 
     """
 
@@ -197,21 +196,6 @@ def _cfg_lnb(sat, setup):
         lnb = _cfg_custom_lnb(sat)
 
 
-    if ((lnb['pol'] != "Dual") and (lnb['pol'] != sat['pol'])):
-        lnb_pol = "Vertical" if lnb['pol'] == "V" else "Horizontal"
-        logging.warning(textwrap.fill(
-            "Your LNB has {} polarization and the signal from {} has the "
-            "opposite polarization.".format(lnb_pol, sat['name'])))
-        input("\nPress Enter to continue...")
-
-    if ((lnb['pol'] == "Dual") and (setup['type'] == defs.sdr_setup_type)):
-        print()
-        logging.warning(textwrap.fill(
-            "Your LNB has dual polarization. Check the voltage of your power "
-            "supply in order to discover the polarization on which your LNB "
-            "will operate."))
-        input("\nPress Enter to continue...")
-
     if (sat['band'].lower() != lnb['band'].lower()):
         logging.error("The LNB you chose cannot operate " + \
                       "in %s band (band of satellite %s)" %(sat['band'],
@@ -221,7 +205,7 @@ def _cfg_lnb(sat, setup):
     return lnb
 
 
-def _cfg_frequencies(sat, setup, lnb):
+def _cfg_frequencies(sat, lnb):
     """Print summary of frequencies
 
     Inform the downlink RF frequency, the LNB LO frequency and the L-band
@@ -229,11 +213,9 @@ def _cfg_frequencies(sat, setup, lnb):
 
     Args:
         sat   : user's satellite info
-        setup : user's setup info
         lnb   : user's LNB info
 
     """
-    util._print_header("Frequencies")
     getcontext().prec = 8
 
     if (sat['band'].lower() == "ku"):
@@ -257,41 +239,6 @@ def _cfg_frequencies(sat, setup, lnb):
         if_freq = float(Decimal(lo_freq) - Decimal(sat['dl_freq']))
     else:
         raise ValueError("Unknown satellite band")
-
-    print("Here are the frequencies of interest:\n")
-
-    print("| Downlink %2s band frequency                     | %8.2f MHz |" %(sat['band'], sat['dl_freq']))
-    print("| Your LNB local oscillator (LO) frequency       | %8.2f MHz |" %(lo_freq))
-    print("| L-band frequency to configure on your receiver | %7.2f MHz  |" %(if_freq))
-    print()
-
-    if (lnb['universal']):
-        print("NOTE regarding Universal LNB:\n")
-        if (sat['dl_freq'] > defs.ku_band_thresh):
-            print(textwrap.fill(("The DL frequency of {} is in Ku high "
-                                 "band (> {:.1f} MHz). Hence, you need to use "
-                                 "the higher frequency LO ({:.1f} MHz) of your "
-                                 "LNB. This requires a 22 kHz tone to be sent "
-                                 "to the LNB."
-            ).format(sat['alias'], defs.ku_band_thresh, lo_freq)))
-            print()
-            if (setup['type'] == defs.sdr_setup_type):
-                print(textwrap.fill(("With a software-defined setup, you will "
-                                     "need to place a 22 kHz tone generator "
-                                     "inline between the LNB and the power "
-                                     "inserter. Typically the tone generator "
-                                     "uses power from the power inserter while "
-                                     "delivering the tone directly to the "
-                                     "LNB.")))
-            else:
-                print("The {} {} modem will generate the 22 kHz tone.".format(
-                    setup['vendor'], setup['model']))
-        else:
-            print(textwrap.fill("The DL frequency of {} is in Ku low \
-            band (< {:.1f} MHz). Hence, you need to use the lower (default) \
-            frequency LO of your LNB.".format(sat['alias'], defs.ku_band_thresh)))
-
-    input("\nPress Enter to continue...")
 
     return {
         'dl'     : sat['dl_freq'],
@@ -405,8 +352,8 @@ def configure(args):
 
     user_sat   = _cfg_satellite()
     user_setup = _cfg_rx_setup()
-    user_lnb   = _cfg_lnb(user_sat, user_setup)
-    user_freqs = _cfg_frequencies(user_sat, user_setup, user_lnb)
+    user_lnb   = _cfg_lnb(user_sat)
+    user_freqs = _cfg_frequencies(user_sat, user_lnb)
 
     user_info = {
         'sat'   : user_sat,
