@@ -32,6 +32,7 @@ def _find_v4l_lnb(info):
 
     # TODO complete polarization checking
     assert(len(options) > 0), "LNB doesn't match a valid option"
+    logging.debug("Matching LNB options: {}".format(pformat(options)))
 
     return options[0]
 
@@ -392,21 +393,22 @@ def _rm_dvbnet_interface(adapter, ifname, verbose=True):
     print(res.decode())
 
 
-def zap(adapter, frontend, conf_file, lnb="UNIVERSAL", output=None,
-        timeout=None, monitor=False, scrolling=False):
+def zap(adapter, frontend, ch_conf_file, user_info, lnb="UNIVERSAL",
+        output=None, timeout=None, monitor=False, scrolling=False):
     """Run zapper
 
     Args:
-        adapter   : DVB adapter index
-        frontend  : frontend
-        conf_file : Path to channel configurations file
-        lnb       : LNB type
-        output    : Output filename (when recording)
-        timeout   : Run the zap for this specified duration
-        monitor   : Monitor mode. Monitors DVB traffic stats (throughput and
-                    packets per second), but does not deliver data upstream.
-        scrolling : Whether to print zap logs by scrolling rather than printing
-                    always on the same line.
+        adapter      : DVB adapter index
+        frontend     : frontend
+        ch_conf_file : Path to channel configurations file
+        user_info    : Dictionary with user configurations
+        lnb          : LNB type
+        output       : Output filename (when recording)
+        timeout      : Run the zap for this specified duration
+        monitor      : Monitor mode. Monitors DVB traffic stats (throughput and
+                       packets per second), but does not deliver data upstream.
+        scrolling    : Whether to print zap logs by scrolling rather than
+                       printing always on the same line.
 
     Returns:
         Subprocess object
@@ -417,7 +419,13 @@ def zap(adapter, frontend, conf_file, lnb="UNIVERSAL", output=None,
           "-----------------------------")
     print("Running dvbv5-zap")
 
-    cmd = ["dvbv5-zap", "-c", conf_file, "-a", adapter, "-f", frontend, "-l", lnb, "-v"]
+    # LNB name to use when calling dvbv5-zap
+    if (lnb is None):
+        # Find suitable LNB within v4l-utils preset LNBs
+        lnb = _find_v4l_lnb(user_info)['alias']
+
+    cmd = ["dvbv5-zap", "-c", ch_conf_file, "-a", adapter, "-f", frontend,
+           "-l", lnb, "-v"]
 
     if (output is not None):
         cmd = cmd + ["-o", output]
@@ -567,7 +575,7 @@ def launch(args):
         "argument --ip. Please define one IP address for each PID."
 
     # User info
-    user_info = config.read_cfg_file()
+    user_info = config.read_cfg_file(args.cfg_file, args.cfg_dir)
 
     if (user_info is None):
         return
@@ -600,15 +608,8 @@ def launch(args):
     # Set IP
     _set_ips(net_ifs, args.ip)
 
-    # LNB name to use when calling dvbv5-zap
-    if (args.lnb is not None):
-        lnb = args.lnb
-    else:
-        # Find suitable LNB within v4l-utils preset LNBs
-        lnb = _find_v4l_lnb(user_info)['alias']
-
     # Zap
-    zap_ps = zap(adapter, frontend, args.chan_conf, lnb=lnb,
+    zap_ps = zap(adapter, frontend, args.chan_conf, user_info, lnb=args.lnb,
                  output=args.record_file, timeout=args.timeout,
                  monitor=args.monitor, scrolling=args.scrolling)
 

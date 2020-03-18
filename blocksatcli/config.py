@@ -6,10 +6,6 @@ from . import util, defs, instructions
 import textwrap
 from decimal import Decimal, getcontext
 
-cfg_dir   = os.path.join(os.path.expanduser("~"), ".blocksat")
-cfg_file  = os.path.join(cfg_dir, "config.json")
-chan_file = os.path.join(cfg_dir, "channels.conf")
-
 
 def _cfg_satellite():
     """Configure satellite covering the user"""
@@ -209,6 +205,7 @@ def _cfg_lnb(sat, setup):
         input("\nPress Enter to continue...")
 
     if ((lnb['pol'] == "Dual") and (setup['type'] == defs.sdr_setup_type)):
+        print()
         logging.warning(textwrap.fill(
             "Your LNB has dual polarization. Check the voltage of your power "
             "supply in order to discover the polarization on which your LNB "
@@ -303,7 +300,7 @@ def _cfg_frequencies(sat, setup, lnb):
     }
 
 
-def _cfg_chan_conf(info):
+def _cfg_chan_conf(info, chan_file):
     """Generate the channels.conf file"""
 
     util._print_header("Channel Configurations for Linux USB Rx")
@@ -337,7 +334,7 @@ def _cfg_chan_conf(info):
     print("File \"%s\" saved." %(chan_file))
 
 
-def _read_cfg_file():
+def _read_cfg_file(cfg_file):
     """Read configuration file"""
 
     if (os.path.isfile(cfg_file)):
@@ -346,14 +343,29 @@ def _read_cfg_file():
         return info
 
 
-def read_cfg_file():
+def _rst_cfg_file(cfg_file):
+    """Reset a previous configuration file in case it exists"""
+    info = _read_cfg_file(cfg_file)
+
+    if (info is not None):
+        print("Found previous configuration:")
+        pprint(info, width=40, compact=False)
+        if (util._ask_yes_or_no("Reset?")):
+            os.remove(cfg_file)
+        else:
+            print("Configuration aborted.")
+            return False
+    return True
+
+
+def read_cfg_file(basename, directory):
     """Read configuration file
 
     If not available, run configuration helper.
 
     """
-
-    info = _read_cfg_file()
+    cfg_file = os.path.join(directory, os.path.basename(basename))
+    info = _read_cfg_file(cfg_file)
 
     while (info is None):
         print("Missing {} configuration file".format(cfg_file))
@@ -363,7 +375,7 @@ def read_cfg_file():
             print("Abort")
             return
 
-        info = _read_cfg_file()
+        info = _read_cfg_file(cfg_file)
 
     return info
 
@@ -375,7 +387,9 @@ def subparser(subparsers):
                               help='Define receiver and Bitcoin FIBRE \
                               configurations',
                               formatter_class=ArgumentDefaultsHelpFormatter)
-
+    p.add_argument('-c', '--chan-conf',
+                   default="channels.conf",
+                   help='Channel configurations file')
     p.set_defaults(func=configure)
     return p
 
@@ -384,16 +398,10 @@ def configure(args):
     """Configure Blocksat Receiver setup
 
     """
-    user_info = _read_cfg_file()
-
-    if (user_info is not None):
-        print("Found previous configuration:")
-        pprint(user_info, width=40, compact=False)
-        if (util._ask_yes_or_no("Reset?")):
-            os.remove(cfg_file)
-        else:
-            print("Configuration aborted.")
-            return
+    cfg_file = os.path.join(args.cfg_dir, os.path.basename(args.cfg_file))
+    rst_ok   = _rst_cfg_file(cfg_file)
+    if (not rst_ok):
+        return
 
     user_sat   = _cfg_satellite()
     user_setup = _cfg_rx_setup()
@@ -409,8 +417,8 @@ def configure(args):
 
     logging.debug(pformat(user_info))
 
-    if not os.path.exists(cfg_dir):
-        os.makedirs(cfg_dir)
+    if not os.path.exists(args.cfg_dir):
+        os.makedirs(args.cfg_dir)
 
     with open(cfg_file, 'w') as fd:
         json.dump(user_info, fd)
@@ -419,18 +427,15 @@ def configure(args):
     print("Saved configurations on %s" %(cfg_file))
 
     if (user_setup['type'] == defs.linux_usb_setup_type):
-        _cfg_chan_conf(user_info)
+        chan_file = os.path.join(args.cfg_dir, args.chan_conf)
+        _cfg_chan_conf(user_info, chan_file)
 
-    util._print_header("Instructions")
+    util._print_header("Next Steps")
 
     print(textwrap.fill(
-        "Please refer to the instructions that follow in order to complete the "
-        "assembling of your receiver setup. You can read these instructions "
-        "any time by running:"))
+        "Please check setup instructions by running:"))
     print("""
     blocksat-cli instructions
     """)
-
-    instructions.show([])
 
 

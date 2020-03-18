@@ -227,7 +227,7 @@ def subparser(subparsers):
 
 def show(args):
     """Show instructions"""
-    info = config.read_cfg_file()
+    info = config.read_cfg_file(args.cfg_file, args.cfg_dir)
 
     if (info is None):
         return

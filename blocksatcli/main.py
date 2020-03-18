@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import logging
+import logging, os
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 from . import defs, config, util, instructions, gqrx, bitcoin, sdr, rp, \
     firewall, standalone, usb
@@ -11,11 +11,18 @@ __version__ = "0.1.0"
 def main():
     """Main - parse command-line arguments and call subcommands
     """
+    default_cfg_dir = os.path.join(os.path.expanduser("~"), ".blocksat")
     parser = ArgumentParser(prog="blocksat-cli",
                             description="Blockstream Satellite Command-Line Interface",
                             formatter_class=ArgumentDefaultsHelpFormatter)
     parser.add_argument('-d', '--debug', action='store_true',
                         help='Set debug mode')
+    parser.add_argument('--cfg-file',
+                        default="config.json",
+                        help="Configuration file name")
+    parser.add_argument('--cfg-dir',
+                        default=default_cfg_dir,
+                        help="Directory to use for configuration files")
     parser.add_argument('-v', '--version', action='version',
                         version='%(prog)s {}'.format(__version__))
 
