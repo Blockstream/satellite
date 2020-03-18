@@ -1,5 +1,5 @@
 """Configure Firewall Rules"""
-import subprocess, logging
+import subprocess, logging, os
 from argparse import ArgumentDefaultsHelpFormatter
 from . import util, defs
 
@@ -15,16 +15,18 @@ def _get_iptables_rules(net_if):
 
     """
 
-    rules = list()
+
 
     # Get rules
-    res = subprocess.check_output([
-        "sudo", "iptables", "-L", "-v", "--line-numbers"
-    ])
+    cmd = ["iptables", "-L", "-v", "--line-numbers"]
+    if (os.geteuid() != 0):
+        cmd.insert(0, "sudo")
+    res = subprocess.check_output(cmd)
 
     # Parse
     header1 = ""
     header2 = ""
+    rules   = list()
     for line in res.splitlines():
         if ("Chain INPUT" in line.decode()):
             header1 = line.decode()
@@ -53,9 +55,11 @@ def _is_iptables_igmp_rule_set(net_if, cmd):
         True if rule is already set, False otherwise.
 
     """
+    offset = 1 if cmd[0] == "sudo" else 0
 
     for rule in _get_iptables_rules(net_if):
-        if (rule['rule'][3] == "ACCEPT" and rule['rule'][6] == cmd[6] and
+        if (rule['rule'][3] == "ACCEPT" and
+            rule['rule'][6] == cmd[6 + offset] and
             rule['rule'][4] == "igmp"):
             print("\nFirewall rule for IGMP already configured\n")
             print(rule['header1'])
@@ -78,10 +82,12 @@ def _is_iptables_udp_rule_set(net_if, cmd):
         True if rule is already set, False otherwise.
 
     """
-
+    offset = 1 if cmd[0] == "sudo" else 0
     for rule in _get_iptables_rules(net_if):
-        if (rule['rule'][3] == "ACCEPT" and rule['rule'][6] == cmd[6] and
-            (rule['rule'][4] == "udp" and rule['rule'][12] == cmd[10])):
+        if (rule['rule'][3] == "ACCEPT" and
+            rule['rule'][6] == cmd[6 + offset] and
+            (rule['rule'][4] == "udp" and
+             rule['rule'][12] == cmd[10 + offset])):
             print("\nFirewall rule already configured\n")
             print(rule['header1'])
             print(rule['header2'])
@@ -100,25 +106,22 @@ def _add_iptables_rule(net_if, cmd):
         cmd    : list with iptables command
 
     """
+    offset = 1 if cmd[0] == "sudo" else 0
 
     # Set up iptables rules
     logging.debug("> " + " ".join(cmd))
     subprocess.check_output(cmd)
 
-    # Check results
-    res = subprocess.check_output([
-        "sudo", "iptables", "-L", "-v", "--line-numbers"
-    ])
-
     for rule in _get_iptables_rules(net_if):
         print_rule = False
 
         if (rule['rule'][3] == "ACCEPT" and
-            rule['rule'][6] == cmd[6] and
-            rule['rule'][4] == cmd[4]):
-            if (cmd[4] == "igmp"):
+            rule['rule'][6] == cmd[6 + offset] and
+            rule['rule'][4] == cmd[4 + offset]):
+            if (cmd[4 + offset] == "igmp"):
                 print_rule = True
-            elif (cmd[4] == "udp" and rule['rule'][12] == cmd[10]):
+            elif (cmd[4 + offset] == "udp" and
+                  rule['rule'][12] == cmd[10 + offset]):
                 print_rule = True
 
             if (print_rule):
@@ -143,7 +146,6 @@ def _configure_firewall(net_if, ports, igmp=False):
           "at interface %s\ntowards UDP ports %s." %(net_if, ",".join(ports)))
 
     cmd = [
-        "sudo",
         "iptables",
         "-I", "INPUT",
         "-p", "udp",
@@ -152,6 +154,12 @@ def _configure_firewall(net_if, ports, igmp=False):
         "--dports", ",".join(ports),
         "-j", "ACCEPT",
     ]
+
+    not_root = (os.geteuid() != 0)
+    if not_root:
+        print("\nNOTE: Root privileges are needed to read and write firewall "
+              "rules")
+        cmd.insert(0, "sudo")
 
     if (not _is_iptables_udp_rule_set(net_if, cmd)):
         if (util._ask_yes_or_no("Add corresponding ACCEPT firewall rule?")):
@@ -173,13 +181,14 @@ def _configure_firewall(net_if, ports, igmp=False):
           "necessary when using a standalone DVB modem.")
 
     cmd = [
-        "sudo",
         "iptables",
         "-I", "INPUT",
         "-p", "igmp",
         "-i", net_if,
         "-j", "ACCEPT",
     ]
+    if not_root:
+        cmd.insert(0, "sudo")
 
     if (not _is_iptables_igmp_rule_set(net_if, cmd)):
         if (util._ask_yes_or_no("Add corresponding ACCEPT rule on firewall?")):
