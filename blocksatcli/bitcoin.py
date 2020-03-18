@@ -18,9 +18,12 @@ def subparser(subparsers):
                               description="Generate Bitcoin configuration file",
                               help='Generate Bitcoin configuration file',
                               formatter_class=ArgumentDefaultsHelpFormatter)
-    p.add_argument('-d', '--datadir', default=None,
-                   help='Path to the data directory where the generated '
-                   'bitcoin.conf will be saved')
+    group = p.add_mutually_exclusive_group()
+    group.add_argument('-d', '--datadir', default=None,
+                       help='Path to the data directory where the generated '
+                       'bitcoin.conf will be saved')
+    group.add_argument('--stdout', action='store_true', default=False,
+                       help='Print bitcoin.conf configurations and don\'t save')
     p.set_defaults(func=configure)
 
     return subparser
@@ -65,6 +68,10 @@ def configure(args):
                              label="s400") + "\n"
     else:
         raise ValueError("Unknown setup type")
+
+    if (args.stdout):
+        print(cfg)
+        return
 
     print("Save {} at {}/".format(conf_file, path))
 
