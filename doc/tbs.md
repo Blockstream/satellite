@@ -36,7 +36,7 @@ Before anything else, note that specific device drivers are required in order to
 use the TBS5927. Please, do note that driver installation can cause corruptions
 and, therefore, it is safer and **strongly recommended** to use a virtual
 machine for running the TBS5927. If you do so, please note that all commands
-recommend in the remainder of this page are then supposed to be executed in the
+recommended in the remainder of this page are supposed to be executed in the
 virtual machine.
 
 Next, install the drivers for the TBS 5927. A helper script is available in the
@@ -68,7 +68,7 @@ Also, the configuration helper will print out all instructions that follow.
 
 ## Host Requirements
 
-First, install all pre-requisites:
+Now, install all pre-requisites (in the virtual machine):
 
 On Ubuntu/Debian:
 

@@ -7,33 +7,41 @@ import textwrap, logging
 def _item(text):
     print(textwrap.fill(text, initial_indent="- ", subsequent_indent="  "))
 
+
+def _print(text):
+    text = " ".join(text.replace("\n", "").split())
+    print(textwrap.fill(text))
+    print()
+
+
 def _print_s400_instructions(info):
     """Print instructions for configuration of the Novra S400
     """
     util._print_header("Novra S400")
 
-    print("The Novra S400 is a standalone modem, connected as follows:\n")
+    _print("""
+    The Novra S400 is a standalone demodulator, which will receive data from
+    satellite and output IP packets to the host over the network. Hence, you will
+    need to configure both the S400 and the host.
+    """)
+
+    util._print_sub_header("Connections")
+
+    _print("The Novra S400 can be connected as follows:")
+
 
     print(("LNB ----> S400 (RF1 Interface) -- "
            "S400 (LAN 1 Interface) ----> Host / Network\n"))
 
-    print(textwrap.fill("The S400 will receive data from satellite and will "
-                        "output IP packets to the host over the network. Hence,"
-                        " you will need to configure both the S400 and the "
-                        "host."))
-
-    input("\nPress Enter to continue...")
-
-    util._print_sub_header("Connections")
 
     _item("Connect the LNB directly to interface RF1 of the S400 using a "
-          "coaxial cable (for example an RG6 cable).")
+          "coaxial cable (an RG6 cable is recommended).")
     _item("Connect the S400's LAN1 interface to your computer or network.")
 
     input("\nPress Enter to continue...")
 
     util._print_sub_header("S400's web user interface (UI)")
-    print("Next, you need to access the web UI of the S400:")
+    print("Next, you need to access the web UI of the S400:\n")
     _item(
         "Configure you host's network interface to the same subnet as the S400"
         ". By default, the S400 is configured with IP address 192.168.1.2 on "
@@ -108,7 +116,13 @@ def _print_s400_instructions(info):
     input("\nPress Enter to continue...")
 
     util._print_sub_header("Host Configuration")
-    print("1. Run the following command on the host:")
+
+    _print("""
+    In order to receive the traffic from the S400, you will need some networking
+    configurations on your host. Such configurations are indicated and executed
+    by running:
+    """)
+
     print("\n```\nblocksat-cli standalone -i ifname\n```\n")
     print(textwrap.fill("where \'ifname\' should be replaced with the name "
                         "of the network interface that is connected to the "
@@ -123,27 +137,52 @@ def _print_usb_rx_instructions(info):
 
     util._print_header(name)
 
-    print("The {} is a USB modem connected as follows:\n".format(name))
+    _print("""
+    The {0} is a USB demodulator, which will receive data from satellite and
+    will output data to the host over USB. The host, in turn, is responsible for
+    configuring the modem using specific DVB-S2 tools. Hence, next, you need to
+    prepare the host for driving the {0}.
+    """.format(name))
 
-    print(("LNB ----> {} (LNB Interface) -- "
-           "{} (USB Interface) ----> Host\n".format(name, name)))
+    util._print_sub_header("Hardware Connections")
 
-    print(textwrap.fill("The {} will receive data from satellite and will "
-                        "output data to the host over USB. The host, in turn, "
-                        "is responsible for configuring the modem using "
-                        "specific DVB-S2 tools. Hence, next, you need to "
-                        "prepare the host for driving the {}.".format(
-                            name, name)))
-    print()
-    print(textwrap.fill("Also, because the setup requires installation of "
-                        "device drivers, we recommend creating and using a "
-                        "virtual machine for this."))
+    print("The {} should be connected as follows:\n".format(name))
+
+    print(("LNB ----> {0} (LNB Interface) -- "
+           "{0} (USB Interface) ----> Host\n".format(name)))
+
+    _item("Connect the LNB directly to \"LNB IN\" of the {} using a coaxial"
+          " cable (an RG6 cable is recommended).".format(name))
+    _item("Connect the {}'s USB interface to your computer.".format(name))
 
     input("\nPress Enter to continue...")
 
-    util._print_sub_header("Host Apps")
+    util._print_sub_header("Drivers")
 
-    print("First, install all pre-requisites:")
+    _print("""
+    Before anything else, note that specific device drivers are required in order to
+    use the {0}. Please, do note that driver installation can cause corruptions
+    and, therefore, it is safer and **strongly recommended** to use a virtual
+    machine for running the {0}. If you do so, please note that all commands
+    recommended in the remainder of this page are supposed to be executed in the
+    virtual machine.
+    """.format(name))
+    _print("""
+    Next, install the drivers for the {0}. A helper script is available in the
+    `util` directory from the root of this repository:
+    """.format(name))
+
+    _item("From the util/ folder, run:")
+    print("""
+    ./tbsdriver.sh
+    """)
+    print("Once the script completes the installation, reboot the virtual machine.")
+
+    input("\nPress Enter to continue...")
+
+    util._print_sub_header("Host Requirements")
+
+    print("Now, install all pre-requisites (in the virtual machine):")
 
     install_info = """
     On Ubuntu/Debian:
@@ -161,40 +200,26 @@ def _print_usb_rx_instructions(info):
 
     input("\nPress Enter to continue...")
 
-    util._print_sub_header("{} Drivers".format(name))
-
-    print(textwrap.fill("Next, you need to install the drivers for "
-                        "the {}. Please, do note that driver installation can "
-                        "cause corruptions and, therefore, it is safer and "
-                        "strongly recommended to use a virtual machine.".format(
-                            name)))
-    _item("From the util/ folder, run:")
-    print("""
-    ./tbsdriver.sh
-    """)
-    print("Once the script completes the installation, reboot the machine.")
-    print()
-    print(textwrap.fill(
-        "If you are running this helper in the same machine, run the "
-        "following to see instructions again after rebooting."))
-    print("""
-    blocksat-cli instructions
-    """)
-
-    input("\nPress Enter to continue...")
-
-    util._print_sub_header("Hardware Connections")
-
-    _item("Connect the LNB directly to \"LNB IN\" of the {} using a "
-          "coaxial cable (for example an RG6 cable).".format(name))
-    _item("Connect the {}'s USB interface to your computer.".format(name))
-
-    input("\nPress Enter to continue...")
-
     util._print_sub_header("Launch")
 
-    print("Now run:\n\nblocksat-cli usb\n\n")
+    print("Finally, launch the DVB-S2 interface by running:")
 
+    print("\n    blocksat-cli usb\n")
+
+    _print("""
+    This script will set an arbitrary IP address to the network interface that is
+    created in Linux in order to handle the IP traffic received via the satellite
+    link. To define a specific IP instead, run the above with `--ip target_ip`
+    argument, where `target_ip` is the IP of interest.
+    """)
+
+    _print(
+        "NOTE: root privileges are required in order to configure firewall "
+        "and reverse path (RP) filtering, as well as accessing the adapter "
+        "at `/dev/dvb`. You will be prompted to accept or refuse the "
+        "firewall and RP configurations that are executed as root.")
+
+    input("\nPress Enter to continue...")
 
 def _print_sdr_instructions(info):
     """Print instruction for configuration of an SDR setup
@@ -282,6 +307,24 @@ def _print_lnb_info(info):
         input("\nPress Enter to continue...")
 
 
+def _print_next_steps():
+    util._print_header("Next Steps")
+    _print("""
+    At this point, if your dish is already correctly pointed, you should be able to
+    start receiving data in Bitcoin FIBRE.
+    """)
+
+    print("You can generate a bitcoin.conf configuration file for FIBRE using:")
+    print("\n    blocksat-cli btc\n")
+
+    print("For further information, refer to:\n")
+    print("https://github.com/Blockstream/satellite/blob/master/doc/fibre.md\n")
+
+    _print("""If your antenna is not pointed yet, please follow the
+    antenna alignment guide available at:""")
+    print("https://github.com/Blockstream/satellite/blob/master/doc/antenna-pointing.md\n")
+
+
 def subparser(subparsers):
     """Argument parser of instructions command"""
     p = subparsers.add_parser('instructions',
@@ -309,4 +352,4 @@ def show(args):
     elif (info['setup']['type'] == defs.linux_usb_setup_type):
         _print_usb_rx_instructions(info)
 
-
+    _print_next_steps()
