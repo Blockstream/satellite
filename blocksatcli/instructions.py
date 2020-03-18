@@ -221,23 +221,161 @@ def _print_usb_rx_instructions(info):
 
     input("\nPress Enter to continue...")
 
+
 def _print_sdr_instructions(info):
     """Print instruction for configuration of an SDR setup
     """
     util._print_header("SDR Setup")
 
+    _print(
+        """
+        The instructions that follow assume and have been tested with Ubuntu
+        18.04. Please adapt accordingly in case you are using another Linux
+        distribution or Ubuntu version.
+        """
+    )
+
+    input("\nPress Enter to continue...")
+
     util._print_sub_header("Connections")
 
-    print("An SDR-based setup is assembled as follows:\n")
+    print("The SDR setup is connected as follows:\n")
 
     print("LNB ----> Power Supply ----> RTL-SDR ----> Host\n")
-    print(("The power supply is typically a \"Single Wire Multiswitch\" (SWM) "
-          "supply. In this scenario, the LNB must be connected to the "
-           "**powered** port, labeled \“Signal to SWM\”, and the "
-           "**non-powered** port of the supply, labeled as \“Signal to IRD\", "
-           "must be connected to the RTL-SDR."))
 
-    util._print_sub_header("Host Configuration")
+    _item("Connect the RTL-SDR USB dongle to your host PC.")
+    _item("Connect the **non-powered** port of the power supply (labeled as "
+          "\"Signal to IRD\") to the RTL-SDR using an SMA cable and an "
+          "SMA-to-F adapter.")
+    _item("Connect the **powered** port (labeled “Signal to SWM”) to the "
+          "LNB using a coaxial cable (an RG6 cable is recommended).")
+
+    input("\nPress Enter to continue...")
+
+    util._print_sub_header("Software Requirements")
+
+    print("The SDR-based relies on three application that follow:\n")
+
+    _item("leandvb: a software-based DVB-S2 demodulator.")
+    _item("rtl_sdr: reads samples taken by the RTL-SDR and feeds them into leandvb.")
+    _item("TSDuck: unpacks the output of leandvb and produces"
+          "IP packets to be fed to Bitcoin FIBRE.")
+
+    input("\nPress Enter to continue...")
+
+    util._print_sub_header("leandvb")
+
+    print("To install leandvb, first install the dependencies:")
+    print("""
+    apt install make g++ libx11-dev libfftw3-dev
+    """)
+
+    print("Then, on your directory of choice, run:")
+    print("""
+    mkdir -p ~/src/
+    cd ~/src/
+    git clone -b work http://github.com/pabr/leansdr.git
+    cd leansdr/src/apps
+    sed -i "s/#CXXFLAGS/CXXFLAGS/g" Makefile
+    make
+    """)
+
+    print("And, if you so desire, make leandvb available system-wide:")
+    print("""
+    install leandvb /usr/local/bin
+    """)
+
+    input("\nPress Enter to continue...")
+
+    util._print_sub_header("ldpc_tool")
+
+    _print("Next, build and install ldpc_tool, which is used as an"
+           " add-on to leandvb:")
+
+    print("""
+    git clone -b ldpc_tool http://github.com/pabr/xdsopl-LDPC-pabr
+    cd xdsopl-LDPC-pabr
+    make CXX=g++ ldpc_tool
+    install ldpc_tool /usr/local/bin
+    """)
+
+    input("\nPress Enter to continue...")
+
+    util._print_sub_header("rtl_sdr")
+
+    print("To install the RTL-SDR application, run:")
+    print("""
+    apt-get install rtl-sdr
+    """)
+
+    input("\nPress Enter to continue...")
+
+    util._print_sub_header("TSDuck")
+
+    print("Finally, to install TSDuck from source, install dependencies:")
+
+    print("""
+    apt install g++ dos2unix curl tar zip doxygen graphviz pcscd libpcsclite-dev \\
+        dpkg-dev jq libcurl4 libcurl4-openssl-dev
+    """)
+
+    print("Build it:")
+
+    print("""
+    cd ~/src/
+    git clone https://github.com/tsduck/tsduck.git
+    cd tsduck
+    make NOTELETEXT=1 NOSRT=1 NOPCSC=1 NOCURL=1 NODTAPI=1
+    """)
+
+    print("And then add the following to your `.bashrc`:")
+
+    print("""
+    source ~/src/tsduck/src/tstools/release-x86_64/setenv.sh
+    """)
+
+    _print("The above `setenv.sh` script sets environmental variables "
+           "that are necessary in order to use TSDuck.")
+
+    input("\nPress Enter to continue...")
+
+    util._print_sub_header("Gqrx")
+
+    _print("""
+    The gqrx application can be very helpful for pointing the antenna and for
+    troubleshooting. You can install it from binary package or from source.
+    """)
+
+    print("""
+    sudo apt install gqrx-sdr
+    """)
+
+    _print("After installing, you can generate the configurations that are "
+           "needed for gqrx by running:")
+
+    print("""
+    blocksat-cli gqrx-conf
+    """)
+
+    _print("NOTE: this assumes you are going to use gqrx with an RTL-SDR "
+           "dongle.")
+
+    input("\nPress Enter to continue...")
+
+    util._print_header("Running")
+
+    _print("You should now be ready to launch the SDR receiver. "
+           "You can run it by executing:")
+
+    print("""
+    blocksat-cli sdr
+    """)
+
+    _print("""For further information, please refer to the SDR Guide at:""")
+    print("https://github.com/Blockstream/satellite/blob/master/doc/sdr.md")
+    print("\nAlternatively, check the local file at doc/sdr.md")
+
+    input("\nPress Enter to continue...")
 
 
 def _print_freq_info(info):
@@ -318,11 +456,13 @@ def _print_next_steps():
     print("\n    blocksat-cli btc\n")
 
     print("For further information, refer to:\n")
-    print("https://github.com/Blockstream/satellite/blob/master/doc/fibre.md\n")
+    print("https://github.com/Blockstream/satellite/blob/master/doc/fibre.md")
+    print("\nAlternatively, check the local file at doc/fibre.md\n")
 
     _print("""If your antenna is not pointed yet, please follow the
     antenna alignment guide available at:""")
-    print("https://github.com/Blockstream/satellite/blob/master/doc/antenna-pointing.md\n")
+    print("https://github.com/Blockstream/satellite/blob/master/doc/antenna-pointing.md")
+    print("\nAlternatively, check the local file at doc/antenna-pointing.md\n")
 
 
 def subparser(subparsers):
@@ -348,7 +488,7 @@ def show(args):
     if (info['setup']['type'] == defs.standalone_setup_type):
         _print_s400_instructions(info)
     elif (info['setup']['type'] == defs.sdr_setup_type):
-        pass
+        _print_sdr_instructions(info)
     elif (info['setup']['type'] == defs.linux_usb_setup_type):
         _print_usb_rx_instructions(info)
 

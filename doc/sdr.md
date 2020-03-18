@@ -34,15 +34,13 @@ The SDR setup is connected as follows:
 
 ## Software Requirements
 
-The supported SDR-based setup relies on the RTL-SDR dongle (see the [hardware
-guide](hardware.md#components-for-software-defined-radio-sdr-setup)). In terms
-of software, it relies on three application:
+The SDR-based relies on three application that follow:
 
+- [leandvb](http://www.pabr.org/radio/leandvb/leandvb.en.html), a software-based
+  DVB-S2 demodulator.
 - [rtl_sdr](https://github.com/osmocom/rtl-sdr), which reads samples taken by
   the RTL-SDR and feeds them into
   [leandvb](http://www.pabr.org/radio/leandvb/leandvb.en.html).
-- [leandvb](http://www.pabr.org/radio/leandvb/leandvb.en.html), a software-based
-  DVB-S2 demodulator.
 - [TSDuck](http://tsduck.io/), which unpacks the output of leandvb and produces
   IP packets to be fed to [Bitcoin FIBRE](fibre.md).
 
