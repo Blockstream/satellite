@@ -40,11 +40,12 @@ def main():
     sdr_parser   = sdr.subparser(subparsers)
 
     args = parser.parse_args()
+    log_format = '%(levelname)s: %(message)s'
     if (args.debug):
-        logging.basicConfig(level=logging.DEBUG)
+        logging.basicConfig(level=logging.DEBUG, format=log_format)
         logging.debug('[Debug Mode]')
     else:
-        logging.basicConfig(level=logging.INFO)
+        logging.basicConfig(level=logging.INFO, format=log_format)
 
     if hasattr(args, 'func'):
         args.func(args)
