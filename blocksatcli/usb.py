@@ -575,7 +575,7 @@ def launch(args):
         "argument --ip. Please define one IP address for each PID."
 
     # User info
-    user_info = config.read_cfg_file(args.cfg_file, args.cfg_dir)
+    user_info = config.read_cfg_file(args)
 
     if (user_info is None):
         return

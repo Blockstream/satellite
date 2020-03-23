@@ -305,19 +305,19 @@ def _rst_cfg_file(cfg_file):
     return True
 
 
-def read_cfg_file(basename, directory):
+def read_cfg_file(args):
     """Read configuration file
 
     If not available, run configuration helper.
 
     """
-    cfg_file = os.path.join(directory, os.path.basename(basename))
+    cfg_file = os.path.join(args.cfg_dir, os.path.basename(args.cfg_file))
     info = _read_cfg_file(cfg_file)
 
     while (info is None):
         print("Missing {} configuration file".format(cfg_file))
         if (util._ask_yes_or_no("Run configuration helper now?")):
-            configure([])
+            configure(args)
         else:
             print("Abort")
             return
