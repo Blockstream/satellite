@@ -4,34 +4,77 @@ Read API data directly via internet and output to pipe
 """
 
 import sys, argparse, textwrap, requests, struct, json, logging, time, socket, \
-    errno, fcntl, datetime
+    errno, fcntl, datetime, math
 import sseclient, urllib3, certifi
 
 
 # Constants/definitions
-HEADER_FORMAT = '!c3xI'  # first octet has MF bit and the type bit
-TYPE_API_DATA = b'\x01'
-MAX_SEQ_NUM   = 2 ** 31  # Maximum transmission sequence number
-SIOCGIFINDEX  = 0x8933 # Ioctl request for interface index
+HEADER_FORMAT = '!cxHI'
+# Header format:
+# octet 0    : Type bit on LSB, MF bit on MSB
+# octet 1    : Reserved
+# octets 2-3 : Fragment number
+# octets 4-7 : API message's sequence number
+API_TYPE_LAST_FRAG = b'\x01' # Type=1 (API), MF=0
+API_TYPE_MORE_FRAG = b'\x81' # Type=1 (API), MF=1
+MAX_SEQ_NUM        = 2 ** 31  # Maximum transmission sequence number
+SIOCGIFINDEX       = 0x8933 # Ioctl request for interface index
+MAX_UDP_PLOAD      = 2**16 - 36 - 1 # maximum UDP payload size in bytes
+# NOTE: the maximum payload includes the Blocksat, UDP and IP headers. That is,
+# 8 (blocksat) + 8 (udp) + 20 (ip) = 36.
 
 
 def packetize(data, seq_num):
-    """Place data into a Blocksat Packet
+    """Place data into Blocksat Packet(s)
 
-    Assumes fragmentation is not used, since it is not necessary over UDP.
+    An API message may be sent over multiple packet in case its length exceeds
+    the maximum UDP payload.
 
     Args:
-        data    : API message data buffer
+        data    : Bytes object containing the API message data
         seq_num : API Tx sequence number (`tx_seq_num` field)
 
     Returns:
-        Packet as bytes array
+        List of Blocksat packets that will convey the given API message, each
+        one being a Bytes object.
 
     """
-    header = struct.pack(HEADER_FORMAT, TYPE_API_DATA, seq_num)
-    pkt    = header + data
+    assert(isinstance(data, bytes))
+    n_frags = math.ceil(len(data) / MAX_UDP_PLOAD)
+    pkts    = list()
 
-    return pkt
+    logging.debug("Message size: %d bytes\tFragments: %d" %(len(data), n_frags))
+
+    for i_frag in range(n_frags):
+        # Assert more fragments (MF) bit if this isn't the last fragment
+        octet_0 = API_TYPE_LAST_FRAG if ((i_frag + 1) == n_frags) else \
+                  API_TYPE_MORE_FRAG
+        header  = struct.pack(HEADER_FORMAT, octet_0, i_frag, seq_num)
+
+        # Byte range of the data to send on this Blocksat packet
+        s_byte  = i_frag * MAX_UDP_PLOAD # starting byte
+        e_byte  = (i_frag + 1) * MAX_UDP_PLOAD # ending byte
+        pkt     = header + data[s_byte:e_byte]
+        pkts.append(pkt)
+
+    return pkts
+
+
+def send_pkts(sock, pkts, ip, port):
+    """Send Blocksat packets corresponding to one API message
+
+    Args:
+        pkts : List of Blocksat packet structures to be sent
+        ip   : Destination IP address
+        port : Destination UDP port
+
+    """
+    assert(isinstance(pkts, list))
+
+    for i, pkt in enumerate(pkts):
+        sock.sendto(pkt, (ip, port))
+        logging.debug("Send packet %d - %d bytes" %(
+            i, len(pkt)))
 
 
 def fetch_api_data(server_addr, seq_num):
@@ -241,13 +284,11 @@ def main():
                         data = fetch_api_data(server_addr, expected_seq_num)
 
                         if (data is not None):
-                            # Put API data on a Blocksat packet
-                            pkt_data = packetize(data, expected_seq_num)
+                            # Put API data on Blocksat packet(s)
+                            pkts = packetize(data, expected_seq_num)
 
-                            # Send the packet
-                            sock.sendto(pkt_data, (dest_ip, dest_port))
-                            logging.debug("Send %d bytes to socket" %(
-                                len(data)))
+                            # Send the packet(s)
+                            send_pkts(sock, pkts, dest_ip, dest_port)
 
                         # Record the sequence number of the order that was received
                         last_seq_num = expected_seq_num

@@ -11,7 +11,12 @@ import gnupg, getpass
 
 
 # Constants/definitions
-BLOCKSAT_PKT_HEADER_FORMAT = '!c3xI'
+BLOCKSAT_PKT_HEADER_FORMAT = '!cxHI'
+# Header format:
+# octet 0    : Type bit on LSB, MF bit on MSB
+# octet 1    : Reserved
+# octets 2-3 : Fragment number
+# octets 4-7 : API message's sequence number
 BLOCKSAT_PKT_HEADER_LEN    = 8
 TYPE_API_DATA              = b'\x01'
 USER_HEADER_FORMAT         = '255sxI' # Message header from `api_data_sender.py`
@@ -122,15 +127,36 @@ def unpack(udp_payload):
 
     """
 
-    pkt_type, seq_num = struct.unpack(BLOCKSAT_PKT_HEADER_FORMAT,
-                                      udp_payload[:BLOCKSAT_PKT_HEADER_LEN])
+    octet_0, i_frag, seq_num = struct.unpack(BLOCKSAT_PKT_HEADER_FORMAT,
+                                             udp_payload[:BLOCKSAT_PKT_HEADER_LEN])
     # Sanity checks
-    assert(ord(pkt_type) & 1), "Not an API packet"
-    more_fragments = (ord(pkt_type) & ord(b'\x80'))
-    assert(more_fragments == False),\
-           "Blocksat Packet fragmentation over UDP is not supported"
-    payload = udp_payload[BLOCKSAT_PKT_HEADER_LEN:]
-    return (payload, seq_num)
+    assert(ord(octet_0) & 1), "Not an API packet"
+    more_fragments = ord(octet_0) & ord(b'\x80')
+    payload        = udp_payload[BLOCKSAT_PKT_HEADER_LEN:]
+    return (payload, seq_num, i_frag, more_fragments)
+
+
+def check_gaps(msg_frag_idxs):
+    """Check if there were any fragment number gaps"""
+    for i,x in enumerate(msg_frag_idxs):
+        if (i == 0 and x != 0):
+            if (x > 1):
+                logging.warning("First %d fragments were lost")
+            else:
+                logging.warning("First %fragments was lost")
+        elif (i > 0 and x - msg_frag_idxs[i-1] != 1):
+            logging.warning("Gap between fragment %d and fragment %d",
+                            msg_frag_idxs[i-1], x)
+
+
+def concat_chunks(chunks):
+    """Concatenate message chunks"""
+    msg = bytes()
+    for chunk in chunks:
+        assert(isinstance(chunk, bytes))
+        msg += chunk
+
+    return msg
 
 
 def open_udp_sock(sock_addr, ifname):
@@ -289,11 +315,36 @@ def main():
     sock = open_udp_sock(sock_addr, interface)
 
     logging.info("Waiting for data...")
+    msg_chunks    = list()
+    msg_frag_idxs = list()
+    last_seq_num  = None
     while True:
         udp_payload, addr = sock.recvfrom(MAX_READ)
-        data, seq_num     = unpack(udp_payload)
-        logging.info("-- API message %d" %(seq_num))
-        logging.debug("Message source: %s:%s" %(addr[0], addr[1]))
+        data_chunk, seq_num, frag_idx, more_frags = unpack(udp_payload)
+
+        # Append the incoming Blocksat packet to a list of packets pertaining to
+        # the same API message. Once the last fragment comes, concatenate all
+        # data chunks of the message (each on the payload of a Blocksat packet)
+        # and process it. If the message's sequence number changes before a
+        # packet with MF=0 comes, we probably lost the last packet. Try to
+        # process the message with whatever came.
+        msg_chunks.append(data_chunk)
+        msg_frag_idxs.append(frag_idx)
+        if (((seq_num != last_seq_num) and last_seq_num) or (not more_frags)):
+            logging.info("-- API message %d" %(seq_num))
+            logging.debug("Message source: %s:%s" %(addr[0], addr[1]))
+            logging.info("Fragments: %d" %(len(msg_chunks)))
+            assert(len(msg_frag_idxs) == len(msg_chunks))
+            check_gaps(msg_frag_idxs)
+            data = concat_chunks(msg_chunks)
+            # Clear accumulators of chunks and chunk ids
+            msg_chunks.clear()
+            msg_frag_idxs.clear()
+        else:
+            data = bytes()
+
+        # Update state
+        last_seq_num = seq_num
 
         if (len(data) > 0):
             # In plaintext mode, every API transmission is assumed to be
