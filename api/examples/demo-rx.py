@@ -300,8 +300,9 @@ def main():
             pass
         except urllib3.exceptions.MaxRetryError as e:
             logging.debug(e)
-            print("ERROR: Maximum number of connection retries exceeded")
-            exit()
+            logging.warning("Couldn't connect to {}".format(server_addr))
+            time.sleep(2)
+            pass
 
 
 if __name__ == '__main__':
