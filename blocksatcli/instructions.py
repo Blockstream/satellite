@@ -140,8 +140,8 @@ def _print_usb_rx_instructions(info):
     _print("""
     The {0} is a USB demodulator, which will receive data from satellite and
     will output data to the host over USB. The host, in turn, is responsible for
-    configuring the modem using specific DVB-S2 tools. Hence, next, you need to
-    prepare the host for driving the {0}.
+    configuring the demodulator using specific DVB-S2 tools. Hence, next, you
+    need to prepare the host for driving the {0}.
     """.format(name))
 
     util._print_sub_header("Hardware Connections")
@@ -412,8 +412,8 @@ def _print_freq_info(info):
                                      "delivering the tone directly to the "
                                      "LNB.")))
             else:
-                print("The {} {} modem will generate the 22 kHz tone.".format(
-                    setup['vendor'], setup['model']))
+                print("The {} {} demodulator will generate the 22 kHz "
+                      "tone.".format(setup['vendor'], setup['model']))
         else:
             print(textwrap.fill("The DL frequency of {} is in Ku low \
             band (< {:.1f} MHz). Hence, you need to use the lower (default) \

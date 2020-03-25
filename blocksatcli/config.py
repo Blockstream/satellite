@@ -31,15 +31,14 @@ def _cfg_rx_setup():
     util._print_header("Receiver Setup")
 
     question = "Please, inform your DVB-S2 receiver setup from the list below:"
-    modem = util._ask_multiple_choice(defs.modems,
-                                      question,
-                                      "Setup",
-                                      lambda x : '{} receiver, using {} modem'.format(
-                                          x['type'],
-                                          (x['vendor'] + " " +
-                                           x['model']).strip()))
+    demod = util._ask_multiple_choice(
+        defs.demods,
+        question,
+        "Setup",
+        lambda x : '{} receiver, using {} demodulator'.format(
+            x['type'], (x['vendor'] + " " + x['model']).strip()))
 
-    if (modem['type'] == defs.standalone_setup_type):
+    if (demod['type'] == defs.standalone_setup_type):
         try:
             devices = os.listdir('/sys/class/net/')
         except FileNotFoundError:
@@ -47,7 +46,7 @@ def _cfg_rx_setup():
             pass
 
         question = "Which network interface is connected to the {}?".format(
-            modem['model'])
+            demod['model'])
         if (devices is not None):
             netdev = util._ask_multiple_choice(devices,
                                                question,
@@ -56,9 +55,9 @@ def _cfg_rx_setup():
         else:
             netdev = input(question + " ")
 
-        modem['netdev'] = netdev.strip()
+        demod['netdev'] = netdev.strip()
 
-    return modem
+    return demod
 
 
 def _cfg_custom_lnb(sat):

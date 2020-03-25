@@ -66,7 +66,7 @@ linux_usb_setup_type  = "Linux USB"
 sdr_setup_type        = "Software-defined"
 standalone_setup_type = "Standalone"
 
-modems = [
+demods = [
     {
         'vendor' : "Novra",
         'model'  : "S400",
