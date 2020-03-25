@@ -89,6 +89,16 @@ demods = [
     }
 ]
 
+antenna_sizes = [
+    { 'label' : "45cm / 18in", 'size' : 45 },
+    { 'label' : "60cm / 24in", 'size' : 60 },
+    { 'label' : "76cm / 30in", 'size' : 76 },
+    { 'label' : "90cm / 36in", 'size' : 90 },
+    { 'label' : "1.2m", 'size' : 120 },
+    { 'label' : "1.5m", 'size' : 150 },
+    { 'label' : "1.8m", 'size' : 180 }
+]
+
 ku_band_thresh = 11700.0
 
 lnbs = [

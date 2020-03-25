@@ -30,15 +30,17 @@ def _cfg_rx_setup():
 
     util._print_header("Receiver Setup")
 
+    # Demodulator
     question = "Please, inform your DVB-S2 receiver setup from the list below:"
-    demod = util._ask_multiple_choice(
+    setup = util._ask_multiple_choice(
         defs.demods,
         question,
         "Setup",
         lambda x : '{} receiver, using {} demodulator'.format(
             x['type'], (x['vendor'] + " " + x['model']).strip()))
 
-    if (demod['type'] == defs.standalone_setup_type):
+    # Network interface connected to the standalone demodulator
+    if (setup['type'] == defs.standalone_setup_type):
         try:
             devices = os.listdir('/sys/class/net/')
         except FileNotFoundError:
@@ -46,7 +48,7 @@ def _cfg_rx_setup():
             pass
 
         question = "Which network interface is connected to the {}?".format(
-            demod['model'])
+            setup['model'])
         if (devices is not None):
             netdev = util._ask_multiple_choice(devices,
                                                question,
@@ -55,9 +57,24 @@ def _cfg_rx_setup():
         else:
             netdev = input(question + " ")
 
-        demod['netdev'] = netdev.strip()
+        setup['netdev'] = netdev.strip()
 
-    return demod
+    # Antenna
+    question = "Please, inform the size of your satellite dish:"
+    size = util._ask_multiple_choice(
+        defs.antenna_sizes, question, "Size",
+        lambda x : '{}'.format(x['label']),
+        none_option = True,
+        none_str = "Other")
+
+    if (size is None):
+        resp = util.input_int("Enter size in cm",
+                              "Please enter an integer number in cm")
+        size = { 'label' : "custom", 'size' : resp }
+
+    setup['dish_size'] = size
+
+    return setup
 
 
 def _cfg_custom_lnb(sat):
@@ -163,37 +180,17 @@ def _cfg_lnb(sat):
 
     util._print_header("LNB")
 
-    print("Commonly used LNBs:")
+    question = "Please, inform your LNB model:"
+    lnb = util._ask_multiple_choice(
+        defs.lnbs, question, "LNB",
+        lambda x : "{} {} {}".format(
+            x['vendor'], x['model'],
+            "(Universal Ku band LNBF)" if x['universal'] else ""),
+        none_option = True,
+        none_str = "Other")
 
-    for i_lnb, lnb in enumerate(defs.lnbs):
-        if (lnb['universal']):
-            print("[%2u] %s %s (Universal Ku band LNBF)" %(i_lnb,
-                                                           lnb['vendor'],
-                                                           lnb['model']))
-        else:
-            print("[%2u] %s %s" %(i_lnb, lnb['vendor'], lnb['model']))
-
-    print()
-    if (util._ask_yes_or_no("Are you using one of the above LNBs?")):
-        resp = None
-        while (not isinstance(resp, int)):
-            try:
-                resp = int(input("Which one? Enter LNB number: "))
-            except ValueError:
-                print("Please choose a number")
-                continue
-
-            if (resp >= len(defs.lnbs)):
-                print("Please choose number from 0 to %u" %(len(defs.lnbs) - 1))
-                resp = None
-                continue
-
-            lnb = defs.lnbs[resp]
-            print("%s %s" %(lnb['vendor'], lnb['model']))
-            break
-    else:
+    if (lnb is None):
         lnb = _cfg_custom_lnb(sat)
-
 
     if (sat['band'].lower() != lnb['band'].lower()):
         logging.error("The LNB you chose cannot operate " + \
@@ -295,7 +292,7 @@ def _rst_cfg_file(cfg_file):
 
     if (info is not None):
         print("Found previous configuration:")
-        pprint(info, width=40, compact=False)
+        pprint(info, width=80, compact=False)
         if (util._ask_yes_or_no("Reset?")):
             os.remove(cfg_file)
         else:

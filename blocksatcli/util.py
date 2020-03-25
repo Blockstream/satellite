@@ -2,6 +2,18 @@
 import os
 
 
+def input_int(msg, hint):
+    res = None
+    while (res is None):
+        try:
+            res = int(input(msg + ": "))
+        except ValueError:
+            print(hint)
+    assert(res is not None)
+    assert(isinstance(res, int))
+    return res
+
+
 def _ask_yes_or_no(msg, default="y"):
     """Yes or no question
 
@@ -32,15 +44,18 @@ def _ask_yes_or_no(msg, default="y"):
     return (response == "y")
 
 
-def _ask_multiple_choice(vec, msg, label, to_str, help_msg = None):
+def _ask_multiple_choice(vec, msg, label, to_str, help_msg = None,
+                         none_option = False, none_str = "None of the above"):
     """Multiple choice question
 
     Args:
-        vec    : Vector with elements to choose from
-        msg    : Msg to prompt user for choice
-        label  : Description/label of what "vec" holdes
-        to_str : Function that prints information about elements
-        help_msg : Optional help message
+        vec         : Vector with elements to choose from
+        msg         : Msg to prompt user for choice
+        label       : Description/label of what "vec" holdes
+        to_str      : Function that prints information about elements
+        help_msg    : Optional help message
+        none_option : Whether to display a "none of the above" option
+        none_str    : What do display as "none of the above" message
 
     Returns:
         Chosen element
@@ -54,6 +69,9 @@ def _ask_multiple_choice(vec, msg, label, to_str, help_msg = None):
         elem_str = to_str(elem)
         print("[%2u] %s" %(i_elem, elem_str))
 
+    if (none_option):
+        print("[%2u] %s" %(len(vec), none_str))
+
     if (help_msg is not None):
         print()
         print(help_msg)
@@ -66,13 +84,20 @@ def _ask_multiple_choice(vec, msg, label, to_str, help_msg = None):
             print("Please choose a number")
             continue
 
-        if (resp >= len(vec)):
-            print("Please choose number from 0 to %u" %(len(vec) - 1))
+        max_resp = len(vec) + 1 if none_option else len(vec)
+        if (resp >= max_resp):
+            print("Please choose number from 0 to %u" %(max_resp - 1))
             resp = None
             continue
 
-        choice = vec[resp]
-        print(to_str(choice))
+        if (none_option and resp == len(vec)):
+            choice = None
+            print(none_str)
+        else:
+            choice = vec[resp]
+            print(to_str(choice))
+        print()
+
         return choice
 
 
