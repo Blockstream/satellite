@@ -128,6 +128,17 @@ lnbs = [
     }
 ]
 
+psus = [
+    {
+        "model"   : "Directv 21 Volt Power Inserter for SWM",
+        "voltage" : 21
+    },
+    {
+        "model"   : "AT&T 21 Volt Power Inserter for SWM",
+        "voltage" : 21
+    }
+]
+
 v4l_lnbs = [
     {
         'alias' : "UNIVERSAL",

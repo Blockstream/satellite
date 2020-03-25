@@ -2,8 +2,8 @@
 
 The TBS 5927 is a USB demodulator, which will receive data from satellite and
 will output data to the host over USB. The host, in turn, is responsible for
-configuring the modem using specific DVB-S2 tools. Hence, next, you need to
-prepare the host for driving the TBS 5927.
+configuring the demodulator using specific DVB-S2 tools. Hence, next, you need
+to prepare the host for driving the TBS 5927.
 
 <!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-generate-toc again -->
 **Table of Contents**

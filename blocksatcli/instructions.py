@@ -77,10 +77,29 @@ def _print_s400_instructions(info):
     _item("Input Stream ID: 0")
     _item("LNB Power On: Enable")
     _item("L.O. Frequencies: {:.1f} MHz".format(info['freqs']['lo']))
-    if (info['sat']['pol'] == "H"):
-        _item("Polarization: Horiz./L")
+
+    if (info['lnb']['pol'].lower() == "dual" and info['lnb']['v1_pointed']):
+        # If a dual-polarization LNB is already pointed for Blocksat v1,
+        # then we must use the polarization that the LNB was pointed to
+        # originally, regardless of the satellite signal's polarization. In
+        # v1, what mattered the most was the power supply voltage, which
+        # determined the polarization of the dual polarization LNBs. If the
+        # power supply provides voltage >= 18 (often the case), then the LNB
+        # necessarily operates currently with horizontal polarization. Thus,
+        # the same polarization must be configured in the S400.
+        if (info['lnb']["v1_voltage"] >= 16): # 16VDC is a common threshold
+            pol = "H"
+        else:
+            pol = "V"
     else:
-        _item("Polarization: Vert./R")
+        if (info['sat']['pol'] == "H"):
+            pol = "H"
+        else:
+            pol = "V"
+
+    pol_label = "Horiz./L" if pol == "H" else "Vert./R"
+
+    _item("Polarization: {}".format(pol_label))
 
     if (info['lnb']['universal'] and info['freqs']['dl'] > defs.ku_band_thresh):
         _item("Band (Tone): \"High/On\"")
@@ -112,8 +131,30 @@ def _print_s400_instructions(info):
           "LAN2 is optional and exclusively for management.")
     print()
 
-
     input("\nPress Enter to continue...")
+
+    if (info['lnb']['pol'].lower() == "dual" and info['lnb']['v1_pointed'] and
+        (pol != info['sat']['pol'])):
+        util._print_sub_header("Notes")
+
+        _item("The polarization that was suggested above assumes that you "
+              "are going to use an LNB that is already pointed to {}, on a "
+              "pre-existing SDR-based setup used for reception of the "
+              "previous version of Blockstream Satellite (prior to the "
+              "update to DVB-S2). It also assumes that you "
+              "are not going to change the skew (polarization angle) of the "
+              "LNB. The suggested polarization is exactly the same on which "
+              "your LNB has been operating so far, i.e. {} polarization. "
+              "However, note that your satellite signal has {} polarization. "
+              "If you plan on re-pointing the LNB, please re-run the "
+              "configuration helper (\"blocksat-cli cfg\") and "
+              "answer that you are not reusing an already pointed LNB.".format(
+                  info['sat']['name'],
+                  "horizontal" if pol == "H" else "vertical",
+                  "horizontal" if info['sat']['pol'] == "H" else "vertical"
+              ))
+
+        input("\nPress Enter to continue...")
 
     util._print_sub_header("Host Configuration")
 

@@ -187,6 +187,34 @@ def _cfg_lnb(sat):
                                                             sat['alias']))
         exit(1)
 
+    # For dual polarization LNBs, we must know whether it was pointed before for
+    # blocksat v1 in order to define the polarization on channels.conf
+    if (lnb['pol'].lower() == "dual"):
+        prev_setup = util._ask_yes_or_no(
+            "Are you reusing an LNB that is already pointed and that was used "
+            "for the previous version of Blockstream Satellite (before the "
+            "upgrade to DVB-S2)?",
+        help_msg="NOTE: this information is helpful to determine the "
+            "polarization required for the LNB.")
+
+        if (prev_setup):
+            question = ("In this setup, did you use one of the LNB power "
+                        "inserters below?")
+            psu = util._ask_multiple_choice(
+                defs.psus, question, "PSU",
+                lambda x : "{}".format(x['model']),
+                none_option = True,
+                none_str = "No - another model")
+            if (psu is None):
+                voltage = util.typed_input("What is the voltage supplied to the "
+                                           "LNB by your power inserter?")
+            else:
+                voltage = psu["voltage"]
+            lnb["v1_pointed"] = True
+            lnb["v1_voltage"] = voltage
+        else:
+            lnb["v1_pointed"] = False
+
     return lnb
 
 
@@ -254,16 +282,34 @@ def _cfg_chan_conf(info, chan_file):
         f.write('[blocksat-ch]\n')
         f.write('\tDELIVERY_SYSTEM = DVBS2\n')
         f.write('\tFREQUENCY = %u\n' %(int(info['sat']['dl_freq']*1000)))
-        if (info['sat']['pol'] == 'V'):
-            f.write('\tPOLARIZATION = VERTICAL\n')
+        if (info['lnb']['pol'].lower() == "dual" and info['lnb']['v1_pointed']):
+            # If a dual-polarization LNB is already pointed for Blocksat v1,
+            # then we must use the polarization that the LNB was pointed to
+            # originally, regardless of the satellite signal's polarization. In
+            # v1, what mattered the most was the power supply voltage, which
+            # determined the polarization of the dual polarization LNBs. If the
+            # power supply provides voltage >= 18 (often the case), then the LNB
+            # necessarily operates currently with horizontal polarization. Thus,
+            # on channels.conf we must use the same polarization in order for
+            # the DVB adapter to supply the 18VDC voltage.
+            if (info['lnb']["v1_voltage"] >= 16): # 16VDC is a common threshold
+                f.write('\tPOLARIZATION = HORIZONTAL\n')
+            else:
+                f.write('\tPOLARIZATION = VERTICAL\n')
         else:
-            f.write('\tPOLARIZATION = HORIZONTAL\n')
+            if (info['sat']['pol'] == 'V'):
+                f.write('\tPOLARIZATION = VERTICAL\n')
+            else:
+                f.write('\tPOLARIZATION = HORIZONTAL\n')
         f.write('\tSYMBOL_RATE = 1000000\n')
         f.write('\tINVERSION = AUTO\n')
         f.write('\tMODULATION = QPSK\n')
         f.write('\tVIDEO_PID = 32+33\n')
 
     print("File \"%s\" saved." %(chan_file))
+
+    with open(chan_file, 'r') as f:
+        logging.debug(f.read())
 
 
 def _read_cfg_file(cfg_file):

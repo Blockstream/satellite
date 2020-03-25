@@ -25,7 +25,7 @@ def _find_v4l_lnb(info):
             is_universal_option == info['lnb']['universal']):
             options.append(lnb)
 
-        if ('highfreq' in lnb and
+        if (is_universal_option and
             lnb['highfreq'] == target_lo_freq and
             info['lnb']['universal']):
             options.append(lnb)

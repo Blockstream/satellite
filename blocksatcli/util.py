@@ -1,5 +1,5 @@
 """Utility functions"""
-import os
+import os, textwrap
 
 
 def typed_input(msg, hint=None, in_type=int):
@@ -24,12 +24,13 @@ def typed_input(msg, hint=None, in_type=int):
     return res
 
 
-def _ask_yes_or_no(msg, default="y"):
+def _ask_yes_or_no(msg, default="y", help_msg = None):
     """Yes or no question
 
     Args:
-        msg     : the message or question to ask the user
-        default : default response
+        msg      : the message or question to ask the user
+        default  : default response
+        help_msg : Optional help message
 
     Returns:
         True if answer is yes, False otherwise.
@@ -42,13 +43,20 @@ def _ask_yes_or_no(msg, default="y"):
     else:
         options = "[N/y]"
 
-    question = msg + " " + options + " "
-
     while response not in {"y", "n"}:
-        raw_resp = input(question) or default
+        if (help_msg is None):
+            question = msg + " " + options + " "
+            raw_resp = input(question) or default
+        else:
+            print(textwrap.fill(msg))
+            print()
+            print(textwrap.fill(help_msg))
+            print()
+            raw_resp = input("Answer " + options + " ") or default
+
         response = raw_resp.lower()
 
-        if (response not in {"y", "n"}):
+        if (response not in ["y", "n"]):
             print("Please enter \"y\" or \"n\"")
 
     return (response == "y")
