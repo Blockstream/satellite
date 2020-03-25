@@ -68,8 +68,9 @@ def _cfg_rx_setup():
         none_str = "Other")
 
     if (size is None):
-        resp = util.input_int("Enter size in cm",
-                              "Please enter an integer number in cm")
+        resp = util.typed_input("Enter size in cm",
+                                "Please enter an integer number in cm",
+                                in_type=int)
         size = { 'label' : "custom", 'size' : resp }
 
     setup['dish_size'] = size
@@ -87,17 +88,10 @@ def _cfg_custom_lnb(sat):
 
     print("\nPlease inform the specifications of your LNB:")
 
-    print("Frequency band:")
-    bands = ["C", "Ku"]
-    for i_band, band in enumerate(bands):
-        print("[%2u] %s" %(i_band, band))
-
-    resp = input("Enter number: ") or None
-
-    try:
-        custom_lnb_band = bands[int(resp)]
-    except ValueError:
-        raise ValueError("Please choose a number")
+    bands           = ["C", "Ku"]
+    question        = "Frequency band:"
+    custom_lnb_band = util._ask_multiple_choice(bands, question, "Band",
+                                                lambda x : '{}'.format(x))
 
     if (sat['band'].lower() != custom_lnb_band.lower()):
         logging.error(
@@ -128,18 +122,13 @@ def _cfg_custom_lnb(sat):
 
         else:
             # Non-universal Ku-band LNB
-            try:
-                custom_lnb_lo_freq = float(input("LNB LO frequency in MHz: "))
-            except ValueError:
-                raise ValueError("Please enter a number")
+            custom_lnb_lo_freq = util.typed_input("LNB LO frequency in MHz",
+                                                  in_type=float)
     else:
         # C-band LNB
         custom_lnb_universal = False
-        try:
-            custom_lnb_lo_freq = float(input("LNB LO frequency in MHz: "))
-        except ValueError:
-            raise ValueError("Please enter a number")
-
+        custom_lnb_lo_freq = util.typed_input("LNB LO frequency in MHz",
+                                              in_type=float)
 
     # Polarization
     question = "Choose the LNB polarization:"

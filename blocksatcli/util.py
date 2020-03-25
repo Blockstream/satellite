@@ -2,15 +2,25 @@
 import os
 
 
-def input_int(msg, hint):
+def typed_input(msg, hint=None, in_type=int):
+    """Ask for user input of a specific type"""
     res = None
     while (res is None):
         try:
-            res = int(input(msg + ": "))
+            res = in_type(input(msg + ": "))
         except ValueError:
-            print(hint)
+            if (hint is None):
+                if (in_type == int):
+                    print("Please enter an integer number")
+                elif (in_type == float):
+                    print("Please enter a number")
+                else:
+                    type_str = in_type.__name__
+                    print("Please enter a {}".format(type_str))
+            else:
+                print(hint)
     assert(res is not None)
-    assert(isinstance(res, int))
+    assert(isinstance(res, in_type))
     return res
 
 
