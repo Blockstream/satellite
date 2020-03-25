@@ -201,7 +201,7 @@ def _cfg_lnb(sat):
             question = ("In this setup, did you use one of the LNB power "
                         "inserters below?")
             psu = util._ask_multiple_choice(
-                defs.psus, question, "PSU",
+                defs.psus, question, "Power inserter",
                 lambda x : "{}".format(x['model']),
                 none_option = True,
                 none_str = "No - another model")
@@ -210,8 +210,9 @@ def _cfg_lnb(sat):
                                            "LNB by your power inserter?")
             else:
                 voltage = psu["voltage"]
-            lnb["v1_pointed"] = True
-            lnb["v1_voltage"] = voltage
+
+            lnb["v1_pointed"]     = True
+            lnb["v1_psu_voltage"] = voltage
         else:
             lnb["v1_pointed"] = False
 
@@ -292,7 +293,7 @@ def _cfg_chan_conf(info, chan_file):
             # necessarily operates currently with horizontal polarization. Thus,
             # on channels.conf we must use the same polarization in order for
             # the DVB adapter to supply the 18VDC voltage.
-            if (info['lnb']["v1_voltage"] >= 16): # 16VDC is a common threshold
+            if (info['lnb']["v1_psu_voltage"] >= 16): # 16VDC threshold
                 f.write('\tPOLARIZATION = HORIZONTAL\n')
             else:
                 f.write('\tPOLARIZATION = VERTICAL\n')

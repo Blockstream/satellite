@@ -21,9 +21,17 @@ def _find_v4l_lnb(info):
     for lnb in defs.v4l_lnbs:
         is_universal_option = 'highfreq' in lnb
 
-        if (lnb['lowfreq'] == target_lo_freq and
-            is_universal_option == info['lnb']['universal']):
+        if (info['lnb']['pol'].lower() == "dual" and # user has dual-pol LNB
+            (info['sat']['pol'] == "H" or # and satellite requires H pol
+             (info['lnb']['v1_pointed'] and # or LNB already operates with H pol
+              info['lnb']['v1_psu_voltage'] >= 16)
+            ) and "rangeswitch" not in lnb): # but LNB candidate is single-pol
+            print(pformat(lnb))
+            continue # not a validate candidate, skip
+
+        if (lnb['lowfreq'] == target_lo_freq):
             options.append(lnb)
+            continue
 
         if (is_universal_option and
             lnb['highfreq'] == target_lo_freq and

@@ -87,7 +87,7 @@ def _print_s400_instructions(info):
         # power supply provides voltage >= 18 (often the case), then the LNB
         # necessarily operates currently with horizontal polarization. Thus,
         # the same polarization must be configured in the S400.
-        if (info['lnb']["v1_voltage"] >= 16): # 16VDC is a common threshold
+        if (info['lnb']["v1_psu_voltage"] >= 16): # 16VDC is a common threshold
             pol = "H"
         else:
             pol = "V"
