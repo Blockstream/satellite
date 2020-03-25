@@ -1,6 +1,6 @@
 """User setup configuration"""
 import os, json, logging
-from argparse import ArgumentDefaultsHelpFormatter
+from argparse import ArgumentDefaultsHelpFormatter, Namespace
 from pprint import pprint, pformat
 from . import util, defs, instructions
 import textwrap
@@ -305,19 +305,20 @@ def _rst_cfg_file(cfg_file):
     return True
 
 
-def read_cfg_file(args):
+def read_cfg_file(basename, directory):
     """Read configuration file
 
     If not available, run configuration helper.
 
     """
-    cfg_file = os.path.join(args.cfg_dir, os.path.basename(args.cfg_file))
+    cfg_file = os.path.join(directory, os.path.basename(basename))
     info = _read_cfg_file(cfg_file)
 
     while (info is None):
         print("Missing {} configuration file".format(cfg_file))
         if (util._ask_yes_or_no("Run configuration helper now?")):
-            configure(args)
+            configure(Namespace(cfg_dir=directory,
+                                cfg_file=basename))
         else:
             print("Abort")
             return
@@ -374,7 +375,10 @@ def configure(args):
     print("Saved configurations on %s" %(cfg_file))
 
     if (user_setup['type'] == defs.linux_usb_setup_type):
-        chan_file = os.path.join(args.cfg_dir, args.chan_conf)
+        if 'chan_conf' in args:
+            chan_file = os.path.join(args.cfg_dir, args.chan_conf)
+        else:
+            chan_file = os.path.join(args.cfg_dir, "channels.conf")
         _cfg_chan_conf(user_info, chan_file)
 
     util._print_header("Next Steps")
