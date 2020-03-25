@@ -475,15 +475,15 @@ def zap(adapter, frontend, ch_conf_file, user_info, lnb="UNIVERSAL",
 
 def subparser(subparsers):
     """Subparser for usb command"""
-    cfg_dir = os.path.join(os.path.expanduser("~"), ".blocksat")
     p = subparsers.add_parser('usb',
                               description="Launch a USB DVB-S2 receiver",
                               help='Launch a Linux USB DVB-S2 receiver',
                               formatter_class=ArgumentDefaultsHelpFormatter)
 
     p.add_argument('-c', '--chan-conf',
-                   default=os.path.join(cfg_dir, "channels.conf"),
-                   help='Channel configurations file')
+                   default="channels.conf",
+                   help='Channel configurations file within the configuration \
+                   directory')
 
     p.add_argument('-a', '--adapter',
                    default=None,
@@ -607,8 +607,11 @@ def launch(args):
     # Set IP
     _set_ips(net_ifs, args.ip)
 
+    # Channel configuration file
+    chan_conf = os.path.join(args.cfg_dir, os.path.basename(args.chan_conf))
+
     # Zap
-    zap_ps = zap(adapter, frontend, args.chan_conf, user_info, lnb=args.lnb,
+    zap_ps = zap(adapter, frontend, chan_conf, user_info, lnb=args.lnb,
                  output=args.record_file, timeout=args.timeout,
                  monitor=args.monitor, scrolling=args.scrolling)
 
