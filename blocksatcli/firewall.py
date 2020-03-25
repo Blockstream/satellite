@@ -18,9 +18,7 @@ def _get_iptables_rules(net_if):
 
 
     # Get rules
-    cmd = ["iptables", "-L", "-v", "--line-numbers"]
-    if (os.geteuid() != 0):
-        cmd.insert(0, "sudo")
+    cmd = util.root_cmd(["iptables", "-L", "-v", "--line-numbers"])
     res = subprocess.check_output(cmd)
 
     # Parse
@@ -145,7 +143,12 @@ def _configure_firewall(net_if, ports, igmp=False):
     print("- Configure firewall rule to accept Blocksat traffic arriving " +
           "at interface %s\ntowards UDP ports %s." %(net_if, ",".join(ports)))
 
-    cmd = [
+    not_root = (os.geteuid() != 0)
+    if not_root:
+        print("\nNOTE: Root privileges are needed to read and write firewall "
+              "rules")
+
+    cmd = util.root_cmd([
         "iptables",
         "-I", "INPUT",
         "-p", "udp",
@@ -153,13 +156,7 @@ def _configure_firewall(net_if, ports, igmp=False):
         "--match", "multiport",
         "--dports", ",".join(ports),
         "-j", "ACCEPT",
-    ]
-
-    not_root = (os.geteuid() != 0)
-    if not_root:
-        print("\nNOTE: Root privileges are needed to read and write firewall "
-              "rules")
-        cmd.insert(0, "sudo")
+    ])
 
     if (not _is_iptables_udp_rule_set(net_if, cmd)):
         if (util._ask_yes_or_no("Add corresponding ACCEPT firewall rule?")):
@@ -180,15 +177,13 @@ def _configure_firewall(net_if, ports, igmp=False):
     print("Configure also a firewall rule to accept IGMP queries. This is " +
           "necessary when using a standalone DVB modem.")
 
-    cmd = [
+    cmd = util.root_cmd([
         "iptables",
         "-I", "INPUT",
         "-p", "igmp",
         "-i", net_if,
         "-j", "ACCEPT",
-    ]
-    if not_root:
-        cmd.insert(0, "sudo")
+    ])
 
     if (not _is_iptables_igmp_rule_set(net_if, cmd)):
         if (util._ask_yes_or_no("Add corresponding ACCEPT rule on firewall?")):

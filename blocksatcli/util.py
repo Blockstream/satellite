@@ -1,4 +1,6 @@
 """Utility functions"""
+import os
+
 
 def _ask_yes_or_no(msg, default="y"):
     """Yes or no question
@@ -99,4 +101,17 @@ def _print_header(header, target_len=80):
 def _print_sub_header(header, target_len=60):
     """Print sub-section header"""
     _print_header(header, target_len=target_len)
+
+
+def root_cmd(cmd):
+    """Add sudo to cmd if non-root
+
+    Args:
+        cmd : Command as list
+
+    """
+    assert(isinstance(cmd, list))
+    if (os.geteuid() != 0 and cmd[0] != "sudo"):
+        cmd.insert(0, "sudo")
+    return cmd
 

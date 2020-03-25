@@ -18,7 +18,8 @@ def _tune_max_pipe_size(pipesize = (64800*32)):
     current_max = int(ret.decode().split()[-1])
 
     if (current_max < pipesize):
-        cmd = ["sudo", "sysctl", "-w", "fs.pipe-max-size=" + str(pipesize)]
+        cmd = util.root_cmd(["sysctl", "-w",
+                             "fs.pipe-max-size=" + str(pipesize)])
 
         print(textwrap.fill("The maximum pipe size that is currently "
                             "configured in your OS is of {} bytes, which is "
