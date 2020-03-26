@@ -102,6 +102,9 @@ def subparser(subparsers):
                         help="Choose low-throughput vs high-throughput MODCOD")
     ldvb_p.add_argument('--ldpc-tool', default="/usr/local/bin/ldpc_tool",
                         help='Path to ldpc_tool')
+    ldvb_p.add_argument('--framesizes', type=int, default=1, choices=[0,1,2,3],
+                        help="Bitmask of desired frame sizes (1=normal, \
+                        2=short)")
 
     tsp_p = p.add_argument_group('tsduck options')
     tsp_p.add_argument('--buffer-size-mb', default=1.0, type=float,
@@ -179,7 +182,7 @@ def run(args):
                 str(defs.samp_rate), "--sr", str(defs.sym_rate), "--roll-off",
                 str(defs.rolloff), "--standard", "DVB-S2", "--sampler", "rrc",
                 "--rrc-rej", str(args.rrc_rej), "--ldpc-helper", args.ldpc_tool,
-                "--modcods", modcod]
+                "--modcods", modcod, "--framesizes", str(args.framesizes)]
     if (args.debug_ts == 1):
         ldvb_cmd.append("-d")
     elif (args.debug_ts > 1):
