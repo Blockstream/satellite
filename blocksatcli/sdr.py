@@ -240,6 +240,11 @@ def run(args):
         p2 = subprocess.Popen(ldvb_cmd, stdin=fd_iq_file,
                               stdout=subprocess.PIPE)
     p3 = subprocess.Popen(tsp_cmd, stdin=p2.stdout)
-    p3.communicate()
+    try:
+        p3.communicate()
+    except KeyboardInterrupt:
+        p3.kill()
+        p2.kill()
+        p1.kill()
 
 
