@@ -3,6 +3,7 @@ import logging, os
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 from . import defs, config, util, instructions, gqrx, bitcoin, sdr, rp, \
     firewall, standalone, usb
+from os import environ
 
 
 __version__ = "0.1.0"
@@ -11,7 +12,11 @@ __version__ = "0.1.0"
 def main():
     """Main - parse command-line arguments and call subcommands
     """
-    default_cfg_dir = os.path.join(os.path.expanduser("~"), ".blocksat")
+    sudo_user       = environ.get('SUDO_USER')
+    user            = sudo_user if sudo_user is not None else ""
+    home            = os.path.expanduser("~" + user)
+    default_cfg_dir = os.path.join(home, ".blocksat")
+
     parser = ArgumentParser(prog="blocksat-cli",
                             description="Blockstream Satellite Command-Line Interface",
                             formatter_class=ArgumentDefaultsHelpFormatter)
@@ -29,15 +34,15 @@ def main():
     subparsers = parser.add_subparsers(title='subcommands',
                                        help='Target sub-command')
 
-    cfg_parser   = config.subparser(subparsers)
-    inst_parser  = instructions.subparser(subparsers)
-    usb_parser   = usb.subparser(subparsers)
-    stdl_parser  = standalone.subparser(subparsers)
-    rp_parser    = rp.subparser(subparsers)
-    fwall_parser = firewall.subparser(subparsers)
-    gqrx_parser  = gqrx.subparser(subparsers)
-    bit_parser   = bitcoin.subparser(subparsers)
-    sdr_parser   = sdr.subparser(subparsers)
+    config.subparser(subparsers)
+    instructions.subparser(subparsers)
+    usb.subparser(subparsers)
+    standalone.subparser(subparsers)
+    rp.subparser(subparsers)
+    firewall.subparser(subparsers)
+    gqrx.subparser(subparsers)
+    bitcoin.subparser(subparsers)
+    sdr.subparser(subparsers)
 
     args = parser.parse_args()
     log_format = '%(levelname)s: %(message)s'

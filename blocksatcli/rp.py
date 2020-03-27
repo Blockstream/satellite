@@ -4,12 +4,13 @@ import subprocess, os
 from . import util
 
 
-def _read_filter(ifname):
+def _read_filter(ifname, stdout=False):
     safe_ifname = ifname.replace(".", "/")
-    return subprocess.check_output([
-        "sysctl",
-        "net.ipv4.conf." + safe_ifname + ".rp_filter"
-    ]).split()[-1].decode()
+    cmd = ["sysctl", "net.ipv4.conf." + safe_ifname + ".rp_filter"]
+    if (stdout):
+        print(" ".join(cmd))
+        return
+    return subprocess.check_output(cmd).split()[-1].decode()
 
 
 def _write_filter(ifname, val):
@@ -17,22 +18,19 @@ def _write_filter(ifname, val):
     safe_ifname = ifname.replace(".", "/")
     cmd = ["sysctl", "-w", "net.ipv4.conf." + safe_ifname + ".rp_filter=" + val]
 
-    # Check if user has permission to change filter. If not, add sudo to command
-    has_w_access = os.access("/proc/sys/net/ipv4/conf/"+ifname+"/"+"rp_filter",
-                             os.W_OK)
-    if (not has_w_access):
-        cmd.insert(0, "sudo")
-
-    subprocess.check_output(cmd)
-
+    # Run if root, print if normal user
+    if (os.geteuid() == 0):
+        action = "Enabling" if val == "1" else "Disabling"
+        print("{} RP filter on interface {}".format(action, ifname))
+        subprocess.check_output(cmd)
+    else:
+        print(" ".join(cmd))
 
 def _rm_filter(ifname):
-    print("Disabling RP filter on interface %s" %(ifname))
     _write_filter(ifname, "0")
 
 
 def _add_filter(ifname):
-    print("Enabling RP filter on interface %s" %(ifname))
     _write_filter(ifname, "1")
 
 
@@ -54,7 +52,7 @@ def _check_rp_filters(dvb_if):
     return (dvb_cfg == "0" and all_cfg == "0")
 
 
-def _set_rp_filters(dvb_if):
+def _set_rp_filters(dvb_ifs, non_root):
     """Disable reverse-path (RP) filtering for the DVB interface
 
     There are two layers of RP filters, one specific to the network interface
@@ -65,9 +63,10 @@ def _set_rp_filters(dvb_if):
     filtering disabled.
 
     Args:
-        dvb_if : DVB network interface
+        dvb_ifs : DVB network interfaces
 
     """
+    assert(isinstance(dvb_ifs, list))
 
     # Check "all" rule:
     all_cfg = _read_filter("all")
@@ -75,8 +74,17 @@ def _set_rp_filters(dvb_if):
     # If "all" rule is already disabled, it is only necessary to disable the
     # target interface
     if (all_cfg == "0"):
-        print("RP filter for \"all\" interfaces is already disabled")
-        _rm_filter(dvb_if)
+        if (not non_root):
+            print("RP filter for \"all\" interfaces is already disabled")
+        for dvb_if in dvb_ifs:
+            _rm_filter(dvb_if)
+        if (non_root):
+            print()
+            util.fill_print(
+                "NOTE: this assumes the RP filter for \"all\" \
+                interfaces is already disabled. You can check this by running:"
+            )
+            _read_filter("all", stdout=True)
 
     # If "all" rule is enabled, we will need to disable it. Also to preserve
     # RP filtering on all other interfaces, we will enable them manually.
@@ -86,15 +94,17 @@ def _set_rp_filters(dvb_if):
 
         # Enable all RP filters
         for interface in ifs:
-            if (interface == "all" or interface == dvb_if):
+            if (interface == "all" or interface == "lo" or
+                interface in dvb_ifs):
                 continue
 
             # Check current configuration
             current_cfg = _read_filter(interface)
 
             if (int(current_cfg) > 0):
-                print("RP filter is already enabled on interface %s" %(
-                    interface))
+                if (not non_root):
+                    print("RP filter is already enabled on interface %s" %(
+                        interface))
             else:
                 _add_filter(interface)
 
@@ -102,7 +112,8 @@ def _set_rp_filters(dvb_if):
         _rm_filter("all")
 
         # And disable RP filtering on the DVB interface
-        _rm_filter(dvb_if)
+        for dvb_if in dvb_ifs:
+            _rm_filter(dvb_if)
 
 
 def set_rp_filters(dvb_ifs):
@@ -118,23 +129,32 @@ def set_rp_filters(dvb_ifs):
           "-----------------------------")
 
     # Check if RP filters are already configured properly
-    rp_filters_set = list()
-    for dvb_if in dvb_ifs:
-        rp_filters_set.append(_check_rp_filters(dvb_if))
-
-    if (all(rp_filters_set)):
-        print("Current RP filtering configurations are already OK")
-        print("Skipping...")
-        return
-
-    print("Blocksat traffic is one-way and thus reverse path (RP) filtering " +
-          "must be\ndisabled. The automatic solution disables RP filtering " +
-          "on the DVB interface and\nenables RP filtering on all other " +
-          "interfaces.")
-
-    if (util._ask_yes_or_no("OK to proceed?")):
+    if (os.geteuid() == 0):
+        rp_filters_set = list()
         for dvb_if in dvb_ifs:
-            _set_rp_filters(dvb_if)
+            rp_filters_set.append(_check_rp_filters(dvb_if))
+
+        if (all(rp_filters_set)):
+            print("Current RP filtering configurations are already OK")
+            print("Skipping...")
+            return
+
+    util.fill_print("Blocksat traffic is one-way and thus reverse path (RP) \
+    filtering must be disabled.")
+
+    # For a non-root user, just run without asking. It is not going to run the
+    # command anyway, just print it to stdout.
+    non_root = os.geteuid() != 0
+    if (non_root):
+        util.fill_print("To configure RP filters, run blocksat-cli as root or \
+        run the following commands on your own:")
+    else:
+        util.fill_print(
+            "The automatic solution disables RP filtering on the DVB interface \
+            and enables RP filtering on all other interfaces.")
+
+    if (non_root or util._ask_yes_or_no("OK to proceed?")):
+        _set_rp_filters(dvb_ifs, non_root)
     else:
         print("RP filtering configuration cancelled")
 

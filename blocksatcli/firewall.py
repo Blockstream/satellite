@@ -139,14 +139,7 @@ def _configure_firewall(net_if, ports, igmp=False):
 
     """
 
-
-    print("- Configure firewall rule to accept Blocksat traffic arriving " +
-          "at interface %s\ntowards UDP ports %s." %(net_if, ",".join(ports)))
-
     not_root = (os.geteuid() != 0)
-    if not_root:
-        print("\nNOTE: Root privileges are needed to read and write firewall "
-              "rules")
 
     cmd = util.root_cmd([
         "iptables",
@@ -158,7 +151,11 @@ def _configure_firewall(net_if, ports, igmp=False):
         "-j", "ACCEPT",
     ])
 
-    if (not _is_iptables_udp_rule_set(net_if, cmd)):
+    if (not_root):
+        print(" ".join(cmd))
+    elif (not _is_iptables_udp_rule_set(net_if, cmd)):
+        print("- Configure firewall rule to accept Blocksat traffic arriving " +
+              "at interface %s\ntowards UDP ports %s." %(net_if, ",".join(ports)))
         if (util._ask_yes_or_no("Add corresponding ACCEPT firewall rule?")):
             _add_iptables_rule(net_if, cmd)
         else:
@@ -174,9 +171,6 @@ def _configure_firewall(net_if, ports, igmp=False):
     # switches between itself and the DVB demodulator to continue delivering the
     # multicast-addressed traffic. This overcomes the scenario where group
     # membership timeouts are implemented by the intermediate switches.
-    print("Configure also a firewall rule to accept IGMP queries. This is " +
-          "necessary when using a standalone DVB demodulator.")
-
     cmd = util.root_cmd([
         "iptables",
         "-I", "INPUT",
@@ -185,7 +179,11 @@ def _configure_firewall(net_if, ports, igmp=False):
         "-j", "ACCEPT",
     ])
 
-    if (not _is_iptables_igmp_rule_set(net_if, cmd)):
+    if (not_root):
+        print(" ".join(cmd))
+    elif (not _is_iptables_igmp_rule_set(net_if, cmd)):
+        print("Configure also a firewall rule to accept IGMP queries. This is " +
+              "necessary when using a standalone DVB demodulator.")
         if (util._ask_yes_or_no("Add corresponding ACCEPT rule on firewall?")):
             _add_iptables_rule(net_if, cmd)
         else:
@@ -204,6 +202,10 @@ def configure(net_ifs, ports, igmp=False):
     assert(isinstance(net_ifs, list))
     print("\n------------------------------- Firewall Rules " +
           "---------------------------------")
+
+    if (os.geteuid() != 0):
+        util.fill_print("Please run blocksat-cli as root or run the following \
+        commands on your own:\n")
 
     for i, net_if in enumerate(net_ifs):
         _configure_firewall(net_if, ports, igmp)

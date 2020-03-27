@@ -51,7 +51,7 @@ cd util/
 
 Once the script completes the installation, reboot the virtual machine.
 
-## Configuration Helper
+## Setup Configuration Helper
 
 Some configurations depend on your specific setup. To obtain detailed
 instructions, please run the configuration helper as follows:
@@ -87,23 +87,33 @@ sudo dnf install python3 iproute iptables dvb-apps v4l-utils
 > NOTE: `iproute`/`iproute2` and `iptables` are used in order to ensure `ip` and
 > `iptables` tools are available.
 
+
+## Configure the Host
+
+Run the following as root:
+
+```
+sudo blocksat-cli usb config
+```
+
+This script will create network interfaces in order to handle the IP traffic
+received via the satellite link. It will define arbitrary IP addresses to the
+interfaces. To define a specific IP instead, use command-line argument `--ip`.
+
+> NOTE: root privileges are required in order to configure firewall and *reverse
+> path (RP) filtering*, as well as accessing the adapter at `/dev/dvb`. You will
+> be prompted to accept or refuse the firewall and RP configurations.
+
 ## Launch
 
 Finally, launch the DVB-S2 interface by running:
 
 ```
-blocksat-cli usb
+blocksat-cli usb launch
 ```
 
-This script will set an arbitrary IP address to the network interface that is
-created in Linux in order to handle the IP traffic received via the satellite
-link. To define a specific IP instead, run the above with `--ip target_ip`
-argument, where `target_ip` is the IP of interest.
-
-> NOTE: root privileges are required in order to configure firewall and *reverse
-> path (RP) filtering*, as well as accessing the adapter at `/dev/dvb`. You will
-> be prompted to accept or refuse the firewall and RP configurations that are
-> executed as root.
+> NOTE: you can run this command with a non-root user. Only the configuration
+> step (`blocksat-cli usb config`) requires root access.
 
 At this point, if your dish is already correctly pointed, you should be able to
 start receiving data in Bitcoin FIBRE. Please follow the [instructions for FIBRE

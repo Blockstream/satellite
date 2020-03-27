@@ -1,5 +1,11 @@
 """Utility functions"""
-import os, textwrap
+import os, textwrap, subprocess
+
+
+def fill_print(text):
+    text = " ".join(text.replace("\n", "").split())
+    print(textwrap.fill(text))
+    print()
 
 
 def typed_input(msg, hint=None, in_type=int):
@@ -157,4 +163,23 @@ def root_cmd(cmd):
     if (os.geteuid() != 0 and cmd[0] != "sudo"):
         cmd.insert(0, "sudo")
     return cmd
+
+
+def run_or_print_root_cmd(cmd, logger=None):
+    """Run root command
+
+    Args:
+        cmd : Command as list
+
+    """
+    assert(isinstance(cmd, list))
+    assert(cmd[0] != "sudo")
+
+    if (os.geteuid() == 0):
+        if (logger is not None):
+            logger.debug("> " + " ".join(cmd))
+        return subprocess.check_output(cmd)
+    else:
+        print(" ".join(cmd))
+
 

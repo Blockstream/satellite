@@ -241,27 +241,33 @@ def _print_usb_rx_instructions(info):
 
     input("\nPress Enter to continue...")
 
-    util._print_sub_header("Launch")
+    util._print_sub_header("Configure the Host")
 
-    print("Finally, launch the DVB-S2 interface by running:")
+    print("Run the following as root:")
 
-    print("\n    blocksat-cli usb\n")
+    print("\n    sudo blocksat-cli usb config\n")
 
     _print("""
-    This script will set an arbitrary IP address to the network interface that is
-    created in Linux in order to handle the IP traffic received via the satellite
-    link. To define a specific IP instead, run the above with `--ip target_ip`
-    argument, where `target_ip` is the IP of interest.
+    This script will create network interfaces in order to handle the IP traffic
+    received via the satellite link. It will define arbitrary IP addresses to the
+    interfaces. To define a specific IP instead, use command-line argument `--ip`.
     """)
 
     _print(
         "NOTE: root privileges are required in order to configure firewall "
         "and reverse path (RP) filtering, as well as accessing the adapter "
         "at `/dev/dvb`. You will be prompted to accept or refuse the "
-        "firewall and RP configurations that are executed as root.")
+        "firewall and RP configurations.")
 
     input("\nPress Enter to continue...")
 
+    util._print_sub_header("Launch")
+
+    print("Finally, launch the DVB-S2 interface by running:")
+
+    print("\n    blocksat-cli usb\n")
+
+    input("\nPress Enter to continue...")
 
 def _print_sdr_instructions(info):
     """Print instruction for configuration of an SDR setup

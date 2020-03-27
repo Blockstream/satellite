@@ -2,9 +2,10 @@
 from pprint import pformat
 from ipaddress import IPv4Interface
 import os, sys, signal, argparse, subprocess, time, logging, threading, json
-from argparse import ArgumentDefaultsHelpFormatter
+from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 from . import config, util, defs, rp, firewall
 import textwrap
+logger = logging.getLogger(__name__)
 
 
 def _find_v4l_lnb(info):
@@ -26,7 +27,6 @@ def _find_v4l_lnb(info):
              (info['lnb']['v1_pointed'] and # or LNB already operates with H pol
               info['lnb']['v1_psu_voltage'] >= 16)
             ) and "rangeswitch" not in lnb): # but LNB candidate is single-pol
-            print(pformat(lnb))
             continue # not a validate candidate, skip
 
         if (lnb['lowfreq'] == target_lo_freq):
@@ -40,7 +40,7 @@ def _find_v4l_lnb(info):
 
     # TODO complete polarization checking
     assert(len(options) > 0), "LNB doesn't match a valid option"
-    logging.debug("Matching LNB options: {}".format(pformat(options)))
+    logger.debug("Matching LNB options: {}".format(pformat(options)))
 
     return options[0]
 
@@ -59,10 +59,10 @@ def _check_ip(net_if, ip_addr):
 
     """
     try:
-        res = subprocess.check_output(["ip", "addr", "show", "dev", net_if])
+        res = subprocess.check_output(["ip", "addr", "show", "dev", net_if],
+                                      stderr=subprocess.DEVNULL)
     except subprocess.CalledProcessError as e:
-        res = None
-        pass
+        return False, False
 
     has_ip = False
     ip_ok  = False
@@ -88,20 +88,21 @@ def _set_ip(net_if, ip_addr, verbose):
         verbose   : Controls verbosity
 
     """
+    is_root       = (os.geteuid() == 0)
     has_ip, ip_ok = _check_ip(net_if, ip_addr)
 
     if (has_ip and not ip_ok):
-        print("Interface %s has an IP, but it is not %s" %(net_if, ip_addr))
-        print("Flush current IP address of %s" %(net_if))
-        cmd = util.root_cmd(["ip", "address", "flush", "dev", net_if])
-        logging.debug("> " + " ".join(cmd))
-        res = subprocess.check_output(cmd)
+        if (is_root):
+            print("Interface %s has an IP, but it is not %s" %(net_if, ip_addr))
+            print("Flush current IP address of %s" %(net_if))
+        res = util.run_or_print_root_cmd(["ip", "address", "flush",
+                                          "dev", net_if], logger)
 
     if (not has_ip or not ip_ok):
-        print("Assign IP address %s to %s" %(ip_addr, net_if))
-        cmd = util.root_cmd(["ip", "address", "add", ip_addr, "dev", net_if])
-        logging.debug("> " + " ".join(cmd))
-        res = subprocess.check_output(cmd)
+        if (is_root):
+            print("Assign IP address %s to %s" %(ip_addr, net_if))
+        res = util.run_or_print_root_cmd(["ip", "address", "add", ip_addr,
+                                          "dev", net_if], logger)
     else:
         if (verbose):
             print("%s already has IP %s" %(net_if, ip_addr))
@@ -120,11 +121,35 @@ def _set_ips(net_ifs, ip_addrs, verbose=True):
         print("\n----------------------------- Interface IP Address " +
               "-----------------------------")
 
+    if (os.geteuid() != 0):
+        print("Set the following IP addresses on dvbnet interfaces:\n")
+
     for net_if, ip_addr in zip(net_ifs, ip_addrs):
         _set_ip(net_if, ip_addr, verbose)
 
+    print()
 
-def _find_adapter(prompt=True):
+
+def _check_ips(net_ifs, ip_addrs):
+    """Check if IPs of one or multiple DVB network interface(s) are OK
+
+    Args:
+        net_ifs   : List of DVB network interface names
+        ip_addrs  : List of IP addresses for the DVB interface slash subnet mask
+        verbose   : Controls verbosity
+
+    """
+    for net_if, ip_addr in zip(net_ifs, ip_addrs):
+        has_ip, ip_ok = _check_ip(net_if, ip_addr)
+        if (not has_ip):
+            raise ValueError("Interface {} does not have an IP address".format(
+                net_if))
+        elif (has_ip and not ip_ok):
+            raise ValueError("Interface {} IP is not {}".format(net_if,
+                                                                ip_addr))
+
+
+def _find_adapter(list_only=False):
     """Find the DVB adapter
 
     Returns:
@@ -148,7 +173,7 @@ def _find_adapter(prompt=True):
     adapters = list()
     for a in range(0,10):
         cmd     = ["dvbnet", "-a", str(a), "-l"]
-        logging.debug("> " + " ".join(cmd))
+        logger.debug("> " + " ".join(cmd))
 
         with open(os.devnull, 'w') as devnull:
             res = subprocess.call(cmd, stdout=devnull, stderr=devnull)
@@ -167,7 +192,7 @@ def _find_adapter(prompt=True):
                             "support"  : line[4]
                         }
                         adapters.append(adapter)
-                        logging.debug(pformat(adapter))
+                        logger.debug(pformat(adapter))
                     except subprocess.CalledProcessError as e:
                         pass
 
@@ -193,10 +218,10 @@ def _find_adapter(prompt=True):
         # Process unique adapter logs
         for adapter in adapter_set:
             adapters.append(json.loads(adapter))
-            logging.debug(pformat(json.loads(adapter)))
+            logger.debug(pformat(json.loads(adapter)))
 
     dvb_s2_adapters = [a for a in adapters if ("DVB-S/S2" in a["support"])]
-    logging.debug(dvb_s2_adapters)
+    logger.debug(dvb_s2_adapters)
 
     assert(len(dvb_s2_adapters) > 0), "No DVB-S2 adapters found"
 
@@ -205,14 +230,15 @@ def _find_adapter(prompt=True):
         print("Found DVB-S2 adapter: %s %s" %(adapter["vendor"],
                                               adapter["model"]))
 
-        if (prompt):
-            if (util._ask_yes_or_no("Choose adapter?")):
+        if (not list_only):
+            if (len(dvb_s2_adapters) == 1 or
+                util._ask_yes_or_no("Choose adapter?")):
                 chosen_adapter = adapter
-                logging.debug("Chosen adapter:")
-                logging.debug(pformat(adapter))
+                logger.debug("Chosen adapter:")
+                logger.debug(pformat(adapter))
                 break
 
-    if (not prompt):
+    if (list_only):
         return
 
     if (chosen_adapter is None):
@@ -242,13 +268,9 @@ def _dvbnet_single(adapter, ifname, pid, ule, existing_dvbnet_interfaces):
         encapsulation = 'MPE'
 
     # Check if interface already exists
-    try:
-        res = subprocess.check_output(["ip", "addr", "show", "dev", ifname])
-    except subprocess.CalledProcessError as e:
-        res = None
-        pass
-
-    os_interface_exists = (res is not None)
+    res = subprocess.call(["ip", "addr", "show", "dev", ifname],
+                          stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    os_interface_exists = (res == 0)
     matching_dvbnet_if  = None
 
     # When the network interface exists in the OS, we also need to check if the
@@ -291,26 +313,16 @@ def _dvbnet_single(adapter, ifname, pid, ule, existing_dvbnet_interfaces):
 
         adapter_dir = '/dev/dvb/adapter' + adapter
 
-        if (ule):
-            print("Launch %s using ULE encapsulation" %(ifname))
-            ule_arg = "-U"
-        else:
-            print("Launch %s using MPE encapsulation" %(ifname))
-            ule_arg = ""
+        ule_arg = "-U" if ule else ""
 
-        cmd = util.root_cmd(["dvbnet", "-a", adapter, "-p", str(pid), ule_arg])
+        if (os.geteuid() == 0):
+            print("Launch {} using {} encapsulation:".format(
+                ifname, "ULE" if ule else "MPE"))
 
-        has_w_access = os.access(adapter_dir, os.W_OK)
-        if (not has_w_access):
-            print(textwrap.fill(
-                "You don't have write access to {}. Hence, \"sudo\" will "
-                "be inserted in the following command:".format(adapter_dir)))
-            print("\n> " + " ".join(cmd) + "\n")
-
-        # Create interface for a given DVB adapter
-        logging.debug("> " + " ".join(cmd))
-        res     = subprocess.check_output(cmd)
-        print(res.decode())
+        res = util.run_or_print_root_cmd(["dvbnet", "-a", adapter, "-p",
+                                          str(pid), ule_arg], logger)
+        if (res is not None):
+            print(res.decode())
     else:
         print("Network interface %s already configured correctly" %(ifname))
 
@@ -338,6 +350,10 @@ def _dvbnet(adapter, ifnames, pids, ule=False):
     print("\n------------------------------ Network Interface " +
           "-------------------------------")
 
+    if (os.geteuid() != 0):
+        util.fill_print("Launch blocksat-cli as root or run the following \
+        commands on your own:")
+
     for ifname, pid in zip(ifnames, pids):
         _dvbnet_single(adapter, ifname, pid, ule, existing_dvbnet_iif)
 
@@ -358,7 +374,7 @@ def _find_dvbnet_interfaces(adapter):
     print("\n-------------------------- Find dvbnet interface(s) " +
           "----------------------------")
     cmd     = ["dvbnet", "-a", adapter, "-l"]
-    logging.debug("> " + " ".join(cmd))
+    logger.debug("> " + " ".join(cmd))
     res     = subprocess.check_output(cmd)
 
     interfaces = list()
@@ -371,8 +387,11 @@ def _find_dvbnet_interfaces(adapter):
                 'pid'           : int(line_split[8][:-1]),
                 'encapsulation' : line_split[10]
             }
-            logging.debug(pformat(interface))
+            logger.debug(pformat(interface))
             interfaces.append(interface)
+
+    if (len(interfaces) == 0):
+        print("Could not find any dvbnet interface")
 
     return interfaces
 
@@ -389,14 +408,11 @@ def _rm_dvbnet_interface(adapter, ifname, verbose=True):
     if (verbose):
         print("\n------------------------------ Remove dvbnet interface " +
               "--------------------------------")
-    cmd = util.root_cmd(["ip", "link", "set", ifname, "down"])
-    logging.debug("> " + " ".join(cmd))
-    res = subprocess.check_output(cmd)
-
+    res       = util.run_or_print_root_cmd(["ip", "link", "set",
+                                            ifname, "down"], logger)
     if_number = ifname.split("_")[-1]
-    cmd       = util.root_cmd(["dvbnet", "-a", adapter, "-d", if_number])
-    logging.debug("> " + " ".join(cmd))
-    res       = subprocess.check_output(cmd)
+    res       = util.run_or_print_root_cmd(["dvbnet", "-a", adapter, "-d",
+                                            if_number], logger)
     print(res.decode())
 
 
@@ -470,7 +486,7 @@ def zap(adapter, frontend, ch_conf_file, user_info, lnb="UNIVERSAL",
 
     cmd.append("blocksat-ch")
 
-    logging.debug("> " + " ".join(cmd))
+    logger.debug("> " + " ".join(cmd))
 
     if (scrolling):
         ps = subprocess.Popen(cmd, stdout=subprocess.PIPE,
@@ -484,15 +500,11 @@ def zap(adapter, frontend, ch_conf_file, user_info, lnb="UNIVERSAL",
 def subparser(subparsers):
     """Subparser for usb command"""
     p = subparsers.add_parser('usb',
-                              description="Launch a USB DVB-S2 receiver",
-                              help='Launch a Linux USB DVB-S2 receiver',
+                              description="USB DVB-S2 receiver manager",
+                              help='Manage Linux USB DVB-S2 receiver',
                               formatter_class=ArgumentDefaultsHelpFormatter)
 
-    p.add_argument('-c', '--chan-conf',
-                   default="channels.conf",
-                   help='Channel configurations file within the configuration \
-                   directory')
-
+    # Common parameters
     p.add_argument('-a', '--adapter',
                    default=None,
                    help='DVB-S2 adapter number')
@@ -501,86 +513,97 @@ def subparser(subparsers):
                    default=None,
                    help='DVB-S2 adapter\'s frontend number')
 
-    p.add_argument('-l', '--lnb',
-                   choices=defs.lnb_options,
-                   default=None,
-                   help="LNB from v4l-utils to be used. "
-                   "If None, i.e. not specified, it will be set "
-                   "automatically")
-
-    p.add_argument('-U', '--ule', default=False,
-                   action='store_true',
-                   help='Use ULE encapsulation instead of MPE')
-
-    p.add_argument('--skip-rp', default=False, action='store_true',
-                   help='Skip settting of reverse path filters')
-
-    p.add_argument('--skip-firewall', default=False,
-                   action='store_true',
-                   help='Skip configuration of firewall rules')
-
-    p.add_argument('-r', '--record-file', default=None,
-                   help='Record MPEG-TS traffic into target file')
-
-    p.add_argument('-t', '--timeout', default=None,
-                   help='Stop zapping after timeout - useful to \
-                               control recording time')
-
-    p.add_argument('-m', '--monitor', default=False,
-                   action='store_true',
-                   help='Launch dvbv5-zap in monitor mode - useful \
-                               to debug packet and bit rates')
-
-    p.add_argument('-s', '--scrolling', default=False,
-                   action='store_true',
-                   help='Print dvbv5-zap logs line-by-line, i.e. \
-                               scrolling, rather than always on the same line')
-
-    p.add_argument('--pid', default=defs.pids,
-                   type=int,
-                   nargs='+',
-                   help='List of PIDs to be listened to by dvbnet')
-
     p.add_argument('-i', '--ip',
                    default=['192.168.201.2/24', '192.168.201.3/24'],
                    nargs='+',
                    help='IP address set for each DVB-S2 net \
-                               interface with subnet mask in CIDR notation')
+                   interface with subnet mask in CIDR notation')
 
-    p.set_defaults(func=launch)
+    p.set_defaults(func=print_help)
 
     subsubparsers = p.add_subparsers(title='subcommands',
-                                     help='Target USB sub-command')
+                                         help='Target USB sub-command')
+
+    # Launch
+    p1 = subsubparsers.add_parser('launch',
+                                  description="Launch a USB DVB-S2 receiver",
+                                  help='Launch a Linux USB DVB-S2 receiver')
+
+    p1.add_argument('-c', '--chan-conf',
+                    default="channels.conf",
+                    help='Channel configurations file within the configuration \
+                    directory')
+
+    p1.add_argument('-l', '--lnb',
+                    choices=defs.lnb_options,
+                    default=None,
+                    help="LNB from v4l-utils to be used. "
+                    "If None, i.e. not specified, it will be set "
+                    "automatically")
+
+    p1.add_argument('-r', '--record-file', default=None,
+                    help='Record MPEG-TS traffic into target file')
+
+    p1.add_argument('-t', '--timeout', default=None,
+                    help='Stop zapping after timeout - useful to \
+                    control recording time')
+
+    p1.add_argument('-m', '--monitor', default=False,
+                    action='store_true',
+                    help='Launch dvbv5-zap in monitor mode - useful \
+                    to debug packet and bit rates')
+
+    p1.add_argument('-s', '--scrolling', default=False,
+                    action='store_true',
+                    help='Print dvbv5-zap logs line-by-line, i.e. \
+                    scrolling, rather than always on the same line')
+
+    p1.set_defaults(func=launch)
+
+    # Initial configurations
+    p2 = subsubparsers.add_parser('config', aliases=['cfg'],
+                                  description='Initial configurations',
+                                  help='Configure DVB-S2 interface(s) and\
+                                  the host')
+    p2.add_argument('-U', '--ule', default=False,
+                    action='store_true',
+                    help='Use ULE encapsulation instead of MPE')
+
+    p2.add_argument('--skip-rp', default=False, action='store_true',
+                    help='Skip settting of reverse path filters')
+
+    p2.add_argument('--skip-firewall', default=False,
+                    action='store_true',
+                    help='Skip configuration of firewall rules')
+
+    p2.add_argument('--pid', default=defs.pids,
+                    type=int,
+                    nargs='+',
+                    help='List of PIDs to be listened to by dvbnet')
+
+    p2.set_defaults(func=usb_config)
+
     # Find adapter sub-command
-    p2 = subsubparsers.add_parser('ls',
+    p3 = subsubparsers.add_parser('list', aliases=['ls'],
                                   description="List DVB-S2 adapters",
                                   help='List DVB-S2 adapters',
                                   formatter_class=ArgumentDefaultsHelpFormatter)
-    p2.set_defaults(func=list_subcommand)
+    p3.set_defaults(func=list_subcommand)
 
     # Remove adapter sub-command
-    p3 = subsubparsers.add_parser('rm',
+    p4 = subsubparsers.add_parser('remove', aliases=['rm'],
                                   description="Remove DVB-S2 adapter",
                                   help='Remove DVB-S2 adapter',
                                   formatter_class=ArgumentDefaultsHelpFormatter)
-    p3.add_argument('-a', '--adapter',
+    p4.add_argument('-a', '--adapter',
                            default=None,
                            help='DVB-S2 adapter number')
-    p3.set_defaults(func=rm_subcommand)
+    p4.set_defaults(func=rm_subcommand)
+
+    return p
 
 
-def launch(args):
-    """Launch the DVB interface from scratch
-
-    Handles the launch subcommand
-
-    """
-
-    assert(len(args.pid) == len(args.ip)), \
-        "Number of PIDs (%u) defined by argument --pid " %(len(args.pid)) + \
-        "does not match the number of IPs (%u) defined by " %(len(args.ip)) + \
-        "argument --ip. Please define one IP address for each PID."
-
+def _common(args):
     # User info
     user_info = config.read_cfg_file(args.cfg_file, args.cfg_dir)
 
@@ -594,14 +617,37 @@ def launch(args):
         adapter  = args.adapter
         frontend = args.frontend
 
-    # Launch the DVB network interface - one interface for each PID of interest
+    # dvbnet interfaces of interest
+    #
+    # NOTE: there is one dvbnet interface per PID. Each interface will have a
+    # different IP address.
     net_ifs  = list()
-    for i_device in range(0, len(args.pid)):
+    for i_device in range(0, len(args.ip)):
         # Define interface name that is going to be generated by dvbnet
         net_if = "dvb" + adapter + "_" + str(i_device)
         net_ifs.append(net_if)
 
-    # Create the interface(s)
+    return user_info, adapter, frontend, net_ifs
+
+
+def usb_config(args):
+    """Config the DVB interface(s) and the host"""
+    assert(len(args.pid) == len(args.ip)), \
+        "Number of PIDs (%u) defined by argument --pid " %(len(args.pid)) + \
+        "does not match the number of IPs (%u) defined by " %(len(args.ip)) + \
+        "argument --ip. Please define one IP address for each PID."
+
+    if (os.geteuid() != 0):
+        print("WARNING:\n")
+        util.fill_print("\"blocksat-cli usb init\" requires root access. \
+        Please run as root or follow the instructions below.")
+
+    common_params = _common(args)
+    if (common_params is None):
+        return
+    user_info, adapter, frontend, net_ifs = common_params
+
+    # Create the dvbnet interface(s)
     _dvbnet(adapter, net_ifs, args.pid, ule=args.ule)
 
     # Set RP filters
@@ -614,6 +660,21 @@ def launch(args):
 
     # Set IP
     _set_ips(net_ifs, args.ip)
+
+    return
+
+
+def launch(args):
+    """Launch the DVB interface from scratch
+
+    Handles the launch subcommand
+
+    """
+
+    common_params = _common(args)
+    if (common_params is None):
+        return
+    user_info, adapter, frontend, net_ifs = common_params
 
     # Channel configuration file
     chan_conf = os.path.join(args.cfg_dir, os.path.basename(args.chan_conf))
@@ -632,13 +693,18 @@ def launch(args):
     signal.signal(signal.SIGINT, signal_handler)
 
     # Timer to periodically check the interface IP
-    def reset_ip():
-        _set_ips(net_ifs, args.ip, verbose=False)
-        timer        = threading.Timer(10, reset_ip)
+    def ip_checking_timer():
+        try:
+            _check_ips(net_ifs, args.ip)
+        except ValueError as e:
+            print('Stopping...')
+            zap_ps.terminate()
+            raise e
+        timer        = threading.Timer(10, ip_checking_timer)
         timer.daemon = True
         timer.start()
 
-    reset_ip()
+    ip_checking_timer()
 
     # Listen to dvbv5-zap indefinitely
     if (args.scrolling):
@@ -662,13 +728,18 @@ def list_subcommand(args):
     Handles the find-adapter subcommand
 
     """
-    _find_adapter(prompt=False)
+    _find_adapter(list_only=True)
 
 
 def rm_subcommand(args):
     """Remove DVB interface
 
     """
+
+    if (os.geteuid() != 0):
+        logger.error("Root access is required to remove dvbnet interfaces.")
+        print("Please, run as root.")
+        return
 
     # Find adapter
     if (args.adapter is None):
@@ -713,5 +784,13 @@ def rm_subcommand(args):
             return
 
         _rm_dvbnet_interface(adapter, chosen_dev)
+
+
+def print_help(args):
+    """Re-create argparse's help menu for the usb command"""
+    parser     = ArgumentParser()
+    subparsers = parser.add_subparsers(title='', help='')
+    parser     = subparser(subparsers)
+    print(parser.format_help())
 
 
