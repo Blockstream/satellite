@@ -8,6 +8,17 @@ import textwrap
 logger = logging.getLogger(__name__)
 
 
+def _setup_logfile(cfg_dir):
+    """Setup directory and file for dvbv5-zap logs"""
+    log_dir = os.path.join(cfg_dir, "logs")
+    if not os.path.exists(log_dir):
+        os.makedirs(log_dir)
+
+    name    = "usb-" + time.strftime("%Y%m%d-%H%M%S") + ".log"
+    logfile = os.path.join(log_dir, name)
+    return logfile
+
+
 def _find_v4l_lnb(info):
     """Find suitable LNB within v4l-utils preset LNBs
 
@@ -558,6 +569,10 @@ def subparser(subparsers):
                     help='Print dvbv5-zap logs line-by-line, i.e. \
                     scrolling, rather than always on the same line')
 
+    p1.add_argument('--logfile', default=False,
+                    action='store_true',
+                    help='Save dvbv5-zap logs on a file')
+
     p1.set_defaults(func=launch)
 
     # Initial configurations
@@ -682,7 +697,11 @@ def launch(args):
     # Zap
     zap_ps = zap(adapter, frontend, chan_conf, user_info, lnb=args.lnb,
                  output=args.record_file, timeout=args.timeout,
-                 monitor=args.monitor, scrolling=args.scrolling)
+                 monitor=args.monitor, scrolling=(args.scrolling
+                                                  or args.logfile))
+
+    # Prepare logs
+    logfile = None if (not args.logfile) else _setup_logfile(args.cfg_dir)
 
     # Handler for SIGINT
     def signal_handler(sig, frame):
@@ -691,6 +710,7 @@ def launch(args):
         sys.exit(zap_ps.poll())
 
     signal.signal(signal.SIGINT, signal_handler)
+    signal.signal(signal.SIGTERM, signal_handler)
 
     # Timer to periodically check the interface IP
     def ip_checking_timer():
@@ -707,14 +727,25 @@ def launch(args):
     ip_checking_timer()
 
     # Listen to dvbv5-zap indefinitely
-    if (args.scrolling):
+    if (args.scrolling or args.logfile):
         # Loop indefinitely over zap
+        prev_line = None
         while (zap_ps.poll() is None):
             line = zap_ps.stderr.readline()
-            if (line):
-                print('\r%s: '%(time.strftime("%Y-%m-%d %H:%M:%S",
-                                              time.gmtime())) +
-                      line, end='')
+            if (line and line != "\n"):
+                pretty_line = '\r{}: '.format(
+                    time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime())) + line
+                if (("Signal" in line) and ("Layer" not in line)):
+                    prev_line = pretty_line.replace("\n", " ")
+                else:
+                    concat_line = pretty_line if prev_line is None else \
+                                  (prev_line + line)
+                    final_line  = " ".join(concat_line.split()) + "\n"
+                    prev_line   = None
+                    print(final_line, end='')
+                    if (logfile is not None):
+                        with open(logfile, 'a') as fd:
+                            fd.write(final_line)
             else:
                 time.sleep(1)
     else:
