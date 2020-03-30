@@ -1,6 +1,6 @@
 """Standalone Demodulator"""
 from argparse import ArgumentDefaultsHelpFormatter
-from . import rp, firewall
+from . import rp, firewall, defs
 
 
 def subparser(subparsers):
