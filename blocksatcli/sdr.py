@@ -74,8 +74,6 @@ def subparser(subparsers):
                               formatter_class=ArgumentDefaultsHelpFormatter)
 
     rtl_p = p.add_argument_group('rtl_sdr options')
-    rtl_p.add_argument('--derotate', default=0, type=float,
-                       help='Frequency offset correction to apply in kHz')
     rtl_group = rtl_p.add_mutually_exclusive_group()
     rtl_group.add_argument('-g', '--gain', default=30, type=float,
                            help='RTL-SDR Rx gain')
@@ -93,6 +91,8 @@ def subparser(subparsers):
                         help='leandvb in verbose mode')
     ldvb_p.add_argument('--gui', default=False, action='store_true',
                         help='GUI mode')
+    ldvb_p.add_argument('--derotate', default=0, type=float,
+                        help='Frequency offset correction to apply in kHz')
     ldvb_p.add_argument('--fastlock', default=False, action='store_true',
                         help='leandvb fast lock mode')
     ldvb_p.add_argument('--rrc-rej', default=30, type=int,
