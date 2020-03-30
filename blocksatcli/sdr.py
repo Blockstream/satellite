@@ -100,8 +100,13 @@ def subparser(subparsers):
     ldvb_p.add_argument('-m', '--modcod', default="low",
                         choices=["low", "high"],
                         help="Choose low-throughput vs high-throughput MODCOD")
+    ldvb_p.add_argument('--ldpc-dec', default="ext", choices=["int", "ext"],
+                        help="LDPC decoder to use (internal or external)")
     ldvb_p.add_argument('--ldpc-tool', default="/usr/local/bin/ldpc_tool",
                         help='Path to ldpc_tool')
+    ldvb_p.add_argument('--ldpc-bf', default=100,
+                        help='Max number of iterations used by the internal \
+                        LDPC decoder when not using an external LDPC tool')
     ldvb_p.add_argument('--framesizes', type=int, default=1, choices=[0,1,2,3],
                         help="Bitmask of desired frame sizes (1=normal, \
                         2=short)")
@@ -181,12 +186,16 @@ def run(args):
     ldvb_cmd = ["leandvb", "--nhelpers", str(args.n_helpers), "-f",
                 str(defs.samp_rate), "--sr", str(defs.sym_rate), "--roll-off",
                 str(defs.rolloff), "--standard", "DVB-S2", "--sampler", "rrc",
-                "--rrc-rej", str(args.rrc_rej), "--ldpc-helper", args.ldpc_tool,
-                "--modcods", modcod, "--framesizes", str(args.framesizes)]
+                "--rrc-rej", str(args.rrc_rej), "--modcods", modcod,
+                "--framesizes", str(args.framesizes)]
     if (args.debug_ts == 1):
         ldvb_cmd.append("-d")
     elif (args.debug_ts > 1):
         ldvb_cmd.extend(["-d", "-d"])
+    if (args.ldpc_dec == "ext"):
+        ldvb_cmd.extend(["--ldpc-helper", args.ldpc_tool])
+    else:
+        ldvb_cmd.extend(["--ldpc-bf", str(args.ldpc_bf)])
     if (args.gui):
         ldvb_cmd.append("--gui")
     if (args.verbose):
