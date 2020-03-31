@@ -213,7 +213,9 @@ def _find_adapter(list_only=False):
         adapter_set = set() # use set to filter unique values
         adapters    = list()
         for line in lines:
-            linesplit  = line.decode().split()
+            linesplit = line.decode().split()
+            if ("adapter" not in linesplit):
+                continue
             i_adapter  = linesplit.index('adapter')
             i_frontend = linesplit.index('frontend')
             device     = linesplit[i_frontend + 2:]
@@ -224,6 +226,16 @@ def _find_adapter(list_only=False):
                 "model"    : " ".join(device[1:-1]),
                 "support"  : device[-1][:-4].replace('(', '').replace(')', '')
             }
+
+            # Maybe the device on dmesg does not exist anymore. Check!
+            try:
+                cmd = ["dvbnet", "-a", adapter['adapter'], "-l"]
+                logger.debug("> " + " ".join(cmd))
+                res = subprocess.check_output(cmd, stderr=subprocess.DEVNULL)
+            except subprocess.CalledProcessError as e:
+                continue
+
+            # If it exists, add to set of candidate adapters
             adapter_set.add(json.dumps(adapter))
 
         # Process unique adapter logs
