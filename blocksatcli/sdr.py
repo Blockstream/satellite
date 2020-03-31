@@ -234,7 +234,10 @@ def run(args):
 
     if (args.record):
         p1 = subprocess.Popen(rtl_cmd)
-        p1.communicate()
+        try:
+            p1.communicate()
+        except KeyboardInterrupt:
+            p1.kill()
         return
     elif (args.iq_file is None):
         logger.debug("> " + " ".join(rtl_cmd) + " | \\\n" + \
