@@ -56,6 +56,82 @@ def _find_v4l_lnb(info):
     return options[0]
 
 
+def _check_interfaces_d(is_root):
+    """Check if /etc/network/interfaces.d/ is included as source-directory"""
+    if_file  = "/etc/network/interfaces"
+    if_dir   = "/etc/network/interfaces.d/"
+    src_line = "source /etc/network/interfaces.d/*"
+
+    if (not is_root):
+        print(textwrap.fill("Make sure directory "
+                            "\"{}\" "
+                            "is considered as source for network "
+                            "interface configurations. "
+                            "Check if your \"{}\" file "
+                            "contains the following line:".format(
+                                if_dir, if_file
+                            )))
+        print("\n{}\n".format(src_line))
+        print("If not, add it.\n")
+        return
+
+    with open(if_file) as fd:
+        current_cfg = fd.read()
+
+    src_included = False
+    for line in current_cfg.splitlines():
+        if src_line in line:
+            src_included = True
+            break
+
+    if (src_included):
+        return
+
+    with open(if_file, 'a') as fd:
+        fd.write("\n" + src_line)
+
+
+def _set_static_iface_ip(ifname, ipv4_if, is_root):
+    """Set static network interface IP address
+
+    Do so by create configuration file at /etc/network/interfaces.d/
+
+    Args:
+        ifname  : Network device name
+        ipv4_if : IPv4Interface object with the target interface address
+        is_root : (bool) whether running as root
+
+    """
+    isinstance(ipv4_if, IPv4Interface)
+    addr          = str(ipv4_if.ip)
+    netmask       = str(ipv4_if.netmask)
+    addr_s        = addr.split(".")
+    assert(addr_s[-1] != "1")
+    gateway_s     = addr_s
+    gateway_s[-1] = "1"
+    gateway       = ".".join(gateway_s)
+
+    cfg = ("auto {0}\n"
+           "iface {0} inet static\n"
+           "    address {1}\n"
+           "    netmask {2}").format(ifname, addr, netmask, gateway)
+
+    if_dir = "/etc/network/interfaces.d/"
+    fname  = ifname + ".conf"
+    path   = os.path.join(if_dir, fname)
+
+    if (not is_root):
+        print(textwrap.fill("Create a file named {} at {} and add the "
+                            "following to it:".format(fname, if_dir)))
+        print("\n" + cfg + "\n")
+        return
+
+    with open(path, 'w') as fd:
+        fd.write(cfg)
+
+    print("Created configuration file {} in {}".format(fname, if_dir))
+
+
 def _check_ip(net_if, ip_addr):
     """Check if interface has IP and if it matches target IP
 
@@ -101,6 +177,7 @@ def _set_ip(net_if, ip_addr, verbose):
     """
     is_root       = (os.geteuid() == 0)
     has_ip, ip_ok = _check_ip(net_if, ip_addr)
+    inet_if       = IPv4Interface(ip_addr)
 
     if (has_ip and not ip_ok):
         if (is_root):
@@ -111,9 +188,17 @@ def _set_ip(net_if, ip_addr, verbose):
 
     if (not has_ip or not ip_ok):
         if (is_root):
-            print("Assign IP address %s to %s" %(ip_addr, net_if))
-        res = util.run_or_print_root_cmd(["ip", "address", "add", ip_addr,
+            print("Assign static IP address %s to %s" %(ip_addr, net_if))
+        else:
+            print("Flush the IP from {}:\n".format(net_if))
+
+        res = util.run_or_print_root_cmd(["ip", "address", "flush",
                                           "dev", net_if], logger)
+
+        if (not is_root):
+            print()
+
+        _set_static_iface_ip(net_if, inet_if, is_root)
     else:
         if (verbose):
             print("%s already has IP %s" %(net_if, ip_addr))
@@ -129,16 +214,19 @@ def _set_ips(net_ifs, ip_addrs, verbose=True):
 
     """
     if (verbose):
-        print("\n----------------------------- Interface IP Address " +
-              "-----------------------------")
+        util._print_header("Interface IP Address")
 
-    if (os.geteuid() != 0):
-        print("Set the following IP addresses on dvbnet interfaces:\n")
+    is_root = os.geteuid() == 0
+    if (not is_root):
+        print("Set static IP addresses on dvbnet interfaces.\n")
+
+    _check_interfaces_d(is_root)
 
     for net_if, ip_addr in zip(net_ifs, ip_addrs):
         _set_ip(net_if, ip_addr, verbose)
 
-    print()
+    if (is_root):
+        subprocess.run(["systemctl", "restart", "networking"])
 
 
 def _check_ips(net_ifs, ip_addrs):
@@ -167,8 +255,7 @@ def _find_adapter(list_only=False):
         Tuple with (adapter index, frontend index)
 
     """
-    print("\n------------------------------ Find DVB Adapter " +
-          "--------------------------------")
+    util._print_header("Find DVB Adapter")
     ps     = subprocess.Popen("dmesg", stdout=subprocess.PIPE)
     try:
         output = subprocess.check_output(["grep", "frontend"], stdin=ps.stdout,
@@ -370,8 +457,7 @@ def _dvbnet(adapter, ifnames, pids, ule=False):
     # Find the dvbnet interfaces that already exist for the chosen adapter
     existing_dvbnet_iif = _find_dvbnet_interfaces(adapter)
 
-    print("\n------------------------------ Network Interface " +
-          "-------------------------------")
+    util._print_header("Network Interface")
 
     if (os.geteuid() != 0):
         util.fill_print("Launch blocksat-cli as root or run the following \
@@ -394,8 +480,7 @@ def _find_dvbnet_interfaces(adapter):
 
     """
 
-    print("\n-------------------------- Find dvbnet interface(s) " +
-          "----------------------------")
+    util._print_header("Find dvbnet interface(s)")
     cmd     = ["dvbnet", "-a", adapter, "-l"]
     logger.debug("> " + " ".join(cmd))
     res     = subprocess.check_output(cmd)
@@ -429,14 +514,20 @@ def _rm_dvbnet_interface(adapter, ifname, verbose=True):
     """
 
     if (verbose):
-        print("\n------------------------------ Remove dvbnet interface " +
-              "--------------------------------")
+        util._print_header("Remove dvbnet interface")
     res       = util.run_or_print_root_cmd(["ip", "link", "set",
                                             ifname, "down"], logger)
     if_number = ifname.split("_")[-1]
     res       = util.run_or_print_root_cmd(["dvbnet", "-a", adapter, "-d",
                                             if_number], logger)
     print(res.decode())
+
+    # Remove conf file for network interface (next time the interface could have
+    # a different number)
+    conf_file = os.path.join("/etc/network/interfaces.d/", ifname + ".conf")
+    if (os.path.exists(conf_file)):
+        res    = util.run_or_print_root_cmd(["rm", conf_file])
+        print("Removed configuration file {}".format(conf_file))
 
 
 def zap(adapter, frontend, ch_conf_file, user_info, lnb="UNIVERSAL",
@@ -461,8 +552,7 @@ def zap(adapter, frontend, ch_conf_file, user_info, lnb="UNIVERSAL",
 
     """
 
-    print("\n------------------------------ Tuning DVB Receiver " +
-          "-----------------------------")
+    util._print_header("Tuning DVB Receiver")
     print("Running dvbv5-zap")
 
     # LNB name to use when calling dvbv5-zap
@@ -687,6 +777,9 @@ def usb_config(args):
 
     # Set IP
     _set_ips(net_ifs, args.ip)
+
+    util._print_header("Next Step")
+    print("Run:\n\nblocksat-cli usb launch\n")
 
     return
 
