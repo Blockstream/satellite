@@ -56,9 +56,18 @@ def _find_v4l_lnb(info):
     return options[0]
 
 
-def _check_interfaces_d(is_root):
-    """Check if /etc/network/interfaces.d/ is included as source-directory"""
+def _check_debian_net_interfaces_d(is_root):
+    """Check if /etc/network/interfaces.d/ is included as source-directory
+
+    If the distribution doesn't have the `/etc/network/interface` directory,
+    just return.
+
+    """
     if_file  = "/etc/network/interfaces"
+
+    if (not os.path.exists(if_file)):
+        return
+
     if_dir   = "/etc/network/interfaces.d/"
     src_line = "source /etc/network/interfaces.d/*"
 
@@ -91,10 +100,54 @@ def _check_interfaces_d(is_root):
         fd.write("\n" + src_line)
 
 
-def _set_static_iface_ip(ifname, ipv4_if, is_root):
-    """Set static network interface IP address
+def _add_to_interfaces_d(ifname, addr, netmask, gateway, is_root):
+    """Create configuration file at /etc/network/interfaces.d/"""
+    if_dir = "/etc/network/interfaces.d/"
+    cfg = ("iface {0} inet static\n"
+           "    address {1}\n"
+           "    netmask {2}").format(ifname, addr, netmask, gateway)
+    fname  = ifname + ".conf"
+    path   = os.path.join(if_dir, fname)
 
-    Do so by create configuration file at /etc/network/interfaces.d/
+    if (not is_root):
+        print(textwrap.fill("Create a file named {} at {} and add the "
+                            "following to it:".format(fname, if_dir)))
+        print("\n" + cfg + "\n")
+        return
+
+    with open(path, 'w') as fd:
+        fd.write(cfg)
+
+    print("Created configuration file {} in {}".format(fname, if_dir))
+
+
+def _add_to_sysconfig_net_scripts(ifname, addr, netmask, gateway, is_root):
+    """Create configuration file at /etc/sysconfig/network-scripts/"""
+    cfg_dir = "/etc/sysconfig/network-scripts/"
+    cfg = ("NM_CONTROLLED=\"yes\"\n"
+           "DEVICE=\"{}\"\n"
+           "BOOTPROTO=none\n"
+           "ONBOOT=\"no\"\n"
+           "IPADDR={}\n"
+           "NETMASK={}\n").format(ifname, addr, netmask, gateway)
+
+    fname  = "ifcfg-" + ifname
+    path   = os.path.join(cfg_dir, fname)
+
+    if (not is_root):
+        print(textwrap.fill("Create a file named {} at {} and add the "
+                            "following to it:".format(fname, cfg_dir)))
+        print("\n" + cfg + "\n")
+        return
+
+    with open(path, 'w') as fd:
+        fd.write(cfg)
+
+    print("Created configuration file {} in {}".format(fname, cfg_dir))
+
+
+def _set_static_iface_ip(ifname, ipv4_if, is_root):
+    """Set static IP address for target network interface
 
     Args:
         ifname  : Network device name
@@ -111,25 +164,13 @@ def _set_static_iface_ip(ifname, ipv4_if, is_root):
     gateway_s[-1] = "1"
     gateway       = ".".join(gateway_s)
 
-    cfg = ("auto {0}\n"
-           "iface {0} inet static\n"
-           "    address {1}\n"
-           "    netmask {2}").format(ifname, addr, netmask, gateway)
-
-    if_dir = "/etc/network/interfaces.d/"
-    fname  = ifname + ".conf"
-    path   = os.path.join(if_dir, fname)
-
-    if (not is_root):
-        print(textwrap.fill("Create a file named {} at {} and add the "
-                            "following to it:".format(fname, if_dir)))
-        print("\n" + cfg + "\n")
-        return
-
-    with open(path, 'w') as fd:
-        fd.write(cfg)
-
-    print("Created configuration file {} in {}".format(fname, if_dir))
+    if (os.path.exists("/etc/network/interfaces.d/")):
+        _add_to_interfaces_d(ifname, addr, netmask, gateway, is_root)
+    elif (os.path.exists("/etc/sysconfig/network-scripts")):
+        _add_to_sysconfig_net_scripts(ifname, addr, netmask, gateway, is_root)
+    else:
+        raise ValueError("Could not set a static IP address on interface "
+                         "{}".format(ifname))
 
 
 def _check_ip(net_if, ip_addr):
@@ -220,13 +261,26 @@ def _set_ips(net_ifs, ip_addrs, verbose=True):
     if (not is_root):
         print("Set static IP addresses on dvbnet interfaces.\n")
 
-    _check_interfaces_d(is_root)
-
+    # Configure static IP addresses
+    _check_debian_net_interfaces_d(is_root)
     for net_if, ip_addr in zip(net_ifs, ip_addrs):
         _set_ip(net_if, ip_addr, verbose)
 
-    if (is_root):
-        subprocess.run(["systemctl", "restart", "networking"])
+    # Bring up interfaces
+    if (os.path.exists("/etc/network/interfaces.d/")):
+        # Debian approach
+        if (not is_root):
+            print(textwrap.fill("Finally, restart the networking service and "
+                                "bring up the interfaces:") + "\n")
+        util.run_or_print_root_cmd(["systemctl", "restart", "networking"],
+                                   logger)
+    elif (os.path.exists("/etc/sysconfig/network-scripts")):
+        # CentOS/Fedora/RHEL approach
+        if (not is_root):
+            print(textwrap.fill("Finally, bring up the interfaces:") + "\n")
+
+    for net_if in net_ifs:
+        util.run_or_print_root_cmd(["ifup", net_if], logger)
 
 
 def _check_ips(net_ifs, ip_addrs):
@@ -524,10 +578,15 @@ def _rm_dvbnet_interface(adapter, ifname, verbose=True):
 
     # Remove conf file for network interface (next time the interface could have
     # a different number)
-    conf_file = os.path.join("/etc/network/interfaces.d/", ifname + ".conf")
-    if (os.path.exists(conf_file)):
-        res    = util.run_or_print_root_cmd(["rm", conf_file])
-        print("Removed configuration file {}".format(conf_file))
+    net_file   = os.path.join("/etc/network/interfaces.d/", ifname + ".conf")
+    ifcfg_file = os.path.join("/etc/sysconfig/network-scripts/",
+                              "ifcfg-" + ifname)
+    if (os.path.exists(net_file)):
+        res    = util.run_or_print_root_cmd(["rm", net_file])
+        print("Removed configuration file {}".format(net_file))
+    elif (os.path.exists(ifcfg_file)):
+        res    = util.run_or_print_root_cmd(["rm", ifcfg_file])
+        print("Removed configuration file {}".format(ifcfg_file))
 
 
 def zap(adapter, frontend, ch_conf_file, user_info, lnb="UNIVERSAL",
