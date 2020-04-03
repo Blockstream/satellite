@@ -4,6 +4,7 @@ from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 from . import defs, config, util, instructions, gqrx, bitcoin, sdr, rp, \
     firewall, standalone, usb
 from os import environ
+import platform
 
 
 __version__ = "0.1.0"
@@ -12,6 +13,8 @@ __version__ = "0.1.0"
 def main():
     """Main - parse command-line arguments and call subcommands
     """
+    assert(platform.system() == 'Linux'), \
+        "blocksat-cli currently only supports Linux"
     sudo_user       = environ.get('SUDO_USER')
     user            = sudo_user if sudo_user is not None else ""
     home            = os.path.expanduser("~" + user)
