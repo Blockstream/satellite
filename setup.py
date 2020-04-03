@@ -39,8 +39,12 @@ setup(
         'sseclient-py',
         'qrcode',
         'zfec>=1.5.4',
-        'emoji'
+        'emoji',
+        'pysnmp'
     ],
+    package_data={
+        'blocksatcli' : ['mib/*.mib', 'mib/*.txt']
+    },
     classifiers=[
         'Programming Language :: Python :: 3',
         "Programming Language :: Python :: 3 :: Only",

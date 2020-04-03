@@ -1,0 +1,39 @@
+-- //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+-- //
+-- //  File Description:	This is the base MIB for all Novra supported products.
+-- //
+-- //   COPYRIGHT 2016 IDC, ALL RIGHTS RESERVED.
+-- //
+-- ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+--
+
+	NOVRA-MIB
+
+	DEFINITIONS ::= BEGIN
+
+		IMPORTS
+			enterprises
+				FROM RFC1155-SMI;
+
+
+
+--
+-- Node definitions
+--
+
+novra OBJECT IDENTIFIER ::= { enterprises 10894 }
+
+products OBJECT IDENTIFIER ::= { novra 1 }
+
+-- Products sub-tree
+receivers OBJECT IDENTIFIER ::= {products 1}
+
+-- Receivers sub-tree
+--s400 OBJECT IDENTIFIER ::={receivers 1}
+
+END
+
+--
+-- novra.mib
+--
+

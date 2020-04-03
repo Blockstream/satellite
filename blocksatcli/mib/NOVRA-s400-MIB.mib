@@ -1,0 +1,1133 @@
+-- Copyright 2018 - Novra Group
+-- ===========================================================================
+-- File Identification:
+-- ============================
+-- Summary:
+-- ========
+--     This file contains the s400 SNMP MIB
+-- ===========================================================================
+
+NOVRA-s400-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+    OBJECT-GROUP FROM SNMPv2-CONF
+    OBJECT-TYPE, Unsigned32, Counter64, IpAddress, MODULE-IDENTITY, NOTIFICATION-TYPE FROM SNMPv2-SMI
+    RowStatus FROM SNMPv2-TC
+    receivers FROM NOVRA-MIB;
+
+s400 MODULE-IDENTITY
+    LAST-UPDATED "201811051104Z"
+    ORGANIZATION "International Datacasting"
+    CONTACT-INFO "WEB: www.intldata.ca"
+    DESCRIPTION "The MIB module for managing the S400 receiver."
+    REVISION "201811051104Z"
+    DESCRIPTION "Initial Revision"
+    ::= { receivers 1 }
+
+
+--
+-- s400 Version sub-tree
+--
+s400Versions OBJECT IDENTIFIER ::= { s400 1 }
+
+s400FirmwareVersion OBJECT-TYPE
+    SYNTAX OCTET STRING
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION "The version number of the associated firmware."
+    ::= { s400Versions 1 }
+
+s400BoardSerialNumber OBJECT-TYPE
+    SYNTAX OCTET STRING
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION "The Receiver Serial Number."
+    ::= { s400Versions 2 }
+
+
+--
+-- s400 processor Sub Tree
+--
+s400Processor OBJECT IDENTIFIER ::= { s400 2 }
+
+--
+-- Demod 1 (carrier) sub-tree
+--
+s400Demod1 OBJECT IDENTIFIER ::= { s400Processor 1 }
+
+-- Modulation Standard of the carrier
+s400ModulationStandard1 OBJECT-TYPE
+    SYNTAX INTEGER {
+        both(0),
+        dvbs(1),
+        dvbs2(2)
+    }
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION "This value determines which modulation standard is used."
+    ::= { s400Demod1 1 }
+
+s400LBandFrequency1 OBJECT-TYPE
+    SYNTAX Unsigned32 (950000000..2150000000)
+    UNITS "Hz"
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION "The L-Band frequency (in Hz) of the carrier for RF1."
+    ::= { s400Demod1 2 }
+
+-- Symbol Rate of the carrier
+s400SymbolRate1 OBJECT-TYPE
+    SYNTAX Unsigned32 (100000..45000000)
+    UNITS "symbols/second"
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION "The RF carrier symbol rate (in symbols/second) of the carrier."
+    ::= { s400Demod1 3 }
+
+-- Symbol Rate auto setting of the carrier
+s400SymbolRateAuto1 OBJECT-TYPE
+    SYNTAX INTEGER {
+        disable(0),
+        enable(1)
+    }
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "This value reflects whether the auto symbol rate is enabled or disabled.
+         0 = disable
+         1 = enable"
+    ::= { s400Demod1 4 }
+
+-- Modulation and coding
+s400Modcod1 OBJECT-TYPE
+    SYNTAX INTEGER {
+        auto(0),
+        oneQuarterQPSK(1),
+        oneThirdQPSK(2),
+        twoFifthsQPSK(3),
+        oneHalfQPSK(4),
+        threeFifthsQPSK(5),
+        twoThirdsQPSK(6),
+        threeQuartersQPSK(7),
+        fourFifthsQPSK(8),
+        fiveSixthsQPSK(9),
+        eightNinthsQPSK(10),
+        nineTenthsQPSK(11),
+        threeFifths8PSK(12),
+        twoThirds8PSK(13),
+        threeQuarters8PSK(14),
+        fiveSixths8PSK(15),
+        eightNinths8PSK(16),
+        nineTenths8PSK(17),
+        twoThirds16APSK(18),
+        threeQuarters16APSK(19),
+        fourFifths16APSK(20),
+        fiveSixths16APSK(21),
+        eightNinths16APSK(22),
+        nineTenths16APSK(23),
+        threeQuarters32APSK(24),
+        fourFifths32APSK(25),
+        fiveSixths32APSK(26),
+        eightNinths32APSK(27),
+        nineTenths32APSK(28),
+        oneThirdBPSK(29),
+        oneQuarterBPSK(30)
+    }
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The modcod of the carrier.
+         0  = AUTO
+         1  = 1/4 QPSK
+         2  = 1/3 QPSK
+         3  = 2/5 QPSK
+         4  = 1/2 QPSK
+         5  = 3/5 QPSK
+         6  = 2/3 QPSK
+         7  = 3/4 QPSK
+         8  = 4/5 QPSK
+         9  = 5/6 QPSK
+         10 = 8/9 QPSK
+         11 = 9/10 QPSK
+         12 = 3/5 8PSK
+         13 = 2/3 8PSK
+         14 = 3/4 8PSK
+         15 = 5/6 8PSK
+         16 = 8/9 8PSK
+         17 = 9/10 8PSK
+         18 = 2/3 16APSK
+         19 = 3/4 16APSK
+         20 = 4/5 16APSK
+         21 = 5/6 16APSK
+         22 = 8/9 16APSK
+         23 = 9/10 16APSK
+         24 = 3/4 32APSK
+         25 = 4/5 32APSK
+         26 = 5/6 32APSK
+         27 = 8/9 32APSK
+         28 = 9/10 32APSK
+         29 = 1/3 BPSK
+         30 = 1/4 BPSK"
+    ::= { s400Demod1 5 }
+
+--
+-- Demod RF Metrics 1 sub-tree
+--
+s400Metrics1 OBJECT IDENTIFIER ::= { s400Demod1 6 }
+
+s400SignalLockStatus1 OBJECT-TYPE
+    SYNTAX INTEGER {
+        notlocked(0),
+        locked(1)
+    }
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The value reflects the signal lock status.
+         0 = not locked
+         1 = locked"
+    ::= { s400Metrics1 1 }
+
+s400DataLockStatus1 OBJECT-TYPE
+    SYNTAX INTEGER {
+        notlocked(0),
+        locked(1)
+    }
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The value reflects the data lock status.
+         0 = not locked
+         1 = locked"
+    ::= { s400Metrics1 2 }
+
+s400SignalStrength1 OBJECT-TYPE
+    SYNTAX OCTET STRING
+    UNITS "dBm"
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The signal strength (in dBm) gives an approximate indication of the strength of
+         the RF L-band carrier."
+    ::= { s400Metrics1 3 }
+
+s400UncorrectedPackets1 OBJECT-TYPE
+    SYNTAX OCTET STRING
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION "This value represents the number of Uncorrected Packets."
+    ::= { s400Metrics1 4 }
+
+s400BER1 OBJECT-TYPE
+    SYNTAX OCTET STRING
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "This value represents the measured LDPC (for DVBS) or Viterbi (for DVBS2) bit error rate (in E-notation)."
+     ::= { s400Metrics1 5 }
+
+s400CarrierToNoise1 OBJECT-TYPE
+    SYNTAX OCTET STRING
+    UNITS "dB"
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "This value represents the estimated carrier to noise ratio (in dB) at
+         the input to the receiver.  The format of this value is x.y where x
+         and y are integers."
+    ::= { s400Metrics1 6 }
+
+
+--
+-- Demod 2 (carrier) sub-tree
+--
+s400Demod2 OBJECT IDENTIFIER ::= { s400Processor 2 }
+
+-- Modulation Standard of the carrier
+s400ModulationStandard2 OBJECT-TYPE
+    SYNTAX INTEGER {
+        both(0),
+        dvbs(1),
+        dvbs2(2)
+    }
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION "This value determines which modulation standard is used."
+    ::= { s400Demod2 1 }
+
+s400LBandFrequency2 OBJECT-TYPE
+    SYNTAX Unsigned32 (950000000..2150000000)
+    UNITS "Hz"
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION "The L-Band frequency (in Hz) of the carrier for RF1."
+    ::= { s400Demod2 2 }
+
+-- Symbol Rate of the carrier
+s400SymbolRate2 OBJECT-TYPE
+    SYNTAX Unsigned32 (100000..45000000)
+    UNITS "symbols/second"
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION "The RF carrier symbol rate (in symbols/second) of the carrier."
+    ::= { s400Demod2 3 }
+
+-- Symbol Rate auto setting of the carrier
+s400SymbolRateAuto2 OBJECT-TYPE
+    SYNTAX INTEGER {
+        disable(0),
+        enable(1)
+    }
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "This value reflects whether the auto symbol rate is enabled or disabled.
+         0 = disable
+         1 = enable"
+    ::= { s400Demod2 4 }
+
+-- Modulation and coding
+s400Modcod2 OBJECT-TYPE
+    SYNTAX INTEGER {
+        auto(0),
+        oneQuarterQPSK(1),
+        oneThirdQPSK(2),
+        twoFifthsQPSK(3),
+        oneHalfQPSK(4),
+        threeFifthsQPSK(5),
+        twoThirdsQPSK(6),
+        threeQuartersQPSK(7),
+        fourFifthsQPSK(8),
+        fiveSixthsQPSK(9),
+        eightNinthsQPSK(10),
+        nineTenthsQPSK(11),
+        threeFifths8PSK(12),
+        twoThirds8PSK(13),
+        threeQuarters8PSK(14),
+        fiveSixths8PSK(15),
+        eightNinths8PSK(16),
+        nineTenths8PSK(17),
+        twoThirds16APSK(18),
+        threeQuarters16APSK(19),
+        fourFifths16APSK(20),
+        fiveSixths16APSK(21),
+        eightNinths16APSK(22),
+        nineTenths16APSK(23),
+        threeQuarters32APSK(24),
+        fourFifths32APSK(25),
+        fiveSixths32APSK(26),
+        eightNinths32APSK(27),
+        nineTenths32APSK(28),
+        oneThirdBPSK(29),
+        oneQuarterBPSK(30)
+    }
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The modcod of the carrier.
+         0  = AUTO
+         1  = 1/4 QPSK
+         2  = 1/3 QPSK
+         3  = 2/5 QPSK
+         4  = 1/2 QPSK
+         5  = 3/5 QPSK
+         6  = 2/3 QPSK
+         7  = 3/4 QPSK
+         8  = 4/5 QPSK
+         9  = 5/6 QPSK
+         10 = 8/9 QPSK
+         11 = 9/10 QPSK
+         12 = 3/5 8PSK
+         13 = 2/3 8PSK
+         14 = 3/4 8PSK
+         15 = 5/6 8PSK
+         16 = 8/9 8PSK
+         17 = 9/10 8PSK
+         18 = 2/3 16APSK
+         19 = 3/4 16APSK
+         20 = 4/5 16APSK
+         21 = 5/6 16APSK
+         22 = 8/9 16APSK
+         23 = 9/10 16APSK
+         24 = 3/4 32APSK
+         25 = 4/5 32APSK
+         26 = 5/6 32APSK
+         27 = 8/9 32APSK
+         28 = 9/10 32APSK
+         29 = 1/3 BPSK
+         30 = 1/4 BPSK"
+    ::= { s400Demod2 5 }
+
+--
+-- Demod RF Metrics 1 sub-tree
+--
+s400Metrics2 OBJECT IDENTIFIER ::= { s400Demod2 6 }
+
+s400SignalLockStatus2 OBJECT-TYPE
+    SYNTAX INTEGER {
+        notlocked(0),
+        locked(1)
+    }
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The value reflects the signal lock status.
+         0 = not locked
+         1 = locked"
+    ::= { s400Metrics2 1 }
+
+s400DataLockStatus2 OBJECT-TYPE
+    SYNTAX INTEGER {
+        notlocked(0),
+        locked(1)
+    }
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The value reflects the data lock status.
+         0 = not locked
+         1 = locked"
+    ::= { s400Metrics2 2 }
+
+s400SignalStrength2 OBJECT-TYPE
+    SYNTAX OCTET STRING
+    UNITS "dBm"
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The signal strength (in dBm) gives an approximate indication of the strength of
+         the RF L-band carrier."
+    ::= { s400Metrics2 3 }
+
+s400UncorrectedPackets2 OBJECT-TYPE
+    SYNTAX OCTET STRING
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION "This value represents the number of Uncorrected Packets."
+    ::= { s400Metrics2 4 }
+
+s400BER2 OBJECT-TYPE
+    SYNTAX OCTET STRING
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "This value represents the measured LDPC (for DVBS) or Viterbi (for DVBS2) bit error rate (in E-notation)."
+     ::= { s400Metrics2 5 }
+
+s400CarrierToNoise2 OBJECT-TYPE
+    SYNTAX OCTET STRING
+    UNITS "dB"
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "This value represents the estimated carrier to noise ratio (in dB) at
+         the input to the receiver.  The format of this value is x.y where x
+         and y are integers."
+    ::= { s400Metrics2 6 }
+
+
+--
+-- Demux 1 sub-tree
+--
+s400Demux1 OBJECT IDENTIFIER ::= { s400Processor 3 }
+
+s400ForwardEntireStream1 OBJECT-TYPE
+    SYNTAX INTEGER {
+        disable(0),
+        enable(1)
+    }
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "Indicates whether or not the entire stream is forwarded.
+         0 = disable
+         1 = enable"
+    ::= { s400Demux1 1 }
+
+s400ForwardEntireStreamIp1 OBJECT-TYPE
+    SYNTAX IpAddress
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION "When forwarded, this is the destination IP address for the entire stream."
+    ::= { s400Demux1 2 }
+
+s400ForwardEntireStreamPort1 OBJECT-TYPE
+    SYNTAX Unsigned32 (1..65535)
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION "When forwarded, this is the destination port for the entire stream."
+    ::= { s400Demux1 3 }
+
+s400ForwardEntireStreamTtl1 OBJECT-TYPE
+    SYNTAX Unsigned32 (1..255)
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION "When forwarded, this is the destination TTL for the entire stream."
+    ::= { s400Demux1 4 }
+
+s400RemoveNulls1 OBJECT-TYPE
+    SYNTAX INTEGER {
+        disable(0),
+        enable(1)
+    }
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "Indicates whether or not NULL packets are removed when the entire stream is forwarded.
+         0 = disable
+         1 = enable"
+    ::= { s400Demux1 5 }
+
+s400PidGroup1Table OBJECT-TYPE
+    SYNTAX SEQUENCE OF S400PidGroup1Entry
+    MAX-ACCESS not-accessible
+    STATUS current
+    DESCRIPTION
+        "A table that contains PID group information for each tuner interface.
+         The table index ranges from 0 to 63."
+    ::= { s400Demux1 6 }
+
+s400PidGroup1Entry OBJECT-TYPE
+    SYNTAX S400PidGroup1Entry
+    MAX-ACCESS not-accessible
+    STATUS current
+    DESCRIPTION "An entry in the s400PidGroup1Table."
+    INDEX { s400PidGroup1Index }
+    ::= { s400PidGroup1Table 1 }
+
+S400PidGroup1Entry ::= SEQUENCE {
+    s400PidGroup1Index Unsigned32,
+    s400PidGroup1Ip IpAddress,
+    s400PidGroup1Port Unsigned32,
+    s400PidGroup1Ttl Unsigned32,
+    s400PidGroup1Pids OCTET STRING,
+    s400PidGroup1RowStatus RowStatus
+    }
+
+s400PidGroup1Index OBJECT-TYPE
+    SYNTAX Unsigned32 (0..63)
+    MAX-ACCESS not-accessible
+    STATUS current
+    DESCRIPTION "Index into s400PidGroup1Table."
+    ::= { s400PidGroup1Entry 1 }
+
+s400PidGroup1Ip OBJECT-TYPE
+    SYNTAX IpAddress
+    MAX-ACCESS read-create
+    STATUS current
+    DESCRIPTION "Destination IP address for the PID group."
+    ::= { s400PidGroup1Entry 2 }
+
+s400PidGroup1Port OBJECT-TYPE
+    SYNTAX Unsigned32 (1..65535)
+    MAX-ACCESS read-create
+    STATUS current
+    DESCRIPTION "Destination port for the PID group."
+    ::= { s400PidGroup1Entry 3 }
+
+s400PidGroup1Ttl OBJECT-TYPE
+    SYNTAX Unsigned32 (1..255)
+    MAX-ACCESS read-create
+    STATUS current
+    DESCRIPTION "Destination TTL for the PID group."
+    ::= { s400PidGroup1Entry 4 }
+
+s400PidGroup1Pids OBJECT-TYPE
+    SYNTAX OCTET STRING
+    MAX-ACCESS read-create
+    STATUS current
+    DESCRIPTION "List of PIDs in the PID Group (separated by spaces)."
+    ::= { s400PidGroup1Entry 5 }
+
+s400PidGroup1RowStatus OBJECT-TYPE
+    SYNTAX RowStatus
+    MAX-ACCESS read-create
+    STATUS current
+    DESCRIPTION
+        "The status of the row. The status can be set to createAndWait(5) to
+         create an empty row; active(1) to enable a row; destroy(6) to
+         delete a row; createAndGo(4), notReady(3) and notInService(2)
+         are not supported.
+         Note: all fields in a row are dependent on each other and the entire row
+         must be controlled at once."
+    ::= { s400PidGroup1Entry 6 }
+
+s400MpePid1Table OBJECT-TYPE
+    SYNTAX SEQUENCE OF S400MpePid1Entry
+    MAX-ACCESS not-accessible
+    STATUS current
+    DESCRIPTION
+        "A table that contains MPE PIDs.
+         The table index ranges from 0 to 63."
+    ::= { s400Demux1 7 }
+
+s400MpePid1Entry OBJECT-TYPE
+    SYNTAX S400MpePid1Entry
+    MAX-ACCESS not-accessible
+    STATUS current
+    DESCRIPTION "An entry in the s400MpePid1Table."
+    INDEX { s400MpePid1Index }
+    ::= { s400MpePid1Table 1 }
+
+S400MpePid1Entry ::= SEQUENCE {
+    s400MpePid1Index Unsigned32,
+    s400MpePid1Pid Unsigned32,
+    s400MpePid1RowStatus RowStatus
+    }
+
+s400MpePid1Index OBJECT-TYPE
+    SYNTAX Unsigned32 (0..63)
+    MAX-ACCESS not-accessible
+    STATUS current
+    DESCRIPTION "Index into s400MpePid1Table."
+    ::= { s400MpePid1Entry 1 }
+
+s400MpePid1Pid OBJECT-TYPE
+    SYNTAX Unsigned32 (32..8190)
+    MAX-ACCESS read-create
+    STATUS current
+    DESCRIPTION "MPE PID."
+    ::= { s400MpePid1Entry 2 }
+
+s400MpePid1RowStatus OBJECT-TYPE
+    SYNTAX RowStatus
+    MAX-ACCESS read-create
+    STATUS current
+    DESCRIPTION
+        "The status of the row. The status can be set to createAndWait(5) to
+         create an empty row; active(1) to enable a row; destroy(6) to
+         delete a row; createAndGo(4), notReady(3) and notInService(2)
+         are not supported.
+         Note: all fields in a row are dependent on each other and the entire row
+         must be controlled at once."
+    ::= { s400MpePid1Entry 3 }
+
+
+--
+-- Demux 2 sub-tree
+--
+s400Demux2 OBJECT IDENTIFIER ::= { s400Processor 4 }
+
+s400ForwardEntireStream2 OBJECT-TYPE
+    SYNTAX INTEGER {
+        disable(0),
+        enable(1)
+    }
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "Indicates whether or not the entire stream is forwarded.
+         0 = disable
+         1 = enable"
+    ::= { s400Demux2 1 }
+
+s400ForwardEntireStreamIp2 OBJECT-TYPE
+    SYNTAX IpAddress
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION "When forwarded, this is the destination IP address for the entire stream."
+    ::= { s400Demux2 2 }
+
+s400ForwardEntireStreamPort2 OBJECT-TYPE
+    SYNTAX Unsigned32 (1..65535)
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION "When forwarded, this is the destination port for the entire stream."
+    ::= { s400Demux2 3 }
+
+s400ForwardEntireStreamTtl2 OBJECT-TYPE
+    SYNTAX Unsigned32 (1..255)
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION "When forwarded, this is the destination TTL for the entire stream."
+    ::= { s400Demux2 4 }
+
+s400RemoveNulls2 OBJECT-TYPE
+    SYNTAX INTEGER {
+        disable(0),
+        enable(1)
+    }
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "Indicates whether or not NULL packets are removed when the entire stream is forwarded.
+         0 = disable
+         1 = enable"
+    ::= { s400Demux2 5 }
+
+s400PidGroup2Table OBJECT-TYPE
+    SYNTAX SEQUENCE OF S400PidGroup2Entry
+    MAX-ACCESS not-accessible
+    STATUS current
+    DESCRIPTION
+        "A table that contains PID group information for each tuner interface.
+         The table index ranges from 0 to 63."
+    ::= { s400Demux2 6 }
+
+s400PidGroup2Entry OBJECT-TYPE
+    SYNTAX S400PidGroup2Entry
+    MAX-ACCESS not-accessible
+    STATUS current
+    DESCRIPTION "An entry in the s400PidGroup2Table."
+    INDEX { s400PidGroup2Index }
+    ::= { s400PidGroup2Table 1 }
+
+S400PidGroup2Entry ::= SEQUENCE {
+    s400PidGroup2Index Unsigned32,
+    s400PidGroup2Ip IpAddress,
+    s400PidGroup2Port Unsigned32,
+    s400PidGroup2Ttl Unsigned32,
+    s400PidGroup2Pids OCTET STRING,
+    s400PidGroup2RowStatus RowStatus
+    }
+
+s400PidGroup2Index OBJECT-TYPE
+    SYNTAX Unsigned32 (0..63)
+    MAX-ACCESS not-accessible
+    STATUS current
+    DESCRIPTION "Index into s400PidGroup2Table."
+    ::= { s400PidGroup2Entry 1 }
+
+s400PidGroup2Ip OBJECT-TYPE
+    SYNTAX IpAddress
+    MAX-ACCESS read-create
+    STATUS current
+    DESCRIPTION "Destination IP address for the PID group."
+    ::= { s400PidGroup2Entry 2 }
+
+s400PidGroup2Port OBJECT-TYPE
+    SYNTAX Unsigned32 (1..65535)
+    MAX-ACCESS read-create
+    STATUS current
+    DESCRIPTION "Destination port for the PID group."
+    ::= { s400PidGroup2Entry 3 }
+
+s400PidGroup2Ttl OBJECT-TYPE
+    SYNTAX Unsigned32 (1..255)
+    MAX-ACCESS read-create
+    STATUS current
+    DESCRIPTION "Destination TTL for the PID group."
+    ::= { s400PidGroup2Entry 4 }
+
+s400PidGroup2Pids OBJECT-TYPE
+    SYNTAX OCTET STRING
+    MAX-ACCESS read-create
+    STATUS current
+    DESCRIPTION "List of PIDs in the PID Group (separated by spaces)."
+    ::= { s400PidGroup2Entry 5 }
+
+s400PidGroup2RowStatus OBJECT-TYPE
+    SYNTAX RowStatus
+    MAX-ACCESS read-create
+    STATUS current
+    DESCRIPTION
+        "The status of the row. The status can be set to createAndWait(5) to
+         create an empty row; active(1) to enable a row; destroy(6) to
+         delete a row; createAndGo(4), notReady(3) and notInService(2)
+         are not supported.
+         Note: all fields in a row are dependent on each other and the entire row
+         must be controlled at once."
+    ::= { s400PidGroup2Entry 6 }
+
+s400MpePid2Table OBJECT-TYPE
+    SYNTAX SEQUENCE OF S400MpePid2Entry
+    MAX-ACCESS not-accessible
+    STATUS current
+    DESCRIPTION
+        "A table that contains MPE PIDs.
+         The table index ranges from 0 to 63."
+    ::= { s400Demux2 7 }
+
+s400MpePid2Entry OBJECT-TYPE
+    SYNTAX S400MpePid2Entry
+    MAX-ACCESS not-accessible
+    STATUS current
+    DESCRIPTION "An entry in the s400MpePid2Table."
+    INDEX { s400MpePid2Index }
+    ::= { s400MpePid2Table 1 }
+
+S400MpePid2Entry ::= SEQUENCE {
+    s400MpePid2Index Unsigned32,
+    s400MpePid2Pid Unsigned32,
+    s400MpePid2RowStatus RowStatus
+    }
+
+s400MpePid2Index OBJECT-TYPE
+    SYNTAX Unsigned32 (0..63)
+    MAX-ACCESS not-accessible
+    STATUS current
+    DESCRIPTION "Index into s400MpePid2Table."
+    ::= { s400MpePid2Entry 1 }
+
+s400MpePid2Pid OBJECT-TYPE
+    SYNTAX Unsigned32 (32..8190)
+    MAX-ACCESS read-create
+    STATUS current
+    DESCRIPTION "MPE PID."
+    ::= { s400MpePid2Entry 2 }
+
+s400MpePid2RowStatus OBJECT-TYPE
+    SYNTAX RowStatus
+    MAX-ACCESS read-create
+    STATUS current
+    DESCRIPTION
+        "The status of the row. The status can be set to createAndWait(5) to
+         create an empty row; active(1) to enable a row; destroy(6) to
+         delete a row; createAndGo(4), notReady(3) and notInService(2)
+         are not supported.
+         Note: all fields in a row are dependent on each other and the entire row
+         must be controlled at once."
+    ::= { s400MpePid2Entry 3 }
+
+
+--
+-- LNB sub-tree
+--
+s400LNB OBJECT IDENTIFIER ::= { s400Processor 5 }
+
+s400LNBSupply OBJECT-TYPE
+    SYNTAX INTEGER {
+        disabled(0),
+        enabled(1)
+    }
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The LNB supply Select:
+         0 = Disable LNB Polarization.
+         1 = Enable LNB Polarization.
+         If this value is set to 1, the polarization specified in the current
+         carrier definition will be used. If this value is set to 0, it is
+         assumed that another device is controlling the LNB polarization setting
+         (via the LNB power supply)."
+    ::= { s400LNB 1 }
+
+s400LOFrequency OBJECT-TYPE
+    SYNTAX Counter64
+    UNITS "Hz"
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "The LO frequency (in Hz) of both tuners.
+         Range: 5150000000 to 11250000000"
+    ::= { s400LNB 2 }
+
+s400Polarization OBJECT-TYPE
+    SYNTAX INTEGER {
+        vertical(0),
+        horizontal(1)
+    }
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "This value reflects the polarization of the incoming signal.
+         0 = vertical polarization
+         1 = horizontal polarization"
+    ::= { s400LNB 3 }
+
+s400Enable22KHzTone OBJECT-TYPE
+    SYNTAX INTEGER {
+        disable(0),
+        enable(1)
+    }
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "This value reflects whether the 22 khz tone enabled or disabled.
+         0 = disable
+         1 = enable"
+    ::= { s400LNB 4 }
+
+s400LongLineCompensation OBJECT-TYPE
+    SYNTAX INTEGER {
+        disable(0),
+        enable(1)
+    }
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "This value reflects whether the 22 khz tone enabled or disabled.
+         0 = disable
+         1 = enable"
+    ::= { s400LNB 5 }
+
+
+--
+-- IP interface sub-tree
+--
+s400IpInterfaces OBJECT IDENTIFIER ::= { s400 3 }
+
+--
+-- IP interface 1 sub-tree
+--
+s400IpInterface1 OBJECT IDENTIFIER ::= { s400IpInterfaces 1 }
+
+s400InterfaceName1 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE(4))
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The interface name.
+         eth0 = the first ethernet interface
+         eth1 = the second ethernet interface"
+    ::= { s400IpInterface1 1 }
+
+s400DHCP1 OBJECT-TYPE
+    SYNTAX INTEGER {
+        disabled(0),
+        enabled(1)
+    }
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "Indicates whether DHCP is enabled or disabled. If DHCP is enabled then
+         the receiver will attempt to acquire an IP address from a DHCP server.
+         If DHCP is disabled the receiver will use the IP address stored in its
+         configuration file.
+         0 = disabled
+         1 = enabled"
+    ::= { s400IpInterface1 2 }
+
+s400IpAddr1 OBJECT-TYPE
+    SYNTAX IpAddress
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "IP address of the interface. If DHCP is in use, the IP address
+         will be that assigned by the DHCP server. Any attempt to change it
+         will be ignored."
+    ::= { s400IpInterface1 3 }
+
+s400NetMask1 OBJECT-TYPE
+    SYNTAX IpAddress
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "Netmask of the interface. If DHCP is in use, the netmask
+         will be that assigned by the DHCP server.Any attempt to change it
+         will be ignored."
+    ::= { s400IpInterface1 4 }
+
+s400MACAddress1 OBJECT-TYPE
+    SYNTAX OCTET STRING
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION "The MAC address of the interface."
+    ::= { s400IpInterface1 5 }
+
+
+--
+-- IP interface 2 sub-tree
+--
+s400IpInterface2 OBJECT IDENTIFIER ::= { s400IpInterfaces 2 }
+
+s400InterfaceName2 OBJECT-TYPE
+    SYNTAX OCTET STRING (SIZE(4))
+    MAX-ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "The interface name.
+         eth0 = the first ethernet interface
+         eth1 = the second ethernet interface"
+    ::= { s400IpInterface2 1 }
+
+s400DHCP2 OBJECT-TYPE
+    SYNTAX INTEGER {
+        disabled(0),
+        enabled(1)
+    }
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "Indicates whether DHCP is enabled or disabled. If DHCP is enabled then
+         the receiver will attempt to acquire an IP address from a DHCP server.
+         If DHCP is disabled the receiver will use the IP address stored in its
+         configuration file.
+         0 = disabled
+         1 = enabled"
+    ::= { s400IpInterface2 2 }
+
+s400IpAddr2 OBJECT-TYPE
+    SYNTAX IpAddress
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "IP address of the interface. If DHCP is in use, the IP address
+         will be that assigned by the DHCP server. Any attempt to change it
+         will be ignored."
+    ::= { s400IpInterface2 3 }
+
+s400NetMask2 OBJECT-TYPE
+    SYNTAX IpAddress
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        "Netmask of the interface. If DHCP is in use, the netmask
+         will be that assigned by the DHCP server.Any attempt to change it
+         will be ignored."
+    ::= { s400IpInterface2 4 }
+
+s400DefaultGateway OBJECT-TYPE
+    SYNTAX IpAddress
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION "IP address of the default gateway."
+    ::= { s400IpInterface2 5 }
+
+s400DnsPrimary OBJECT-TYPE
+    SYNTAX IpAddress
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION "IP address of the primary DNS server."
+    ::= { s400IpInterface2 6 }
+
+s400DnsSecondary OBJECT-TYPE
+    SYNTAX IpAddress
+    MAX-ACCESS read-write
+    STATUS current
+    DESCRIPTION "IP address of the secondary DNS server."
+    ::= { s400IpInterface2 7 }
+
+
+--
+-- Notification Objects
+--
+s400NotificationObjects OBJECT IDENTIFIER ::= { s400 4 }
+
+s400NotificationSystemName OBJECT-TYPE
+    SYNTAX OCTET STRING
+    MAX-ACCESS accessible-for-notify
+    STATUS current
+    DESCRIPTION "The name of the system"
+    ::= { s400NotificationObjects 1 }
+
+s400NotificationFirmwareVersion OBJECT-TYPE
+    SYNTAX OCTET STRING
+    MAX-ACCESS accessible-for-notify
+    STATUS current
+    DESCRIPTION "The version number of the firmware."
+    ::= { s400NotificationObjects 2 }
+
+s400NotificationSystemUpTime OBJECT-TYPE
+    SYNTAX INTEGER
+    UNITS "seconds"
+    MAX-ACCESS accessible-for-notify
+    STATUS current
+    DESCRIPTION "The system up-time duration (in seconds)."
+    ::= { s400NotificationObjects 3 }
+
+s400NotificationSystemBootDateTime OBJECT-TYPE
+    SYNTAX OCTET STRING
+    MAX-ACCESS accessible-for-notify
+    STATUS current
+    DESCRIPTION "The date and time of system boot up."
+    ::= { s400NotificationObjects 4 }
+
+s400NotificationLockStatus OBJECT-TYPE
+    SYNTAX INTEGER {
+        notlocked(0),
+        locked(1)
+    }
+    MAX-ACCESS accessible-for-notify
+    STATUS current
+    DESCRIPTION
+        "The value lock status.
+         0 = not locked
+         1 = locked"
+    ::= { s400NotificationObjects 5 }
+
+s400NotificationSignalStrength OBJECT-TYPE
+    SYNTAX OCTET STRING
+    UNITS "dBm"
+    MAX-ACCESS accessible-for-notify
+    STATUS current
+    DESCRIPTION
+        "The signal strength (in dBm) gives an approximate indication of the strength of
+         the RF L-band carrier."
+    ::= { s400NotificationObjects 6 }
+
+s400NotificationCarrierToNoise OBJECT-TYPE
+    SYNTAX OCTET STRING
+    UNITS "dB"
+    MAX-ACCESS accessible-for-notify
+    STATUS current
+    DESCRIPTION
+        "The estimated carrier to noise ratio (in dB) at the input to the receiver.
+         The format of this value is x.y where x and y are integers."
+    ::= { s400NotificationObjects 7 }
+
+s400NotificationBitRate OBJECT-TYPE
+    SYNTAX OCTET STRING
+    UNITS "Mbps"
+    MAX-ACCESS accessible-for-notify
+    STATUS current
+    DESCRIPTION "The RF bit rate (in Mbps)."
+    ::= { s400NotificationObjects 8 }
+
+
+--
+-- Notifications
+--
+s400Notifications OBJECT IDENTIFIER ::= { s400 5 }
+
+s400BootUpNotification NOTIFICATION-TYPE
+    OBJECTS {
+        s400NotificationSystemName,
+        s400NotificationFirmwareVersion,
+        s400NotificationSystemBootDateTime
+    }
+    STATUS current
+    DESCRIPTION "Notification sent when the system boots up."
+    ::= { s400Notifications 1 }
+
+s400RF1LockChangeNotification NOTIFICATION-TYPE
+    OBJECTS {
+        s400NotificationSystemName,
+        s400NotificationFirmwareVersion,
+        s400NotificationSystemUpTime,
+        s400NotificationLockStatus
+    }
+    STATUS current
+    DESCRIPTION "Notification sent when the RF1 lock status changes ."
+    ::= { s400Notifications 2 }
+
+s400RF2LockChangeNotification NOTIFICATION-TYPE
+    OBJECTS {
+        s400NotificationSystemName,
+        s400NotificationFirmwareVersion,
+        s400NotificationSystemUpTime,
+        s400NotificationLockStatus
+    }
+    STATUS current
+    DESCRIPTION "Notification sent when the RF2 lock status changes."
+    ::= { s400Notifications 3 }
+
+s400RF1MetricsNotification NOTIFICATION-TYPE
+    OBJECTS {
+        s400NotificationSystemName,
+        s400NotificationFirmwareVersion,
+        s400NotificationSystemUpTime,
+        s400NotificationSignalStrength,
+        s400NotificationCarrierToNoise,
+        s400NotificationBitRate
+    }
+    STATUS current
+    DESCRIPTION
+        "Notification sent periodically, containing metrics for RF1."
+    ::= { s400Notifications 4 }
+
+s400RF2MetricsNotification NOTIFICATION-TYPE
+    OBJECTS {
+        s400NotificationSystemName,
+        s400NotificationFirmwareVersion,
+        s400NotificationSystemUpTime,
+        s400NotificationSignalStrength,
+        s400NotificationCarrierToNoise,
+        s400NotificationBitRate
+    }
+    STATUS current
+    DESCRIPTION
+        "Notification sent periodically, containing metrics for RF2."
+    ::= { s400Notifications 5 }
+
+END

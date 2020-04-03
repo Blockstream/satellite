@@ -1,6 +1,235 @@
 """Standalone Receiver"""
+import logging, os, time
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
-from . import rp, firewall, defs, config, dependencies
+from . import rp, firewall, defs, config, dependencies, util
+from .monitor import Monitor, Reporter
+from pysnmp.hlapi import *
+logger = logging.getLogger(__name__)
+
+
+class SnmpClient():
+    """SNMP Client"""
+    def __init__(self, address, port, mib):
+        """Constructor
+
+        Args:
+            address : SNMP agent's IP address
+            port    : SNMP agent's port
+            mib     : Target SNMP MIB
+
+        """
+        self.address = address
+        self.port    = port
+        self.mib     = mib
+        self._dump_mib()
+
+    def _dump_mib(self):
+        """Generate the compiled (.py) MIB file"""
+        sudo_user = os.environ.get('SUDO_USER')
+        user      = sudo_user if sudo_user is not None else ""
+        home      = os.path.expanduser("~" + user)
+
+        # Check if the compiled MIB (.py file) already exists
+        mib_dir = os.path.join(home, ".pysnmp/mibs/")
+        if (os.path.exists(os.path.join(mib_dir, self.mib + ".py"))):
+            return
+
+        cli_dir  = os.path.dirname(os.path.abspath(__file__))
+        mib_path = os.path.join(cli_dir, "mib")
+        cmd = ["mibdump.py",
+               "--mib-source={}".format(mib_path),
+               self.mib]
+        util.run_and_log(cmd, logger=logger)
+
+    def _get(self, *variables):
+        """Get one or more variables via SNMP
+
+        Args:
+            Tuple with the variables to fetch via SNMP.
+
+        Returns:
+            List of tuples with the fetched keys and values.
+
+        """
+        obj_types = []
+        for var in variables:
+            if isinstance(var, tuple):
+                obj = ObjectType(ObjectIdentity(self.mib, var[0], var[1]))
+            else:
+                obj = ObjectType(ObjectIdentity(self.mib, var, 0))
+            obj_types.append(obj)
+
+        errorIndication, errorStatus, errorIndex, varBinds = next(
+            getCmd(SnmpEngine(),
+                   CommunityData('public'),
+                   UdpTransportTarget((self.address, self.port)),
+                   ContextData(),
+                   *obj_types
+            )
+        )
+
+        if errorIndication:
+            print(errorIndication)
+        elif errorStatus:
+            print('%s at %s' % (
+                errorStatus.prettyPrint(),
+                errorIndex and varBinds[int(errorIndex) - 1][0] or '?')
+            )
+        else:
+            res = list()
+            for varBind in varBinds:
+                logger.debug(' = '.join([x.prettyPrint() for x in varBind]))
+                res.append(tuple([x.prettyPrint() for x in varBind]))
+            return res
+
+    def _set(self, variable, value):
+        """Set variable via SNMP
+
+        Args:
+            variable : variable to set via SNMP.
+            value    : value to set on the given variable.
+
+        """
+        errorIndication, errorStatus, errorIndex, varBinds = next(
+            setCmd(SnmpEngine(),
+                   CommunityData('public'),
+                   UdpTransportTarget((self.address, self.port)),
+                   ContextData(),
+                   ObjectType(ObjectIdentity(self.mib, variable, 1), value)
+            )
+        )
+
+        if errorIndication:
+            print(errorIndication)
+        elif errorStatus:
+            print('%s at %s' % (
+                errorStatus.prettyPrint(),
+                errorIndex and varBinds[int(errorIndex) - 1][0] or '?')
+            )
+        else:
+            for varBind in varBinds:
+                print(' = '.join([x.prettyPrint() for x in varBind]))
+
+
+class S400Client(SnmpClient):
+    """Novra S400 SNMP Client"""
+    def __init__(self, demod, address, port, mib):
+        super().__init__(address, port, mib)
+        self.demod = demod
+
+    def get_stats(self):
+        """Get demodulator statistics
+
+        Returns:
+            Dictionary with the receiver stats following the format expected by
+            the Monitor class (from monitor.py), i.e., each dictionary element
+            as a tuple "(value, unit)".
+
+        """
+        res = self._get(
+            's400SignalLockStatus' + self.demod,
+            's400SignalStrength' + self.demod,
+            's400CarrierToNoise' + self.demod,
+            's400UncorrectedPackets' + self.demod,
+            's400BER' + self.demod
+        )
+
+        if res is None:
+            return
+
+        signal_lock_raw  = res[0][1]
+        signal_raw       = res[1][1]
+        c_to_n_raw       = res[2][1]
+        uncorr_raw       = res[3][1]
+        ber_raw          = res[4][1]
+
+        # Parse
+        signal_lock  = (signal_lock_raw == 'locked')
+        stats        = {
+            'lock'  : (signal_lock, None)
+        }
+
+        # Metrics that require locking
+        #
+        # NOTE: the S400 does not return the signal level if unlocked.
+        if (signal_lock):
+            level            = float('nan') if (signal_raw == '< 70') else float(signal_raw)
+            cnr              = float('nan') if (c_to_n_raw == '< 3') else float(c_to_n_raw)
+            stats['snr']     = (cnr, "dB")
+            stats['level']   = (level, "dBm")
+            stats['ber']     = (float(ber_raw), None)
+            stats['pkt_err'] = (int(uncorr_raw), None)
+
+        return stats
+
+    def print_demod_config(self):
+        """Get demodulator configurations via SNMP"""
+        res = self._get(
+            's400FirmwareVersion',
+            # Demodulator
+            's400ModulationStandard' + self.demod,
+            's400LBandFrequency' + self.demod,
+            's400SymbolRate' + self.demod,
+            's400Modcod' + self.demod,
+            # LNB
+            's400LNBSupply',
+            's400LOFrequency',
+            's400Polarization',
+            's400Enable22KHzTone',
+            's400LongLineCompensation',
+            # MPE
+            ('s400MpePid1Pid', 0),
+            ('s400MpePid1Pid', 1),
+            ('s400MpePid1RowStatus', 0),
+            ('s400MpePid1RowStatus', 1)
+        )
+
+        # Form dictionary with the S400 configs
+        cfg = {}
+        for res in res:
+            key = res[0].replace('NOVRA-s400-MIB::s400', '')
+            val = res[1]
+            cfg[key] = val
+
+        # Map dictionary to more informative labels
+        demod_label_map = {
+            'ModulationStandard' + self.demod + '.0' : "Standard",
+            'LBandFrequency' + self.demod + '.0' : "L-band Frequency",
+            'SymbolRate' + self.demod + '.0' : "Symbol Rate",
+            'Modcod' + self.demod + '.0' : "MODCOD",
+        }
+        lnb_label_map = {
+            'LNBSupply.0' : "LNB Power Supply",
+            'LOFrequency.0' : "LO Frequency",
+            'Polarization.0' : "Polarization",
+            'Enable22KHzTone.0' : "22 kHz Tone",
+            'LongLineCompensation.0' : "Long Line Compensation"
+        }
+        mpe_label_map = {
+            'MpePid1Pid.0'       : "MPE PID 1",
+            'MpePid1Pid.1'       : "MPE PID 2",
+            'MpePid1RowStatus.0' : "MPE PID 1 Status",
+            'MpePid1RowStatus.1' : "MPE PID 2 Status"
+        }
+        label_map = {
+            "Demodulator" : demod_label_map,
+            "LNB Options" : lnb_label_map,
+            "MPE Options" : mpe_label_map
+        }
+
+        print("Firmware Version: {}".format(cfg['FirmwareVersion.0']))
+        for map_key in label_map:
+            print("{}:".format(map_key))
+            for key in cfg:
+                if key in label_map[map_key]:
+                    label = label_map[map_key][key]
+                    if (label == "MODCOD"):
+                        val = "VCM" if cfg[key] == "31" else cfg[key]
+                    elif (label == "Standard"):
+                        val = cfg[key].upper()
+                    else:
+                        val = cfg[key]
+                    print("- {}: {}".format(label, val))
 
 
 def subparser(subparsers):
@@ -8,10 +237,23 @@ def subparser(subparsers):
                               description="Standalone DVB-S2 receiver manager",
                               help='Manage the standalone DVB-S2 receiver',
                               formatter_class=ArgumentDefaultsHelpFormatter)
+    p.add_argument('-a', '--address',
+                   default="192.168.1.2",
+                   help="Address of the receiver's SNMP agent")
+    p.add_argument('-p', '--port',
+                   default=161,
+                   type=int,
+                   help="Port of the receiver's SNMP agent")
+    p.add_argument('-d', '--demod',
+                   default="1",
+                   choices=["1","2"],
+                   help="Target demodulator within the S400")
     p.set_defaults(func=print_help)
 
     subsubparsers = p.add_subparsers(title='subcommands',
                                      help='Target sub-command')
+
+    # Configuration
     p1 = subsubparsers.add_parser('config', aliases=['cfg'],
                                   description='Initial configurations',
                                   help='Configure the host to receive data \
@@ -23,6 +265,24 @@ def subparser(subparsers):
     p1.add_argument('-y', '--yes', default=False, action='store_true',
                     help="Default to answering Yes to configuration prompts")
     p1.set_defaults(func=cfg_standalone)
+
+    # Monitoring
+    p2 = subsubparsers.add_parser('monitor',
+                                  description="Monitor the standalone receiver",
+                                  help='Monitor the standalone receiver',
+                                  formatter_class=ArgumentDefaultsHelpFormatter)
+    p2.add_argument('--logfile', default=False,
+                    action='store_true',
+                    help='Save logs on a file')
+    p2.add_argument('-s', '--scrolling', default=False,
+                    action='store_true',
+                    help='Print logs line-by-line, i.e. with scrolling, rather \
+                    than always on the same line')
+    p2.add_argument('--interval',
+                    type=float,
+                    default=1.0,
+                    help="Log interval")
+    p2.set_defaults(func=monitor)
 
     return p
 
@@ -48,6 +308,40 @@ def cfg_standalone(args):
     rp.set_filters([interface], prompt=(not args.yes))
     firewall.configure([interface], defs.src_ports, igmp=True,
                        prompt=(not args.yes))
+
+
+def monitor(args):
+    """Monitor the standalone DVB-S2 receiver"""
+
+    # Client to the S400's SNMP agent
+    s400 = S400Client(args.demod, args.address, args.port, mib='NOVRA-s400-MIB')
+
+    util._print_header("Novra S400 Receiver")
+    s400.print_demod_config()
+
+    # Log Monitoring
+    monitor = Monitor(args.cfg_dir, logfile=args.logfile, scroll=args.scrolling)
+
+    util._print_header("Receiver Monitoring")
+
+    # Fetch the receiver stats periodically
+    c_time = time.time()
+    while (True):
+        try:
+            stats = s400.get_stats()
+
+            if (stats is None):
+                return
+
+            monitor.update(stats)
+
+            next_print = c_time + args.log_interval
+            if (next_print > c_time):
+                time.sleep(next_print - c_time)
+            c_time = time.time()
+
+        except KeyboardInterrupt:
+            break
 
 
 def print_help(args):
