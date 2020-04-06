@@ -26,12 +26,24 @@ def _find_v4l_lnb(info):
 
     """
 
-    target_lo_freq = int(info['lnb']['lo_freq'])
+
+    target_lo_freq_raw  = info['lnb']['lo_freq']
+    target_is_universal = info['lnb']['universal']
+
+    if (target_is_universal):
+        assert(isinstance(target_lo_freq_raw, list))
+        assert(len(target_lo_freq_raw) == 2)
+        target_lo_freq = [int(x) for x in target_lo_freq_raw]
+    else:
+        target_lo_freq = [int(target_lo_freq_raw)]
 
     # Find options that match the LO freq
     options = list()
     for lnb in defs.v4l_lnbs:
         is_universal_option = 'highfreq' in lnb
+
+        if (target_is_universal and (not is_universal_option)):
+            continue
 
         if (info['lnb']['pol'].lower() == "dual" and # user has dual-pol LNB
             (info['sat']['pol'] == "H" or # and satellite requires H pol
@@ -40,16 +52,15 @@ def _find_v4l_lnb(info):
             ) and "rangeswitch" not in lnb): # but LNB candidate is single-pol
             continue # not a validate candidate, skip
 
-        if (lnb['lowfreq'] == target_lo_freq):
-            options.append(lnb)
-            continue
+        if (target_is_universal):
+            if (is_universal_option and
+                lnb['lowfreq'] == target_lo_freq[0] and
+                lnb['highfreq'] == target_lo_freq[1]):
+                options.append(lnb)
+        else:
+            if (lnb['lowfreq'] == target_lo_freq[0]):
+                options.append(lnb)
 
-        if (is_universal_option and
-            lnb['highfreq'] == target_lo_freq and
-            info['lnb']['universal']):
-            options.append(lnb)
-
-    # TODO complete polarization checking
     assert(len(options) > 0), "LNB doesn't match a valid option"
     logger.debug("Matching LNB options: {}".format(pformat(options)))
 
