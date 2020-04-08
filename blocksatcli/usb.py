@@ -5,6 +5,7 @@ import os, sys, signal, argparse, subprocess, time, logging, threading, json
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 from . import config, util, defs, rp, firewall
 import textwrap
+from shutil import which
 logger = logging.getLogger(__name__)
 
 
@@ -111,12 +112,43 @@ def _check_debian_net_interfaces_d(is_root):
         fd.write("\n" + src_line)
 
 
+def _add_to_netplan(ifname, addr_with_prefix, gateway, is_root):
+    """Create configuration file at /etc/netplan/"""
+    assert("/" in addr_with_prefix)
+    cfg_dir = "/etc/netplan/"
+
+    cfg = ("network:\n"
+           "  version: 2\n"
+           "  renderer: networkd\n"
+           "  ethernets:\n"
+           "    {}:\n"
+           "      dhcp4: no\n"
+           "      optional: true\n"
+           "      addresses: [{}]\n"
+           "      gateway4: {}\n").format(
+               ifname, addr_with_prefix, gateway)
+
+    fname  = "blocksat-" + ifname + ".yaml"
+    path   = os.path.join(cfg_dir, fname)
+
+    if (not is_root):
+        print(textwrap.fill("Create a file named {} at {} and add the "
+                            "following to it:".format(fname, cfg_dir)))
+        print("\n" + cfg + "\n")
+        return
+
+    with open(path, 'w') as fd:
+        fd.write(cfg)
+
+    print("Created configuration file {} in {}".format(fname, cfg_dir))
+
+
 def _add_to_interfaces_d(ifname, addr, netmask, gateway, is_root):
     """Create configuration file at /etc/network/interfaces.d/"""
     if_dir = "/etc/network/interfaces.d/"
     cfg = ("iface {0} inet static\n"
            "    address {1}\n"
-           "    netmask {2}").format(ifname, addr, netmask, gateway)
+           "    netmask {2}\n").format(ifname, addr, netmask, gateway)
     fname  = ifname + ".conf"
     path   = os.path.join(if_dir, fname)
 
@@ -167,15 +199,19 @@ def _set_static_iface_ip(ifname, ipv4_if, is_root):
 
     """
     isinstance(ipv4_if, IPv4Interface)
-    addr          = str(ipv4_if.ip)
-    netmask       = str(ipv4_if.netmask)
-    addr_s        = addr.split(".")
+    addr                = str(ipv4_if.ip)
+    addr_with_prefix    = ipv4_if.with_prefixlen
+    netmask             = str(ipv4_if.netmask)
+    addr_s              = addr.split(".")
     assert(addr_s[-1] != "1")
-    gateway_s     = addr_s
-    gateway_s[-1] = "1"
-    gateway       = ".".join(gateway_s)
+    gateway_s           = addr_s
+    gateway_s[-1]       = "1"
+    gateway             = ".".join(gateway_s)
 
-    if (os.path.exists("/etc/network/interfaces.d/")):
+
+    if (which("netplan") is not None):
+        _add_to_netplan(ifname, addr_with_prefix, gateway, is_root)
+    elif (os.path.exists("/etc/network/interfaces.d/")):
         _add_to_interfaces_d(ifname, addr, netmask, gateway, is_root)
     elif (os.path.exists("/etc/sysconfig/network-scripts")):
         _add_to_sysconfig_net_scripts(ifname, addr, netmask, gateway, is_root)
@@ -273,12 +309,18 @@ def _set_ips(net_ifs, ip_addrs, verbose=True):
         print("Set static IP addresses on dvbnet interfaces.\n")
 
     # Configure static IP addresses
-    _check_debian_net_interfaces_d(is_root)
+    if (which("netplan") is None):
+        _check_debian_net_interfaces_d(is_root)
+
     for net_if, ip_addr in zip(net_ifs, ip_addrs):
         _set_ip(net_if, ip_addr, verbose)
 
     # Bring up interfaces
-    if (os.path.exists("/etc/network/interfaces.d/")):
+    if (which("netplan") is not None):
+        if (not is_root):
+            print("Finally, apply the new netplan configuration:\n")
+        util.run_or_print_root_cmd(["netplan", "apply"], logger)
+    elif (os.path.exists("/etc/network/interfaces.d/")):
         # Debian approach
         if (not is_root):
             print(textwrap.fill("Finally, restart the networking service and "
@@ -290,8 +332,9 @@ def _set_ips(net_ifs, ip_addrs, verbose=True):
         if (not is_root):
             print(textwrap.fill("Finally, bring up the interfaces:") + "\n")
 
-    for net_if in net_ifs:
-        util.run_or_print_root_cmd(["ifup", net_if], logger)
+    if (which("netplan") is None):
+        for net_if in net_ifs:
+            util.run_or_print_root_cmd(["ifup", net_if], logger)
 
 
 def _check_ips(net_ifs, ip_addrs):
@@ -589,15 +632,20 @@ def _rm_dvbnet_interface(adapter, ifname, verbose=True):
 
     # Remove conf file for network interface (next time the interface could have
     # a different number)
-    net_file   = os.path.join("/etc/network/interfaces.d/", ifname + ".conf")
-    ifcfg_file = os.path.join("/etc/sysconfig/network-scripts/",
-                              "ifcfg-" + ifname)
-    if (os.path.exists(net_file)):
-        res    = util.run_or_print_root_cmd(["rm", net_file])
-        print("Removed configuration file {}".format(net_file))
+    netplan_file = os.path.join("/etc/netplan/", "blocksat-" + ifname + ".yaml")
+    net_file     = os.path.join("/etc/network/interfaces.d/", ifname + ".conf")
+    ifcfg_file   = os.path.join("/etc/sysconfig/network-scripts/",
+                                "ifcfg-" + ifname)
+
+    if (which("netplan") is not None):
+        cfg_file = netplan_file
+    elif (os.path.exists(net_file)):
+        cfg_file = net_file
     elif (os.path.exists(ifcfg_file)):
-        res    = util.run_or_print_root_cmd(["rm", ifcfg_file])
-        print("Removed configuration file {}".format(ifcfg_file))
+        cfg_file = ifcfg_file
+
+    res = util.run_or_print_root_cmd(["rm", cfg_file])
+    print("Removed configuration file {}".format(cfg_file))
 
 
 def zap(adapter, frontend, ch_conf_file, user_info, lnb="UNIVERSAL",
