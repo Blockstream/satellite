@@ -362,7 +362,7 @@ def read_cfg_file(basename, directory):
 
 def subparser(subparsers):
     """Argument parser of config command"""
-    p = subparsers.add_parser('configure', aliases=['cfg'],
+    p = subparsers.add_parser('config', aliases=['cfg'],
                               description="Configure Blocksat Rx setup",
                               help='Define receiver and Bitcoin FIBRE \
                               configurations',
