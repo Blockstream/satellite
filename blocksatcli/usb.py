@@ -874,7 +874,7 @@ def usb_config(args):
 
     if (os.geteuid() != 0):
         print("WARNING:\n")
-        util.fill_print("\"blocksat-cli usb init\" requires root access. \
+        util.fill_print("\"blocksat-cli usb config\" requires root access. \
         Please run as root or follow the instructions below.")
 
     common_params = _common(args)

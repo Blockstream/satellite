@@ -112,7 +112,7 @@ Assuming the TBS5927 is launched after executing the command that follows (see
 on the terminal.
 
 ```
-blocksat-cli usb
+blocksat-cli usb launch
 ```
 
 Initially, while the TBS5927 is still searching for the Blockstream Satellite
