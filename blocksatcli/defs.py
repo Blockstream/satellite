@@ -105,7 +105,7 @@ lnbs = [
     {
         'vendor'    : "Avenger",
         'model'     : "PLL321S-2",
-        'lo_freq'   : [9750.0, 10600],
+        'lo_freq'   : [9750.0, 10600.0],
         'universal' : True,
         'band'      : "Ku",
         'pol'       : "Dual"
@@ -115,6 +115,14 @@ lnbs = [
         'model'     : "MK1",
         "lo_freq"   : 10750.0,
         'universal' : False,
+        'band'      : "Ku",
+        'pol'       : "Dual"
+    },
+    {
+        'vendor'    : "GEOSATpro",
+        'model'     : "UL1PLL",
+        'lo_freq'   : [9750.0, 10600.0],
+        'universal' : True,
         'band'      : "Ku",
         'pol'       : "Dual"
     },
