@@ -643,9 +643,12 @@ def _rm_dvbnet_interface(adapter, ifname, verbose=True):
         cfg_file = net_file
     elif (os.path.exists(ifcfg_file)):
         cfg_file = ifcfg_file
+    else:
+        cfg_file = None
 
-    res = util.run_or_print_root_cmd(["rm", cfg_file])
-    print("Removed configuration file {}".format(cfg_file))
+    if (cfg_file is not None):
+        res = util.run_or_print_root_cmd(["rm", cfg_file])
+        print("Removed configuration file {}".format(cfg_file))
 
 
 def zap(adapter, frontend, ch_conf_file, user_info, lnb="UNIVERSAL",
