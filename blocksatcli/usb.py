@@ -274,7 +274,7 @@ def _set_ip(net_if, ip_addr, verbose):
         res = util.run_or_print_root_cmd(["ip", "address", "flush",
                                           "dev", net_if], logger)
 
-    if (not has_ip or not ip_ok):
+    if ((not has_ip) or (not ip_ok) or (not is_root)):
         if (is_root):
             print("Assign static IP address %s to %s" %(ip_addr, net_if))
         else:
