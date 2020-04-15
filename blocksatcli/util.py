@@ -180,6 +180,6 @@ def run_or_print_root_cmd(cmd, logger=None):
             logger.debug("> " + " ".join(cmd))
         return subprocess.check_output(cmd)
     else:
-        print("> " + " ".join(cmd))
+        print("> " + " ".join(cmd) + "\n")
 
 

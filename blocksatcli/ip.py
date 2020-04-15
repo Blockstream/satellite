@@ -196,32 +196,16 @@ def _set_ip(net_if, ip_addr, verbose):
 
     """
     is_root       = (os.geteuid() == 0)
-    has_ip, ip_ok = _check_ip(net_if, ip_addr)
     inet_if       = IPv4Interface(ip_addr)
 
-    if (has_ip and not ip_ok):
-        if (is_root):
-            print("Interface %s has an IP, but it is not %s" %(net_if, ip_addr))
-            print("Flush current IP address of %s" %(net_if))
-        res = util.run_or_print_root_cmd(["ip", "address", "flush",
-                                          "dev", net_if], logger)
+    # Flush previous IP
+    if (not is_root):
+        print("Flush any IP address from {}:\n".format(net_if))
+    res = util.run_or_print_root_cmd(["ip", "address", "flush", "dev", net_if],
+                                     logger)
 
-    if ((not has_ip) or (not ip_ok) or (not is_root)):
-        if (is_root):
-            print("Assign static IP address %s to %s" %(ip_addr, net_if))
-        else:
-            print("Flush the IP from {}:\n".format(net_if))
-
-        res = util.run_or_print_root_cmd(["ip", "address", "flush",
-                                          "dev", net_if], logger)
-
-        if (not is_root):
-            print()
-
-        _set_static_iface_ip(net_if, inet_if, is_root)
-    else:
-        if (verbose):
-            print("%s already has IP %s" %(net_if, ip_addr))
+    # Configure new static IP
+    _set_static_iface_ip(net_if, inet_if, is_root)
 
 
 def set_ips(net_ifs, ip_addrs, verbose=True):
