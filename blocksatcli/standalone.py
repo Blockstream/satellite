@@ -14,6 +14,8 @@ def subparser(subparsers):
                     default=None,
                     help='Network interface connected to the standalone \
                     demodulator')
+    p.add_argument('-y', '--yes', default=False, action='store_true',
+                   help="Default to answering Yes to configuration prompts")
     p.set_defaults(func=cfg_standalone)
     return p
 
@@ -31,7 +33,8 @@ def cfg_standalone(args):
     interface = args.interface if (args.interface is not None) else \
                 user_info['setup']['netdev']
 
-    rp.set_rp_filters([interface])
-    firewall.configure([interface], defs.src_ports, igmp=True)
+    rp.set_filters([interface], prompt=(not args.yes))
+    firewall.configure([interface], defs.src_ports, igmp=True,
+                       prompt=(not args.yes))
 
 

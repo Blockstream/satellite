@@ -129,7 +129,7 @@ def _add_iptables_rule(net_if, cmd):
                 print(" ".join(rule['rule']) + "\n")
 
 
-def _configure_firewall(net_if, ports, igmp=False):
+def _configure_firewall(net_if, ports, igmp=False, prompt=True):
     """Configure firewallrules to accept blocksat traffic via DVB interface
 
     Args:
@@ -156,7 +156,8 @@ def _configure_firewall(net_if, ports, igmp=False):
     elif (not _is_iptables_udp_rule_set(net_if, cmd)):
         print("- Configure firewall rule to accept Blocksat traffic arriving " +
               "at interface %s\ntowards UDP ports %s." %(net_if, ",".join(ports)))
-        if (util._ask_yes_or_no("Add corresponding ACCEPT firewall rule?")):
+        if ((not prompt) or
+            util._ask_yes_or_no("Add corresponding ACCEPT firewall rule?")):
             _add_iptables_rule(net_if, cmd)
         else:
             print("\nFirewall configuration cancelled")
@@ -184,13 +185,14 @@ def _configure_firewall(net_if, ports, igmp=False):
     elif (not _is_iptables_igmp_rule_set(net_if, cmd)):
         print("Configure also a firewall rule to accept IGMP queries. This is " +
               "necessary when using a standalone DVB demodulator.")
-        if (util._ask_yes_or_no("Add corresponding ACCEPT rule on firewall?")):
+        if ((not prompt) or
+            util._ask_yes_or_no("Add corresponding ACCEPT rule on firewall?")):
             _add_iptables_rule(net_if, cmd)
         else:
             print("\nIGMP firewall rule cancelled")
 
 
-def configure(net_ifs, ports, igmp=False):
+def configure(net_ifs, ports, igmp=False, prompt=True):
     """Configure firewallrules to accept blocksat traffic via DVB interface
 
     Args:
@@ -208,7 +210,7 @@ def configure(net_ifs, ports, igmp=False):
         commands on your own:\n")
 
     for i, net_if in enumerate(net_ifs):
-        _configure_firewall(net_if, ports, igmp)
+        _configure_firewall(net_if, ports, igmp, prompt)
 
         if (i < len(net_ifs) - 1):
             print("")

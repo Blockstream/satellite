@@ -514,6 +514,9 @@ def subparser(subparsers):
                     nargs='+',
                     help='List of PIDs to be listened to by dvbnet')
 
+    p2.add_argument('-y', '--yes', default=False, action='store_true',
+                    help="Default to answering Yes to configuration prompts")
+
     p2.set_defaults(func=usb_config)
 
     # Find adapter sub-command
@@ -585,11 +588,11 @@ def usb_config(args):
 
     # Set RP filters
     if (not args.skip_rp):
-        rp.set_rp_filters(net_ifs)
+        rp.set_filters(net_ifs, prompt=(not args.yes))
 
     # Set firewall rules
     if (not args.skip_firewall):
-        firewall.configure(net_ifs, defs.src_ports)
+        firewall.configure(net_ifs, defs.src_ports, prompt=(not args.yes))
 
     # Set IP
     ip.set_ips(net_ifs, args.ip)

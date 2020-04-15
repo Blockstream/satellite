@@ -52,7 +52,7 @@ def _check_rp_filters(dvb_if):
     return (dvb_cfg == "0" and all_cfg == "0")
 
 
-def _set_rp_filters(dvb_ifs, non_root):
+def _set_filters(dvb_ifs, non_root):
     """Disable reverse-path (RP) filtering for the DVB interface
 
     There are two layers of RP filters, one specific to the network interface
@@ -116,11 +116,12 @@ def _set_rp_filters(dvb_ifs, non_root):
             _rm_filter(dvb_if)
 
 
-def set_rp_filters(dvb_ifs):
+def set_filters(dvb_ifs, prompt=True):
     """Disable reverse-path (RP) filtering for the DVB interfaces
 
     Args:
         dvb_ifs : list of DVB network interfaces
+        prompt  : Whether to prompt user before applying a configuration
 
     """
     assert(isinstance(dvb_ifs, list))
@@ -153,8 +154,8 @@ def set_rp_filters(dvb_ifs):
             "The automatic solution disables RP filtering on the DVB interface \
             and enables RP filtering on all other interfaces.")
 
-    if (non_root or util._ask_yes_or_no("OK to proceed?")):
-        _set_rp_filters(dvb_ifs, non_root)
+    if (non_root or (not prompt) or util._ask_yes_or_no("OK to proceed?")):
+        _set_filters(dvb_ifs, non_root)
     else:
         print("RP filtering configuration cancelled")
 
@@ -177,6 +178,6 @@ def run(args):
     Handles the reverse-path subcommand
 
     """
-    set_rp_filters([args.interface])
+    set_filters([args.interface])
 
 
