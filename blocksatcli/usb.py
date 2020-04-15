@@ -112,7 +112,7 @@ def _check_debian_net_interfaces_d(is_root):
         fd.write("\n" + src_line)
 
 
-def _add_to_netplan(ifname, addr_with_prefix, gateway, is_root):
+def _add_to_netplan(ifname, addr_with_prefix, is_root):
     """Create configuration file at /etc/netplan/"""
     assert("/" in addr_with_prefix)
     cfg_dir = "/etc/netplan/"
@@ -121,12 +121,11 @@ def _add_to_netplan(ifname, addr_with_prefix, gateway, is_root):
            "  version: 2\n"
            "  renderer: networkd\n"
            "  ethernets:\n"
-           "    {}:\n"
+           "    {0}:\n"
            "      dhcp4: no\n"
            "      optional: true\n"
-           "      addresses: [{}]\n"
-           "      gateway4: {}\n").format(
-               ifname, addr_with_prefix, gateway)
+           "      addresses: [{1}]\n").format(
+               ifname, addr_with_prefix)
 
     fname  = "blocksat-" + ifname + ".yaml"
     path   = os.path.join(cfg_dir, fname)
@@ -143,12 +142,12 @@ def _add_to_netplan(ifname, addr_with_prefix, gateway, is_root):
     print("Created configuration file {} in {}".format(fname, cfg_dir))
 
 
-def _add_to_interfaces_d(ifname, addr, netmask, gateway, is_root):
+def _add_to_interfaces_d(ifname, addr, netmask, is_root):
     """Create configuration file at /etc/network/interfaces.d/"""
     if_dir = "/etc/network/interfaces.d/"
     cfg = ("iface {0} inet static\n"
            "    address {1}\n"
-           "    netmask {2}\n").format(ifname, addr, netmask, gateway)
+           "    netmask {2}\n").format(ifname, addr, netmask)
     fname  = ifname + ".conf"
     path   = os.path.join(if_dir, fname)
 
@@ -164,15 +163,15 @@ def _add_to_interfaces_d(ifname, addr, netmask, gateway, is_root):
     print("Created configuration file {} in {}".format(fname, if_dir))
 
 
-def _add_to_sysconfig_net_scripts(ifname, addr, netmask, gateway, is_root):
+def _add_to_sysconfig_net_scripts(ifname, addr, netmask, is_root):
     """Create configuration file at /etc/sysconfig/network-scripts/"""
     cfg_dir = "/etc/sysconfig/network-scripts/"
     cfg = ("NM_CONTROLLED=\"yes\"\n"
-           "DEVICE=\"{}\"\n"
+           "DEVICE=\"{0}\"\n"
            "BOOTPROTO=none\n"
            "ONBOOT=\"no\"\n"
-           "IPADDR={}\n"
-           "NETMASK={}\n").format(ifname, addr, netmask, gateway)
+           "IPADDR={1}\n"
+           "NETMASK={2}\n").format(ifname, addr, netmask)
 
     fname  = "ifcfg-" + ifname
     path   = os.path.join(cfg_dir, fname)
@@ -202,19 +201,13 @@ def _set_static_iface_ip(ifname, ipv4_if, is_root):
     addr                = str(ipv4_if.ip)
     addr_with_prefix    = ipv4_if.with_prefixlen
     netmask             = str(ipv4_if.netmask)
-    addr_s              = addr.split(".")
-    assert(addr_s[-1] != "1")
-    gateway_s           = addr_s
-    gateway_s[-1]       = "1"
-    gateway             = ".".join(gateway_s)
-
 
     if (which("netplan") is not None):
-        _add_to_netplan(ifname, addr_with_prefix, gateway, is_root)
+        _add_to_netplan(ifname, addr_with_prefix, is_root)
     elif (os.path.exists("/etc/network/interfaces.d/")):
-        _add_to_interfaces_d(ifname, addr, netmask, gateway, is_root)
+        _add_to_interfaces_d(ifname, addr, netmask, is_root)
     elif (os.path.exists("/etc/sysconfig/network-scripts")):
-        _add_to_sysconfig_net_scripts(ifname, addr, netmask, gateway, is_root)
+        _add_to_sysconfig_net_scripts(ifname, addr, netmask, is_root)
     else:
         raise ValueError("Could not set a static IP address on interface "
                          "{}".format(ifname))
