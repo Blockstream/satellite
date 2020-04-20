@@ -1,4 +1,8 @@
 #!/bin/bash
+
+DNF_CMD=$(which dnf)
+APT_CMD=$(which apt-get)
+
 set -e
 
 if [ "$1" == "-u" ]; then
@@ -13,16 +17,33 @@ if [ "$1" == "-u" ]; then
 	make
 	sudo make install
 else
-	sudo apt-get update
-	sudo apt-get install make gcc git patch patchutils libproc-processtable-perl
-	sudo apt-get install linux-headers-$(uname -r)
+	if [[ ! -z $DNF_CMD ]]; then
+		sudo dnf install -y make gcc git patch patchutils \
+			 perl-Proc-ProcessTable \
+			 perl-Digest-SHA \
+			 "kernel-devel-uname-r == $(uname -r)" \
+			 kernel-headers
+	elif [[ ! -z $APT_CMD ]]; then
+		sudo apt-get update
+		sudo apt-get install -y make gcc git patch patchutils \
+			 libproc-processtable-perl \
+			 linux-headers-$(uname -r)
+	else
+		echo "Can't find DNF or APT package manager"
+		echo "Please follow driver installation instructions at https://github.com/tbsdtv/linux_media/wiki"
+		exit 1;
+	fi
 
 	mkdir -p ~/src
 	cd ~/src
 	mkdir -p tbsdriver
 	cd tbsdriver
-	git clone https://github.com/tbsdtv/media_build.git
-	git clone --depth=1 https://github.com/tbsdtv/linux_media.git -b latest ./media
+	if [ ! -d "media_build" ] ; then
+		git clone https://github.com/tbsdtv/media_build.git
+	fi
+	if [ ! -d "media" ] ; then
+		git clone --depth=1 https://github.com/tbsdtv/linux_media.git -b latest ./media
+	fi
 
 	# Build media drivers
 	cd media_build
