@@ -81,19 +81,13 @@ To install the RTL-SDR application, run:
 apt-get install rtl-sdr
 ```
 
-Finally, to install TSDuck from source, install dependencies:
-
-```
-apt install g++ dos2unix curl tar zip doxygen graphviz pcscd libpcsclite-dev \
-	dpkg-dev jq libcurl4 libcurl4-openssl-dev
-```
-
-Build it:
+Finally, to build TSDuck from source, run:
 
 ```
 cd ~/src/
 git clone https://github.com/tsduck/tsduck.git
 cd tsduck
+build/install-prerequisites.sh
 make NOTELETEXT=1 NOSRT=1 NOPCSC=1 NOCURL=1 NODTAPI=1
 ```
 

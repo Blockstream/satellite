@@ -294,7 +294,7 @@ def _print_sdr_instructions(info):
     _item("Connect the **non-powered** port of the power supply (labeled as "
           "\"Signal to IRD\") to the RTL-SDR using an SMA cable and an "
           "SMA-to-F adapter.")
-    _item("Connect the **powered** port (labeled “Signal to SWM”) to the "
+    _item("Connect the **powered** port (labeled \"Signal to SWM\") to the "
           "LNB using a coaxial cable (an RG6 cable is recommended).")
 
     input("\nPress Enter to continue...")
@@ -359,19 +359,13 @@ def _print_sdr_instructions(info):
 
     util._print_sub_header("TSDuck")
 
-    print("Finally, to install TSDuck from source, install dependencies:")
-
-    print("""
-    apt install g++ dos2unix curl tar zip doxygen graphviz pcscd libpcsclite-dev \\
-        dpkg-dev jq libcurl4 libcurl4-openssl-dev
-    """)
-
-    print("Build it:")
+    print("Finally, to build TSDuck from source, run:")
 
     print("""
     cd ~/src/
     git clone https://github.com/tsduck/tsduck.git
     cd tsduck
+    build/install-prerequisites.sh
     make NOTELETEXT=1 NOSRT=1 NOPCSC=1 NOCURL=1 NODTAPI=1
     """)
 
