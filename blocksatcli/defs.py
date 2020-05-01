@@ -15,50 +15,42 @@ satellites  = [
     {
         'name'    : "Galaxy 18",
         'alias'   : "G18",
-        'dl_freq' : 12016.92,
+        'dl_freq' : 12016.4,
         'band'    : "Ku",
         'pol'     : "H",
-        'ip'      : "192.168.200.2"
+        'ip'      : "172.16.235.1"
     },
     {
         'name'    : "Eutelsat 113",
         'alias'   : "E113",
-        'dl_freq' : 12026.15,
+        'dl_freq' : 12066.9,
         'band'    : "Ku",
         'pol'     : "V",
-        'ip'      : "192.168.200.3"
+        'ip'      : "172.16.235.9"
     },
     {
         'name'    : "Telstar 11N Africa",
         'alias'   : "T11N AFR",
-        'dl_freq' : 11476.75,
+        'dl_freq' : 11480.7,
         'band'    : "Ku",
         'pol'     : "H",
-        'ip'      : "192.168.200.4"
+        'ip'      : "172.16.235.17"
     },
     {
         'name'    : "Telstar 11N Europe",
         'alias'   : "T11N EU",
-        'dl_freq' : 11504.02,
+        'dl_freq' : 11484.3,
         'band'    : "Ku",
         'pol'     : "V",
-        'ip'      : "192.168.200.5"
+        'ip'      : "172.16.235.25"
     },
     {
-        'name'    : "Telstar 18V",
-        'alias'   : "T18V",
-        'dl_freq' : 4057.5,
+        'name'    : "Telstar 18V C Band",
+        'alias'   : "T18V C",
+        'dl_freq' : 4053.83,
         'band'    : "C",
         'pol'     : "H",
-        'ip'      : "192.168.200.6"
-    },
-    {
-        'name'    : "Eutelsat 113 - Test carrier",
-        'alias'   : "E113",
-        'dl_freq' : 12066.9,
-        'band'    : "Ku",
-        'pol'     : "V",
-        'ip'      : "192.168.200.7"
+        'ip'      : "172.16.235.41"
     }
 ]
 
