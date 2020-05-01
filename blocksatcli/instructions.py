@@ -58,7 +58,7 @@ def _print_s400_instructions(info):
 
     util._print_sub_header("S400 FW Version")
     print("In the web UI, go to System > About:")
-    print("Confirm that the version of the Configuration Agent is 1.5.10 or higher.")
+    print("Confirm that the version of the Configuration Agent is 1.6.1 or higher.")
     print()
 
     input("\nPress Enter to continue...")
@@ -72,7 +72,7 @@ def _print_s400_instructions(info):
     _item("DVB Mode: \"DVB-S2\"")
     _item("LBand: {:.1f} MHz".format(info['freqs']['l_band']))
     _item("Symbol Rate: 1.0 MBaud")
-    _item("MODCOD: AUTO")
+    _item("MODCOD: VCM")
     _item("Gold Code: 0")
     _item("Input Stream ID: 0")
     _item("LNB Power On: Enable")
