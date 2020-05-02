@@ -70,11 +70,6 @@ demods = [
         'type'   : linux_usb_setup_type
     },
     {
-        'vendor' : "TBS",
-        'model'  : "5520SE",
-        'type'   : linux_usb_setup_type
-    },
-    {
         'vendor' : "",
         'model'  : "RTL-SDR",
         'type'   : sdr_setup_type
