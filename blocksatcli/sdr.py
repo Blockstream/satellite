@@ -184,6 +184,18 @@ def run(args):
     assert(samp_rate < 2.4e6), \
         "Sample rate of {} exceeds the RTL-SDR limit".format(samp_rate)
 
+    # Derotate up to the CFO recovery range on leandvb. If the desired
+    # derotation exceeds the CFO correction range, change the L-band frequency
+    # directly on the RTL instead.
+    cfo_corr_range = (sym_rate / 4)
+    derotate       = args.derotate*1e3
+    while (derotate > cfo_corr_range):
+        derotate    -= cfo_corr_range
+        l_band_freq += cfo_corr_range
+    while (derotate < -cfo_corr_range):
+        derotate    += cfo_corr_range
+        l_band_freq -= cfo_corr_range
+
     if (args.iq_file is None or args.record):
         rtl_cmd = ["rtl_sdr", "-g", str(args.gain), "-f",
                    str(l_band_freq), "-s", str(samp_rate)]
@@ -218,8 +230,8 @@ def run(args):
         ldvb_cmd.append("-v")
     if (args.fastlock):
         ldvb_cmd.append("--fastlock")
-    if (args.derotate != 0.0):
-        ldvb_cmd.extend(["--derotate", str(int(args.derotate*1e3))])
+    if (derotate != 0.0):
+        ldvb_cmd.extend(["--derotate", str(int(derotate))])
 
     # Input
     tsp_cmd = ["tsp", "--realtime", "--buffer-size-mb",
