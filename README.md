@@ -45,9 +45,10 @@ In all options, the following hardware components are required:
 | LNB mounting bracket     | No              |                            |
 | Coaxial Cable            | No              | RG6 Cable                  |
 
-Note both the satellite dish and the LNB are **region-specific**, that is, they
-must attend to the specifications of the satellite that covers your region. This
-is because they must be appropriate for the frequency band of your satellite.
+Note that both the satellite dish and the LNB are **region-specific**, that is,
+they must attend to the specifications of the satellite that covers your
+region. This is because they must be appropriate for the frequency band of your
+satellite.
 
 Additionally, each of the above three setups has specific complementary
 components, which are summarized below:
@@ -65,31 +66,32 @@ pick the appropriate components.
 
 Setup configurations are dependent on your demodulator choice and on the
 satellite that covers your region. To obtain the configuration instructions that
-are suitable to your setup, please run the configuration helper of the
-Blockstream Satellite command-line interface (CLI).
+are suitable to your setup, please use the Blockstream Satellite command-line
+interface (CLI).
 
 First install the CLI as follows:
 ```
-python3 setup.py install
+sudo pip3 install blocksat-cli
 ```
 
-Then, run the configuration helper:
+> NOTE:
+> 1. The CLI requires Python 3.
+> 2. Some blocksat-cli commands require root access, so it is preferable to run
+> the installation using `sudo`.
+
+Next, run the configuration helper:
 ```
 blocksat-cli cfg
 ```
 
-Next, build and install Bitcoin FIBRE, following the [FIBRE installation
-guide](doc/fibre.md).
+Then, run the instructions helper:
+```
+blocksat-cli instructions
+```
 
-## Antenna Pointing
-
-Aligning a satellite antenna is a precise procedure. Remember that the
-satellites are over 35,000 km (22,000 mi) away. A tenth of a degree of error
-will miss the satellite by more than 3500 km. Hence, this is likely the most
-time-consuming step of the process.
-
-Please refer to comprehensive instructions in our [antenna alignment
-guide](doc/antenna-pointing.md).
+After following the instructions, the next steps include the installation of
+[Bitcoin FIBRE](doc/fibre.md) and the [antenna
+pointing](doc/antenna-pointing.md). Please follow the user guide.
 
 ## User Guide
 

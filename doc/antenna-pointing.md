@@ -1,5 +1,11 @@
 # Antenna Pointing
 
+Aligning a satellite antenna is a precise procedure. Remember that the
+satellites are over 35,000 km (22,000 mi) away. A tenth of a degree of error
+will miss the satellite by more than 3500 km. Hence, this is likely the most
+time-consuming step of the process. The steps of the process are thoroughly
+described next.
+
 <!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-generate-toc again -->
 **Table of Contents**
 
