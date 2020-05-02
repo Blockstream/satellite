@@ -6,7 +6,7 @@ src_ports      = ["4433", "4434"]
 pids           = [32, 33]
 rolloff        = 0.2
 sym_rate = {
-    'G18'      : 1000000,
+    'G18'      : 800000,
     'E113'     : 1000000,
     'T11N AFR' : 1000000,
     'T11N EU'  : 1000000,
@@ -20,7 +20,7 @@ satellites  = [
     {
         'name'    : "Galaxy 18",
         'alias'   : "G18",
-        'dl_freq' : 12016.4,
+        'dl_freq' : 12016.28,
         'band'    : "Ku",
         'pol'     : "H",
         'ip'      : "172.16.235.1"
