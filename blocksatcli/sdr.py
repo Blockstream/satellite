@@ -83,6 +83,9 @@ def subparser(subparsers):
     rtl_group.add_argument('-f', '--iq-file', default=None,
                            help='File to read IQ samples from instead of reading '
                            'from the RTL-SDR in real-time')
+    rtl_group.add_argument('--sps', default=2.0, type=float,
+                           help='Samples per symbol, or, equivalently, the '
+                           'target oversampling ratio')
 
     ldvb_p = p.add_argument_group('leandvb options')
     ldvb_p.add_argument('-n', '--n-helpers', default=6, type=int,
@@ -176,7 +179,10 @@ def run(args):
     modcod      = defs.low_rate_modcod if args.modcod == "low" else \
                   defs.high_rate_modcod
     sym_rate    = defs.sym_rate[info['sat']['alias']]
-    samp_rate   = 2.0*sym_rate
+    samp_rate   = args.sps*sym_rate
+
+    assert(samp_rate < 2.4e6), \
+        "Sample rate of {} exceeds the RTL-SDR limit".format(samp_rate)
 
     if (args.iq_file is None or args.record):
         rtl_cmd = ["rtl_sdr", "-g", str(args.gain), "-f",
