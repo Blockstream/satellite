@@ -37,7 +37,7 @@ def _tune_max_pipe_size(pipesize = (64800*32)):
         return True
 
 
-def _check_apps():
+def _check_apps(tsp_disabled=False):
     """Check if required apps are installed"""
     try:
         subprocess.check_output(["which", "rtl_sdr"])
@@ -56,6 +56,9 @@ def _check_apps():
     except subprocess.CalledProcessError:
         logging.error("Couldn't find ldpc_tool. Is it installed?")
         return False
+
+    if (tsp_disabled):
+        return True
 
     try:
         subprocess.check_output(["which", "tsp"])
@@ -110,6 +113,8 @@ def subparser(subparsers):
     ldvb_p.add_argument('--framesizes', type=int, default=1, choices=[0,1,2,3],
                         help="Bitmask of desired frame sizes (1=normal, \
                         2=short)")
+    ldvb_p.add_argument('--no-tsp', default=False, action='store_true',
+                        help='Feed leandvb output to stdout instead of tsp')
 
     tsp_p = p.add_argument_group('tsduck options')
     tsp_p.add_argument('--buffer-size-mb', default=1.0, type=float,
@@ -163,7 +168,7 @@ def run(args):
     if (not _tune_max_pipe_size()):
         return
 
-    if (not _check_apps()):
+    if (not _check_apps(tsp_disabled=(args.no_tsp or args.record))):
         return
 
     # Demodulator configs
@@ -245,23 +250,31 @@ def run(args):
             p1.kill()
         return
     elif (args.iq_file is None):
-        logger.debug("> " + " ".join(rtl_cmd) + " | \\\n" + \
-                 " ".join(ldvb_cmd) + " | \\\n" + \
-                 " ".join(tsp_cmd))
+        full_cmd  = "> " + " ".join(rtl_cmd) + " | \\\n" + \
+                    " ".join(ldvb_cmd)
         p1 = subprocess.Popen(rtl_cmd, stdout=subprocess.PIPE)
         p2 = subprocess.Popen(ldvb_cmd, stdin=p1.stdout, stdout=subprocess.PIPE)
     else:
-        logger.debug("> " + " ".join(ldvb_cmd) + " < " + args.iq_file + \
-                     " | \\\n" + " ".join(tsp_cmd))
+        full_cmd   = "> " + " ".join(ldvb_cmd) + " < " + args.iq_file
         fd_iq_file = open(args.iq_file)
         p2 = subprocess.Popen(ldvb_cmd, stdin=fd_iq_file,
                               stdout=subprocess.PIPE)
-    p3 = subprocess.Popen(tsp_cmd, stdin=p2.stdout)
-    try:
-        p3.communicate()
-    except KeyboardInterrupt:
-        p3.kill()
-        p2.kill()
-        p1.kill()
+    if (not args.no_tsp):
+        full_cmd += " | \\\n" + " ".join(tsp_cmd)
+        logger.debug(full_cmd)
+        p3 = subprocess.Popen(tsp_cmd, stdin=p2.stdout)
+        try:
+            p3.communicate()
+        except KeyboardInterrupt:
+            p3.kill()
+            p2.kill()
+            p1.kill()
+    else:
+        logger.debug(full_cmd)
+        try:
+            p2.communicate()
+        except KeyboardInterrupt:
+            p2.kill()
+            p1.kill()
 
 
