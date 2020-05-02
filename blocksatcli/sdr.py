@@ -166,17 +166,22 @@ def run(args):
     if (not _check_apps()):
         return
 
-    modcod = defs.low_rate_modcod if args.modcod == "low" else \
-             defs.high_rate_modcod
+    # Demodulator configs
+    l_band_freq = info['freqs']['l_band']*1e6
+    modcod      = defs.low_rate_modcod if args.modcod == "low" else \
+                  defs.high_rate_modcod
+    sym_rate    = defs.sym_rate[info['sat']['alias']]
+    samp_rate   = 2.0*sym_rate
 
     if (args.iq_file is None or args.record):
         rtl_cmd = ["rtl_sdr", "-g", str(args.gain), "-f",
-                   str(info['freqs']['l_band']*1e6), "-s", str(defs.samp_rate)]
+                   str(l_band_freq), "-s", str(samp_rate)]
         if (args.record):
+            bytes_per_sec = (2*samp_rate)/(2**20)
             print("IQ recording will be saved on file {}".format(
                 args.iq_file))
             print(textwrap.fill("NOTE: the file will grow by approximately "
-                                "3.8MB per second."))
+                                "{} MB per second.".format(bytes_per_sec)))
             if (not util._ask_yes_or_no("Proceed?", default="y")):
                 return
             rtl_cmd.append(args.iq_file)
@@ -184,7 +189,7 @@ def run(args):
             rtl_cmd.append("-")
 
     ldvb_cmd = ["leandvb", "--nhelpers", str(args.n_helpers), "-f",
-                str(defs.samp_rate), "--sr", str(defs.sym_rate), "--roll-off",
+                str(samp_rate), "--sr", str(sym_rate), "--roll-off",
                 str(defs.rolloff), "--standard", "DVB-S2", "--sampler", "rrc",
                 "--rrc-rej", str(args.rrc_rej), "--modcods", modcod,
                 "--framesizes", str(args.framesizes)]

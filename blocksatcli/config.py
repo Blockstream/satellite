@@ -302,7 +302,8 @@ def _cfg_chan_conf(info, chan_file):
                 f.write('\tPOLARIZATION = VERTICAL\n')
             else:
                 f.write('\tPOLARIZATION = HORIZONTAL\n')
-        f.write('\tSYMBOL_RATE = 1000000\n')
+        f.write('\tSYMBOL_RATE = {}\n'.format(
+            defs.sym_rate[info['sat']['alias']]))
         f.write('\tINVERSION = AUTO\n')
         f.write('\tMODULATION = QPSK\n')
         f.write('\tVIDEO_PID = 32+33\n')

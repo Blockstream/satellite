@@ -71,7 +71,8 @@ def _print_s400_instructions(info):
     print("2. Go to Interfaces > RF1 and configure as follows:\n")
     _item("DVB Mode: \"DVB-S2\"")
     _item("LBand: {:.1f} MHz".format(info['freqs']['l_band']))
-    _item("Symbol Rate: 1.0 MBaud")
+    _item("Symbol Rate: {} MBaud".format(
+        defs.sym_rate[info['sat']['alias']]/1e6))
     _item("MODCOD: VCM")
     _item("Gold Code: 0")
     _item("Input Stream ID: 0")
