@@ -192,10 +192,14 @@ choices. Regarding tuner, the choice depends on the satellite covering your
 location. The two recommended tuners are the R820T2 and the E4000. The table
 that follows summarizes which tuner to pick for each satellite:
 
-| RTL-SDR Tuner  | Compatible Satellites                     |
-|----------------|-------------------------------------------|
-| R820T2         | Galaxy 18, Eutelsat 113 and Telstar 18V   |
-| E4000          | Telstar 11N Africa and Telstar 11N Europe |
+| Satellite          | RTL-SDR Tuner |
+|--------------------|---------------|
+| Galaxy 18          | R820T2        |
+| Eutelsat 113       | R820T2        |
+| Telstar 11N Africa | E4000         |
+| Telstar 11N Europe | E4000         |
+| Telstar 18V Ku     | E4000         |
+| Telstar 18V C      | R820T2        |
 
 Hence, for example, if you are going to receive from Galaxy 18, you should get
 an RTL-SDR RTL2832U with tuner R820T2 and TCXO. In contrast, for example, if you

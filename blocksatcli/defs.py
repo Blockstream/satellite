@@ -10,7 +10,8 @@ sym_rate = {
     'E113'     : 1000000,
     'T11N AFR' : 1000000,
     'T11N EU'  : 1000000,
-    'T18V C'   : 1000000
+    'T18V C'   : 1000000,
+    'T18V Ku'  : 1000000
 }
 
 low_rate_modcod  = "0x0002"
@@ -56,6 +57,14 @@ satellites  = [
         'band'    : "C",
         'pol'     : "H",
         'ip'      : "172.16.235.41"
+    },
+    {
+        'name'    : "Telstar 18V Ku Band",
+        'alias'   : "T18V Ku",
+        'dl_freq' : 11506.75,
+        'band'    : "Ku",
+        'pol'     : "H",
+        'ip'      : "172.16.235.49"
     }
 ]
 

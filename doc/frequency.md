@@ -25,5 +25,6 @@ signals broadcast by the satellites that we use:
 | Eutelsat 113       | Ku High | 12066.9 MHz  |
 | Telstar 11N Africa | Ku Low  | 11480.7 MHz  |
 | Telstar 11N Europe | Ku Low  | 11484.3 MHz  |
-| Telstar 18V        | C       | 4053.83 MHz  |
+| Telstar 18V Ku     | Ku Low  | 11506.75 MHz |
+| Telstar 18V C      | C       | 4053.83 MHz  |
 
