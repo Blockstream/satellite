@@ -233,6 +233,8 @@ def run(args):
     if (derotate != 0.0):
         ldvb_cmd.extend(["--derotate", str(int(derotate))])
 
+    ldvb_stderr = None if (args.debug_ts > 0) else subprocess.DEVNULL
+
     # Input
     tsp_cmd = ["tsp", "--realtime", "--buffer-size-mb",
                str(args.buffer_size_mb), "--max-flushed-packets",
@@ -271,12 +273,14 @@ def run(args):
         full_cmd  = "> " + " ".join(rtl_cmd) + " | \\\n" + \
                     " ".join(ldvb_cmd)
         p1 = subprocess.Popen(rtl_cmd, stdout=subprocess.PIPE)
-        p2 = subprocess.Popen(ldvb_cmd, stdin=p1.stdout, stdout=subprocess.PIPE)
+        p2 = subprocess.Popen(ldvb_cmd, stdin=p1.stdout, stdout=subprocess.PIPE,
+                              stderr=ldvb_stderr)
     else:
         full_cmd   = "> " + " ".join(ldvb_cmd) + " < " + args.iq_file
         fd_iq_file = open(args.iq_file)
         p2 = subprocess.Popen(ldvb_cmd, stdin=fd_iq_file,
-                              stdout=subprocess.PIPE)
+                              stdout=subprocess.PIPE,
+                              stderr=ldvb_stderr)
     if (not args.no_tsp):
         full_cmd += " | \\\n" + " ".join(tsp_cmd)
         logger.debug(full_cmd)
