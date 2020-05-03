@@ -63,7 +63,7 @@ make
 
 And, if you so desire, make `leandvb` available system-wide:
 ```
-install leandvb /usr/local/bin
+sudo install leandvb /usr/local/bin
 ```
 
 Next, build and install `ldpc_tool`, which is used as an add-on to `leandvb`:
@@ -72,7 +72,7 @@ Next, build and install `ldpc_tool`, which is used as an add-on to `leandvb`:
 git clone -b ldpc_tool http://github.com/pabr/xdsopl-LDPC-pabr
 cd xdsopl-LDPC-pabr
 make CXX=g++ ldpc_tool
-install ldpc_tool /usr/local/bin
+sudo install ldpc_tool /usr/local/bin
 ```
 
 To install the RTL-SDR application, run:

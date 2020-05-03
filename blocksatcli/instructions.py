@@ -330,7 +330,7 @@ def _print_sdr_instructions(info):
 
     print("And, if you so desire, make leandvb available system-wide:")
     print("""
-    install leandvb /usr/local/bin
+    sudo install leandvb /usr/local/bin
     """)
 
     input("\nPress Enter to continue...")
@@ -344,7 +344,7 @@ def _print_sdr_instructions(info):
     git clone -b ldpc_tool http://github.com/pabr/xdsopl-LDPC-pabr
     cd xdsopl-LDPC-pabr
     make CXX=g++ ldpc_tool
-    install ldpc_tool /usr/local/bin
+    sudo install ldpc_tool /usr/local/bin
     """)
 
     input("\nPress Enter to continue...")
