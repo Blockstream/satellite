@@ -14,9 +14,9 @@ Satellite receiver setup.
         - [LNB Mounting Bracket](#lnb-mounting-bracket)
         - [Coaxial Cables](#coaxial-cables)
     - [Setup-Specific Components](#setup-specific-components)
-        - [Components for Software-defined Radio (SDR) Setup](#components-for-software-defined-radio-sdr-setup)
+        - [Components for a Software-defined Radio (SDR) Setup](#components-for-a-software-defined-radio-sdr-setup)
         - [Components for a Linux USB Receiver Setup](#components-for-a-linux-usb-receiver-setup)
-        - [Components for Standalone Demodulator Setup](#components-for-standalone-demodulator-setup)
+        - [Components for a Standalone Demodulator Setup](#components-for-a-standalone-demodulator-setup)
     - [Further Notes](#further-notes)
         - [“Universal” LNB:](#universal-lnb)
         - [LNB vs LNBF:](#lnb-vs-lnbf)
@@ -174,29 +174,34 @@ type of setup, according to the demodulator choice.
 
 ### Components for a Software-defined Radio (SDR) Setup
 
-| Component        | Requirement                                                          |
-|------------------|----------------------------------------------------------------------|
-| SDR interface    | RTL-SDR dongle, model RTL2832U, w/ R820T2 tuner<sup>*</sup> and TCXO |
-| LNB Power Supply | SWM Power Supply                                                     |
-| SMA Cable        | Male to Male                                                         |
-| SMA to F adapter | SMA Female, F Male                                                   |
-
-<sup>* Except Telstar 11N Europe area</sup>
+| Component        | Requirement                            |
+|------------------|----------------------------------------|
+| SDR interface    | RTL-SDR dongle model RTL2832U w/ TCXO  |
+| LNB Power Supply | SWM Power Supply                       |
+| SMA Cable        | Male to Male                           |
+| SMA to F adapter | SMA Female, F Male                     |
 
 The supported **SDR interface** is the RTL-SDR, which is a low-cost USB
-dongle. More specifically, an RTL-SDR of model RTL2832U, with tuner R820T2 and a
-TCXO (temperature-controlled crystal oscillator). The R820T2 tuner has a
-frequency range that is suitable worldwide, except within the Telstar 11N Europe
-area (more information later). The TCXO oscillator is preferable because it
-presents better frequency stability. There are a few models in the market
+dongle. More specifically, an RTL-SDR of model RTL2832U. However, there are two
+specifications to observe when purchasing an RTL-SDR: the oscillator and the
+tuner. We recommend using an RTL-SDR with a temperature-controlled crystal
+oscillator (TCXO), as the TCXO has better frequency stability than a
+conventional crystal oscillator (XO). There are a few models in the market
 featuring TCXO with frequency accuracy within 0.5 ppm to 1.0 ppm, which are good
-choices.
+choices. Regarding tuner, the choice depends on the satellite covering your
+location. The two recommended tuners are the R820T2 and the E4000. The table
+that follows summarizes which tuner to pick for each satellite:
 
-The RTL-SDR is the supported interface and the most popular among Blockstream
-Satellite users. Nevertheless, other SDR boards/interfaces can be used with
-minor tweaks, such as USRPs. The requirement for the SDR interface is that it is
-able to receive L-band frequencies within the 1 GHz to 2 GHz range, and that it
-supports sampling rates of 2 Msps (mega samples per second) or higher.
+| RTL-SDR Tuner  | Compatible Satellites                     |
+|----------------|-------------------------------------------|
+| R820T2         | Galaxy 18, Eutelsat 113 and Telstar 18V   |
+| E4000          | Telstar 11N Africa and Telstar 11N Europe |
+
+Hence, for example, if you are going to receive from Galaxy 18, you should get
+an RTL-SDR RTL2832U with tuner R820T2 and TCXO. In contrast, for example, if you
+are going to receive from Telstar 11N Africa, you should get an RTL-SDR RTL2832U
+with tuner E4000 and TCXO. Note that the RTL-SDR models featuring the E4000
+tuner are marketed as **extended tuning range RTL-SDR** or **XTR RTL-SDR**.
 
 The next component is the **LNB Power Supply** (or Power Inserter). It supplies
 a DC voltage to the LNB via the coaxial cable, typically of 13 VDC or 18 VDC. On
@@ -229,23 +234,12 @@ pointing.
 
 **Further notes**:
 
-- **Tuner within Telstar 11N Europe area**: in this area, we recommend
-purchasing an RTL-SDR with the E4000 tuner, which are marketed as **extended
-tuning range RTL-SDR** or **XTR RTL-SDR**. The reason is that the satellite
-frequency in this area is such that, when using an LNB for Ku low band (with
-`9.75` GHz LO), the RTL-SDR needs to be configured with a frequency that is too
-close to the maximum supported frequency of the R820T2 tuner that is recommended
-for other regions. The extended range RTL-SDR uses another tuner (the E4000),
-whose frequency range is sufficient to cover the frequency that is necessary for
-Telstar 11N Europe. Note, however, that the E4000 tuner is **only** recommended
-for the **Telstar 11N Europe** coverage region. It may not work well in other
-regions.
-
-> The E4000 tuner has a gap in the range of frequencies that it supports and it
-> turns out that this gap encompasses the frequencies that are typically used to
-> receive the Blockstream Satellite signal at three other regions: within Galaxy
-> 18 (North America), Eutelsat 113 (South America) and Telstar 18V
-> (Asia-Pacific).
+- **Alternative SDR interfaces**: the RTL-SDR is the supported SDR interface and
+the most popular among Blockstream Satellite users. Nevertheless, other SDR
+boards/interfaces can be used with minor tweaks, such as USRPs. The requirement
+for the SDR interface is that it is able to receive L-band frequencies within
+the 1 GHz to 2 GHz range, and that it supports sampling rates of 2 Msps (mega
+samples per second) or higher.
 
 - **Connectors**: not every RTL-SDR has the same interface connector. Some use
 the SMA connector and some use MCX. Be sure to order the correct cable and
