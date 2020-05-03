@@ -28,14 +28,17 @@ You can find detailed guidance for these steps along this documentation.
 
 ## Hardware
 
-There are 3 supported setup options with varying levels of budget, performance
-and CPU usage. They are summarized in the table below:
+There are three supported setup options with varying levels of budget,
+performance, and CPU usage, as well as different form factors. They are
+summarized in the table below:
 
-| **Setup**                        | Budget          | Performance/Reliability | CPU Usage  |
-|----------------------------------|-----------------|-------------------------|------------|
-| **Software-defined Radio (SDR)** | Most Affordable | Limited                 | High       |
-| **Linux USB Receiver**           | Moderate        | Excellent               | Negligible |
-| **Standalone Demodulator**       | Higher          | Excellent               | None       |
+| **Setup**                        | Budget          | Performance/Reliability | CPU Usage  | Form Factor | Dual Satellite* |
+|----------------------------------|-----------------|-------------------------|------------|-------------|-----------------|
+| **Software-defined Radio (SDR)** | Most Affordable | Limited                 | High       | USB Dongle  | No              |
+| **Linux USB Receiver**           | Moderate        | Excellent               | Low        | USB Device  | No              |
+| **Standalone Demodulator**       | Higher          | Excellent               | Low        | Standalone  | Yes             |
+
+<sup>*</sup> Specific to locations that have overlapping coverage from two satellites.
 
 In all options, the following hardware components are required:
 
