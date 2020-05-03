@@ -139,10 +139,12 @@ def subparser(subparsers):
     tsp_p.add_argument('--analyze-file', default="ts-analysis.txt",
                        action='store_true',
                        help='File on which to save the MPEG-TS analysis.')
-    tsp_p.add_argument('--no-monitoring', default=False, action='store_true',
-                       help='Disable bitrate and MPEG-TS discontinuity '
-                       'monitoring')
-
+    tsp_p.add_argument('--no-bitrate-monitoring', default=False,
+                       action='store_true',
+                       help='Disable bitrate monitoring')
+    tsp_p.add_argument('--monitor-ts', default=False,
+                       action='store_true',
+                       help='Mnitor MPEG TS sequence discontinuities')
     p.set_defaults(func=run,
                    record=False)
 
@@ -247,12 +249,14 @@ def run(args):
         if (not util._ask_yes_or_no("Proceed?", default="y")):
             return
         tsp_cmd.extend(["-P", "analyze", "-o", args.analyze_file])
-    if (not args.no_monitoring):
-        # Monitor discontinuities
-        tsp_cmd.extend(["-P", "continuity"])
+    if (not args.no_bitrate_monitoring):
         # Monitor Bitrate
         tsp_cmd.extend(["-P", "bitrate_monitor", "-p",
-                        str(args.bitrate_period)])
+                        str(args.bitrate_period), "--min", "0"])
+    if (args.monitor_ts):
+        # Monitor MPEG TS discontinuities
+        tsp_cmd.extend(["-P", "continuity"])
+
     # MPE plugin
     tsp_cmd.extend(["-P", "mpe", "--pid",
                     "-".join([str(pid) for pid in defs.pids]), "--udp-forward",
