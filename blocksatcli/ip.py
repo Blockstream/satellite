@@ -295,3 +295,27 @@ def rm_ip(ifname):
         print("Removed configuration file {}".format(cfg_file))
 
 
+def compute_rx_ips(sat_ip, n_ips, subnet="/29"):
+    """Compute Rx IPs within the same subnet as the satellite Tx
+
+    Args:
+        sat_ip : satellite IP in CIDR notation
+        n_ips  : Request number of IPs
+
+    Returns:
+        ips list of IPs
+
+    """
+    sat_ip_split = [x for x in sat_ip.split(".")]
+    assert(len(sat_ip_split) == 4)
+    base_ip     = ".".join(sat_ip_split[0:3])
+    sat_ip_term = int(sat_ip[-1])
+    base_offset = 3 # 3 reserved IPs for Tx host and modulator
+
+    ips = list()
+    for i in range(0, n_ips):
+        rx_ip_term = sat_ip_term + base_offset + i
+        ips.append(base_ip + "." + str(rx_ip_term) + subnet)
+    return ips
+
+
