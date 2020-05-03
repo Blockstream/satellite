@@ -416,25 +416,25 @@ Blockstream Satellite's signal is composed by two multiplexed streams, one of
 which requires higher signal quality to be decoded than the other. The two
 streams are summarized next:
 
-| Stream          | Throughput | Recommended Minimum SNR | Purpose               |
-|-----------------|------------|-------------------------|-----------------------|
-| Low-throughput  | ~100 kbps  | 3 dB                    | Repeats the past 24h of blocks and keeps receiver nodes in sync  |
-| High-throughput | ~1 Mbps    | 7 dB                    | Broadcasts the entire blockchain and keeps receiver nodes in sync with lower latency |
+| Stream          | Throughput | Minimum SNR | Recommended SNR | Purpose       |
+|-----------------|------------|-------------|-----------------|---------------|
+| Low-throughput  | ~64 kbps   | -1.24 dB    | 3 dB            | Repeats the past 24h of blocks and keeps receiver nodes in sync  |
+| High-throughput | ~1.5 Mbps  | 6.62 dB     | 7.5 dB          | Broadcasts the entire blockchain and keeps receiver nodes in sync with lower latency |
 
 As explained in the [hardware guide](hardware.md#satellite-dish), it may only be
 feasible to receive the high-throughput stream with a dish of 90 cm or higher.
 
 There are several related indicators of SNR and the measurement you will have
-access to depends on your demodulator. You can compare the recommended minimum
-SNR in the above table to any of the following (related) metrics that you can
-read from the demodulator:
+access to depends on your demodulator. You can compare the recommended SNR in
+the above table to any of the following (related) metrics that you can read from
+the demodulator:
 
 - C/N (carrier-to-noise ratio)
 - Es/No
 - MER
 
 For example, if using an SDR setup, you will see MER measurements and it is
-recommended to have at least 7 dB of MER for reliable reception of the
+recommended to have at least 7.5 dB of MER for reliable reception of the
 high-throughput stream.
 
 Note that, regardless of SNR, the USB and standalone demodulators will

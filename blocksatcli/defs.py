@@ -14,8 +14,8 @@ sym_rate = {
     'T18V Ku'  : 1000000
 }
 
-low_rate_modcod  = "0x0002"
-high_rate_modcod = "0x1000"
+low_rate_modcod  = "0x0004"
+high_rate_modcod = "0x2000"
 
 satellites  = [
     {
