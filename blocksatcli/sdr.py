@@ -128,7 +128,7 @@ def subparser(subparsers):
     tsp_p.add_argument('--max-input-packets', default=10, type=int,
                        help='Maximum number of packets received at a time from '
                        'the tsp input plugin ')
-    tsp_p.add_argument('-p', '--bitrate-period', default=5, type=int,
+    tsp_p.add_argument('-p', '--bitrate-period', default=10, type=int,
                        help='Period of bitrate reports in seconds')
     tsp_p.add_argument('-l', '--local-address', default="127.0.0.1",
                        help='IP address of the local interface on which to '
