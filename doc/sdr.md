@@ -41,7 +41,7 @@ The SDR-based relies on three application that follow:
 - [rtl_sdr](https://github.com/osmocom/rtl-sdr), which reads samples taken by
   the RTL-SDR and feeds them into
   [leandvb](http://www.pabr.org/radio/leandvb/leandvb.en.html).
-- [TSDuck](http://tsduck.io/), which unpacks the output of leandvb and produces
+- [TSDuck](https://tsduck.io/), which unpacks the output of leandvb and produces
   IP packets to be fed to [Bitcoin Satellite](bitcoin.md).
 
 To install leandvb, first install the dependencies:
@@ -53,24 +53,16 @@ apt install make g++ libx11-dev libfftw3-dev
 Then, on your directory of choice, run:
 
 ```
-mkdir -p ~/src/
-cd ~/src/
-git clone -b work http://github.com/pabr/leansdr.git
+git clone --recursive https://github.com/Blockstream/leansdr.git
 cd leansdr/src/apps
-sed -i "s/#CXXFLAGS/CXXFLAGS/g" Makefile
 make
-```
-
-And, if you so desire, make `leandvb` available system-wide:
-```
 sudo install leandvb /usr/local/bin
 ```
 
 Next, build and install `ldpc_tool`, which is used as an add-on to `leandvb`:
 
 ```
-git clone -b ldpc_tool http://github.com/pabr/xdsopl-LDPC-pabr
-cd xdsopl-LDPC-pabr
+cd ../../LDPC/
 make CXX=g++ ldpc_tool
 sudo install ldpc_tool /usr/local/bin
 ```
@@ -84,6 +76,7 @@ apt-get install rtl-sdr
 Finally, to build TSDuck from source, run:
 
 ```
+mkdir -p ~/src/
 cd ~/src/
 git clone https://github.com/tsduck/tsduck.git
 cd tsduck

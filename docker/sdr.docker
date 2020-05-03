@@ -8,16 +8,13 @@ RUN apt update && apt install -y git make g++ libx11-dev libfftw3-dev \
 
 # Leandvb
 RUN mkdir -p ~/src/ && cd ~/src/ && \
-	git clone --depth 1 -b work http://github.com/pabr/leansdr.git && \
+	git clone --depth 1 --recursive https://github.com/Blockstream/leansdr.git && \
 	cd leansdr/src/apps && \
-	sed -i "s/#CXXFLAGS/CXXFLAGS/g" Makefile && \
 	make && \
 	install leandvb /usr/local/bin && \
-	git clone -b ldpc_tool http://github.com/pabr/xdsopl-LDPC-pabr && \
-	cd xdsopl-LDPC-pabr && \
+	cd ../../LDPC/ && \
 	make CXX=g++ ldpc_tool && \
 	install ldpc_tool /usr/local/bin
-
 
 # Tsduck
 RUN cd ~/src/ && git clone https://github.com/tsduck/tsduck.git && \

@@ -137,15 +137,11 @@ If instead of installing `dvb-apps` from binary packages you desire to build it
 from source, here are some instructions:
 
 ```
-hg clone http://linuxtv.org/hg/dvb-apps
+git clone https://github.com/Blockstream/dvb-apps
 cd dvb-apps
 make
 sudo make install
 ```
-
-For Kernel version greater than or equal to 4.14, [this
-solution](https://gist.github.com/Kaeltis/d87dc76fc604f8b3373231dcd2d76568) can
-be used to complete the compilation.
 
 More information can be found at
 [linuxtv's wiki page](https://www.linuxtv.org/wiki/index.php/LinuxTV_dvb-apps).

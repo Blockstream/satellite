@@ -240,6 +240,11 @@ def _print_usb_rx_instructions(info):
     """
     print(install_info)
 
+    _print("""
+    Alternatively, you can build dvb-apps from source.
+    Refer to further information at \"doc/tbs.md\".
+    """)
+
     input("\nPress Enter to continue...")
 
     util._print_sub_header("Configure the Host")
@@ -320,16 +325,9 @@ def _print_sdr_instructions(info):
 
     print("Then, on your directory of choice, run:")
     print("""
-    mkdir -p ~/src/
-    cd ~/src/
-    git clone -b work http://github.com/pabr/leansdr.git
+    git clone --recursive https://github.com/Blockstream/leansdr.git
     cd leansdr/src/apps
-    sed -i "s/#CXXFLAGS/CXXFLAGS/g" Makefile
     make
-    """)
-
-    print("And, if you so desire, make leandvb available system-wide:")
-    print("""
     sudo install leandvb /usr/local/bin
     """)
 
@@ -341,8 +339,7 @@ def _print_sdr_instructions(info):
            " add-on to leandvb:")
 
     print("""
-    git clone -b ldpc_tool http://github.com/pabr/xdsopl-LDPC-pabr
-    cd xdsopl-LDPC-pabr
+    cd ../../LDPC/
     make CXX=g++ ldpc_tool
     sudo install ldpc_tool /usr/local/bin
     """)
@@ -363,6 +360,7 @@ def _print_sdr_instructions(info):
     print("Finally, to build TSDuck from source, run:")
 
     print("""
+    mkdir -p ~/src/
     cd ~/src/
     git clone https://github.com/tsduck/tsduck.git
     cd tsduck
