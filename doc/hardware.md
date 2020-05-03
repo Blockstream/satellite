@@ -116,10 +116,9 @@ frequency of the satellite covering your location.
 Regarding **frequency range**, you must verify that the input frequency range of
 the LNB encompasses the frequency of the Blockstream Satellite signal in your
 coverage area. For example, if you are located in North America and you are
-covered by the Galaxy 18 satellite, your Blockstream Satellite frequency is
-12.01692 GHz. Thus, an LNB that operates from 11.7 GHz to 12.2 GHz would
-work. In contrast, an LNB that operates from 10.7 GHz to 11.7 GHz would **not**
-work.
+covered by the Eutelsat 113 satellite, your Blockstream Satellite frequency is
+12066.9 GHz. Thus, an LNB that operates from 11.7 GHz to 12.2 GHz would work. In
+contrast, an LNB that operates from 10.7 GHz to 11.7 GHz would **not** work.
 
 Regarding **polarization**, an LNB with **Linear Polarization** is
 required. While most Ku band LNBs are linearly polarized, some popular satellite
@@ -196,9 +195,8 @@ choices.
 The RTL-SDR is the supported interface and the most popular among Blockstream
 Satellite users. Nevertheless, other SDR boards/interfaces can be used with
 minor tweaks, such as USRPs. The requirement for the SDR interface is that it is
-able to receive L-band frequencies within roughly the 1 GHz to 2 GHz range
-(refer to the [frequency guide](frequency.md#l_band)), and that it supports
-sampling rates of 2 Msps (mega samples per second) or higher.
+able to receive L-band frequencies within the 1 GHz to 2 GHz range, and that it
+supports sampling rates of 2 Msps (mega samples per second) or higher.
 
 The next component is the **LNB Power Supply** (or Power Inserter). It supplies
 a DC voltage to the LNB via the coaxial cable, typically of 13 VDC or 18 VDC. On
