@@ -1,11 +1,11 @@
 ## User Guide
 
-- [Frequency Bands](doc/frequency.md)
-- [Hardware Guide](doc/hardware.md)
+- [Frequency Bands](frequency.md)
+- [Hardware Guide](hardware.md)
 - Receiver Configuration:
-    - [Novra S400](doc/s400.md)
-    - [TBS5927](doc/tbs.md)
-    - [SDR Setup](doc/sdr.md)
-- [Bitcoin Satellite](doc/bitcoin.md)
-- [Antenna Pointing](doc/antenna-pointing.md)
+    - [Novra S400](s400.md)
+    - [TBS5927](tbs.md)
+    - [SDR Setup](sdr.md)
+- [Bitcoin Satellite](bitcoin.md)
+- [Antenna Pointing](antenna-pointing.md)
 - [Satellite API](../api/README.md)
