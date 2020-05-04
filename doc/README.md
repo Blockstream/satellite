@@ -8,4 +8,4 @@
     - [SDR Setup](doc/sdr.md)
 - [Bitcoin FIBRE](doc/fibre.md)
 - [Antenna Pointing](doc/antenna-pointing.md)
-- [Satellite API](doc/satellite-api.md)
+- [Satellite API](../api/README.md)

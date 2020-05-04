@@ -94,7 +94,7 @@ guide](doc/antenna-pointing.md).
     - [SDR Setup](doc/sdr.md)
 - [Antenna Pointing](doc/antenna-pointing.md)
 - [Bitcoin FIBRE](doc/fibre.md)
-- [Satellite API](doc/satellite-api.md)
+- [Satellite API](api/README.md)
 
 ## Support
 
