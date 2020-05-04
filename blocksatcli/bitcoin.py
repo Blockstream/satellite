@@ -54,18 +54,18 @@ def configure(args):
     if (info['setup']['type'] == defs.sdr_setup_type):
         cfg += _udpmulticast(dev="lo",
                              src_addr="127.0.0.1",
-                             label="leandvb") + "\n"
+                             label="blocksat-sdr") + "\n"
     elif (info['setup']['type'] == defs.linux_usb_setup_type):
         cfg += _udpmulticast(dev="dvb0_0",
                              src_addr=info['sat']['ip'],
-                             label="tbs5927_lowspeed") + "\n"
+                             label="blocksat-tbs-lowspeed") + "\n"
         cfg += _udpmulticast(dev="dvb0_1",
                              src_addr=info['sat']['ip'],
-                             label="tbs5927_highspeed") + "\n"
+                             label="blocksat-tbs-highspeed") + "\n"
     elif (info['setup']['type'] == defs.standalone_setup_type):
         cfg += _udpmulticast(dev=info['setup']['netdev'],
                              src_addr=info['sat']['ip'],
-                             label="s400") + "\n"
+                             label="blocksat-s400") + "\n"
     else:
         raise ValueError("Unknown setup type")
 
