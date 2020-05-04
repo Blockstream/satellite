@@ -1,5 +1,6 @@
 *~
 build/
+dist/
 api/examples/downloads/
 api/examples/.*
 api/examples/*.pyc

@@ -1,6 +1,6 @@
 """Standalone Demodulator"""
 from argparse import ArgumentDefaultsHelpFormatter
-from blocksat import rp, firewall
+from . import rp, firewall
 
 
 def subparser(subparsers):

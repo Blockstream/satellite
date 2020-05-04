@@ -1,7 +1,7 @@
 """Bitcoin .conf generator"""
 import os
 from argparse import ArgumentDefaultsHelpFormatter
-from blocksat import config, defs, util
+from . import config, defs, util
 import textwrap
 import argparse
 

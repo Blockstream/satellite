@@ -1,7 +1,7 @@
 """Generate gqrx configurations"""
 import os
 from argparse import ArgumentDefaultsHelpFormatter
-from blocksat import config, util
+from . import config, util
 import textwrap
 import argparse
 

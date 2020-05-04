@@ -1,20 +1,23 @@
 #!/usr/bin/env python3
 import logging
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
-from blocksat import defs, config, util, instructions, gqrx, bitcoin, sdr, rp, \
+from . import defs, config, util, instructions, gqrx, bitcoin, sdr, rp, \
     firewall, standalone, usb
+
+
+__version__ = "0.1.0"
 
 
 def main():
     """Main - parse command-line arguments and call subcommands
     """
-    parser = ArgumentParser(prog="blocksat",
-                            description="Blockstream Satellite CLI",
+    parser = ArgumentParser(prog="blocksat-cli",
+                            description="Blockstream Satellite Command-Line Interface",
                             formatter_class=ArgumentDefaultsHelpFormatter)
     parser.add_argument('-d', '--debug', action='store_true',
                         help='Set debug mode')
     parser.add_argument('-v', '--version', action='version',
-                        version='%(prog)s 1.0')
+                        version='%(prog)s {}'.format(__version__))
 
     subparsers = parser.add_subparsers(title='subcommands',
                                        help='Target sub-command')

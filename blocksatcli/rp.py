@@ -1,7 +1,7 @@
 """Reverse path settings"""
 from argparse import ArgumentDefaultsHelpFormatter
 import subprocess, os
-from blocksat import util
+from . import util
 
 
 def _check_rp_filters(dvb_if):

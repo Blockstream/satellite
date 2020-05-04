@@ -2,7 +2,7 @@
 import os, json, logging
 from argparse import ArgumentDefaultsHelpFormatter
 from pprint import pprint, pformat
-from blocksat import util, defs, instructions
+from . import util, defs, instructions
 import textwrap
 from decimal import Decimal, getcontext
 

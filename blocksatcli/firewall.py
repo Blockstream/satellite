@@ -1,7 +1,7 @@
 """Configure Firewall Rules"""
 import subprocess, logging
 from argparse import ArgumentDefaultsHelpFormatter
-from blocksat import util, defs
+from . import util, defs
 
 
 def _get_iptables_rules(net_if):

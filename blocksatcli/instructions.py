@@ -1,6 +1,6 @@
 """Instructions for the user"""
 from argparse import ArgumentDefaultsHelpFormatter
-from blocksat import util, defs, config
+from . import util, defs, config
 import textwrap
 
 

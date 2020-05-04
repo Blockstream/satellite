@@ -3,7 +3,7 @@ from pprint import pformat
 from ipaddress import IPv4Interface
 import os, sys, signal, argparse, subprocess, time, logging, threading, json
 from argparse import ArgumentDefaultsHelpFormatter
-from blocksat import config, util, defs, rp, firewall
+from . import config, util, defs, rp, firewall
 
 
 def _find_v4l_lnb(info):
