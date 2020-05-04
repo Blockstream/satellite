@@ -42,7 +42,7 @@ The SDR-based relies on three application that follow:
   the RTL-SDR and feeds them into
   [leandvb](http://www.pabr.org/radio/leandvb/leandvb.en.html).
 - [TSDuck](http://tsduck.io/), which unpacks the output of leandvb and produces
-  IP packets to be fed to [Bitcoin FIBRE](fibre.md).
+  IP packets to be fed to [Bitcoin Satellite](bitcoin.md).
 
 To install leandvb, first install the dependencies:
 
@@ -184,7 +184,7 @@ setup. Please refer to instructions in the [Docker guide](../docker/README.md).
 ## Next Steps
 
 At this point, if your dish is already correctly pointed, you should be able to
-start receiving data in Bitcoin FIBRE. Please follow the [instructions for FIBRE
-configuration](fibre.md). If your antenna is not pointed yet, please follow the
-[antenna alignment guide](antenna-pointing.md).
+start receiving data in Bitcoin Satellite. Please follow the [instructions for
+Bitcoin Satellite configuration](bitcoin.md). If your antenna is not pointed
+yet, please follow the [antenna alignment guide](antenna-pointing.md).
 

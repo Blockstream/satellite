@@ -6,7 +6,7 @@ import textwrap
 import argparse
 
 
-def _udpmulticast(dev, src_addr, dst_addr=defs.fibre_dst_addr, trusted="1",
+def _udpmulticast(dev, src_addr, dst_addr=defs.btc_dst_addr, trusted="1",
                   label=""):
     """Return the udpmulticast configuration line for bitcoin.conf"""
     return "udpmulticast=" + dev + "," + dst_addr + "," + src_addr + "," + trusted + "," + label

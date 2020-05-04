@@ -116,9 +116,9 @@ blocksat-cli usb launch
 > step (`blocksat-cli usb config`) requires root access.
 
 At this point, if your dish is already correctly pointed, you should be able to
-start receiving data in Bitcoin FIBRE. Please follow the [instructions for FIBRE
-configuration](fibre.md). If your antenna is not pointed yet, please follow the
-[antenna alignment guide](antenna-pointing.md).
+start receiving data in Bitcoin Satellite. Please follow the [instructions for
+Bitcoin Satellite configuration](bitcoin.md). If your antenna is not pointed
+yet, please follow the [antenna alignment guide](antenna-pointing.md).
 
 ## Docker
 

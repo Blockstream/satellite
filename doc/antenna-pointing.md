@@ -449,7 +449,7 @@ receiving, as explained in the [SDR Guide](sdr.md#running).
 ## Next Steps
 
 Well done. Your receiver is properly set-up and you are now ready to run the
-Bitcoin FIBRE application receiving data via the Blockstream Satellite
-Network. Please refer to the [Bitcoin FIBRE guide](fibre.md) for further
+Bitcoin Satellite application receiving data via the Blockstream Satellite
+Network. Please refer to the [Bitcoin Satellite guide](bitcoin.md) for further
 instructions.
 

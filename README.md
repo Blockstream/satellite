@@ -8,7 +8,8 @@ The Blockstream Satellite network broadcasts the Bitcoin blockchain using the
 standard](https://en.wikipedia.org/wiki/DVB-S2). To receive this signal, you
 will need a DVB-S2 demodulator, for which there are a couple of options. The
 output of the demodulator will be a data stream that you will feed to a host
-running the [Bitcoin FIBRE](http://bitcoinfibre.org) application. This
+running the [Bitcoin
+Satellite](https://github.com/Blockstream/bitcoinsatellite/) application. This
 application, in turn, will decode the blocks received over satellite and keep
 the blockchain in sync.
 
@@ -90,7 +91,7 @@ blocksat-cli instructions
 ```
 
 After following the instructions, the next steps include the installation of
-[Bitcoin FIBRE](doc/fibre.md) and the [antenna
+[Bitcoin Satellite](doc/bitcoin.md) and the [antenna
 pointing](doc/antenna-pointing.md). Please follow the user guide.
 
 ## User Guide
@@ -102,7 +103,7 @@ pointing](doc/antenna-pointing.md). Please follow the user guide.
     - [TBS5927](doc/tbs.md)
     - [SDR Setup](doc/sdr.md)
 - [Antenna Pointing](doc/antenna-pointing.md)
-- [Bitcoin FIBRE](doc/fibre.md)
+- [Bitcoin Satellite](doc/bitcoin.md)
 - [Satellite API](api/README.md)
 
 ## Support

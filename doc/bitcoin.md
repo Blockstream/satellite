@@ -1,9 +1,9 @@
-# Bitcoin FIBRE
+# Bitcoin Satellite
 
 <!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-generate-toc again -->
 **Table of Contents**
 
-- [Bitcoin FIBRE](#bitcoin-fibre)
+- [Bitcoin Satellite](#bitcoin-satellite)
     - [Overview](#overview)
     - [Build](#build)
     - [Usage](#usage)
@@ -12,27 +12,23 @@
 
 ## Overview
 
-Bitcoin FIBRE is a fork of Bitcoin Core that aims at providing high speed
-transport of blocks over a relay network. The project's official page is at
-[bitcoinfibre.org](http://bitcoinfibre.org) and the original source code is
-available on Github at
-[bitcoinfibre/bitcoinfibre](https://github.com/bitcoinfibre/bitcoinfibre/). However,
-in order to use FIBRE on a Blockstream Satellite receiver setup, our fork of
-Bitcoin FIBRE must be used. Our version introduces support for reception of
-multicast-addressed streams, which is required in order to receive the
-multicast-addressed packets that we broadcast over the satellite network.
+This project is a fork from [FIBRE (Fast Internet Bitcoin Relay
+Engine)](http://bitcoinfibre.org) and, consequently, also a fork of [Bitcoin
+Core](https://bitcoincore.org). It features a version of the bitcoind
+application with support for reception of blocks sent over satellite in UDP
+datagrams with multicast addressing.
 
 ## Build
 
-To build FIBRE from source, first clone the repository:
+To build Bitcoin Satellite from source, first clone the repository:
 
 ```
-git clone https://github.com/Blockstream/bitcoinfibre.git
-cd bitcoinfibre/
+git clone https://github.com/Blockstream/bitcoinsatellite.git
+cd bitcoinsatellite/
 ```
 
 Then, install all build requirements listed [in the project's
-documentation](https://github.com/bitcoinfibre/bitcoinfibre/blob/master/doc/build-unix.md#dependency-build-instructions-ubuntu--debian).
+documentation](https://github.com/Blockstream/bitcoinsatellite/blob/master/doc/build-unix.md#dependency-build-instructions-ubuntu--debian).
 
 Next, run:
 
@@ -42,23 +38,23 @@ Next, run:
 make
 ```
 
-This will build the `bitcoind` application binary within `bitcoinfibre/src` and
-you can execute it from there. Alternatively, you can install the application in
-your system:
+This will build the `bitcoind` application binary within the `src/` directory
+and you can execute it from there. Alternatively, you can install the
+application in your system:
 
 ```
 make install
 ```
 
 Detailed build instructions can be found within [the project's documentation
-](https://github.com/bitcoinfibre/bitcoinfibre/tree/master/doc#building).
+](https://github.com/Blockstream/bitcoinsatellite/tree/master/doc#building).
 
 ## Usage
 
 In a Blockstream Satellite receiver setup, the satellite demodulator will decode
-and output a UDP/IPv4 stream, which in turn Bitcoin FIBRE can listen to. In
-order for FIBRE to listen to such stream, option `udpmulticast` must be added to
-bitcoin's configuration file (i.e. the `bitcoin.conf` file).
+and output a UDP/IPv4 stream, which in turn Bitcoin Satellite can listen to. In
+order for Bitcoin Satellite to listen to such stream, option `udpmulticast` must
+be added to bitcoin's configuration file (i.e. the `bitcoin.conf` file).
 
 There are several possibilities regarding the configuration of option
 `udpmulticast`. It depends on your hardware setup and, more specifically, your
@@ -98,10 +94,10 @@ blocksat-cli bitcoin-conf -d [datadir]
 
 where `[datadir]` should be the target Bitcoin [data
 directory](https://en.bitcoin.it/wiki/Data_directory) that you will use when
-running FIBRE (by default `~/.bitcoin/`).
+running Bitcoin Satellite (by default `~/.bitcoin/`).
 
-Lastly, note that Bitcoin FIBRE is a fork of Bitcoin Core Version 0.16, hence
-other [Bitcoin Core configuration
+Lastly, note that Bitcoin Satellite is a fork of Bitcoin Core Version 0.19,
+hence other [Bitcoin Core configuration
 options](https://wiki.bitcoin.com/w/Running_Bitcoin) are supported and can be
 added to the generated `bitcoin.conf` configuration file as needed. For example,
 to run the node based on satellite links only (unplugged from the internet), add

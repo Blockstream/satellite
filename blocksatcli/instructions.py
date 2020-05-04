@@ -307,7 +307,7 @@ def _print_sdr_instructions(info):
     _item("leandvb: a software-based DVB-S2 demodulator.")
     _item("rtl_sdr: reads samples taken by the RTL-SDR and feeds them into leandvb.")
     _item("TSDuck: unpacks the output of leandvb and produces"
-          "IP packets to be fed to Bitcoin FIBRE.")
+          "IP packets to be fed to Bitcoin Satellite.")
 
     input("\nPress Enter to continue...")
 
@@ -491,15 +491,15 @@ def _print_next_steps():
     util._print_header("Next Steps")
     _print("""
     At this point, if your dish is already correctly pointed, you should be able to
-    start receiving data in Bitcoin FIBRE.
+    start receiving data in Bitcoin Satellite.
     """)
 
-    print("You can generate a bitcoin.conf configuration file for FIBRE using:")
+    print("You can generate a bitcoin.conf configuration file for Bitcoin Satellite using:")
     print("\n    blocksat-cli btc\n")
 
     print("For further information, refer to:\n")
-    print("https://github.com/Blockstream/satellite/blob/master/doc/fibre.md")
-    print("\nAlternatively, check the local file at doc/fibre.md\n")
+    print("https://github.com/Blockstream/satellite/blob/master/doc/bitcoin.md")
+    print("\nAlternatively, check the local file at doc/bitcoin.md\n")
 
     _print("""If your antenna is not pointed yet, please follow the
     antenna alignment guide available at:""")

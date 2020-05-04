@@ -37,11 +37,11 @@ The three demodulator options are summarized below:
   port of your PC. The SDR interface will collect and feed signal samples to the
   demodulator application/software running in your PC, which in turn will decode
   and output the data stream to be fed into [Bitcoin
-  FIBRE](http://bitcoinfibre.org). This is the most affordable option among the
-  three, as it works with affordable RTL-SDR USB dongles. However, it is also
-  the option that is expected to present the most limited performance and
-  reliability among the three. Also, this option is CPU-intensive, since the
-  demodulator application will run in the CPU.
+  Satellite](https://github.com/Blockstream/bitcoinsatellite). This is the most
+  affordable option among the three, as it works with affordable RTL-SDR USB
+  dongles. However, it is also the option that is expected to present the most
+  limited performance and reliability among the three. Also, this option is
+  CPU-intensive, since the demodulator application will run in the CPU.
 
 - **Linux USB Receiver**: in this setup the demodulation is entirely carried out
   in hardware, in the external demodulator device that is connected to your host
