@@ -1,23 +1,25 @@
 # Satellite API
 
-Blockstream Satellite API provides developers with an easy-to-use RESTful API
-that can be used to create applications that broadcast messages globally using
-the Blockstream Satellite network.
+[Blockstream Satellite API](https://blockstream.com/satellite-api/) provides
+developers with an easy-to-use RESTful API that can be used to create
+applications that broadcast messages globally using the Blockstream Satellite
+network.
 
 As illustrated in the diagram below, data posted to the Satellite API server is
 ultimately transported to the Blockstream Satellite Teleport and broadcast
-globally. Subsequently, the Blockstream Satellite Receiver (`blocksat-rx`)
-applications around the globe receive the data and output it to a named pipe.
+globally.
 
-![Blockstream Satellite API Architecture](../doc/api_architecture.png?raw=true "Blockstream Satellite API Architecture")
+![Blockstream Satellite API Architecture](../doc/img/api_architecture.png?raw=true "Blockstream Satellite API Architecture")
 
 Example Python applications for interaction with the Satellite API are available
-in the [`examples` directory](examples/).
+in the [`examples` directory](examples/). Please refer to the [documentation
+there](examples/README.md).
 
-**IMPORTANT** The Blockstream Satellite API is currently operating in developer
-mode: utilizing Lightning Testnet for payment and without live satellite
-transmissions. We will transition the API to mainnet and live satellite
-broadcast on January 16th 2019.
+The remainder of this page explains the REST API. For further information,
+please refer to the
+[`satellite-api`](https://github.com/Blockstream/satellite-api) repository and
+API information on [Blockstream's
+website](https://blockstream.com/satellite-api/).
 
 <!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-generate-toc again -->
 ## Contents
@@ -31,7 +33,6 @@ broadcast on January 16th 2019.
     - [GET /orders/sent](#get-orderssent)
     - [GET /info](#get-info)
     - [GET /subscribe/:channels](#get-subscribechannels)
-- [Blockstream Satellite Receiver API Data Output](#blockstream-satellite-receiver-api-data-output)
 
 <!-- markdown-toc end -->
 
@@ -41,7 +42,7 @@ Each call to an API endpoint responds with a JSON object, whether the call is
 successful or results in an error.
 
 The code samples below assume that you've set `SATELLITE_API` in your shell to
-`https://satellite.blockstream.com/api`, which is the public base URL of your
+`https://satellite.blockstream.com/api`, which is the public base URL of the API
 server. For example, run:
 
 ```
@@ -202,30 +203,10 @@ Subscribe to one or more [server-sent
 events](https://en.wikipedia.org/wiki/Server-sent_events) channels. The
 `channels` parameter is a comma-separated list of event channels. Currently,
 only one channel is available: `transmissions`, to which an event is pushed each
-time a message transmission begins and ends. Event data includes a JSON
+time a message transmission begins and ends. Event data consists of a JSON
 representation of the order, including its current status.
 
 ```bash
 curl $SATELLITE_API/subscribe/:channels
 ```
-
-
-## Blockstream Satellite Receiver API Data Output
-
-The blocksat receiver does not output the raw data payload sent to the Satellite
-API directly as it is to the output named pipe. Instead, the blocksat receiver
-embeds the data into a structure. The structure contains a delimiter and a field
-with the data length. In the end, what appears in the output pipe is as
-illustrated below:
-
-![Output data structure used for API data](../doc/api_output_data_structure.png?raw=true "Output data structure used for API data")
-
-This structure allows applications to distinguish the boundaries between
-independent API transmissions. However, note that it does not guarantee data
-integrity, since the length value in the header is simply the length of the
-received data, rather than the length of the data that was actually
-transmitted. Data integrity is left for the application-specific protocol to be
-developed by users. See [Example 1 in the "examples"
-directory](examples/#example-1-sending-data-in-a-user-defined-protocol) for one
-such application-specific protocol that checks data integrity.
 

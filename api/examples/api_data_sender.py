@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 """
 Post data to the Satellite API for transmission via Blockstream Satellite
 """
@@ -377,9 +377,12 @@ def main():
     # In case of failure, check the API error message
     if (r.status_code != requests.codes.ok and
         r.headers['content-type'] == "application/json"):
-        if "errors" in r.json():
-            for error in r.json()["errors"]:
-                print("ERROR: " + error["title"] + "\n" + error["detail"])
+        try:
+            if "errors" in r.json():
+                for error in r.json()["errors"]:
+                    print("ERROR: " + error["title"] + "\n" + error["detail"])
+        except ValueError:
+            print(r.text)
 
     # Raise error if response status indicates failure
     r.raise_for_status()

@@ -10,7 +10,7 @@ illustrates how one can simulate the output of the Blockstream Satellite
 receiver while fetching data directly from the Satellite API via the Internet,
 rather than receiving data via the satellite link.
 
-![Blockstream Satellite API Architecture](../../doc/api_architecture.png?raw=true "Blockstream Satellite API Architecture")
+![Blockstream Satellite API Architecture](../../doc/img/api_architecture.png?raw=true "Blockstream Satellite API Architecture")
 
 <!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-generate-toc again -->
 ## Contents
@@ -39,7 +39,7 @@ For Python, create a virtual environment with the packages listed in the
 *virtualenvwrapper*, run the following:
 
 ```
-mkvirtualenv --python=`which python2` -r requirements.txt blocksat-api
+mkvirtualenv --python=`which python3` -r requirements.txt blocksat-api
 ```
 
 Note this virtual environment will be required for all example scripts described
@@ -67,8 +67,8 @@ Next, generate a key pair for encryption (prior to transmission) and decryption
 ```
 
 Note that by default this will create the `.gnupg` directory in the local
-(`examples`) directory. This directory is where the GPG public and secret
-keyrings are stored.
+(`examples`) directory. This `.gnupg` directory is where the GPG public and
+secret keyrings are stored.
 
 If you could not use the above helper script successfully, or if you prefer, you
 can also generate keys on a local `.gnupg` directory with:
@@ -89,25 +89,28 @@ This example uses two scripts of the `examples` directory:
 1. API data sender
 2. API data reader
 
-The *API data sender* by default places a user-specified file into a data
-structure and then sends the entire structure to the API. The structure carries
+Also, it requires a running Blocksat receiver. If you don't have a real Blocksat
+receiver setup, you can use the demo receiver explained in [Example
+3](#example-3-receiving-data-from-the-api-sandbox).
+
+The *API data sender* application by default places the user-specified file into
+a data structure and then sends the structure to the API. The structure carries
 the file name as a string and also contains a CRC32 checksum that can be used
-for data integrity check on the receiver side. The entire structure is first
-encrypted using GnuPG and then posted via HTTPS to the Blockstream Satellite
-API.
+for data integrity checking on the receiver side. The entire structure is first
+encrypted using GnuPG and then posted via HTTPS to the Blockstream Satellite API
+server, which in turn broadcasts the message over the satellite network.
 
-Meanwhile, the *API data reader* application waits for data written by the
-Blockstream Satellite receiver into the pipe file at `/tmp/blocksat/api`. It
-continuously reads this named pipe, decrypts the incoming data, validates the
-integrity of the data and then saves the unpacked files. The integrity
-validation is done by computing the CRC32 checksum of the received data and
-comparing it with the checksum that is advertised on the header of the incoming
-data structure. Ultimately, the incoming file is saved in the `downloads/`
-folder with the name that is given in the header.
+Meanwhile, the *API data reader* application waits for data received by the
+Blockstream Satellite receiver. It continuously listens for messages on the
+specific multicast address that is used for API packets. Once an API message is
+received, this application decrypts the message, validates the integrity of the
+data and then saves the unpacked files. The integrity validation is done by
+computing the CRC32 checksum of the received data and comparing the latter with
+the checksum that is advertised on the header of the incoming data
+structure. Ultimately, the incoming file is saved in the `downloads/` folder
+with the name that is given in the header.
 
-In order to run the example, first ensure that the Blocksat receiver (or the
-demo receiver of [Example 3](#example-3-receiving-data-from-the-api-sandbox))
-is running. Next, ensure that you are using the correct Python virtual
+To get started, first ensure that you are using the correct Python virtual
 environment. If using `virtualenvwrapper`, run:
 
 ```
@@ -117,11 +120,18 @@ workon blocksat-api
 Then, launch the API data reader as follows:
 
 ```
-./api_data_reader.py
+./api_data_reader.py -i ifname
 ```
 
-The reader will wait for data to appear in the API named pipe (at
-`/tmp/blocksat/api`).
+where `ifname` is the name of the network interface that is connected to your
+Blockstream Satellite receiver/demodulator.
+
+> In case you are using a [USB demodulator](../../doc/tbs.md), the interface
+> will typically be named `dvb0_0` and `dvb0_1`, although the numbers may
+> occasionally vary. Check `ifconfig` or `ip a`.
+>
+> In case you are using an [SDR-based demodulator](../../sdr.md), the interface
+> will be the loopback interface, typically named `lo` in the operating system.
 
 Next, send some data. On another terminal session, activate the Python virtual
 environment once again (e.g. with `workon blocksat-api`). Then, post a file of
@@ -153,10 +163,11 @@ the Testnet server, using:
 Do note however that the Testnet server does not transmit data through the
 satellite network. It only broadcasts the data to clients that are connected
 directly to the server through the Internet. Hence, the way to receive Testnet
-data is with the demo receiver of [Example
+data is with the demo receiver that is explained in [Example
 3](#example-3-receiving-data-from-the-api-sandbox)).
 
-Once the API server effectively transmits your data, the data is expected to pop
+Once the API server effectively transmits your data and your satellite
+receiver/demodulator receives the transmission, the data is expected to appear
 at the API data reader application. In the end, the received file will be saved
 in the `downloads` folder.
 
@@ -179,18 +190,18 @@ example, send with the alternative GnuPG home:
 Assuming the API data reader is still running with the default GnuPG home
 directory, you should expect decryption to fail in this case.
 
-Note that, in practice, data written by the Blocksat Receiver in the API named
-pipe (at `/tmp/blocksat/api`) multiplexes transmissions from all users of the
-Satellite API. Hence, the application is expected to fail decryption several
-times until it finds the data for which it is actually a recipient of.
+Note that, the incoming data stream multiplexes transmissions from all users of
+the Satellite API. Hence, the application is expected to fail decryption in most
+cases, except when it finds a transmission that it is actually a recipient of.
 
 ## Example 2: Sending files directly
 
 In this example, the goal is to send a file directly to the API, without placing
 it on any user-specific protocol.
 
-The same two scripts of Example 1 are used, except for different command-line
-arguments:
+The same two scripts of [Example
+1](#example-1-sending-data-in-a-user-defined-protocol) are used, except for
+different command-line arguments:
 
 1. API data sender
 2. API data reader
@@ -198,8 +209,18 @@ arguments:
 In this case, launch the API data reader as follows:
 
 ```
-./api_data_reader.py --save-raw
+./api_data_reader.py -i ifname --save-raw
 ```
+
+where `ifname` is the name of the network interface that is connected to your
+Blockstream Satellite receiver/demodulator.
+
+> In case you are using a [USB demodulator](../../doc/tbs.md), the interface
+> will typically be named `dvb0_0` and `dvb0_1`, although the numbers may
+> occasionally vary. Check `ifconfig` or `ip a`.
+>
+> In case you are using an [SDR-based demodulator](../../sdr.md), the interface
+> will be the loopback interface, typically named `lo` in the operating system.
 
 Next, send some data using:
 
@@ -216,20 +237,27 @@ Again, to use the Testnet server instead, run:
 ./api_data_sender.py --net test -f filename --send-raw
 ```
 
-Once the Blocksat receiver outputs your data into the API output pipe, the
-reader will receive this data and retrieve the file.
+> As mentioned earlier, when using the Testnet server, since the message is only
+> sent over the Internet (and not over satellite), the demo receiver from
+> [Example 3](#example-3-receiving-data-from-the-api-sandbox) must be used.
+
+Once the satellite receiver interface receives the data, the API data reader app
+will correspondingly receive it and retrieve the transmitted file.
 
 Note that, just like in Example 1, this example also handles encryption
 internally. That is, you can point to a non-encrypted file and the data sender
-will encrypt it internally. The reader will then decrypt the data.
+will encrypt it internally before posting to the API server. The reader will
+then decrypt the data.
 
-This use case is also useful when sending a file directly via the [form in the
-API web page](https://blockstream.com/satellite-queue/). In this case, the file
-can be retrieved on the Blocksat receiver side by running the API data reader as
-above. The only difference is that in this case you will need to encrypt the
-file offline, before uploading to the form in the API web page. This is because
-the *API data reader* application by default assumes the incoming data is
-encrypted with the keys that are available in the local GnupG home directory.
+The command-line option `--save-raw` is also useful when sending a file directly
+via the [form in the API web page](https://blockstream.com/satellite-queue/). In
+this scenario, the file can be retrieved by running the API data reader as
+above, with `--save-raw` flag. The only difference is that in this case you will
+need to encrypt the file offline, before uploading to the form of the API web
+page. This is because the web page does not encrypt your data before posting for
+transmission, while the *API data reader* application does assume that the
+incoming data is encrypted and correspondingly tries to decrypt it using the
+keys that are available in the local GnupG home directory.
 
 To encrypt a file offline, you can run for example:
 
@@ -237,30 +265,30 @@ To encrypt a file offline, you can run for example:
 gpg --encrypt --recipient pub_key_id_or_email filename
 ```
 
-where `pub_key_id_or_email` can be either the public key ID of the target
-recipient or its e-mail.
+where `pub_key_id_or_email` can be either the public key ID or the e-mail
+address of the target recipient.
 
 > NOTE: In case the recipient information is located in the GnuPG home directory
 > that was created using `./generate_keys.py`, add `--homedir .gnupg` to the
 > above `gpg` command.
 
 Alternatively, you can run the API data reader in "plaintext mode". This will
-allow you to receive plaintext files uploaded directly via the [API
+allow reception of plaintext files uploaded directly via the [API
 website](https://blockstream.com/satellite-queue/), or any other plaintext
-transmission broadcast via the satellite network. However, please be aware that
-in this case **all** API transmissions will be saved to the `downloads` folder,
-rather than solely the ones that can be decrypted with the GPG keys you
-possess. To run in this mode, execute:
+transmission broadcast via the satellite network. However, please **be aware**
+that in this case **all** API transmissions will be saved to the `downloads`
+folder, rather than solely the ones that can be decrypted with the GPG keys you
+have. To run in this mode, execute:
 
 ```
-./api_data_reader.py --plaintext
+./api_data_reader.py -i ifname --plaintext
 ```
 
 ## Example 3: Testing the API while receiving data directly via Internet
 
 This example illustrates the scenario in which instead of receiving data with
-the actual Blockstream Satellite receiver (i.e. the `blocksat-rx` application),
-you fetch data directly from the API through the Internet.
+the actual Blockstream Satellite receiver, you fetch data directly from the API
+server through the Internet.
 
 Now, you will need three scripts from the `examples` directory:
 
@@ -271,8 +299,8 @@ Now, you will need three scripts from the `examples` directory:
 You can choose to use the API data sender and API data reader either as in
 [Example 1](#example-1-sending-data-in-a-user-defined-protocol) or as in
 [Example 2](#example-2-sending-files). The important difference here is that the
-API data reader will read data from a named pipe that is filled by the *demo
-receiver*, rather than the actual Blockstream Satellite receiver.
+API data reader will read data fed by the *demo receiver*, rather than the
+actual Blockstream Satellite receiver.
 
 Start by activating the `blocksat-api` Python virtual environment. Then, run the
 demo receiver:
@@ -281,25 +309,25 @@ demo receiver:
 ./demo-rx.py
 ```
 
-This application will continuously wait for data broadcast directly by the API
-over the Internet and then it will output the data to the same named pipe that
-the Blockstream Satellite receiver would use, namely the pipe file at
-`/tmp/blocksat/api`.
-
-> NOTE: in case you want to concurrently run both the actual `blocksat-rx`
-> receiver application and the demo receiver, you will need to use another named
-> pipe for the demo receiver. Otherwise, the two applications would try to use
-> the same named pipe. To do so, run `./demo-rx.py -f pipe_file`, where
-> `pipe_file` is the name of the other named pipe file to be used for the demo
-> receiver.
+This application will monitor [server-sent
+events](../README.md#get-subscribechannels) that are generated by the API server
+whenever a new message is sent by a user. Then it will post the data towards the
+same multicast address and UDP port that the Blockstream Satellite receiver
+normally would. By default, this is the address `239.0.0.2:4433`, which in turn
+the API data reader listens to.
 
 Next, assuming for the explanation that the approach of [Example
-1](#example-1-sending-data-in-a-user-defined-protocol) is adopted, you can leave
-the data reader running with:
+1](#example-1-sending-data-in-a-user-defined-protocol) is adopted, you can run
+the API data reader with:
 
 ```
-./api_data_reader.py
+./api_data_reader.py --demo
 ```
+
+> NOTE: the Demo Rx application will pick an appropriate network interface in
+> order to send API messages. When the API data reader is launched with option
+> `--demo`, it will pick the same network interface as the Demo Rx, so the
+> communication between them will work.
 
 Finally, send a file with the API data sender application and wait until it pops
 in the data reader.
@@ -323,6 +351,22 @@ server. That is, it needs to be launched as follows:
 ```
 
 ## Further Information
+
+### Encapsulation Format
+
+User messages sent over the API are encapsulated over UDP/IPv4. The UDP
+datagrams, in turn, are broadcast over the satellite network and received by the
+Blockstream Satellite receivers/demodulators.
+
+The UDP datagrams are formatted as follows:
+
+```
+| UDP Header (8 bytes) | Blocksat Header (8 bytes) | User Message |
+```
+
+That is, within the UDP payload, there is an 8-byte header for auxiliary
+Blocksat information, followed by the actual user message. The user message is
+currently limited to 10 kB.
 
 ### Bump and delete API orders
 
@@ -389,20 +433,17 @@ use for signing.
 
 #### Password-protected GPG keyring
 
-In case the private key in your keyring is password-protected, you will need to
-use to inform your password when signing a message with the sender app. To do
-so, append `--password` when running the app. For example, as follows:
+By default it is assumed that the private key in your keyring is
+password-protected. In case you want to use a private key that is **not**
+password-protected for signing a transmission or decrypting incoming messages,
+run the sender and reader apps with option `--no-password`, as follows:
 
 ```
-./api_data_sender.py -f filename --sign --password
+./api_data_sender.py -f filename --sign --no-password
 ```
 
-Likewise, when decrypting messages with the reader app, if you need to inform
-your password, append `--password` to the API data reader command-line. For
-example, as follows:
-
 ```
-./api_data_reader.py --password
+./api_data_reader.py --no-password
 ```
 
 ### Text messages
@@ -415,3 +456,52 @@ the sender app.
 ```
 
 
+## Troubleshooting
+
+1. **When running Example 3, messages are received by `demo-rx`, but not by
+   `api_data_reader`.**
+
+The `demo-rx` application fetches API messages from the API server and
+subsequently transmits them through a network interface that is automatically
+selected (typically your main network interface). While doing so, the `demo-rx`
+configures the transmisssions such that they are looped back to the transmitting
+interface/socket. The reader application, in turn, receives the messages that
+are looped back.
+
+You can inspect whether UDP segments for port 4433 (Blocksat API port) are being
+transmitted by `demo-rx` succesfully. To do so, run:
+
+```
+sudo tcpdump -n -i any port 4433
+```
+
+If they are transmitted normally, it is possible that your firewall is blocking
+the messages that are looped back. To overcome this, you can add a firewall rule
+as follows:
+
+```
+sudo iptables -I INPUT -p udp -i ifname --match multiport --dports 4433,4434 -j ACCEPT
+```
+
+where `ifname` is the name of the network interface that `demo-rx` and
+`api_data_reader` are using, which you should fill in.
+
+Alternatively, configure firewall rules using the blocksat CLI:
+
+```
+./blocksat.py firewall -i ifname
+```
+
+You can also control the network interface that is used by `demo-rx` and
+`api_data_reader`. To do so, execute the two applications as follows:
+
+```
+./demo-rx.py -i ifname
+```
+
+```
+./api_data_reader.py -i ifname
+```
+
+>Note that instead of `--demo` on `api_data_reader.py`, in this case you specify
+>the interface directly.
