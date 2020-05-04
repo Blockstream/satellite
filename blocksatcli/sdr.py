@@ -113,6 +113,9 @@ def subparser(subparsers):
     ldvb_p.add_argument('--ldpc-bf', default=100,
                         help='Max number of iterations used by the internal \
                         LDPC decoder when not using an external LDPC tool')
+    ldvb_p.add_argument('--ldpc-iterations', default=25,
+                        help='Max number of iterations used by the external \
+                        LDPC decoder when using an external LDPC tool')
     ldvb_p.add_argument('--framesizes', type=int, default=1, choices=[0,1,2,3],
                         help="Bitmask of desired frame sizes (1=normal, \
                         2=short)")
@@ -223,7 +226,8 @@ def run(args):
     elif (args.debug_ts > 1):
         ldvb_cmd.extend(["-d", "-d"])
     if (args.ldpc_dec == "ext"):
-        ldvb_cmd.extend(["--ldpc-helper", args.ldpc_tool])
+        ldvb_cmd.extend(["--ldpc-helper", args.ldpc_tool,
+                         "--ldpc-iterations", str(args.ldpc_iterations)])
     else:
         ldvb_cmd.extend(["--ldpc-bf", str(args.ldpc_bf)])
     if (args.gui):
