@@ -58,6 +58,6 @@ else
 
 	# Install firmware
 	cd ../
-	wget http://www.tbsdtv.com/download/document/linux/tbs-tuner-firmwares_v1.0.tar.bz2
+	wget https://www.tbsdtv.com/download/document/linux/tbs-tuner-firmwares_v1.0.tar.bz2
 	sudo tar jxvf tbs-tuner-firmwares_v1.0.tar.bz2 -C /lib/firmware/
 fi

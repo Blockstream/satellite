@@ -13,7 +13,7 @@
 ## Overview
 
 This project is a fork from [FIBRE (Fast Internet Bitcoin Relay
-Engine)](http://bitcoinfibre.org) and, consequently, also a fork of [Bitcoin
+Engine)](https://bitcoinfibre.org) and, consequently, also a fork of [Bitcoin
 Core](https://bitcoincore.org). It features a version of the bitcoind
 application with support for reception of blocks sent over satellite in UDP
 datagrams with multicast addressing.
