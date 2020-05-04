@@ -36,7 +36,7 @@ summarized in the table below:
 |----------------------------------|-----------------|-------------------------|------------|-------------|-----------------|
 | **Software-defined Radio (SDR)** | Most Affordable | Limited                 | High       | USB Dongle  | No              |
 | **Linux USB Receiver**           | Moderate        | Excellent               | Low        | USB Device  | No              |
-| **Standalone Demodulator**       | Higher          | Excellent               | Low        | Standalone  | Yes             |
+| **Standalone Demodulator**       | Higher          | Excellent               | None       | Standalone  | Yes             |
 
 <sup>*</sup> Specific to locations that have overlapping coverage from two satellites.
 

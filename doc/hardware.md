@@ -8,6 +8,7 @@ Satellite receiver setup.
 
 - [Hardware Requirements](#hardware-requirements)
     - [Demodulator Options](#demodulator-options)
+    - [Satellite Kits](#satellite-kits)
     - [Common Components](#common-components)
         - [Satellite Dish](#satellite-dish)
         - [LNB](#lnb)
@@ -26,9 +27,9 @@ Satellite receiver setup.
 ## Demodulator Options
 
 The demodulator is the device or software application that processes the
-incoming satellite signal and decodes the data stream from it. There are 3
-supported types of demodulator with varying levels of budget, performance and
-CPU usage. For each of them, specific hardware components are required.
+incoming satellite signal and decodes the data stream from it. There are three
+supported types of demodulator. For each of them, specific hardware components
+are required.
 
 The three demodulator options are summarized below:
 
@@ -43,7 +44,7 @@ The three demodulator options are summarized below:
   limited performance and reliability among the three. Also, this option is
   CPU-intensive, since the demodulator application will run in the CPU.
 
-- **Linux USB Receiver**: in this setup the demodulation is entirely carried out
+- **Linux USB Demodulator**: in this setup the demodulation is entirely carried out
   in hardware, in the external demodulator device that is connected to your host
   via USB. In this option, you will need to install specific drivers and Linux
   DVB-S2 apps that will allow the host to configure the external demodulator and
@@ -55,6 +56,49 @@ The three demodulator options are summarized below:
   the PC through the network and can potentially feed multiple PCs
   concurrently. This is also expected to be a great option in terms of
   performance.
+
+## Satellite Kits
+
+With the three types of demodulators explained earlier, there are three possible
+satellite kits:
+
+1. SDR Kit (w/ SDR-based Demodulator)
+2. Basic USB Kit (w/ Linux USB Demodulator)
+3. Pro Ethernet Kit (w/ Standalone Demodulator)
+
+The following table summarizes the different features offered by each of them:
+
+|                                       | SDR                | Basic USB Kit      | Pro Ethernet Kit   |
+|---------------------------------------|:------------------:|:------------------:|:------------------:|
+| Blockstream Kit Available             | DIY                | :heavy_check_mark: | :heavy_check_mark: |
+| USB Interface                         | :heavy_check_mark: | :heavy_check_mark: |                    |
+| Ethernet Interface                    |                    |                    | :heavy_check_mark: |
+| LNB Power Supplied by Interface       |                    | :heavy_check_mark: | :heavy_check_mark: |
+| Support for Universal LNB<sup>1</sup> |                    | :heavy_check_mark: | :heavy_check_mark: |
+| Dual Stream Capable<sup>2</sup>       |                    | :heavy_check_mark: | :heavy_check_mark: |
+| Dual Satellite Capable<sup>3</sup>    |                    |                    | :heavy_check_mark: |
+| CPU Utilization                       | High               | Low                | None               |
+| Multiple Host Connections<sup>4</sup> |                    |                    | :heavy_check_mark: |
+| Optional Rack Mountable               |                    |                    | :heavy_check_mark: |
+| Compatible with Flat Panel            | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
+
+<sup>1</sup> Support means that the interface provides a 22 kHz signal for
+switching the band of a Universal LNB between Ku low and Ku high bands. This
+feature is required in order to use Universal LNBs for receiving from the Galaxy
+18 and Eutelsat 113 satellites.
+
+<sup>2</sup> The demodulator can receive the two streams that are sent over the
+Blockstream Satellite network concurrently. More information on the two streams
+below.
+
+<sup>3</sup> Ability to receive from two satellites simultaneously in areas with
+overlapping coverage from satellites. This feature enables greater redundancy,
+higher bitrate, and faster sync times.
+
+<sup>4</sup> The demodulator can feed the data stream received over satellite to
+multiple hosts at the same time. The demodulator decodes multicast-addressed
+packets sent over DVB-S2 and relays the multicast packets to multiple hosts
+listening for them in the network.
 
 ## Common Components
 
