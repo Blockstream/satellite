@@ -1,4 +1,4 @@
-# Hardware Requirements
+# Hardware Guide
 
 This page explains all hardware components required for assembling a Blockstream
 Satellite receiver setup.
@@ -6,9 +6,13 @@ Satellite receiver setup.
 <!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-generate-toc again -->
 **Table of Contents**
 
+- [Hardware Guide](#hardware-guide)
+    - [Satellite Kits](#satellite-kits)
+        - [Blockstream Satellite Basic Kit](#blockstream-satellite-basic-kit)
+        - [Blockstream Satellite Pro Kit](#blockstream-satellite-pro-kit)
+    - [Satellite Kit Comparison](#satellite-kit-comparison)
 - [Hardware Requirements](#hardware-requirements)
     - [Demodulator Options](#demodulator-options)
-    - [Satellite Kits](#satellite-kits)
     - [Common Components](#common-components)
         - [Satellite Dish](#satellite-dish)
         - [LNB](#lnb)
@@ -24,47 +28,98 @@ Satellite receiver setup.
 
 <!-- markdown-toc end -->
 
-## Demodulator Options
-
-The demodulator is the device or software application that processes the
-incoming satellite signal and decodes the data stream from it. There are three
-supported types of demodulator. For each of them, specific hardware components
-are required.
-
-The three demodulator options are summarized below:
-
-- **Software-defined Radio (SDR)**: this demodulator is entirely implemented in
-  software. You will need an SDR interface, which you will connect to the USB
-  port of your PC. The SDR interface will collect and feed signal samples to the
-  demodulator application/software running in your PC, which in turn will decode
-  and output the data stream to be fed into [Bitcoin
-  Satellite](https://github.com/Blockstream/bitcoinsatellite). This is the most
-  affordable option among the three, as it works with affordable RTL-SDR USB
-  dongles. However, it is also the option that is expected to present the most
-  limited performance and reliability among the three. Also, this option is
-  CPU-intensive, since the demodulator application will run in the CPU.
-
-- **Linux USB Demodulator**: in this setup the demodulation is entirely carried out
-  in hardware, in the external demodulator device that is connected to your host
-  via USB. In this option, you will need to install specific drivers and Linux
-  DVB-S2 apps that will allow the host to configure the external demodulator and
-  get the data from it. This option is expected to perform greatly and with
-  negligible CPU usage of the host.
-
-- **Standalone Demodulator**: this is also a hardware-based setup, with the
-  difference that it is completely independent of the host PC. It connects to
-  the PC through the network and can potentially feed multiple PCs
-  concurrently. This is also expected to be a great option in terms of
-  performance.
-
 ## Satellite Kits
 
-With the three types of demodulators explained earlier, there are three possible
-satellite kits:
+There are three possible satellite kits:
 
 1. SDR Kit (w/ SDR-based Demodulator)
 2. Basic USB Kit (w/ Linux USB Demodulator)
 3. Pro Ethernet Kit (w/ Standalone Demodulator)
+
+Kits #2 and #3 will
+[soon](https://blockstream.com/2020/05/04/en-announcing-blockstream-satellite-2/)
+be available for pre-order at the Blockstream Store. However, users can also
+purchase the individual components of the kits, which are detailed next.
+
+### Blockstream Satellite Basic Kit
+
+Components:
+
+- TBS 5927 DVB-S2 Tuner
+- Universal Ku Band PLL LNB
+    - Universal 9750/10600 LO.
+    - Phase Locked Loop design, will not drift over time.
+    - Single Output Ku LNBF.
+    - Frequency: 10.7-12.75 GHz.
+    - 0.5dB Noise Figure.
+    - 60dB Gain.
+    - +/- 300 KHz Stability.
+- Universal C Band PLL LNB
+    - Low-band filtering to provide exceptional performance.
+    - Frequency: 3.7GHz - 4.2GHz range.
+    - Phase Locked Loop design, will not drift over time.
+    - 15°K Noise Figure.
+    - 65dB Gain.
+    - +/- 50 Khz Stability.
+- Ku Band LNB Mounting Bracket
+    - Bracket to support Universal Ku Band PLL LNB.
+    - Compatible with any 18" DTV dish, Dishnetwork Dish, Super Dish, and 33",
+      36", or 39" FTA Dishes.
+    - Has molded in LNB rotation and vertical height adjust scale.
+- C Band LNB Scalar ring
+    - Provides optimal offset dish illumination
+- C Band LNB Mounting Bracket
+    - Universal poly 50 - 68mm feed horn clamp for mounting on many.
+      brands/models of offset dishes. Options for bottom or side mounting holes
+      are provided for attachment to the many varied feed support arm designs.
+- 32cm flat coax jumper
+    - Flat, bendable flat coaxial TV extension cable used to pass through window
+      and door frames.
+
+### Blockstream Satellite Pro Kit
+
+Components:
+
+- Novra S400 Professional DVB-S2 Receiver
+    - Dual Satellite Capable.
+    - Input Signal Level: -65 dBM  -25 dBm.
+    - Receiving Frequency: 950 to 2150 MHz.
+    - Automatic Symbol Rate and Code Rate detection and lock.
+    - Connectivity:
+        - 2 L-band input connectors (F-type and 75 ohms).
+        - 1 ethernet GbE RJ-45 LAN interface for data output.
+        - 1 Ethernet 100Base-T interface for monitor/control.
+        - Micro SD Slot.
+- Universal Ku Band PLL LNB
+    - Universal 9750/10600 LO.
+    - Phase Locked Loop design, will not drift over time.
+    - Single Output Ku LNBF.
+    - Frequency: 10.7-12.75 GHz.
+    - 0.5dB Noise Figure.
+    - 60dB Gain.
+    - 300 KHz Stability.
+- Universal C Band PLL LNB
+    - Low-band filtering to provide exceptional performance.
+    - Frequency: 3.7GHz - 4.2GHz range.
+    - Phase Locked Loop design, will not drift over time.
+    - 15°K Noise Figure.
+    - 65dB Gain.
+    - +/- 50 Khz Stability.
+- Ku Band LNB Mounting Bracket
+    - Bracket to support Universal Ku Band LNB.
+    - Compatible with any 18" DTV dish, Dishnetwork Dish, Super Dish, and 33",
+      36", or 39" FTA Dishes.
+    - Has molded in LNB rotation and vertical height adjust scale.
+- C Band LNB Scalar ring
+    - Provides optimal offset dish illumination.
+- C Band LNB Mounting Bracket
+    - Universal poly 50 - 68mm feed horn clamp for mounting on many
+      brands/models of offset dishes. Options for bottom or side mounting holes
+      are provided for attachment to the many varied feed support arm designs.
+      -32cm flat coax jumper Flat, bendable flat coaxial TV extension cable used
+      to pass through window and door frames.
+
+## Satellite Kit Comparison
 
 The following table summarizes the different features offered by each of them:
 
@@ -99,6 +154,44 @@ higher bitrate, and faster sync times.
 multiple hosts at the same time. The demodulator decodes multicast-addressed
 packets sent over DVB-S2 and relays the multicast packets to multiple hosts
 listening for them in the network.
+
+All features and specifications mentioned thus far are thoroughly explained in
+the remainder of this page.
+
+# Hardware Requirements
+
+## Demodulator Options
+
+The demodulator is the device or software application that processes the
+incoming satellite signal and decodes the data stream from it. There are three
+supported types of demodulator. For each of them, specific hardware components
+are required.
+
+The three demodulator options are summarized below:
+
+- **Software-defined Radio (SDR)**: this demodulator is entirely implemented in
+  software. You will need an SDR interface, which you will connect to the USB
+  port of your PC. The SDR interface will collect and feed signal samples to the
+  demodulator application/software running in your PC, which in turn will decode
+  and output the data stream to be fed into [Bitcoin
+  Satellite](https://github.com/Blockstream/bitcoinsatellite). This is the most
+  affordable option among the three, as it works with affordable RTL-SDR USB
+  dongles. However, it is also the option that is expected to present the most
+  limited performance and reliability among the three. Also, this option is
+  CPU-intensive, since the demodulator application will run in the CPU.
+
+- **Linux USB Demodulator**: in this setup the demodulation is entirely carried out
+  in hardware, in the external demodulator device that is connected to your host
+  via USB. In this option, you will need to install specific drivers and Linux
+  DVB-S2 apps that will allow the host to configure the external demodulator and
+  get the data from it. This option is expected to perform greatly and with
+  negligible CPU usage of the host.
+
+- **Standalone Demodulator**: this is also a hardware-based setup, with the
+  difference that it is completely independent of the host PC. It connects to
+  the PC through the network and can potentially feed multiple PCs
+  concurrently. This is also expected to be a great option in terms of
+  performance.
 
 ## Common Components
 
