@@ -60,10 +60,12 @@ def _cfg_rx_setup():
         setup['netdev'] = netdev.strip()
 
     # Antenna
-    question = "Please, inform the size of your satellite dish:"
+    question = "Please, inform the type of your satellite dish (antenna):"
     size = util._ask_multiple_choice(
-        defs.antenna_sizes, question, "Size",
-        lambda x : '{}'.format(x['label']),
+        defs.antennas, question, "Size",
+        lambda x : 'Satellite Dish ({})'.format(x['label'])
+        if x['type'] == 'dish'
+        else '{} Flat-Panel Antenna'.format(x['label']),
         none_option = True,
         none_str = "Other")
 
@@ -73,7 +75,7 @@ def _cfg_rx_setup():
                                 in_type=int)
         size = { 'label' : "custom", 'size' : resp }
 
-    setup['dish_size'] = size
+    setup['antenna'] = size
 
     return setup
 
@@ -159,13 +161,20 @@ def _cfg_custom_lnb(sat):
     }
 
 
-def _cfg_lnb(sat):
+def _cfg_lnb(sat, setup):
     """Configure LNB - either from preset or from custom specs
 
     Args:
         sat   : user's satellite info
+        setup : user's setup info
 
     """
+
+    if (setup['antenna']['type'] == 'flat'):
+        for lnb in defs.lnbs:
+            if lnb['vendor'] == 'Selfsat':
+                lnb["v1_pointed"] = False
+                return lnb
 
     util._print_header("LNB")
 
@@ -386,7 +395,7 @@ def configure(args):
 
     user_sat   = _cfg_satellite()
     user_setup = _cfg_rx_setup()
-    user_lnb   = _cfg_lnb(user_sat)
+    user_lnb   = _cfg_lnb(user_sat, user_setup)
     user_freqs = _cfg_frequencies(user_sat, user_lnb)
 
     user_info = {

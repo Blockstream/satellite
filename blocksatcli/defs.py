@@ -90,14 +90,16 @@ demods = [
     }
 ]
 
-antenna_sizes = [
-    { 'label' : "45cm / 18in", 'size' : 45 },
-    { 'label' : "60cm / 24in", 'size' : 60 },
-    { 'label' : "76cm / 30in", 'size' : 76 },
-    { 'label' : "90cm / 36in", 'size' : 90 },
-    { 'label' : "1.2m", 'size' : 120 },
-    { 'label' : "1.5m", 'size' : 150 },
-    { 'label' : "1.8m", 'size' : 180 }
+antennas = [
+    { 'label' : "45cm / 18in",  'type': 'dish', 'size' : 45   },
+    { 'label' : "60cm / 24in",  'type': 'dish', 'size' : 60   },
+    { 'label' : "76cm / 30in",  'type': 'dish', 'size' : 76   },
+    { 'label' : "90cm / 36in",  'type': 'dish', 'size' : 90   },
+    { 'label' : "1.2m / 4ft",   'type': 'dish', 'size' : 120  },
+    { 'label' : "1.5m / 5ft",   'type': 'dish', 'size' : 150  },
+    { 'label' : "1.8m / 6ft",   'type': 'dish', 'size' : 180  },
+    { 'label' : "2.4m / 8ft",   'type': 'dish', 'size' : 240  },
+    { 'label' : 'Blockstream',  'type': 'flat', 'size' : None },
 ]
 
 ku_band_thresh = 11700.0
@@ -133,6 +135,14 @@ lnbs = [
         "lo_freq"   : 5150.0,
         'universal' : False,
         'band'      : "C",
+        'pol'       : "Dual"
+    },
+    {
+        'vendor'    : "Selfsat",
+        'model'     : "H50D",
+        'lo_freq'   : [9750.0, 10600.0],
+        'universal' : True,
+        'band'      : "Ku",
         'pol'       : "Dual"
     }
 ]
