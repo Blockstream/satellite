@@ -18,10 +18,11 @@ if [ "$1" == "-u" ]; then
 	sudo make install
 else
 	if [[ ! -z $DNF_CMD ]]; then
+		sudo dnf update
 		sudo dnf install -y make gcc git patch patchutils \
 			 perl-Proc-ProcessTable \
 			 perl-Digest-SHA \
-			 "kernel-devel-uname-r == $(uname -r)" \
+			 kernel-devel \
 			 kernel-headers
 	elif [[ ! -z $APT_CMD ]]; then
 		sudo apt-get update
