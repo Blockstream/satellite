@@ -5,7 +5,7 @@ import subprocess, logging, textwrap
 logger = logging.getLogger(__name__)
 
 
-def _tune_max_pipe_size(pipesize = (64800*32)):
+def _tune_max_pipe_size(pipesize):
     """Tune the maximum size of pipes"""
     try:
         subprocess.check_output(["which", "sysctl"])
@@ -89,10 +89,11 @@ def subparser(subparsers):
 
     ldvb_p = p.add_argument_group('leandvb options')
     ldvb_p.add_argument('-n', '--n-helpers', default=6, type=int,
-                        help='Number of LDPC decoding threads')
+                        help='Number of instances of the external LDPC decoder \
+                        to spawn as child processes')
     ldvb_p.add_argument('-d', '--debug-ts', action='count', default=0,
                         help="Activate debugging on leandvb. Use it multiple "
-                        "times to increase the debugging level.")
+                        "times to increase the debugging level")
     ldvb_p.add_argument('-v', '--verbose', default=False, action='store_true',
                         help='leandvb in verbose mode')
     ldvb_p.add_argument('--gui', default=False, action='store_true',
@@ -121,6 +122,9 @@ def subparser(subparsers):
                         2=short)")
     ldvb_p.add_argument('--no-tsp', default=False, action='store_true',
                         help='Feed leandvb output to stdout instead of tsp')
+    ldvb_p.add_argument('--pipe-size', default=32, type=int,
+                        help='Size in Mbytes of the input pipe file read by \
+                        leandvb')
 
     tsp_p = p.add_argument_group('tsduck options')
     tsp_p.add_argument('--buffer-size-mb', default=1.0, type=float,
@@ -173,7 +177,8 @@ def run(args):
     if (info is None):
         return
 
-    if (not _tune_max_pipe_size()):
+    pipe_size_bytes = int(args.pipe_size * (2**20))
+    if (not _tune_max_pipe_size(pipe_size_bytes)):
         return
 
     if (not _check_apps(tsp_disabled=(args.no_tsp or args.record))):
@@ -220,7 +225,8 @@ def run(args):
                 str(samp_rate), "--sr", str(sym_rate), "--roll-off",
                 str(defs.rolloff), "--standard", "DVB-S2", "--sampler", "rrc",
                 "--rrc-rej", str(args.rrc_rej), "--modcods", modcod,
-                "--framesizes", str(args.framesizes)]
+                "--framesizes", str(args.framesizes), "--inpipe",
+                str(pipe_size_bytes)]
     if (args.debug_ts == 1):
         ldvb_cmd.append("-d")
     elif (args.debug_ts > 1):
