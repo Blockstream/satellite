@@ -77,15 +77,15 @@ def subparser(subparsers):
                               formatter_class=ArgumentDefaultsHelpFormatter)
 
     rtl_p = p.add_argument_group('rtl_sdr options')
+    rtl_p.add_argument('--sps', default=2.0, type=float,
+                       help='Samples per symbol, or, equivalently, the '
+                           'target oversampling ratio')
     rtl_group = rtl_p.add_mutually_exclusive_group()
     rtl_group.add_argument('-g', '--gain', default=30, type=float,
                            help='RTL-SDR Rx gain')
     rtl_group.add_argument('-f', '--iq-file', default=None,
                            help='File to read IQ samples from instead of reading '
                            'from the RTL-SDR in real-time')
-    rtl_group.add_argument('--sps', default=2.0, type=float,
-                           help='Samples per symbol, or, equivalently, the '
-                           'target oversampling ratio')
 
     ldvb_p = p.add_argument_group('leandvb options')
     ldvb_p.add_argument('-n', '--n-helpers', default=6, type=int,
