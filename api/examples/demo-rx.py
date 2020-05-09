@@ -201,6 +201,10 @@ def main():
                         provided, the same packets are transmitted (repeated) \
                         over the given interface(s) with the given DSCPs.')
 
+    parser.add_argument('-e', '--event', choices=["transmitting", "sent"],
+                        default="sent",
+                        help='SSE event that triggers packet transmissions')
+
     parser.add_argument('--debug', action='store_true',
                         help='Debug mode')
 
@@ -275,7 +279,7 @@ def main():
                                                      sort_keys=True))
 
                 # Download the message only if its order has "sent" state
-                if (order["status"] == "sent"):
+                if (order["status"] == args.event):
                     # Sequence number
                     seq_num = order["tx_seq_num"]
 
@@ -296,9 +300,11 @@ def main():
                                 expected_seq_num))
 
                         # Log
-                        end_time  = order["ended_transmission_at"]
-                        timestamp = datetime.datetime.strptime(end_time,
-                                                               "%Y-%m-%dT%H:%M:%S.%fZ")
+                        tstamp_field = "started_transmission_at" if \
+                                       args.event == "transmitting" else \
+                                       "ended_transmission_at"
+                        timestamp = datetime.datetime.strptime(
+                            order[tstamp_field], "%Y-%m-%dT%H:%M:%S.%fZ")
 
                         print("%s Message #%-5d\tSize: %d bytes\t" %(
                             timestamp.strftime('%b %d %Y %H:%M:%S'),
