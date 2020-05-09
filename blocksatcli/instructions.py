@@ -241,9 +241,17 @@ def _print_usb_rx_instructions(info):
     print(install_info)
 
     _print("""
-    Alternatively, you can build dvb-apps from source.
-    Refer to further information at \"doc/tbs.md\".
+    If dvb-apps is not available on your distribution (for example on Fedora 31
+    and 32), you can build it from source by running:
     """)
+
+    build_info = """    git clone https://github.com/Blockstream/dvb-apps
+    cd dvb-apps
+    make
+    sudo make install
+    """
+
+    print(build_info)
 
     input("\nPress Enter to continue...")
 

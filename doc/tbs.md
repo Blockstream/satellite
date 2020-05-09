@@ -84,9 +84,12 @@ sudo dnf update
 sudo dnf install python3 iproute iptables dvb-apps v4l-utils
 ```
 
-> NOTE: `iproute`/`iproute2` and `iptables` are used in order to ensure `ip` and
-> `iptables` tools are available.
+If `dvb-apps` is not available on your distribution (for example on Fedora 31
+and 32), you can build it from source. Refer to the [instructions presented
+further below.](#building-dvb-apps-from-source)
 
+> NOTE: `iproute`/`iproute2` and `iptables` are used in order to ensure `ip`
+> and `iptables` tools are available.
 
 ## Configure the Host
 
