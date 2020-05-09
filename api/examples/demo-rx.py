@@ -5,7 +5,7 @@ Read API data directly via internet and output to pipe
 
 import sys, argparse, textwrap, requests, struct, json, logging, time, socket, \
     errno, fcntl, datetime, math
-import sseclient, urllib3, certifi
+import sseclient
 
 
 # Constants/definitions
@@ -259,10 +259,9 @@ def main():
     while (True):
         try:
             # Server-sent Events (SSE) Client
-            http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED',
-                                       ca_certs=certifi.where())
-            r = http.request('GET', server_addr + "/subscribe/transmissions",
-                             preload_content=False)
+            r = requests.get(server_addr + "/subscribe/transmissions",
+                             stream=True)
+            r.raise_for_status()
             client = sseclient.SSEClient(r)
             print("Connected. Waiting for events...\n")
 
@@ -318,16 +317,24 @@ def main():
                         # Record the sequence number of the order that was received
                         last_seq_num = expected_seq_num
 
-        except urllib3.exceptions.ProtocolError as e:
+        except requests.exceptions.ChunkedEncodingError as e:
             logging.debug(e)
-            print("Connection failed - trying again...")
-            time.sleep(1)
             pass
-        except urllib3.exceptions.MaxRetryError as e:
+
+        except requests.exceptions.ConnectionError as e:
             logging.debug(e)
-            logging.warning("Couldn't connect to {}".format(server_addr))
             time.sleep(2)
             pass
+
+        except requests.exceptions.RequestException as e:
+            logging.debug(e)
+            time.sleep(2)
+            pass
+
+        except KeyboardInterrupt:
+            exit()
+
+        logging.info("Reconnecting...")
 
 
 if __name__ == '__main__':
