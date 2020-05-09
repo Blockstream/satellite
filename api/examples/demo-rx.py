@@ -60,7 +60,7 @@ def packetize(data, seq_num):
     return pkts
 
 
-def send_pkts(sock, pkts, ip, port):
+def send_pkts(socks, pkts, ip, port):
     """Send Blocksat packets corresponding to one API message
 
     Args:
@@ -70,11 +70,13 @@ def send_pkts(sock, pkts, ip, port):
 
     """
     assert(isinstance(pkts, list))
+    assert(isinstance(socks, list))
 
     for i, pkt in enumerate(pkts):
-        sock.sendto(pkt, (ip, port))
-        logging.debug("Send packet %d - %d bytes" %(
-            i, len(pkt)))
+        for sock in socks:
+            sock.sendto(pkt, (ip, port))
+            logging.debug("Send packet %d - %d bytes" %(
+                i, len(pkt)))
 
 
 def fetch_api_data(server_addr, seq_num):
@@ -98,7 +100,7 @@ def fetch_api_data(server_addr, seq_num):
         return data
 
 
-def open_sock(ifname, port, multiaddr, ttl=1):
+def open_sock(ifname, port, multiaddr, ttl=1, dscp=0):
     """Open socket
 
     Args:
@@ -108,6 +110,7 @@ def open_sock(ifname, port, multiaddr, ttl=1):
 
     """
     assert(ttl <= 255)
+    logging.debug("Open socket to interface {}".format(ifname))
 
     # Open output socket
     sock = socket.socket(socket.AF_INET,
@@ -139,6 +142,11 @@ def open_sock(ifname, port, multiaddr, ttl=1):
                     socket.IP_MULTICAST_TTL,
                     struct.pack('b', ttl))
 
+    # Set DSCP
+    sock.setsockopt(socket.IPPROTO_IP,
+                    socket.IP_TOS,
+                    struct.pack('b', dscp))
+
     return sock
 
 
@@ -165,8 +173,11 @@ def main():
                         'API data will be sent')
 
     parser.add_argument('-i', '--interface',
-                        help="Network interface over which to send API data",
-                        default="lo")
+                        nargs="+",
+                        help="Network interface(s) over which to send API \
+                        data. If multiple interfaces are provided, the same \
+                        packets are sent over the given interfaces.",
+                        default=["lo"])
 
     group = parser.add_mutually_exclusive_group()
     group.add_argument('--net', choices=['main', 'test'],
@@ -182,6 +193,13 @@ def main():
 
     parser.add_argument('--ttl', type=int, default=1,
                         help='Time to live of multicast packets')
+
+    parser.add_argument('--dscp', type=int, default=[0],
+                        nargs="+",
+                        help='Differentiated services code point (DSCP) of \
+                        the output multicast IP packets. If multiple DSCPs are \
+                        provided, the same packets are transmitted (repeated) \
+                        over the given interface(s) with the given DSCPs.')
 
     parser.add_argument('--debug', action='store_true',
                         help='Debug mode')
@@ -224,8 +242,15 @@ def main():
     assert(dest_port is not None), "UDP port is not defined"
     logging.debug("Send Satellite API packets to %s:%s" %(dest_ip, dest_port))
 
-    # Open socket
-    sock = open_sock(args.interface, dest_port, dest_ip, args.ttl)
+    # Open sockets. Create one socket per interface and DSCP. For example, if
+    # two DSCPs are specified, launch two sockets for each interface.
+    socks = list()
+    assert(isinstance(args.interface, list))
+    assert(isinstance(args.dscp, list))
+    for interface in args.interface:
+        for dscp in args.dscp:
+            socks.append(open_sock(interface, dest_port, dest_ip, args.ttl,
+                                   dscp))
 
     # Always keep a record of the last received sequence number
     last_seq_num = None
@@ -288,7 +313,7 @@ def main():
                             pkts = packetize(data, expected_seq_num)
 
                             # Send the packet(s)
-                            send_pkts(sock, pkts, dest_ip, dest_port)
+                            send_pkts(socks, pkts, dest_ip, dest_port)
 
                         # Record the sequence number of the order that was received
                         last_seq_num = expected_seq_num
