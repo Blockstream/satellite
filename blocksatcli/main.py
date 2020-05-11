@@ -2,12 +2,12 @@
 import logging, os
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 from . import defs, config, util, instructions, gqrx, bitcoin, sdr, rp, \
-    firewall, standalone, usb
+    firewall, standalone, usb, dependencies
 from os import environ
 import platform
 
 
-__version__ = "0.1.1"
+__version__ = "0.1.2"
 
 
 def main():
@@ -39,6 +39,7 @@ def main():
 
     config.subparser(subparsers)
     instructions.subparser(subparsers)
+    dependencies.subparser(subparsers)
     usb.subparser(subparsers)
     standalone.subparser(subparsers)
     rp.subparser(subparsers)

@@ -1,7 +1,7 @@
 """SDR Receiver Wrapper"""
 from argparse import ArgumentDefaultsHelpFormatter
 from . import config, defs, util
-import subprocess, logging, textwrap
+import subprocess, logging, textwrap, os
 logger = logging.getLogger(__name__)
 
 
@@ -37,7 +37,7 @@ def _tune_max_pipe_size(pipesize):
         return True
 
 
-def _check_apps(tsp_disabled=False):
+def _check_apps(tsp_disabled, bindir):
     """Check if required apps are installed"""
     try:
         subprocess.check_output(["which", "rtl_sdr"])
@@ -46,13 +46,13 @@ def _check_apps(tsp_disabled=False):
         return False
 
     try:
-        subprocess.check_output(["which", "leandvb"])
+        os.path.isfile(os.path.join(bindir, "leandvb"))
     except subprocess.CalledProcessError:
         logging.error("Couldn't find leandvb. Is it installed?")
         return False
 
     try:
-        subprocess.check_output(["which", "ldpc_tool"])
+        os.path.isfile(os.path.join(bindir, "ldpc_tool"))
     except subprocess.CalledProcessError:
         logging.error("Couldn't find ldpc_tool. Is it installed?")
         return False
@@ -109,8 +109,6 @@ def subparser(subparsers):
                         help="Choose low-throughput vs high-throughput MODCOD")
     ldvb_p.add_argument('--ldpc-dec', default="ext", choices=["int", "ext"],
                         help="LDPC decoder to use (internal or external)")
-    ldvb_p.add_argument('--ldpc-tool', default="/usr/local/bin/ldpc_tool",
-                        help='Path to ldpc_tool')
     ldvb_p.add_argument('--ldpc-bf', default=100,
                         help='Max number of iterations used by the internal \
                         LDPC decoder when not using an external LDPC tool')
@@ -177,11 +175,13 @@ def run(args):
     if (info is None):
         return
 
+    bindir = os.path.join(args.cfg_dir, "bin")
+
     pipe_size_bytes = int(args.pipe_size * (2**20))
     if (not _tune_max_pipe_size(pipe_size_bytes)):
         return
 
-    if (not _check_apps(tsp_disabled=(args.no_tsp or args.record))):
+    if (not _check_apps((args.no_tsp or args.record), bindir)):
         return
 
     # Demodulator configs
@@ -221,7 +221,7 @@ def run(args):
         else:
             rtl_cmd.append("-")
 
-    ldvb_cmd = ["leandvb", "--nhelpers", str(args.n_helpers), "-f",
+    ldvb_cmd = ["./leandvb", "--nhelpers", str(args.n_helpers), "-f",
                 str(samp_rate), "--sr", str(sym_rate), "--roll-off",
                 str(defs.rolloff), "--standard", "DVB-S2", "--sampler", "rrc",
                 "--rrc-rej", str(args.rrc_rej), "--modcods", modcod,
@@ -232,7 +232,7 @@ def run(args):
     elif (args.debug_ts > 1):
         ldvb_cmd.extend(["-d", "-d"])
     if (args.ldpc_dec == "ext"):
-        ldvb_cmd.extend(["--ldpc-helper", args.ldpc_tool,
+        ldvb_cmd.extend(["--ldpc-helper", "ldpc_tool",
                          "--ldpc-iterations", str(args.ldpc_iterations)])
     else:
         ldvb_cmd.extend(["--ldpc-bf", str(args.ldpc_bf)])
@@ -288,13 +288,13 @@ def run(args):
                     " ".join(ldvb_cmd)
         p1 = subprocess.Popen(rtl_cmd, stdout=subprocess.PIPE)
         p2 = subprocess.Popen(ldvb_cmd, stdin=p1.stdout, stdout=subprocess.PIPE,
-                              stderr=ldvb_stderr)
+                              stderr=ldvb_stderr, cwd=bindir)
     else:
         full_cmd   = "> " + " ".join(ldvb_cmd) + " < " + args.iq_file
         fd_iq_file = open(args.iq_file)
         p2 = subprocess.Popen(ldvb_cmd, stdin=fd_iq_file,
                               stdout=subprocess.PIPE,
-                              stderr=ldvb_stderr)
+                              stderr=ldvb_stderr, cwd=bindir)
     if (not args.no_tsp):
         full_cmd += " | \\\n" + " ".join(tsp_cmd)
         logger.debug(full_cmd)

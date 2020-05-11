@@ -38,7 +38,7 @@ def _print_s400_instructions(info):
           "coaxial cable (an RG6 cable is recommended).")
     _item("Connect the S400's LAN1 interface to your computer or network.")
 
-    input("\nPress Enter to continue...")
+    util.prompt_for_enter()
 
     util._print_sub_header("S400's web user interface (UI)")
     print("Next, you need to access the web UI of the S400:\n")
@@ -54,14 +54,14 @@ def _print_s400_instructions(info):
     _item("The web management console should open.")
     print()
 
-    input("\nPress Enter to continue...")
+    util.prompt_for_enter()
 
     util._print_sub_header("S400 FW Version")
     print("In the web UI, go to System > About:")
     print("Confirm that the version of the Configuration Agent is 1.6.1 or higher.")
     print()
 
-    input("\nPress Enter to continue...")
+    util.prompt_for_enter()
 
     util._print_sub_header("S400 Configurations")
     print("1. First you need to log in as admin, on the top right of the page.")
@@ -132,7 +132,7 @@ def _print_s400_instructions(info):
           "LAN2 is optional and exclusively for management.")
     print()
 
-    input("\nPress Enter to continue...")
+    util.prompt_for_enter()
 
     if (info['lnb']['pol'].lower() == "dual" and info['lnb']['v1_pointed'] and
         (pol != info['sat']['pol'])):
@@ -155,7 +155,7 @@ def _print_s400_instructions(info):
                   "horizontal" if info['sat']['pol'] == "H" else "vertical"
               ))
 
-        input("\nPress Enter to continue...")
+        util.prompt_for_enter()
 
     util._print_sub_header("Host Configuration")
 
@@ -197,7 +197,7 @@ def _print_usb_rx_instructions(info):
           " cable (an RG6 cable is recommended).".format(name))
     _item("Connect the {}'s USB interface to your computer.".format(name))
 
-    input("\nPress Enter to continue...")
+    util.prompt_for_enter()
 
     util._print_sub_header("Drivers")
 
@@ -220,7 +220,7 @@ def _print_usb_rx_instructions(info):
     """)
     print("Once the script completes the installation, reboot the virtual machine.")
 
-    input("\nPress Enter to continue...")
+    util.prompt_for_enter()
 
     util._print_sub_header("Host Requirements")
 
@@ -253,7 +253,7 @@ def _print_usb_rx_instructions(info):
 
     print(build_info)
 
-    input("\nPress Enter to continue...")
+    util.prompt_for_enter()
 
     util._print_sub_header("Configure the Host")
 
@@ -273,7 +273,7 @@ def _print_usb_rx_instructions(info):
         "at `/dev/dvb`. You will be prompted to accept or refuse the "
         "firewall and RP configurations.")
 
-    input("\nPress Enter to continue...")
+    util.prompt_for_enter()
 
     util._print_sub_header("Launch")
 
@@ -281,22 +281,12 @@ def _print_usb_rx_instructions(info):
 
     print("\n    blocksat-cli usb launch\n")
 
-    input("\nPress Enter to continue...")
+    util.prompt_for_enter()
 
 def _print_sdr_instructions(info):
     """Print instruction for configuration of an SDR setup
     """
     util._print_header("SDR Setup")
-
-    _print(
-        """
-        The instructions that follow assume and have been tested with Ubuntu
-        18.04. Please adapt accordingly in case you are using another Linux
-        distribution or Ubuntu version.
-        """
-    )
-
-    input("\nPress Enter to continue...")
 
     util._print_sub_header("Connections")
 
@@ -308,122 +298,67 @@ def _print_sdr_instructions(info):
     _item("Connect the **non-powered** port of the power supply (labeled as "
           "\"Signal to IRD\") to the RTL-SDR using an SMA cable and an "
           "SMA-to-F adapter.")
-    _item("Connect the **powered** port (labeled \"Signal to SWM\") to the "
-          "LNB using a coaxial cable (an RG6 cable is recommended).")
+    _item("Connect the **powered** port (labeled \"Signal to SWM\") of the "
+          "power supply to the LNB using a coaxial cable (an RG6 cable is "
+          "recommended).")
 
-    input("\nPress Enter to continue...")
+    print()
+    _print("IMPORTANT: Do NOT connect the powered port of the power supply "
+           "to the SDR interface. Permanent damage may occur to your SDR "
+           "and/or your computer.")
+
+    util.prompt_for_enter()
 
     util._print_sub_header("Software Requirements")
 
-    print("The SDR-based relies on three application that follow:\n")
+    print("The SDR-based setup relies on the applications listed below:\n")
 
     _item("leandvb: a software-based DVB-S2 demodulator.")
     _item("rtl_sdr: reads samples taken by the RTL-SDR and feeds them into leandvb.")
-    _item("TSDuck: unpacks the output of leandvb and produces"
+    _item("TSDuck: unpacks the output of leandvb and produces "
           "IP packets to be fed to Bitcoin Satellite.")
+    _item("Gqrx: useful for spectrum visualization during antenna pointing.")
 
-    input("\nPress Enter to continue...")
-
-    util._print_sub_header("leandvb")
-
-    print("To install leandvb, first install the dependencies:")
+    print("\nTo install them, run:")
     print("""
-    apt install make g++ libx11-dev libfftw3-dev
+    blocksat-cli deps install
     """)
 
-    print("Then, on your directory of choice, run:")
-    print("""
-    git clone --recursive https://github.com/Blockstream/leansdr.git
-    cd leansdr/src/apps
-    make
-    sudo install leandvb /usr/local/bin
-    """)
+    _print(
+        """
+        NOTE: This command assumes and has been tested with Ubuntu
+        18.04 and Fedora 31. Please adapt if necessary in case you
+        are using another Linux distribution or version.""")
 
-    input("\nPress Enter to continue...")
-
-    util._print_sub_header("ldpc_tool")
-
-    _print("Next, build and install ldpc_tool, which is used as an"
-           " add-on to leandvb:")
-
-    print("""
-    cd ../../LDPC/
-    make CXX=g++ ldpc_tool
-    sudo install ldpc_tool /usr/local/bin
-    """)
-
-    input("\nPress Enter to continue...")
-
-    util._print_sub_header("rtl_sdr")
-
-    print("To install the RTL-SDR application, run:")
-    print("""
-    apt-get install rtl-sdr
-    """)
-
-    input("\nPress Enter to continue...")
-
-    util._print_sub_header("TSDuck")
-
-    print("Finally, to build TSDuck from source, run:")
-
-    print("""
-    mkdir -p ~/src/
-    cd ~/src/
-    git clone https://github.com/tsduck/tsduck.git
-    cd tsduck
-    build/install-prerequisites.sh
-    make NOTELETEXT=1 NOSRT=1 NOPCSC=1 NOCURL=1 NODTAPI=1
-    """)
-
-    print("And then add the following to your `.bashrc`:")
-
-    print("""
-    source ~/src/tsduck/src/tstools/release-x86_64/setenv.sh
-    """)
-
-    _print("The above `setenv.sh` script sets environmental variables "
-           "that are necessary in order to use TSDuck.")
-
-    input("\nPress Enter to continue...")
-
-    util._print_sub_header("Gqrx")
-
-    _print("""
-    The gqrx application can be very helpful for pointing the antenna and for
-    troubleshooting. You can install it from binary package or from source.
-    """)
-
-    print("""
-    sudo apt install gqrx-sdr
-    """)
-
-    _print("After installing, you can generate the configurations that are "
-           "needed for gqrx by running:")
-
-    print("""
-    blocksat-cli gqrx-conf
-    """)
-
-    _print("NOTE: this assumes you are going to use gqrx with an RTL-SDR "
-           "dongle.")
-
-    input("\nPress Enter to continue...")
-
-    util._print_header("Running")
-
-    _print("You should now be ready to launch the SDR receiver. "
-           "You can run it by executing:")
-
-    print("""
-    blocksat-cli sdr
-    """)
-
-    _print("""For further information, please refer to the SDR Guide at:""")
+    _print("If you prefer to build all software components manually, please "
+           "refer to the SDR Guide at \"doc/sdr.md\" or:")
     print("https://github.com/Blockstream/satellite/blob/master/doc/sdr.md")
-    print("\nAlternatively, check the local file at doc/sdr.md")
 
-    input("\nPress Enter to continue...")
+    util.prompt_for_enter()
+
+    util._print_sub_header("Configuration")
+
+    _print("Next, you can generate the configurations that are needed for gqrx "
+           "by running:")
+
+    print("    blocksat-cli gqrx-conf")
+
+    util.prompt_for_enter()
+
+    util._print_sub_header("Running")
+
+    _print("You should now be ready to launch the SDR receiver. You can run it "
+           "by executing:")
+
+    print("    blocksat-cli sdr\n")
+    print("Or, in GUI mode:\n")
+    print("    blocksat-cli sdr --gui\n")
+
+    _print("For further options, please refer to the SDR Guide "
+           "at \"doc/sdr.md\" or:")
+    print("https://github.com/Blockstream/satellite/blob/master/doc/sdr.md")
+
+    util.prompt_for_enter()
 
 
 def _print_freq_info(info):
@@ -441,33 +376,26 @@ def _print_freq_info(info):
     print("| L-band frequency to configure on your receiver | %7.2f MHz  |" %(l_freq))
     print()
 
-    if (lnb['universal']):
-        print("NOTE regarding Universal LNB:\n")
+    if (lnb['universal'] and (setup['type'] == defs.sdr_setup_type)):
         if (sat['dl_freq'] > defs.ku_band_thresh):
+            print("NOTE regarding Universal LNB:\n")
+
             print(textwrap.fill(("The DL frequency of {} is in Ku high "
                                  "band (> {:.1f} MHz). Hence, you need to use "
                                  "the higher frequency LO ({:.1f} MHz) of your "
-                                 "LNB. This requires a 22 kHz tone to be sent "
-                                 "to the LNB."
+                                 "Universal LNB. This requires a 22 kHz tone "
+                                 "to be sent to the LNB."
             ).format(sat['alias'], defs.ku_band_thresh, lo_freq)))
             print()
-            if (setup['type'] == defs.sdr_setup_type):
-                print(textwrap.fill(("With a software-defined setup, you will "
-                                     "need to place a 22 kHz tone generator "
-                                     "inline between the LNB and the power "
-                                     "inserter. Typically the tone generator "
-                                     "uses power from the power inserter while "
-                                     "delivering the tone directly to the "
-                                     "LNB.")))
-            else:
-                print("The {} {} demodulator will generate the 22 kHz "
-                      "tone.".format(setup['vendor'], setup['model']))
-        else:
-            print(textwrap.fill("The DL frequency of {} is in Ku low \
-            band (< {:.1f} MHz). Hence, you need to use the lower (default) \
-            frequency LO of your LNB.".format(sat['alias'], defs.ku_band_thresh)))
+            print(textwrap.fill(("With a software-defined setup, you will "
+                                 "need to place a 22 kHz tone generator "
+                                 "inline between the LNB and the power "
+                                 "inserter. Typically the tone generator "
+                                 "uses power from the power inserter while "
+                                 "delivering the tone directly to the "
+                                 "LNB.")))
 
-    input("\nPress Enter to continue...")
+    util.prompt_for_enter()
 
 
 def _print_lnb_info(info):
@@ -482,7 +410,7 @@ def _print_lnb_info(info):
         logging.warning(textwrap.fill(
             "Your LNB has {} polarization and the signal from {} has the "
             "opposite polarization.".format(lnb_pol, sat['name'])))
-        input("\nPress Enter to continue...")
+        util.prompt_for_enter()
 
     if ((lnb['pol'] == "Dual") and (setup['type'] == defs.sdr_setup_type)):
         util._print_header("LNB Information")
@@ -490,7 +418,7 @@ def _print_lnb_info(info):
             "Your LNB has dual polarization. Check the voltage of your power "
             "supply in order to discover the polarization on which your LNB "
             "will operate."))
-        input("\nPress Enter to continue...")
+        util.prompt_for_enter()
 
 
 def _print_next_steps():
@@ -503,14 +431,12 @@ def _print_next_steps():
     print("You can generate a bitcoin.conf configuration file for Bitcoin Satellite using:")
     print("\n    blocksat-cli btc\n")
 
-    print("For further information, refer to:\n")
-    print("https://github.com/Blockstream/satellite/blob/master/doc/bitcoin.md")
-    print("\nAlternatively, check the local file at doc/bitcoin.md\n")
+    print("For further information, refer to \"doc/bitcoin.md\" or:\n")
+    print("https://github.com/Blockstream/satellite/blob/master/doc/bitcoin.md\n")
 
     _print("""If your antenna is not pointed yet, please follow the
-    antenna alignment guide available at:""")
-    print("https://github.com/Blockstream/satellite/blob/master/doc/antenna-pointing.md")
-    print("\nAlternatively, check the local file at doc/antenna-pointing.md\n")
+    antenna alignment guide available at \"doc/antenna-pointing.md\" or:""")
+    print("https://github.com/Blockstream/satellite/blob/master/doc/antenna-pointing.md\n")
 
 
 def subparser(subparsers):

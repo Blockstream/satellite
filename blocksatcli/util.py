@@ -152,6 +152,16 @@ def _print_sub_header(header, target_len=60):
     _print_header(header, target_len=target_len)
 
 
+def prompt_for_enter():
+    try:
+        resp = input("\nPress Enter to continue...")
+        if (resp == "q"):
+            exit()
+        os.system('clear')
+    except KeyboardInterrupt:
+        print("Aborting")
+        exit()
+
 def root_cmd(cmd):
     """Add sudo to cmd if non-root
 
@@ -181,5 +191,12 @@ def run_or_print_root_cmd(cmd, logger=None):
         return subprocess.check_output(cmd)
     else:
         print("> " + " ".join(cmd) + "\n")
+
+
+def run_and_log(cmd, logger=None, cwd=None):
+    assert(isinstance(cmd, list))
+    if (logger is not None):
+        logger.debug("> " + " ".join(cmd))
+    subprocess.run(cmd, cwd=cwd)
 
 
