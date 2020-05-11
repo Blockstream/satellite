@@ -4,7 +4,7 @@ Read/decrypt Satellite API data received via Blockstream Satellite
 """
 
 import os, sys, argparse, textwrap, struct, zlib, time, logging, socket, errno
-import fcntl
+import fcntl, requests
 from datetime import datetime
 from textwrap import fill
 import gnupg, getpass
@@ -221,6 +221,34 @@ def open_udp_sock(sock_addr, ifname):
     return sock
 
 
+def confirm_rx(server, tx_seq_num, region):
+    """Confirm reception of a Blocksat Packet
+
+    Args:
+        server     : API server address
+        tx_seq_num : API message tx sequence number
+        region     : Coverage region
+
+    """
+    if (region is None):
+        return
+
+    logging.info("Confirm reception of API message #%d on region %d" %(
+        tx_seq_num, region))
+    r = requests.post(server + '/order/rx/' + str(tx_seq_num),
+                      data = {
+                          'region' : region
+                      })
+
+    if not r.ok:
+        logging.error("Failed to confirm Rx of #%d [status code %d]" %(
+            tx_seq_num, r.status_code
+        ))
+    else:
+        logging.info("Server response: " + r.json()['message'])
+
+
+
 def main():
     parser = argparse.ArgumentParser(
         description=textwrap.dedent('''\
@@ -277,6 +305,15 @@ def main():
     parser.add_argument('--no-password', default=False,
                         action="store_true",
                         help='Set to access GPG keyring without a password ')
+
+    parser.add_argument('-s', '--server',
+                        default='https://api.blockstream.space',
+                        help='Satellite API server address')
+
+    parser.add_argument('-r', '--region',
+                        choices=range(0, 5),
+                        type=int,
+                        help='Coverage region for Rx confirmations')
 
     parser.add_argument('--debug', action='store_true',
                         help='Debug mode')
@@ -340,6 +377,8 @@ def main():
             # Clear accumulators of chunks and chunk ids
             msg_chunks.clear()
             msg_frag_idxs.clear()
+            # Send confirmation of reception to API server
+            confirm_rx(args.server, seq_num, args.region)
         else:
             data = bytes()
 

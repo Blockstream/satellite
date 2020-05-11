@@ -100,6 +100,34 @@ def fetch_api_data(server_addr, seq_num):
         return data
 
 
+def confirm_tx(server_addr, seq_num, regions):
+    """Confirm transmission
+
+    Args:
+        server_addr : Satellite API server address
+        seq_num     : API's message sequence number
+        regions     : Regions that were covered by the transmission
+
+    """
+    if regions is None:
+        return
+
+    assert(isinstance(regions, list))
+
+    logging.info("Confirm transmission of message #%s on regions %s" %(
+        seq_num, regions))
+    r = requests.post(server_addr + '/order/tx/' + str(seq_num),
+                      data = {
+                          'regions': json.dumps(regions)
+                      })
+    if not r.ok:
+        logging.error("Failed to confirm Tx of #%d [status code %d]" %(
+            seq_num, r.status_code
+        ))
+    else:
+        logging.info("Server response: " + r.json()['message'])
+
+
 def open_sock(ifname, port, multiaddr, ttl=1, dscp=0):
     """Open socket
 
@@ -178,6 +206,12 @@ def main():
                         data. If multiple interfaces are provided, the same \
                         packets are sent over the given interfaces.",
                         default=["lo"])
+
+    parser.add_argument('-r', '--regions',
+                        nargs="+",
+                        choices=range(0, 5),
+                        type=int,
+                        help='Coverage region for Tx confirmations')
 
     group = parser.add_mutually_exclusive_group()
     group.add_argument('--net', choices=['main', 'test'],
@@ -319,6 +353,10 @@ def main():
 
                             # Send the packet(s)
                             send_pkts(socks, pkts, dest_ip, dest_port)
+
+                            # Send transmission confirmation to the server
+                            confirm_tx(server_addr, expected_seq_num,
+                                       args.regions)
 
                         # Record the sequence number of the order that was received
                         last_seq_num = expected_seq_num
