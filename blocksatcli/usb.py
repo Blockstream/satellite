@@ -376,8 +376,8 @@ def zap(adapter, frontend, ch_conf_file, user_info, lnb="UNIVERSAL",
         # Find suitable LNB within v4l-utils preset LNBs
         lnb = _find_v4l_lnb(user_info)['alias']
 
-    cmd = ["dvbv5-zap", "-c", ch_conf_file, "-a", adapter, "-f", frontend,
-           "-l", lnb, "-v"]
+    cmd = ["dvbv5-zap", "-c", ch_conf_file, "-a", str(adapter), "-f",
+           str(frontend), "-l", lnb, "-v"]
 
     if (output is not None):
         cmd = cmd + ["-o", output]
