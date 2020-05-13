@@ -52,7 +52,7 @@ def configure(args):
     device="rtl=0"
     frequency={}
     lnb_lo={}
-    sample_rate=2000000
+    sample_rate=2400000
 
     [receiver]
     demod=0
