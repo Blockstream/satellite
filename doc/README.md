@@ -11,4 +11,4 @@
 - Further Information
   - [Quick Reference](quick-reference.md)
   - [Dual-Satellite Reception](dual-satellite.md)
-  - [Satellite API](../api/README.md)
+  - [Satellite API](api.md)

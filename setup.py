@@ -1,5 +1,5 @@
 import re, sys
-from setuptools import setup
+from setuptools import setup, find_packages
 
 
 if sys.version_info[0] < 3:
@@ -21,7 +21,7 @@ Satellite receiver setup.
 
 setup(
     name = "blocksat-cli",
-    packages = ["blocksatcli"],
+    packages = find_packages(),
     entry_points = {
         "console_scripts": ['blocksat-cli = blocksatcli.main:main']
     },
@@ -34,7 +34,9 @@ setup(
     url = "https://github.com/Blockstream/satellite",
     install_requires=[
         'distro',
-        'requests'
+        'requests',
+        'python-gnupg>=0.4.5',
+        'sseclient-py'
     ],
     classifiers=[
         'Programming Language :: Python :: 3',

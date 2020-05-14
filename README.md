@@ -135,7 +135,7 @@ following the detailed user guide below:
 - Further Information
   - [Quick Reference](doc/quick-reference.md)
   - [Dual-Satellite Reception](doc/dual-satellite.md)
-  - [Satellite API](api/README.md)
+  - [Satellite API](doc/api.md)
 
 ## Support
 

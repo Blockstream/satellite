@@ -1,4 +1,4 @@
-PY_FILES   = $(shell find blocksatcli -type f -name '*.py')
+PY_FILES   = $(shell find . -type f -name '*.py')
 VERSION    = $(shell grep "__version__ =" blocksatcli/main.py | cut -d '"' -f2)
 DIST       = dist/blocksat-cli-$(VERSION).tar.gz
 DISTRO     = ubuntu:focal

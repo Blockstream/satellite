@@ -1,7 +1,8 @@
 # Quick Reference
 
 This page contains a quick reference guide for the Blockstream Satellite
-receiver setup. In a nutshell, you need to go through the following:
+receiver setup and its general usage. Please refer to the [main
+guide](README.md) for detailed explanations on all steps.
 
 <!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-generate-toc again -->
 
@@ -16,12 +17,9 @@ receiver setup. In a nutshell, you need to go through the following:
     - [TBS5927 USB receiver](#tbs5927-usb-receiver)
     - [SDR-based receiver](#sdr-based-receiver)
 - [5. Bitcoin-satellite Setup](#5-bitcoin-satellite-setup)
+- [6. Satellite API](#6-satellite-api)
 
 <!-- markdown-toc end -->
-
-Please refer to the [main guide](README.md) for detailed explanations on all
-steps.
-
 
 ## 1. CLI Installation and Upgrade
 
@@ -184,3 +182,41 @@ Run bitcoin-satellite:
 ```
 bitcoind
 ```
+
+## 6. Satellite API
+
+Configure encryption keys:
+```
+blocksat-cli api cfg
+```
+
+Broadcast a message using the satellite API:
+```
+blocksat-cli api send
+```
+
+Listen for API messages acquired by the satellite receiver:
+```
+blocksat-cli api listen
+```
+
+Run the [demo receiver](api.md#demo-receiver):
+```
+blocksat-cli api demo-rx
+```
+
+Listen for API messages coming from the demo receiver:
+```
+blocksat-cli api listen -d
+```
+
+Bump the bid of an API transmission order:
+```
+blocksat-cli api bump
+```
+
+Delete an API transmissions order:
+```
+blocksat-cli api del
+```
+

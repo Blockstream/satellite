@@ -4,7 +4,9 @@
     - python3 -m unittest blocksatcli/verify_deps_instal.py
 
 test:
+  image: python
   script:
+    - python3 setup.py install
     - python3 -m unittest discover
 
 test-ubuntu:

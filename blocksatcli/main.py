@@ -3,6 +3,7 @@ import logging, os
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 from . import defs, config, util, instructions, gqrx, bitcoin, sdr, rp, \
     firewall, standalone, usb, dependencies
+from .api import api
 from os import environ
 import platform
 
@@ -13,8 +14,6 @@ __version__ = "0.2.9"
 def main():
     """Main - parse command-line arguments and call subcommands
     """
-    assert(platform.system() == 'Linux'), \
-        "blocksat-cli currently only supports Linux"
     sudo_user       = environ.get('SUDO_USER')
     user            = sudo_user if sudo_user is not None else ""
     home            = os.path.expanduser("~" + user)
@@ -35,7 +34,8 @@ def main():
                         version='%(prog)s {}'.format(__version__))
 
     subparsers = parser.add_subparsers(title='subcommands',
-                                       help='Target sub-command')
+                                       help='Target sub-command',
+                                       dest='subcommand')
 
     config.subparser(subparsers)
     instructions.subparser(subparsers)
@@ -47,8 +47,15 @@ def main():
     gqrx.subparser(subparsers)
     bitcoin.subparser(subparsers)
     sdr.subparser(subparsers)
+    api.subparser(subparsers)
 
     args = parser.parse_args()
+
+    # Filter commands that are Linux-only
+    if (args.subcommand not in ["cfg", "instructions", "api", "btc"]):
+        assert(platform.system() == 'Linux'), \
+            "Command {} is currently Linux-only".format(args.subcommand)
+
     log_format = '%(levelname)s: %(message)s'
     if (args.debug):
         logging.basicConfig(level=logging.DEBUG, format=log_format)
