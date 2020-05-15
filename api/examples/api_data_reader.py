@@ -141,9 +141,9 @@ def check_gaps(msg_frag_idxs):
     for i,x in enumerate(msg_frag_idxs):
         if (i == 0 and x != 0):
             if (x > 1):
-                logging.warning("First %d fragments were lost")
+                logging.warning("First %d fragments were lost" %(x))
             else:
-                logging.warning("First %fragments was lost")
+                logging.warning("First fragment was lost")
         elif (i > 0 and x - msg_frag_idxs[i-1] != 1):
             logging.warning("Gap between fragment %d and fragment %d",
                             msg_frag_idxs[i-1], x)

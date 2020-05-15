@@ -130,30 +130,33 @@ def calc_tx_len(msg_len):
     """Compute the number of bytes actually transmitted for a message
 
     The message is carried in the payload of UDP datagrams, sent over IPv4 and
-    with a layer-2 MTU of 1500 bytes. Fragmentation is used if the IPv4 payload
-    (the UDP datagram) exceeds 1500 bytes.
+    with a layer-2 MTU of 1500 bytes, and ultimately transported over MPE. If
+    the message size is such that the UDP/IPv4 packet exceeds the layer-2 MTU,
+    fragmentation is not handled at the IP level but instead at application
+    layer level, i.e., at the Blocksat Packet protocol level.
 
     Args:
         msg_len : Length of the user message to be transmitted
 
     """
-    mtu = 1500
-    blocksat_header     = 8
-    udp_header          = 8
-    udp_len             = udp_header + blocksat_header + msg_len
+    l2_mtu          = 1500
+    blocksat_header = 8
+    udp_header      = 8
+    ip_header       = 20
+    header_len      = blocksat_header + udp_header + ip_header
+    max_payload     = l2_mtu - header_len # max blocksat packet payload
 
     # Is it going to be fragmented?
-    ip_header           = 20
-    n_frags             = ceil(udp_len / (mtu - ip_header))
+    n_frags = ceil(msg_len / max_payload)
 
-    # Including all fragments, the total IPv4 overhead (of all IP headers) is:
-    total_ip_overhead = ip_header * n_frags
+    # Including all fragments, the total Blocksat + UDP + IPv4 overhead is:
+    total_overhead = header_len * n_frags
 
     # Total overhead at MPE layer:
     mpe_header = 16
     total_mpe_overhead = mpe_header * n_frags
 
-    return total_mpe_overhead + total_ip_overhead + udp_len
+    return total_mpe_overhead + total_overhead + msg_len
 
 
 def ask_bid(data_size, prev_bid=None):

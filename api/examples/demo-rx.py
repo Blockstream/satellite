@@ -19,8 +19,8 @@ API_TYPE_LAST_FRAG = b'\x01' # Type=1 (API), MF=0
 API_TYPE_MORE_FRAG = b'\x81' # Type=1 (API), MF=1
 MAX_SEQ_NUM        = 2 ** 31  # Maximum transmission sequence number
 SIOCGIFINDEX       = 0x8933 # Ioctl request for interface index
-MAX_UDP_PLOAD      = 2**16 - 36 - 1 # maximum UDP payload size in bytes
-# NOTE: the maximum payload includes the Blocksat, UDP and IP headers. That is,
+MAX_UDP_PLOAD      = 1500 - 36 # maximum UDP payload size in bytes
+# NOTE: the maximum payload considers the Blocksat, UDP and IP headers. That is,
 # 8 (blocksat) + 8 (udp) + 20 (ip) = 36.
 
 
@@ -60,23 +60,35 @@ def packetize(data, seq_num):
     return pkts
 
 
-def send_pkts(socks, pkts, ip, port):
+def send_pkts(socks, pkts, ip, port, kbps):
     """Send Blocksat packets corresponding to one API message
 
     Args:
-        pkts : List of Blocksat packet structures to be sent
-        ip   : Destination IP address
-        port : Destination UDP port
+        socks : Sockets on which to send the packets
+        pkts  : List of Blocksat packet structures to be sent
+        ip    : Destination IP address
+        port  : Destination UDP port
+        kbps  : Target bit rate in kbps
 
     """
     assert(isinstance(pkts, list))
     assert(isinstance(socks, list))
+    assert(all([isinstance(x, bytes) for x in pkts]))
 
+    byte_rate = kbps*1e3/8 # bytes / sec
+    next_tx   = time.time()
     for i, pkt in enumerate(pkts):
+        # Send the same packet on all the given sockets
         for sock in socks:
             sock.sendto(pkt, (ip, port))
             logging.debug("Send packet %d - %d bytes" %(
                 i, len(pkt)))
+        # Throttle
+        tx_delay = len(pkt) / byte_rate
+        next_tx += tx_delay
+        sleep    = next_tx - time.time()
+        if (sleep > 0):
+            time.sleep(sleep)
 
 
 def fetch_api_data(server_addr, seq_num):
@@ -228,12 +240,13 @@ def main():
     parser.add_argument('--ttl', type=int, default=1,
                         help='Time to live of multicast packets')
 
-    parser.add_argument('--dscp', type=int, default=[0],
-                        nargs="+",
+    parser.add_argument('--dscp', type=int, default=0,
                         help='Differentiated services code point (DSCP) of \
-                        the output multicast IP packets. If multiple DSCPs are \
-                        provided, the same packets are transmitted (repeated) \
-                        over the given interface(s) with the given DSCPs.')
+                        the output multicast IP packets')
+
+    parser.add_argument('--bitrate', type=float, default=1000,
+                        help="Maximum bit rate in kbps of the output packet "
+                        "stream")
 
     parser.add_argument('-e', '--event', choices=["transmitting", "sent"],
                         default="sent",
@@ -245,6 +258,8 @@ def main():
     args   = parser.parse_args()
     server = args.server
     net    = args.net
+
+    assert(isinstance(args.interface, list))
 
     # Switch debug level
     if (args.debug):
@@ -283,12 +298,9 @@ def main():
     # Open sockets. Create one socket per interface and DSCP. For example, if
     # two DSCPs are specified, launch two sockets for each interface.
     socks = list()
-    assert(isinstance(args.interface, list))
-    assert(isinstance(args.dscp, list))
     for interface in args.interface:
-        for dscp in args.dscp:
-            socks.append(open_sock(interface, dest_port, dest_ip, args.ttl,
-                                   dscp))
+        socks.append(open_sock(interface, dest_port, dest_ip, args.ttl,
+                               args.dscp))
 
     # Always keep a record of the last received sequence number
     last_seq_num = None
@@ -351,8 +363,13 @@ def main():
                             # Put API data on Blocksat packet(s)
                             pkts = packetize(data, expected_seq_num)
 
+                            logging.debug("Transmission is going to take: "
+                                          "{:6.2f} sec".format(
+                                              len(data)*8/(args.bitrate*1e3)))
+
                             # Send the packet(s)
-                            send_pkts(socks, pkts, dest_ip, dest_port)
+                            send_pkts(socks, pkts, dest_ip, dest_port,
+                                      args.bitrate)
 
                             # Send transmission confirmation to the server
                             confirm_tx(server_addr, expected_seq_num,
