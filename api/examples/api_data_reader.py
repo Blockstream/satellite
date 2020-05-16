@@ -222,16 +222,18 @@ def open_udp_sock(sock_addr, ifname):
     return sock
 
 
-def confirm_rx(server, tx_seq_num, region):
+def confirm_rx(server, tx_seq_num, region, tls_cert=None, tls_key=None):
     """Confirm reception of a Blocksat Packet
 
     Args:
         server     : API server address
         tx_seq_num : API message tx sequence number
         region     : Coverage region
+        tls_key    : API client key
+        tls_cert   : API client certificate
 
     """
-    if (region is None):
+    if (region is None) or (tls_cert is None) or (tls_key is None):
         return
 
     logging.info("Confirm reception of API message #%d on region %d" %(
@@ -239,7 +241,8 @@ def confirm_rx(server, tx_seq_num, region):
     r = requests.post(server + '/order/rx/' + str(tx_seq_num),
                       data = {
                           'region' : region
-                      })
+                      },
+                      cert = (tls_cert, tls_key))
 
     if not r.ok:
         logging.error("Failed to confirm Rx of #%d [status code %d]" %(
@@ -316,6 +319,14 @@ def main():
                         type=int,
                         help='Coverage region for Rx confirmations')
 
+    parser.add_argument('--tls-cert',
+                        default=None,
+                        help='Certificate for client-side authentication')
+
+    parser.add_argument('--tls-key',
+                        default=None,
+                        help='Private key for client-side authentication')
+
     parser.add_argument('--debug', action='store_true',
                         help='Debug mode')
     args      = parser.parse_args()
@@ -377,7 +388,8 @@ def main():
         # We are done with the fragments, so remove them from the map
         del frag_map[seq_num]
         # Send confirmation of reception to API server
-        confirm_rx(args.server, seq_num, args.region)
+        confirm_rx(args.server, seq_num, args.region, args.tls_cert,
+                   args.tls_key)
 
         if (len(data) == 0):
             logging.warning("Empty message")

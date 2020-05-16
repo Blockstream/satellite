@@ -112,16 +112,18 @@ def fetch_api_data(server_addr, seq_num):
         return data
 
 
-def confirm_tx(server_addr, seq_num, regions):
+def confirm_tx(server_addr, seq_num, regions, tls_cert=None, tls_key=None):
     """Confirm transmission
 
     Args:
         server_addr : Satellite API server address
         seq_num     : API's message sequence number
         regions     : Regions that were covered by the transmission
+        tls_key     : API client key
+        tls_cert    : API client certificate
 
     """
-    if regions is None:
+    if (regions is None) or (tls_cert is None) or (tls_key is None):
         return
 
     assert(isinstance(regions, list))
@@ -131,7 +133,8 @@ def confirm_tx(server_addr, seq_num, regions):
     r = requests.post(server_addr + '/order/tx/' + str(seq_num),
                       data = {
                           'regions': json.dumps(regions)
-                      })
+                      },
+                      cert = (tls_cert, tls_key))
     if not r.ok:
         logging.error("Failed to confirm Tx of #%d [status code %d]" %(
             seq_num, r.status_code
@@ -251,6 +254,14 @@ def main():
     parser.add_argument('-e', '--event', choices=["transmitting", "sent"],
                         default="sent",
                         help='SSE event that triggers packet transmissions')
+
+    parser.add_argument('--tls-cert',
+                        default=None,
+                        help='Certificate for client-side authentication')
+
+    parser.add_argument('--tls-key',
+                        default=None,
+                        help='Private key for client-side authentication')
 
     parser.add_argument('--debug', action='store_true',
                         help='Debug mode')
@@ -373,7 +384,8 @@ def main():
 
                             # Send transmission confirmation to the server
                             confirm_tx(server_addr, expected_seq_num,
-                                       args.regions)
+                                       args.regions, args.tls_cert,
+                                       args.tls_key)
 
                         # Record the sequence number of the order that was received
                         last_seq_num = expected_seq_num
