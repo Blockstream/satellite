@@ -136,25 +136,26 @@ def unpack(udp_payload):
     return (payload, seq_num, i_frag, more_fragments)
 
 
-def check_gaps(msg_frag_idxs):
+def check_gaps(frag_map):
     """Check if there were any fragment number gaps"""
-    for i,x in enumerate(msg_frag_idxs):
-        if (i == 0 and x != 0):
-            if (x > 1):
-                logging.warning("First %d fragments were lost" %(x))
-            else:
-                logging.warning("First fragment was lost")
-        elif (i > 0 and x - msg_frag_idxs[i-1] != 1):
-            logging.warning("Gap between fragment %d and fragment %d",
-                            msg_frag_idxs[i-1], x)
+    frag_idxs = sorted(frag_map.keys())
+    for i,x in enumerate(frag_idxs):
+            if (i == 0 and x != 0):
+                if (x > 1):
+                    logging.warning("First %d fragments were lost" %(x))
+                else:
+                    logging.warning("First fragment was lost")
+            elif (i > 0 and x - frag_idxs[i-1] != 1):
+                logging.warning("Gap between fragment %d and fragment %d",
+                                frag_idxs[i-1], x)
 
 
-def concat_chunks(chunks):
+def concat_chunks(frag_map):
     """Concatenate message chunks"""
     msg = bytes()
-    for chunk in chunks:
-        assert(isinstance(chunk, bytes))
-        msg += chunk
+    for i_frag in sorted(frag_map):
+        assert(isinstance(frag_map[i_frag], bytes))
+        msg += frag_map[i_frag]
 
     return msg
 
@@ -352,92 +353,90 @@ def main():
     sock = open_udp_sock(sock_addr, interface)
 
     logging.info("Waiting for data...")
-    msg_chunks    = list()
-    msg_frag_idxs = list()
-    last_seq_num  = None
+    frag_map = {}
     while True:
         udp_payload, addr = sock.recvfrom(MAX_READ)
         data_chunk, seq_num, frag_idx, more_frags = unpack(udp_payload)
 
-        # Append the incoming Blocksat packet to a list of packets pertaining to
-        # the same API message. Once the last fragment comes, concatenate all
-        # data chunks of the message (each on the payload of a Blocksat packet)
-        # and process it. If the message's sequence number changes before a
-        # packet with MF=0 comes, we probably lost the last packet. Try to
-        # process the message with whatever came.
-        msg_chunks.append(data_chunk)
-        msg_frag_idxs.append(frag_idx)
-        if (((seq_num != last_seq_num) and last_seq_num) or (not more_frags)):
-            logging.info("-- API message %d" %(seq_num))
-            logging.debug("Message source: %s:%s" %(addr[0], addr[1]))
-            logging.info("Fragments: %d" %(len(msg_chunks)))
-            assert(len(msg_frag_idxs) == len(msg_chunks))
-            check_gaps(msg_frag_idxs)
-            data = concat_chunks(msg_chunks)
-            # Clear accumulators of chunks and chunk ids
-            msg_chunks.clear()
-            msg_frag_idxs.clear()
-            # Send confirmation of reception to API server
-            confirm_rx(args.server, seq_num, args.region)
-        else:
-            data = bytes()
+        # Append the incoming Blocksat packet to a dictionary that maps packets
+        # pertaining to the same API message.
+        if (seq_num not in frag_map):
+            frag_map[seq_num] = {}
+        frag_map[seq_num][frag_idx] = data_chunk
 
-        # Update state
-        last_seq_num = seq_num
+        # Once the last fragment comes, concatenate all data chunks of the
+        # message (each on the payload of a Blocksat packet) and process it.
+        if (more_frags):
+            continue
 
-        if (len(data) > 0):
-            # In plaintext mode, every API transmission is assumed to be
-            # plaintext and output as a file to the downloads folder with a
-            # timestamp as name.
-            if (plaintext):
-                logging.info("Size: %7d bytes\tSaving as plaintext" %(len(data)))
-                save_file(data)
-                logging.debug("Message: %s" %data)
-                continue
+        logging.info("-- API message %d" %(seq_num))
+        logging.debug("Message source: %s:%s" %(addr[0], addr[1]))
+        logging.info("Fragments: %d" %(len(frag_map[seq_num].keys())))
+        check_gaps(frag_map[seq_num])
+        data = concat_chunks(frag_map[seq_num])
+        # We are done with the fragments, so remove them from the map
+        del frag_map[seq_num]
+        # Send confirmation of reception to API server
+        confirm_rx(args.server, seq_num, args.region)
 
-            # Try to decrypt the data when not in plaintext mode
-            decrypted_data = gpg.decrypt(data, passphrase = gpg_password)
+        if (len(data) == 0):
+            logging.warning("Empty message")
+            continue
 
-            if (decrypted_data.ok):
-                # Is the message digitally signed?
-                if (decrypted_data.fingerprint is not None):
-                    signed_by = decrypted_data.fingerprint
+        # In plaintext mode, every API transmission is assumed to be
+        # plaintext and output as a file to the downloads folder with a
+        # timestamp as name.
+        if (plaintext):
+            logging.info("Size: %7d bytes\tSaving as plaintext" %(len(data)))
+            save_file(data)
+            logging.debug("Message: %s" %data)
+            continue
 
-                    # Was the signature verified?
-                    if decrypted_data.trust_level is not None:
-                        sign_str = "Signed by %s (verified w/ trust level: %s)" %(
-                            signed_by, decrypted_data.trust_text
-                        )
-                    else:
-                        sign_str = "Signed by %s (unverified)" %(signed_by)
+        # Try to decrypt the data when not in plaintext mode
+        decrypted_data = gpg.decrypt(data, passphrase = gpg_password)
 
-                    unsign_str = ""
-                else:
-                    unsign_str = "Not signed"
-                    sign_str = ""
+        if (not decrypted_data.ok):
+            logging.info(
+                "Size: %7d bytes\t Decryption: FAILED\t" %(len(data)) +
+                "Not encrypted for us (%s)" %(decrypted_data.status)
+            )
+            continue
 
-                logging.info("Encrypted size: %7d bytes\t Decryption: OK    \t%s" %(
-                    len(data), unsign_str))
-                if (len(sign_str) > 0):
-                    logging.info(sign_str)
-                logging.info("Decrypted size: %7d bytes" %(len(str(decrypted_data))))
+        # Is the message digitally signed?
+        if (decrypted_data.fingerprint is not None):
+            signed_by = decrypted_data.fingerprint
 
-                # Parse the user-specific data structure. If ignoring the
-                # existence of an application-specific data structure, save the
-                # raw decrypted data directly to a file.
-                if (save_raw):
-                    save_file(decrypted_data.data)
-                else:
-                    parse_ok = parse_user_data(decrypted_data.data)
-
-                    # Save raw data in case parsing fails
-                    if (not parse_ok):
-                        save_file(decrypted_data.data)
-            else:
-                logging.info(
-                    "Size: %7d bytes\t Decryption: FAILED\t" %(len(data)) +
-                    "Not encrypted for us (%s)" %(decrypted_data.status)
+            # Was the signature verified?
+            if decrypted_data.trust_level is not None:
+                sign_str = "Signed by %s (verified w/ trust level: %s)" %(
+                    signed_by, decrypted_data.trust_text
                 )
+            else:
+                sign_str = "Signed by %s (unverified)" %(signed_by)
+
+            unsign_str = ""
+        else:
+            unsign_str = "Not signed"
+            sign_str = ""
+
+        logging.info("Encrypted size: %7d bytes\t Decryption: OK    \t%s" %(
+            len(data), unsign_str))
+        if (len(sign_str) > 0):
+            logging.info(sign_str)
+        logging.info("Decrypted size: %7d bytes" %(len(str(decrypted_data))))
+
+        # Parse the user-specific data structure. If ignoring the
+        # existence of an application-specific data structure, save the
+        # raw decrypted data directly to a file.
+        if (save_raw):
+            save_file(decrypted_data.data)
+        else:
+            parse_ok = parse_user_data(decrypted_data.data)
+
+            # Save raw data in case parsing fails
+            if (not parse_ok):
+                save_file(decrypted_data.data)
+
 
 
 if __name__ == '__main__':
