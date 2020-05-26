@@ -77,8 +77,8 @@ blocksat-cli sdr
 ```
 
 More specifically, as thoroughly explained in the [Antenna Pointing
-Guide](antenna-pointing#sdr-based), you might want to run with specific gain and
-de-rotation parameters that are suitable to your setup, like so:
+Guide](antenna-pointing.md#sdr-based), you might want to run with specific gain
+and de-rotation parameters that are suitable to your setup, like so:
 
 ```
 blocksat-cli sdr -g [gain] --derotate [freq_offset]
@@ -90,7 +90,7 @@ values.
 Furthermore, in the SDR setup, you must choose which stream you would like to
 receive from the two streams that are simultaneously broadcast through the
 Blockstream Satellite network (refer to more information in the [Antenna
-Pointing Guide](antenna-pointing#optimize-snr)).
+Pointing Guide](antenna-pointing.md#optimize-snr)).
 
 By default, the application will try to decode the low-throughput stream. To try
 decoding the high-throughput stream, run with option `-m high`, as follows:
