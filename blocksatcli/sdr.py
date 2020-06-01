@@ -45,15 +45,11 @@ def _check_apps(tsp_disabled, bindir):
         logging.error("Couldn't find rtl_sdr. Is it installed?")
         return False
 
-    try:
-        os.path.isfile(os.path.join(bindir, "leandvb"))
-    except subprocess.CalledProcessError:
+    if (not os.path.isfile(os.path.join(bindir, "leandvb"))):
         logging.error("Couldn't find leandvb. Is it installed?")
         return False
 
-    try:
-        os.path.isfile(os.path.join(bindir, "ldpc_tool"))
-    except subprocess.CalledProcessError:
+    if (not os.path.isfile(os.path.join(bindir, "ldpc_tool"))):
         logging.error("Couldn't find ldpc_tool. Is it installed?")
         return False
 
@@ -182,6 +178,10 @@ def run(args):
         return
 
     if (not _check_apps((args.no_tsp or args.record), bindir)):
+        print("\nTo install software dependencies, run:")
+        print("""
+        blocksat-cli deps install
+        """)
         return
 
     # Demodulator configs
