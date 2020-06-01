@@ -228,8 +228,8 @@ def _analyze_iperf(logs, ds_name):
     assert(len(stream_ids) <= 2)
     first_qpsk = all([r["bw_kbps"] < 200e3 for r in ds if "bw_kbps" in r and
                       r['stream_id'] == stream_ids[0]])
-    stream_labels = ["QPSK 1/3", "8PSK 2/3"] if first_qpsk else \
-                    ["8PSK 2/3", "QPSK 1/3"]
+    stream_labels = ["QPSK 1/2", "8PSK 2/3"] if first_qpsk else \
+                    ["8PSK 2/3", "QPSK 1/2"]
 
     _plot_iperf(ds, ds_name, stream_ids, stream_labels)
 

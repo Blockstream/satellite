@@ -418,8 +418,8 @@ streams are summarized next:
 
 | Stream          | Throughput | Minimum SNR | Recommended SNR | Purpose       |
 |-----------------|------------|-------------|-----------------|---------------|
-| Low-throughput  | ~64 kbps   | -1.24 dB    | 3 dB            | Repeats the past 24h of blocks and keeps receiver nodes in sync  |
-| High-throughput | ~1.5 Mbps  | 6.62 dB     | 7.5 dB          | Broadcasts the entire blockchain and keeps receiver nodes in sync with lower latency |
+| Low-throughput  | ~96 kbps   | 1 dB        | 4 dB            | Repeats the past 24h of blocks and keeps receiver nodes in sync  |
+| High-throughput | ~1.55 Mbps | 6.62 dB     | 9 dB            | Broadcasts the entire blockchain and keeps receiver nodes in sync with lower latency |
 
 As explained in the [hardware guide](hardware.md#satellite-dish), it may only be
 feasible to receive the high-throughput stream with a dish of 90 cm or higher.
