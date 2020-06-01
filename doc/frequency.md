@@ -21,7 +21,7 @@ signals broadcast by the satellites that we use:
 
 | Satellite          | Band    | Frequency    |
 |--------------------|---------|--------------|
-| Galaxy 18          | Ku High | 12016.28 MHz |
+| Galaxy 18          | Ku High | 12016.4 MHz  |
 | Eutelsat 113       | Ku High | 12066.9 MHz  |
 | Telstar 11N Africa | Ku Low  | 11480.7 MHz  |
 | Telstar 11N Europe | Ku Low  | 11484.3 MHz  |
