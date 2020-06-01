@@ -56,9 +56,7 @@ def _check_apps(tsp_disabled, bindir):
     if (tsp_disabled):
         return True
 
-    try:
-        subprocess.check_output(["which", "tsp"])
-    except subprocess.CalledProcessError:
+    if (not os.path.isfile(os.path.join(bindir, "tsp"))):
         logging.error("Couldn't find tsp. Is it installed?")
         return False
 
@@ -171,7 +169,7 @@ def run(args):
     if (info is None):
         return
 
-    bindir = os.path.join(args.cfg_dir, "bin")
+    bindir = os.path.join(args.cfg_dir, "usr", "bin")
 
     pipe_size_bytes = int(args.pipe_size * (2**20))
     if (not _tune_max_pipe_size(pipe_size_bytes)):
@@ -221,7 +219,8 @@ def run(args):
         else:
             rtl_cmd.append("-")
 
-    ldvb_cmd = ["./leandvb", "--nhelpers", str(args.n_helpers), "-f",
+    ldvb_path = os.path.join(bindir, "leandvb")
+    ldvb_cmd  = [ldvb_path, "--nhelpers", str(args.n_helpers), "-f",
                 str(samp_rate), "--sr", str(sym_rate), "--roll-off",
                 str(defs.rolloff), "--standard", "DVB-S2", "--sampler", "rrc",
                 "--rrc-rej", str(args.rrc_rej), "--modcods", modcod,
@@ -232,7 +231,8 @@ def run(args):
     elif (args.debug_ts > 1):
         ldvb_cmd.extend(["-d", "-d"])
     if (args.ldpc_dec == "ext"):
-        ldvb_cmd.extend(["--ldpc-helper", "ldpc_tool",
+        ldpc_tool_path = os.path.join(bindir, "ldpc_tool")
+        ldvb_cmd.extend(["--ldpc-helper", ldpc_tool_path,
                          "--ldpc-iterations", str(args.ldpc_iterations)])
     else:
         ldvb_cmd.extend(["--ldpc-bf", str(args.ldpc_bf)])
@@ -248,10 +248,11 @@ def run(args):
     ldvb_stderr = None if (args.debug_ts > 0) else subprocess.DEVNULL
 
     # Input
-    tsp_cmd = ["tsp", "--realtime", "--buffer-size-mb",
-               str(args.buffer_size_mb), "--max-flushed-packets",
-               str(args.max_flushed_packets), "--max-input-packets",
-               str(args.max_input_packets)]
+    tsp_path = os.path.join(bindir, "tsp")
+    tsp_cmd  = [tsp_path, "--realtime", "--buffer-size-mb",
+                str(args.buffer_size_mb), "--max-flushed-packets",
+                str(args.max_flushed_packets), "--max-input-packets",
+                str(args.max_input_packets)]
     # MPEG-TS Analyzer
     if (args.analyze):
         print("MPEG-TS analysis will be saved on file {}".format(
@@ -288,13 +289,13 @@ def run(args):
                     " ".join(ldvb_cmd)
         p1 = subprocess.Popen(rtl_cmd, stdout=subprocess.PIPE)
         p2 = subprocess.Popen(ldvb_cmd, stdin=p1.stdout, stdout=subprocess.PIPE,
-                              stderr=ldvb_stderr, cwd=bindir)
+                              stderr=ldvb_stderr)
     else:
         full_cmd   = "> " + " ".join(ldvb_cmd) + " < " + args.iq_file
         fd_iq_file = open(args.iq_file)
         p2 = subprocess.Popen(ldvb_cmd, stdin=fd_iq_file,
                               stdout=subprocess.PIPE,
-                              stderr=ldvb_stderr, cwd=bindir)
+                              stderr=ldvb_stderr)
     if (not args.no_tsp):
         full_cmd += " | \\\n" + " ".join(tsp_cmd)
         logger.debug(full_cmd)

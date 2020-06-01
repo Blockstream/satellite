@@ -1,7 +1,7 @@
 """Manage software dependencies"""
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 from . import config, defs, util
-import os, subprocess, logging, platform
+import os, subprocess, logging
 from shutil import which
 from pprint import pformat
 logger = logging.getLogger(__name__)
@@ -22,8 +22,10 @@ def _install_packages(apt_list, dnf_list):
     util.run_and_log(util.root_cmd(cmd), logger)
 
 
-def _install_sdr(srcdir, bindir, update=False):
+def _install_sdr(srcdir, usrdir, update=False):
     util._print_header("Installing SDR Dependencies")
+
+    bindir = os.path.join(usrdir, "bin")
 
     if (os.geteuid() != 0):
         util.fill_print("Some commands require root access and will prompt "
@@ -95,30 +97,8 @@ def _install_sdr(srcdir, bindir, update=False):
     util.run_and_log(["build/install-prerequisites.sh"], logger, cwd=tsp_dir)
     util.run_and_log(["make", "NOTELETEXT=1", "NOSRT=1", "NOPCSC=1",
                       "NOCURL=1", "NODTAPI=1"], logger, cwd=tsp_dir)
-
-    # Add env setup to .bashrc, in case it is not set yet
-    arch               = platform.processor()
-    tsduck_release_dir = os.path.join(srcdir, "tsduck/src/tstools/release-" + arch)
-    bashrc_line        = "source {}/setenv.sh".format(tsduck_release_dir)
-
-    home = os.path.expanduser("~")
-    with open(os.path.join(home, ".bashrc")) as f:
-        bashrc = f.read()
-
-    bashrc_line_set = False
-    for line in bashrc.splitlines():
-        if (bashrc_line in line):
-            bashrc_line_set = True
-
-    if (not bashrc_line_set):
-        print("Adding the line below to your .bashrc:")
-        print(bashrc_line)
-        with open(os.path.join(home, ".bashrc"), 'a') as f:
-            f.write("\n# TSDuck Environment (used by blocksat-cli):\n" +
-                    bashrc_line + "\n")
-
-        print("Run the following before continuing:\n")
-        print("    source ~/.bashrc\n")
+    util.run_and_log(["make", "install", "SYSPREFIX={}".format(usrdir)], logger,
+                     cwd=tsp_dir)
 
 
 def _print_help(args):
@@ -162,16 +142,20 @@ def run(args):
         return
 
     srcdir = os.path.join(args.cfg_dir, "src")
-    bindir = os.path.join(args.cfg_dir, "bin")
+    usrdir = os.path.join(args.cfg_dir, "usr")
+    bindir = os.path.join(usrdir, "bin")
 
     if not os.path.exists(srcdir):
         os.makedirs(srcdir)
+
+    if not os.path.exists(usrdir):
+        os.makedirs(usrdir)
 
     if not os.path.exists(bindir):
         os.makedirs(bindir)
 
     if (info['setup']['type'] == defs.sdr_setup_type):
-        _install_sdr(srcdir, bindir, update=args.update)
+        _install_sdr(srcdir, usrdir, update=args.update)
     else:
         print("Installation of dependencies no supported yet "
               "for {} demodulator setup".format(info['setup']['type']))
