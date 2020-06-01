@@ -81,7 +81,7 @@ def subparser(subparsers):
                        help='Samples per symbol, or, equivalently, the '
                            'target oversampling ratio')
     rtl_group = rtl_p.add_mutually_exclusive_group()
-    rtl_group.add_argument('-g', '--gain', default=30, type=float,
+    rtl_group.add_argument('-g', '--gain', default=40, type=float,
                            help='RTL-SDR Rx gain')
     rtl_group.add_argument('-f', '--iq-file', default=None,
                            help='File to read IQ samples from instead of reading '
@@ -133,7 +133,7 @@ def subparser(subparsers):
     tsp_p.add_argument('--max-input-packets', default=10, type=int,
                        help='Maximum number of packets received at a time from '
                        'the tsp input plugin ')
-    tsp_p.add_argument('-p', '--bitrate-period', default=10, type=int,
+    tsp_p.add_argument('-p', '--bitrate-period', default=1, type=int,
                        help='Period of bitrate reports in seconds')
     tsp_p.add_argument('-l', '--local-address', default="127.0.0.1",
                        help='IP address of the local interface on which to '
