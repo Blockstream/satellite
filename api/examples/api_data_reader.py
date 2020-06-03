@@ -315,7 +315,7 @@ def main():
                         help='Satellite API server address')
 
     parser.add_argument('-r', '--region',
-                        choices=range(0, 5),
+                        choices=range(0, 6),
                         type=int,
                         help='Coverage region for Rx confirmations')
 

@@ -152,7 +152,7 @@ def calc_tx_len(msg_len):
     # Including all fragments, the total Blocksat + UDP + IPv4 overhead is:
     total_overhead = header_len * n_frags
 
-    # Total overhead at MPE layer:
+    # Total overhead at MPE layer (12B header + 4B CRC):
     mpe_header = 16
     total_mpe_overhead = mpe_header * n_frags
 

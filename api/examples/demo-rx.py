@@ -224,7 +224,7 @@ def main():
 
     parser.add_argument('-r', '--regions',
                         nargs="+",
-                        choices=range(0, 5),
+                        choices=range(0, 6),
                         type=int,
                         help='Coverage region for Tx confirmations')
 
