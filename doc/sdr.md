@@ -120,11 +120,11 @@ If you do not wish to rely on the automatic installation handled by command
 manually.
 
 By default, the CLI will look for the locally built apps on directory
-`~/.blocksat/bin`. Hence, to start, create this directory, as well as the
+`~/.blocksat/usr/bin`. Hence, to start, create this directory, as well as the
 directory for source files:
 
 ```
-mkdir -p ~/.blocksat/bin
+mkdir -p ~/.blocksat/usr/bin
 mkdir -p ~/.blocksat/src
 ```
 
@@ -145,7 +145,7 @@ cd ~/.blocksat/src
 git clone --recursive https://github.com/Blockstream/leansdr.git
 cd leansdr/src/apps
 make
-install leandvb ~/.blocksat/bin
+install leandvb ~/.blocksat/usr/bin
 ```
 
 Next, build and install `ldpc_tool`, which is used as an add-on to `leandvb`:
@@ -153,7 +153,7 @@ Next, build and install `ldpc_tool`, which is used as an add-on to `leandvb`:
 ```
 cd ../../LDPC/
 make CXX=g++ ldpc_tool
-install ldpc_tool ~/.blocksat/bin
+install ldpc_tool ~/.blocksat/usr/bin
 ```
 
 To install the RTL-SDR application, run:
@@ -174,22 +174,8 @@ git clone https://github.com/tsduck/tsduck.git
 cd tsduck
 build/install-prerequisites.sh
 make NOTELETEXT=1 NOSRT=1 NOPCSC=1 NOCURL=1 NODTAPI=1
+make install SYSPREFIX=$HOME/.blocksat/usr
 ```
-
-And then add the following to your `.bashrc`:
-
-```
-source ~/.blocksat/src/tsduck/src/tstools/release-x86_64/setenv.sh
-```
-or
-```
-source ~/.blocksat/src/tsduck/src/tstools/release-aarch64/setenv.sh
-```
-depending on whether you are running on x86_64 or aarch64 processor.
-
-By adding this `setenv.sh` script to your `.bashrc`, the environmental variables
-that are necessary in order to use TSDuck become available on every terminal
-session.
 
 Finally, install Gqrx from binary:
 
