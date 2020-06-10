@@ -122,18 +122,25 @@ blocksat-cli usb launch
 ```
 
 Initially, while the TBS5927 is still searching for the Blockstream Satellite
-signal, it will print only the `RF` metrics as follows:
+signal, it will print only the signal level, on lines starting with `RF`, as
+follows:
 
-![TBS 5927 Searching](img/tbs5927_searching.png?raw=true "TBS 5927 Searching")
+```
+RF     (0x01) Signal= -48,41dBm
+RF     (0x01) Signal= -48,28dBm
+RF     (0x01) Signal= -47,70dBm
+RF     (0x01) Signal= -48,05dBm
+          Layer A: Signal= 52,05%
+```
 
-At this point, you can expect at least that the signal level (after `Signal=`)
-is sufficiently high, provided that the LNB is really on and connected. This is
-because the LNB amplifies the signal received over satellite and feeds a
-reasonably high signal level into the demodulator. You can expect the level to
-be higher than -69 dBm, which is the minimum supported level specified for the
-TBS5927, and not higher than -23 dBm, which is TBS5927's maximum.
+At this point, you can expect at least that the signal level is sufficiently
+high, provided that the LNB is really on and connected. This is because the LNB
+amplifies the signal received over satellite and feeds a reasonably high signal
+level into the demodulator. You can expect the level to be higher than -69 dBm,
+which is the minimum supported level specified for the TBS5927, and not higher
+than -23 dBm, which is TBS5927's maximum.
 
-If your TBS5927 is indeed still printing logs like the ones above (i.e. is not
+If your TBS5927 is indeed still printing logs like the ones above (i.e., not
 locked yet), you should try to make adjustments to the antenna pointing. For
 example, keep the elevation angle fixed and very slowly move the antenna side to
 side (vary the azimuth angle). Alternatively, keep azimuth fixed and slowly vary
@@ -141,13 +148,28 @@ the elevation. Every time you make an adjustment, wait a few seconds and check
 if the unit has found the signal in this position. If not, try another
 adjustment and so on.
 
-Once the demodulator finds a carrier, it will print a log as follows:
+Once the demodulator finds a carrier, it will print a line starting with
+`Carrier`, as follows:
 
-![TBS 5927 Carrier Found](img/tbs5927_carrier.png?raw=true "TBS 5927 Carrier Found")
+```
+Carrier(0x03) Signal= -48,08dBm
+          Layer A: Signal= 52,05%
+```
 
-Subsequently, it is expected to finally lock to the signal:
+Subsequently, it is expected to finally lock to the signal, in which case it
+prints out the signal parameters, as follows:
 
-![TBS 5927 Locked - 8PSK](img/tbs5927_lock_8psk.png?raw=true "TBS 5927 Locked - 8PSK")
+```
+Got parameters for DVBS2:
+FREQUENCY = 12066900
+INVERSION = AUTO
+SYMBOL_RATE = 1000000
+INNER_FEC = 2/3
+MODULATION = PSK/8
+PILOT = ON
+ROLLOFF = AUTO
+POLARIZATION = HORIZONTAL
+```
 
 > NOTE: depending on the C/N level, at this point you may either see `MODULATION
 > = PSK/8` (as in the above example) or, in case your C/N is lower, `MODULATION
@@ -155,14 +177,32 @@ Subsequently, it is expected to finally lock to the signal:
 > concurrently broadcast over the Blockstream Satellite network. More
 > information [later along this guide](#optimize-snr).
 
-![TBS 5927 Locked - QPSK](img/tbs5927_lock_qpsk.png?raw=true "TBS 5927 Locked - QPSK")
+```
+Got parameters for DVBS2:
+FREQUENCY = 12066900
+INVERSION = AUTO
+SYMBOL_RATE = 1000000
+INNER_FEC = 1/2
+MODULATION = QPSK
+PILOT = ON
+ROLLOFF = AUTO
+POLARIZATION = HORIZONTAL
+```
 
-At this point, you should check the carrier-to-noise ratio (C/N) parameter. The
-higher the C/N value, the better. While the demodulator is locked, you can infer
-that the pointing is already very close. Hence, now experiment with only gentle
-adjustments to the pointing angles until you can maximize the C/N.
+From this point on, the application will continuously print (and refresh) a line
+starting with word `Lock`, which indicates the receiver is locked to the
+signal. This line include receiver metrics of interest. For example:
 
-![TBS 5927 Locked - Improved C/N](img/tbs5927_lock_better_snr.png?raw=true "TBS 5927 Locked - Improved C/N")
+```
+Lock   (0x1f) Signal= -47,73dBm C/N= 7,20dB postBER= 0
+          Layer A: Signal= 53,05% C/N= 36,04%
+```
+
+You should pay special attention to the carrier-to-noise ratio (C/N)
+parameter. The higher the C/N value, the better. Given that the demodulator is
+locked already, you can infer that the antenna pointing is already very close to
+the optimal position. At this point, you can experiment with gentle adjustments
+to the pointing angles until you can maximize the C/N.
 
 Further instructions for the target C/N levels are presented in the [next
 section](#optimize-snr).
