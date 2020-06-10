@@ -32,7 +32,8 @@ def _install_sdr(srcdir, usrdir, update=False):
                         "for password")
 
     # Binary packages
-    apt_pkg_list = ["git", "make", "g++", "libx11-dev", "gqrx-sdr", "rtl-sdr"]
+    apt_pkg_list = ["git", "make", "g++", "libx11-dev", "gqrx-sdr", "rtl-sdr",
+                    "lsb-release"]
     dnf_pkg_list = ["git", "make", "g++", "libX11-devel", "gqrx", "rtl-sdr"]
     _install_packages(apt_pkg_list, dnf_pkg_list)
 
