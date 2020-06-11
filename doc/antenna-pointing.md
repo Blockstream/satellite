@@ -296,8 +296,8 @@ signal band becomes visible in gqrx. If not, try another adjustment and so on.
 > is more likely to be the Blockstream Satellite signal. The correct signal
 > should span a flat level of 1 MHz, with 100 kHz of roll-off on each side (our
 > roll-off factor is 0.2). If the two signal bands are close to 1 MHz, please
-> take note of the center frequency of both bands and try them both in the next
-> steps.
+> take note of the center frequency of both bands and try both of them in the
+> next steps until you get a lock.
 >
 > Furthermore, please note that in some cases not only there are similar signal
 > bands on the same satellite, but also different satellites with similar bands.
@@ -320,7 +320,7 @@ blocksat-cli sdr --gui
 
 At this point, before proceeding, it is helpful to inspect whether the gain is
 well configured. Check the preprocessed (iq) plot. If it looks like the one
-below, where the points are heavily scattered all around the two dimensions, it
+below, where the points are strongly scattered all around the two dimensions, it
 is likely that the gain is too high. In this case, you can run with a lower gain
 specified using option `-g`, like so:
 
@@ -330,7 +330,7 @@ specified using option `-g`, like so:
 blocksat-cli sdr -g [gain]
 ```
 
-The default gain is 30, and you can then experiment with lower values.
+The default gain is 40, and you can then experiment with lower values.
 
 The IQ points should form a more compact cloud of points, such as the one below:
 
@@ -339,15 +339,17 @@ The IQ points should form a more compact cloud of points, such as the one below:
 More information is available in [Section 9.2 of the leandvb application's
 user guide](http://www.pabr.org/radio/leandvb/leandvb.en.html).
 
-Next, observe the spectrum plots. The spectrum plot shows the central band
-limits in red lines, and hence in the example that follows the signal presents
-the frequency offset of roughly -300 kHz that we already knew about (from gqrx):
+Next, observe the spectrum plots. The spectrum plot shows the limits of the
+central band in red lines. In the example that follows, the signal presents the
+frequency offset of roughly -300 kHz that we already knew about (from our
+observation on gqrx):
 
 ![Leandvb spectrum w/ offset signal](img/leandvb-spectrum-offset.png?raw=true "Leandvb spectrum w/ offset signal")
 
 > NOTE: each LNB introduces a unique frequency offset, which also varies over
 > time. The value of -300 kHz above was specific to the setup that was used to
-> acquire the figures shown in this guide. Your offset will be different.
+> acquire the figures that are shown in this guide. Your frequency offset will
+> be different.
 
 To correct the known offset, you can run with option `--derotate`, as follows:
 
@@ -361,13 +363,14 @@ that, the preprocessed spectrum plot should be reasonably centered, as follows:
 ![Leandvb spectrum w/ centered signal](img/leandvb-spectrum-centered.png?raw=true "Leandvb spectrum w/ centered signal")
 
 At this point, if the antenna pointing is already reasonably good, you might see
-the "PLS cstln" plot, showing four visible clouds:
+the "PLS cstln" plot, particularly showing four visible clouds:
 
 ![PLS symbols](img/leandvb-pls-syms.png?raw=true "PLS symbols")
 
-This indicates the receiver application is locked to Blockstream Satellite
-signal. Note that, the more compact the four clouds of points are in this plot
-(around the white `+` marker), generally the better the signal quality.
+This plot indicates that the receiver application is locked to the Blockstream
+Satellite signal. Note that, the more compact the four clouds of points are in
+this plot (around the white `+` marker), generally the better the signal
+quality.
 
 If you cannot see the PLS symbols nor the *timeline plot*, it means you are not
 locked to the signal yet. You can troubleshoot further in debug mode, by running
@@ -392,7 +395,7 @@ will see the following log printed to the console:
 LOCKED
 ```
 
-And after that you will start to see several underscores `_` printed
+After that, you should start seeing several underscores `_` printed
 consecutively as indicators of successful data reception. The reception
 indicator can be one of the three indicators that follow, and they are printed
 only in debug mode (again, option `-d`). Also, you should see periodic `*
@@ -427,22 +430,24 @@ follows:
 blocksat-cli sdr -g [gain] --derotate [freq_offset] -dd
 ```
 
-As a result, you should see a large amount of logs including the MER information
-in dB. For example, logs like the ones below, where for example the MER is of
-8.0 dB in the first line.
+With this command, you should see logs including the MER information in dB. For
+example, logs like the ones below, where the MER is of 6.4 dB in the first line.
 
 ```
-PLS: mc=12, sf=0, pilots=1 ( 0/90)  8.0 dB sr+6 fs=30
-modcod 12 size 0 rejected
-PLS: mc=12, sf=0, pilots=1 ( 0/90)  8.3 dB sr-6 fs=33
-modcod 12 size 0 rejected
-PLS: mc= 1, sf=0, pilots=1 ( 0/90)  9.2 dB sr+0 fs=45
-PLS: mc=12, sf=0, pilots=1 ( 0/90)  8.4 dB sr+0 fs=72
-modcod 12 size 0 rejected
-PLS: mc=12, sf=0, pilots=1 ( 0/90)  8.9 dB sr+0 fs=43
-modcod 12 size 0 rejected
-PLS: mc= 1, sf=0, pilots=1 ( 0/90)  8.0 dB sr-4 fs=37
-PLS: mc=12, sf=0, pilots=1 ( 0/90)  8.3 dB sr+0 fs=58
+PLS: mc=13, sf=0, pilots=1 llr=474  7.6 dB sr-6 fs=62  6.4 dB
+modcod 13 size 0 rejected
+PLS: mc=13, sf=0, pilots=1 llr=454  7.4 dB sr+0 fs=47  6.3 dB
+modcod 13 size 0 rejected
+PLS: mc=13, sf=0, pilots=1 llr=512  7.5 dB sr+0 fs=53  6.3 dB
+modcod 13 size 0 rejected
+PLS: mc=13, sf=0, pilots=1 llr=461  7.2 dB sr+0 fs=51  6.8 dB
+modcod 13 size 0 rejected
+PLS: mc=13, sf=0, pilots=1 llr=458  6.6 dB sr+0 fs=48  6.6 dB
+modcod 13 size 0 rejected
+PLS: mc=13, sf=0, pilots=1 llr=439  6.5 dB sr+0 fs=44  5.9 dB
+modcod 13 size 0 rejected
+PLS: mc=13, sf=0, pilots=1 llr=508  7.2 dB sr+0 fs=53  6.2 dB
+modcod 13 size 0 rejected
 ```
 
 To optimize the MER, you can try very fine adjustments to all three pointing
