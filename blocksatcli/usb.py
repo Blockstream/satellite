@@ -5,7 +5,6 @@ import os, sys, signal, argparse, subprocess, time, logging, threading, json
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 from . import config, util, defs, rp, firewall, ip
 import textwrap
-from shutil import which
 logger = logging.getLogger(__name__)
 
 

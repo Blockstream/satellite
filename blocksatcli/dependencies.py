@@ -7,22 +7,41 @@ from pprint import pformat
 logger = logging.getLogger(__name__)
 
 
-def _install_packages(apt_list, dnf_list):
+def _enable_pkg_repo():
+    """Enable Blockstream Satellite's binary package repository"""
+    if (which("apt")):
+        util.run_and_log(util.root_cmd(
+            ["add-apt-repository", "ppa:blockstream/satellite"]), logger)
+        util.run_and_log(util.root_cmd(
+            ["apt", "update"]), logger)
+    elif (which("dnf")):
+        util.run_and_log(util.root_cmd(
+            ["dnf", "copr", "enable", "blockstream/satellite"]), logger)
+    else:
+        raise RuntimeError("Could not find a supported package manager")
+
+
+def _install_packages(apt_list, dnf_list, interactive):
     """Install binary packages"""
     util._print_sub_header("Binary Dependencies")
     if (which("apt")):
-        cmd = ["apt", "install"]
+        manager = "apt"
+        cmd = ["apt-get", "install"]
         cmd.extend(apt_list)
     elif (which("dnf")):
+        manager = "dnf"
         cmd = ["dnf", "install"]
         cmd.extend(dnf_list)
     else:
         raise RuntimeError("Could not find a supported package manager")
 
+    if (not interactive):
+        cmd.append("-y")
+
     util.run_and_log(util.root_cmd(cmd), logger)
 
 
-def _install_sdr(srcdir, usrdir, update=False):
+def _install_sdr(srcdir, usrdir, interactive=True, update=False):
     util._print_header("Installing SDR Dependencies")
 
     bindir = os.path.join(usrdir, "bin")
@@ -31,11 +50,16 @@ def _install_sdr(srcdir, usrdir, update=False):
         util.fill_print("Some commands require root access and will prompt "
                         "for password")
 
-    # Binary packages
-    apt_pkg_list = ["git", "make", "g++", "libx11-dev", "gqrx-sdr", "rtl-sdr",
-                    "lsb-release"]
-    dnf_pkg_list = ["git", "make", "g++", "libX11-devel", "gqrx", "rtl-sdr"]
-    _install_packages(apt_pkg_list, dnf_pkg_list)
+    # Mainstream binary packages
+    apt_pkg_list = ["software-properties-common", "git", "make", "g++",
+                    "libx11-dev", "gqrx-sdr", "rtl-sdr"]
+    dnf_pkg_list = ["dnf-plugins-core", "git", "make", "g++", "libX11-devel",
+                    "gqrx", "rtl-sdr"]
+    _install_packages(apt_pkg_list, dnf_pkg_list, interactive)
+
+    # Enable our binary package repository and install our binary packages
+    _enable_pkg_repo()
+    _install_packages(["tsduck"], ["tsduck"], interactive)
 
     # leansdr build
     util._print_sub_header("leansdr")
@@ -60,46 +84,20 @@ def _install_sdr(srcdir, usrdir, update=False):
                           "https://github.com/Blockstream/leansdr.git"],
                          logger, cwd=srcdir)
 
-    nproc = "-j" + subprocess.check_output(["nproc"]).decode().rstrip()
+    nproc = int(subprocess.check_output(["nproc"]).decode().rstrip())
+    nproc_arg = "-j" + str(nproc)
 
-    util.run_and_log(["make", nproc], logger, cwd=leansdr_app_dir)
+    util.run_and_log(["make", nproc_arg], logger, cwd=leansdr_app_dir)
     util.run_and_log(["install", "leandvb", bindir],
                      logger, cwd=leansdr_app_dir)
 
     # LDPC
     util._print_sub_header("LDPC Tool")
     ldpc_dir = os.path.join(leansdr_dir, "LDPC")
-    util.run_and_log(["make", nproc, "CXX=g++", "ldpc_tool"], logger,
+    util.run_and_log(["make", nproc_arg, "CXX=g++", "ldpc_tool"], logger,
                      cwd=ldpc_dir)
     util.run_and_log(["install", "ldpc_tool", bindir],
                      logger, cwd=ldpc_dir)
-
-    # TSDuck
-    util._print_sub_header("TSDuck")
-
-    # Build from source if binary package didn't work
-    tsp_dir   = os.path.join(srcdir, "tsduck")
-    is_update = update
-    if (not is_update) and os.path.exists(tsp_dir):
-        is_update = True
-        print("tsduck build directory already exists. Checking for updates...")
-    elif is_update and (not os.path.exists(tsp_dir)):
-        is_update = False
-        print("tsduck build directory does no exist. Installing...")
-
-    if (is_update):
-        util.run_and_log(["git", "pull", "origin", "master"],
-                         logger, cwd=tsp_dir)
-    else:
-        util.run_and_log(["git", "clone",
-                          "https://github.com/tsduck/tsduck.git"],
-                         logger, cwd=srcdir)
-
-    util.run_and_log(["build/install-prerequisites.sh"], logger, cwd=tsp_dir)
-    util.run_and_log(["make", "NOTELETEXT=1", "NOSRT=1", "NOPCSC=1",
-                      "NOCURL=1", "NODTAPI=1"], logger, cwd=tsp_dir)
-    util.run_and_log(["make", "install", "SYSPREFIX={}".format(usrdir)], logger,
-                     cwd=tsp_dir)
 
 
 def _print_help(args):
@@ -118,6 +116,15 @@ def subparser(subparsers):
                               formatter_class=ArgumentDefaultsHelpFormatter)
 
     p.set_defaults(func=_print_help)
+    p.add_argument("--target",
+                   choices=["sdr"],
+                   default=None,
+                   help="Target setup type for installation of dependencies")
+    p.add_argument("-y", "--yes",
+                   action='store_true',
+                   default=False,
+                   help="Non-interactive mode. Answers \"yes\" automatically \
+                   to binary package installation prompts")
 
     subsubp = p.add_subparsers(title='subcommands',
                                help='Target sub-command')
@@ -137,10 +144,16 @@ def subparser(subparsers):
 
 def run(args):
     """Run installations"""
-    info = config.read_cfg_file(args.cfg_file, args.cfg_dir)
-
-    if (info is None):
-        return
+    if (args.target is not None):
+        target_map = {
+            "sdr" : defs.sdr_setup_type
+        }
+        target = target_map[args.target]
+    else:
+        info = config.read_cfg_file(args.cfg_file, args.cfg_dir)
+        if (info is None):
+            return
+        target = info['setup']['type']
 
     srcdir = os.path.join(args.cfg_dir, "src")
     usrdir = os.path.join(args.cfg_dir, "usr")
@@ -155,8 +168,9 @@ def run(args):
     if not os.path.exists(bindir):
         os.makedirs(bindir)
 
-    if (info['setup']['type'] == defs.sdr_setup_type):
-        _install_sdr(srcdir, usrdir, update=args.update)
+    if (target == defs.sdr_setup_type):
+        _install_sdr(srcdir, usrdir, interactive=(not args.yes),
+                     update=args.update)
     else:
         print("Installation of dependencies no supported yet "
               "for {} demodulator setup".format(info['setup']['type']))

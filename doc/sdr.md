@@ -156,34 +156,43 @@ make CXX=g++ ldpc_tool
 install ldpc_tool ~/.blocksat/usr/bin
 ```
 
-To install the RTL-SDR application, run:
+Next, enable our repository for binary packages. On Ubuntu/Debian, run:
 
 ```
-apt-get install rtl-sdr
+add-apt-repository ppa:blockstream/satellite
+apt-get update
+```
+
+> If command `add-apt-repository` is not available in your system, you need to
+> install the `software-properties-common` package.
+
+On Fedora, run:
+```
+dnf copr enable blockstream/satellite
+```
+
+> If command `copr enable` is not available in your system, you need to install
+> the `dnf-plugins-core` package.
+
+Finally, install the RTL-SDR application, TSDuck, and Gqrx, from binary
+packages:
+
+```
+sudo apt install rtl-sdr tsduck gqrx-sdr
 ```
 or
 ```
-dnf install rtl-sdr
+sudo dnf install rtl-sdr tsduck gqrx
 ```
 
-Next, to build TSDuck from source, run:
+### TSDuck from source
+
+To build and install TSDuck from source, run:
 
 ```
-cd ~/.blocksat/src
 git clone https://github.com/tsduck/tsduck.git
 cd tsduck
 build/install-prerequisites.sh
 make NOTELETEXT=1 NOSRT=1 NOPCSC=1 NOCURL=1 NODTAPI=1
-make install SYSPREFIX=$HOME/.blocksat/usr
+sudo make NOTELETEXT=1 NOSRT=1 NOPCSC=1 NOCURL=1 NODTAPI=1 install
 ```
-
-Finally, install Gqrx from binary:
-
-```
-sudo apt install gqrx-sdr
-```
-or
-```
-sudo dnf install gqrx
-```
-

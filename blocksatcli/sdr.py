@@ -2,14 +2,13 @@
 from argparse import ArgumentDefaultsHelpFormatter
 from . import config, defs, util
 import subprocess, logging, textwrap, os
+from shutil import which
 logger = logging.getLogger(__name__)
 
 
 def _tune_max_pipe_size(pipesize):
     """Tune the maximum size of pipes"""
-    try:
-        subprocess.check_output(["which", "sysctl"])
-    except subprocess.CalledProcessError:
+    if (not which("sysctl")):
         logging.error("Couldn't tune max-pipe-size. Please check how to tune "
                       "it in your OS.")
         return False
@@ -39,9 +38,7 @@ def _tune_max_pipe_size(pipesize):
 
 def _check_apps(tsp_disabled, bindir):
     """Check if required apps are installed"""
-    try:
-        subprocess.check_output(["which", "rtl_sdr"])
-    except subprocess.CalledProcessError:
+    if (not which("rtl_sdr")):
         logging.error("Couldn't find rtl_sdr. Is it installed?")
         return False
 
@@ -56,7 +53,7 @@ def _check_apps(tsp_disabled, bindir):
     if (tsp_disabled):
         return True
 
-    if (not os.path.isfile(os.path.join(bindir, "tsp"))):
+    if (not which("tsp")):
         logging.error("Couldn't find tsp. Is it installed?")
         return False
 
@@ -248,8 +245,7 @@ def run(args):
     ldvb_stderr = None if (args.debug_ts > 0) else subprocess.DEVNULL
 
     # Input
-    tsp_path = os.path.join(bindir, "tsp")
-    tsp_cmd  = [tsp_path, "--realtime", "--buffer-size-mb",
+    tsp_cmd  = ["tsp", "--realtime", "--buffer-size-mb",
                 str(args.buffer_size_mb), "--max-flushed-packets",
                 str(args.max_flushed_packets), "--max-input-packets",
                 str(args.max_input_packets)]

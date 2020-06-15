@@ -3,26 +3,27 @@ FROM ubuntu:$distroseries
 MAINTAINER Blockstream Satellite
 
 # Dependencies
-RUN apt update && apt install -y git make g++ libx11-dev libfftw3-dev \
-	python3 rtl-sdr python3-pip
+RUN apt update && DEBIAN_FRONTEND=noninteractive apt install -y \
+	software-properties-common git make g++ \
+	libx11-dev libfftw3-dev python3 rtl-sdr python3-pip gqrx-sdr
+
+# Packages from ppa:blockstream/satellite
+RUN add-apt-repository ppa:blockstream/satellite && apt-get update
+RUN apt install -y tsduck
+
+# Build and source directories for applications built from source
+RUN mkdir -p ~/.blocksat/usr/bin
+RUN mkdir -p ~/.blocksat/src
 
 # Leandvb
-RUN mkdir -p ~/src/ && cd ~/src/ && \
+RUN cd ~/.blocksat/src && \
 	git clone --depth 1 --recursive https://github.com/Blockstream/leansdr.git && \
 	cd leansdr/src/apps && \
 	make && \
-	install leandvb /usr/local/bin && \
+	install leandvb ~/.blocksat/usr/bin && \
 	cd ../../LDPC/ && \
 	make CXX=g++ ldpc_tool && \
-	install ldpc_tool /usr/local/bin
-
-# Tsduck
-RUN cd ~/src/ && git clone https://github.com/tsduck/tsduck.git && \
-	cd tsduck && \
-	make NOTELETEXT=1 NOSRT=1 NOPCSC=1 NOCURL=1 NODTAPI=1 && \
-	echo \
-	"\n# TSDuck\nsource ~/src/tsduck/src/tstools/release-x86_64/setenv.sh" \
-	>> ~/.bashrc
+	install ldpc_tool ~/.blocksat/usr/bin
 
 # Blocksat CLI
 RUN mkdir -p ~/src/blocksat-cli/dist/
