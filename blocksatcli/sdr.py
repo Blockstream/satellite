@@ -36,27 +36,18 @@ def _tune_max_pipe_size(pipesize):
         return True
 
 
-def _check_apps(tsp_disabled, bindir):
+def _check_apps(tsp_disabled):
     """Check if required apps are installed"""
-    if (not which("rtl_sdr")):
-        logging.error("Couldn't find rtl_sdr. Is it installed?")
-        return False
 
-    if (not os.path.isfile(os.path.join(bindir, "leandvb"))):
-        logging.error("Couldn't find leandvb. Is it installed?")
-        return False
+    apps      = ["rtl_sdr", "leandvb", "ldpc_tool", "tsp"]
 
-    if (not os.path.isfile(os.path.join(bindir, "ldpc_tool"))):
-        logging.error("Couldn't find ldpc_tool. Is it installed?")
-        return False
-
-    if (tsp_disabled):
-        return True
-
-    if (not which("tsp")):
-        logging.error("Couldn't find tsp. Is it installed?")
-        return False
-
+    for app in apps:
+        if (app == "tsp" and tsp_disabled):
+            continue
+        if (not which(app)):
+            logging.error("Couldn't find {}. Is it installed?".format(app))
+            return False
+    # All apps are installed
     return True
 
 
@@ -166,13 +157,12 @@ def run(args):
     if (info is None):
         return
 
-    bindir = os.path.join(args.cfg_dir, "usr", "bin")
-
     pipe_size_bytes = int(args.pipe_size * (2**20))
     if (not _tune_max_pipe_size(pipe_size_bytes)):
         return
 
-    if (not _check_apps((args.no_tsp or args.record), bindir)):
+    tsp_unused = args.no_tsp or args.record
+    if (not _check_apps(tsp_unused)):
         print("\nTo install software dependencies, run:")
         print("""
         blocksat-cli deps install
@@ -216,8 +206,7 @@ def run(args):
         else:
             rtl_cmd.append("-")
 
-    ldvb_path = os.path.join(bindir, "leandvb")
-    ldvb_cmd  = [ldvb_path, "--nhelpers", str(args.n_helpers), "-f",
+    ldvb_cmd  = ["leandvb", "--nhelpers", str(args.n_helpers), "-f",
                 str(samp_rate), "--sr", str(sym_rate), "--roll-off",
                 str(defs.rolloff), "--standard", "DVB-S2", "--sampler", "rrc",
                 "--rrc-rej", str(args.rrc_rej), "--modcods", modcod,
@@ -228,8 +217,7 @@ def run(args):
     elif (args.debug_ts > 1):
         ldvb_cmd.extend(["-d", "-d"])
     if (args.ldpc_dec == "ext"):
-        ldpc_tool_path = os.path.join(bindir, "ldpc_tool")
-        ldvb_cmd.extend(["--ldpc-helper", ldpc_tool_path,
+        ldvb_cmd.extend(["--ldpc-helper", which("ldpc_tool"),
                          "--ldpc-iterations", str(args.ldpc_iterations)])
     else:
         ldvb_cmd.extend(["--ldpc-bf", str(args.ldpc_bf)])

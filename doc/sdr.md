@@ -12,6 +12,9 @@
     - [Next Steps](#next-steps)
     - [Further Information](#further-information)
         - [Manual Installation of SDR Software](#manual-installation-of-sdr-software)
+        - [Manual Compilation of SDR Software](#manual-compilation-of-sdr-software)
+            - [Leandvb from source](#leandvb-from-source)
+            - [TSDuck from source](#tsduck-from-source)
 
 <!-- markdown-toc end -->
 
@@ -50,9 +53,8 @@ To install them all at once, run:
 blocksat-cli deps install
 ```
 
-> NOTE: This command assumes and has been tested with Ubuntu 18.04 and
-> Fedora 31. Please adapt if necessary in case you are using another Linux
-> distribution or version.
+> NOTE: This command supports Ubuntu and Fedora. Please adapt if necessary in
+> case you are using another Linux distribution.
 
 If you prefer to build all software components manually, please refer to the
 [manual installation section](#manual-installation-of-sdr-software).
@@ -113,50 +115,20 @@ yet, please follow the [antenna alignment guide](antenna-pointing.md).
 
 ## Further Information
 
+### Software Updates
+
+To update the SDR software to the most recent releases, run:
+
+```
+blocksat-cli deps update
+```
+
 ### Manual Installation of SDR Software
 
 If you do not wish to rely on the automatic installation handled by command
-`blocksat-cli deps install`, you can build and install all applications
-manually.
+`blocksat-cli deps install`, you can install all applications manually.
 
-By default, the CLI will look for the locally built apps on directory
-`~/.blocksat/usr/bin`. Hence, to start, create this directory, as well as the
-directory for source files:
-
-```
-mkdir -p ~/.blocksat/usr/bin
-mkdir -p ~/.blocksat/src
-```
-
-To build leandvb from source, first install the dependencies:
-
-```
-apt install git make g++ libx11-dev
-```
-or
-```
-dnf install git make g++ libX11-devel
-```
-
-Then, run:
-
-```
-cd ~/.blocksat/src
-git clone --recursive https://github.com/Blockstream/leansdr.git
-cd leansdr/src/apps
-make
-install leandvb ~/.blocksat/usr/bin
-```
-
-Next, build and install `ldpc_tool`, which is used as an add-on to `leandvb`:
-
-```
-cd ../../LDPC/
-make CXX=g++ ldpc_tool
-install ldpc_tool ~/.blocksat/usr/bin
-```
-
-Next, enable our repository for binary packages. On Ubuntu/Debian, run:
+First, enable our repository for binary packages. On Ubuntu/Debian, run:
 
 ```
 add-apt-repository ppa:blockstream/satellite
@@ -174,18 +146,51 @@ dnf copr enable blockstream/satellite
 > If command `copr enable` is not available in your system, you need to install
 > the `dnf-plugins-core` package.
 
-Finally, install the RTL-SDR application, TSDuck, and Gqrx, from binary
-packages:
+Finally, install the applications:
 
 ```
-sudo apt install rtl-sdr tsduck gqrx-sdr
+sudo apt install rtl-sdr leandvb tsduck gqrx-sdr
 ```
 or
 ```
-sudo dnf install rtl-sdr tsduck gqrx
+sudo dnf install rtl-sdr leandvb tsduck gqrx
 ```
 
-### TSDuck from source
+### Manual Compilation of SDR Software
+
+If `leandvb` and (or) `tsduck` are not available as binary packages in your
+distribution, you can build and install them from source.
+
+#### Leandvb from source
+
+To build leandvb from source, first install the dependencies:
+
+```
+apt install git make g++ libx11-dev
+```
+or
+```
+dnf install git make g++ libX11-devel
+```
+
+Then, run:
+
+```
+git clone --recursive https://github.com/Blockstream/leansdr.git
+cd leansdr/src/apps
+make
+sudo install leandvb /usr/bin
+```
+
+Next, build and install `ldpc_tool`:
+
+```
+cd ../../LDPC/
+make CXX=g++ ldpc_tool
+sudo install ldpc_tool /usr/bin
+```
+
+#### TSDuck from source
 
 To build and install TSDuck from source, run:
 
