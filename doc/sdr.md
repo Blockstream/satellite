@@ -135,16 +135,16 @@ add-apt-repository ppa:blockstream/satellite
 apt-get update
 ```
 
-> If command `add-apt-repository` is not available in your system, you need to
-> install the `software-properties-common` package.
+> If command `add-apt-repository` is not available in your system, install
+> package `software-properties-common`.
 
 On Fedora, run:
 ```
 dnf copr enable blockstream/satellite
 ```
 
-> If command `copr enable` is not available in your system, you need to install
-> the `dnf-plugins-core` package.
+> If command `copr enable` is not available in your system, install package
+> `dnf-plugins-core`.
 
 Finally, install the applications:
 

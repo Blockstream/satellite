@@ -5,8 +5,11 @@
 
 - [Bitcoin Satellite](#bitcoin-satellite)
     - [Overview](#overview)
-    - [Build](#build)
-    - [Usage](#usage)
+    - [Installation](#installation)
+        - [From Binary Packages](#from-binary-packages)
+        - [From Source](#from-source)
+    - [Configuration](#configuration)
+    - [Further Information](#further-information)
 
 <!-- markdown-toc end -->
 
@@ -18,7 +21,47 @@ Core](https://bitcoincore.org). It features a version of the bitcoind
 application with support for reception of blocks sent over satellite in UDP
 datagrams with multicast addressing.
 
-## Build
+## Installation
+
+### From Binary Packages
+
+You can install `bitcoin-satellite` directly from binary packages that are
+available for the following distribution/releases:
+
+- Ubuntu Bionic (18.04), Eoan (19.10), and Focal (20.04)
+- Fedora 30, 31, and 32
+- CentOS 7 and 8
+
+Ubuntu:
+
+```
+add-apt-repository ppa:blockstream/satellite
+apt-get update
+apt-get install bitcoin-satellite
+```
+
+> If command `add-apt-repository` is not available, install
+> `software-properties-common`.
+
+Fedora:
+
+```
+dnf copr enable blockstream/satellite
+dnf install bitcoin-satellite
+```
+
+> If command `dnf copr enable` is not available, install `dnf-plugins-core`.
+
+CentOS:
+
+```
+yum copr enable blockstream/satellite
+yum install bitcoin-satellite
+```
+
+> If command `yum copr enable` is not available, install `yum-plugin-copr`.
+
+### From Source
 
 To build Bitcoin Satellite from source, first clone the repository:
 
@@ -49,7 +92,25 @@ make install
 Detailed build instructions can be found within [the project's documentation
 ](https://github.com/Blockstream/bitcoinsatellite/tree/master/doc#building).
 
-## Usage
+## Configuration
+
+Next, you need to generate a `bitcoin.conf` file with configurations to receive
+bitcoin data via satellite. To do so, run:
+
+```
+blocksat-cli btc
+```
+
+By default, this command will place the generated `bitcoin.conf` file at
+`~/.bitcoin/`, which is the default Bitcoin [data
+directory](https://en.bitcoin.it/wiki/Data_directory) used by Bitcoin
+Satellite. If you so desire, you can specify an alternative `datadir` as
+follows:
+```
+blocksat-cli btc -d datadir
+```
+
+## Further Information
 
 In a Blockstream Satellite receiver setup, the satellite demodulator will decode
 and output a UDP/IPv4 stream, which in turn Bitcoin Satellite can listen to. In
@@ -72,29 +133,24 @@ that you are receiving from. The option is described as follows:
 Here is an example:
 
 ```
-udpmulticast=dvb0_0,239.0.0.2:4434,192.168.200.2,1,blocksat
+udpmulticast=dvb0_0,239.0.0.2:4434,172.16.235.9,1,blocksat
 ```
 
 In this case, we have that:
 
-- `dvb0_0` is the name of the network interface that receives data out of the demodulator.
-- `239.0.0.2:4434` is the destination IP address and port of the packets that are sent over satellite.
-- `192.168.200.2` is the IP address of one of our Tx nodes that broadcasts data over the Blockstream Satellite network. 
-- `1` configures this stream as coming from a *trusted* source, which is helpful to speed up block reception.
+- `dvb0_0` is the name of the network interface that receives data out of the
+  demodulator.
+- `239.0.0.2:4434` is the destination IP address and port of the packets that
+  are sent over satellite.
+- `172.16.235.9` is the IP address of one of our Tx nodes that broadcasts data
+  over the Blockstream Satellite network. You should use the address of the
+  satellite that covers your region.
+- `1` configures this stream as coming from a *trusted* source, which is helpful
+  to speed up block reception.
 - `blocksat` is a label used simply to facilitate inspection of logs.
 
-Note that you will need to configure a specific destination IP address:port and
-Tx source IP address, based on the satellite that covers your region. To
-simplify this process, we provide a `bitcoin.conf` generator, which you can run
-as follows:
-
-```
-blocksat-cli bitcoin-conf -d [datadir]
-```
-
-where `[datadir]` should be the target Bitcoin [data
-directory](https://en.bitcoin.it/wiki/Data_directory) that you will use when
-running Bitcoin Satellite (by default `~/.bitcoin/`).
+To simplify this process, command `blocksat-cli btc` generates the
+`bitcoin.conf` file for you.
 
 Lastly, note that Bitcoin Satellite is a fork of Bitcoin Core Version 0.19,
 hence other [Bitcoin Core configuration
