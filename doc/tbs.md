@@ -84,12 +84,20 @@ sudo dnf update
 sudo dnf install python3 iproute iptables dvb-apps v4l-utils
 ```
 
-If `dvb-apps` is not available on your distribution (for example on Fedora 31
-and 32), you can build it from source. Refer to the [instructions presented
-further below.](#building-dvb-apps-from-source)
+Specifically on Fedora 31 and 32, package `dvb-apps` is not available via the
+main dnf repository. In this case, you can install it from our repository, by
+running:
 
-> NOTE: `iproute`/`iproute2` and `iptables` are used in order to ensure `ip`
-> and `iptables` tools are available.
+```
+sudo dnf copr enable blockstream/satellite
+sudo dnf install dvb-apps
+```
+
+> If command `dnf copr enable` is not available in your system, install package
+> `dnf-plugins-core`.
+
+Alternatively, you can build `dvb-apps` from source. Refer to the [instructions
+presented further below.](#building-dvb-apps-from-source)
 
 ## Configure the Host
 
