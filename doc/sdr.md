@@ -8,9 +8,10 @@
     - [Software Requirements](#software-requirements)
     - [Configuration](#configuration)
     - [Running](#running)
-    - [Docker](#docker)
     - [Next Steps](#next-steps)
     - [Further Information](#further-information)
+        - [Software Updates](#software-updates)
+        - [Docker](#docker)
         - [Manual Installation of SDR Software](#manual-installation-of-sdr-software)
         - [Manual Compilation of SDR Software](#manual-compilation-of-sdr-software)
             - [Leandvb from source](#leandvb-from-source)
@@ -53,10 +54,12 @@ To install them all at once, run:
 blocksat-cli deps install
 ```
 
-> NOTE: This command supports Ubuntu and Fedora. Please adapt if necessary in
-> case you are using another Linux distribution.
+> NOTE: This command supports Ubuntu (18.04, 19.10, and 20.04) and Fedora (30,
+> 31, and 32). In case you are using another Linux distribution or version,
+> please refer to the [manual compilation and installation
+> instructions](#manual-compilation-of-sdr-software).
 
-If you prefer to build all software components manually, please refer to the
+If you prefer to install all software components manually, please refer to the
 [manual installation section](#manual-installation-of-sdr-software).
 
 ## Configuration
@@ -101,17 +104,12 @@ decoding the high-throughput stream, run with option `-m high`, as follows:
 blocksat-cli sdr -g [gain] --derotate [freq_offset] -m high
 ```
 
-## Docker
-
-There is a Docker image available in this repository for running the SDR
-setup. Please refer to instructions in the [Docker guide](../docker/README.md).
-
 ## Next Steps
 
 At this point, if your antenna is already correctly pointed, you should be able
-to start receiving data in Bitcoin Satellite. Please follow the [instructions
+to start receiving data on Bitcoin Satellite. Please follow the [instructions
 for Bitcoin Satellite configuration](bitcoin.md). If your antenna is not pointed
-yet, please follow the [antenna alignment guide](antenna-pointing.md).
+yet, refer to the [antenna alignment guide](antenna-pointing.md).
 
 ## Further Information
 
@@ -122,6 +120,12 @@ To update the SDR software to the most recent releases, run:
 ```
 blocksat-cli deps update
 ```
+
+### Docker
+
+There is a Docker image available in this repository for running the SDR host on
+a container. Please refer to instructions in the [Docker
+guide](../docker/README.md).
 
 ### Manual Installation of SDR Software
 

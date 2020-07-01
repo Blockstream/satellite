@@ -1,0 +1,23 @@
+ARG distro=ubuntu:bionic
+FROM $distro
+ARG distro
+MAINTAINER Blockstream Satellite
+
+SHELL ["/bin/bash", "-c"]
+RUN if [[ $distro == *"ubuntu"* ]]; then \
+	apt update && DEBIAN_FRONTEND=noninteractive apt install -y python3-pip; \
+	else \
+	dnf update -y && dnf install -y python3-pip; \
+	fi
+
+# Install the local distribution of the CLI
+RUN mkdir -p ~/src/blocksat-cli/dist/
+COPY dist/* ~/src/blocksat-cli/dist/
+RUN pip3 install \~/src/blocksat-cli/dist/blocksat-cli-*.tar.gz
+
+# Install SDR software dependencies via the CLI
+RUN blocksat-cli --debug deps -y --target sdr install
+
+# Install USB software dependencies via the CLI
+RUN blocksat-cli --debug deps -y --target usb install
+

@@ -1,31 +1,40 @@
 # Running on Docker
 
-There are two Docker images in this repository:
+<!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-generate-toc again -->
+**Table of Contents**
 
-- `usb.docker`: for Linux USB receiver setups.
-- `sdr.docker`: for SDR-based setups.
+- [Running on Docker](#running-on-docker)
+    - [USB Receiver](#usb-receiver)
+    - [SDR Receiver](#sdr-receiver)
 
-If using a USB demodulator, however, note the drivers need to be installed on
-the Docker host (not the container). Please refer to the [USB demodulator
-guide](tbs.md#tbs-5927-drivers).
+<!-- markdown-toc end -->
 
-Both images expect a source distribution tarball of the `blocksat-cli`
-package. Hence, before proceeding, on the root directory, run:
+This directory contains a Docker image recipe for a container that can be used
+as the *Blockstream Satellite host*, that is, the host that has the ability and
+all software dependencies to interface with the supported satellite receivers.
 
-```
-python3 setup.py sdist
-```
-
-## Linux USB Container
-
-Build the image with:
+To build the image, run the following from the root directory of this
+repository:
 
 ```
-docker build -t blockstream/blocksat-usb -f usb.docker ..
+make docker
 ```
 
-Run the container while sharing the DVB network interfaces `dvb0_0` and `dvb0_1`
-(rename as needed):
+## USB Receiver
+
+First of all, there is an important limitation to running the [Linux USB
+receiver](../doc/tbs.md) inside a container. It is that the drivers of the USB
+receiver must be installed on the Docker host, rather than the Docker
+container. This means that the image in this directory does not contain the
+drivers. Instead, you will need to install the drivers on your Docker
+host. Please refer to the driver installation instructions on the [USB
+demodulator guide](tbs.md#tbs-5927-drivers).
+
+After installing the drivers and connecting the TBS5927 device to your Docker
+host, you can then start the container. You will need to share the DVB network
+interfaces (visible in the Docker host) with the container. Check the DVB
+interfaces at `/dev/` (typically named `dvb0_0` and `dvb0_1`) and adapt the
+command below accordingly:
 
 ```
 docker run --rm \
@@ -34,37 +43,35 @@ docker run --rm \
 	--network=host \
 	--cap-add=NET_ADMIN \
 	--cap-add=SYS_ADMIN \
-	-it blockstream/blocksat-usb \
-	usb
+	-v blocksat-cfg:/root/.blocksat/ \
+	-it blockstream/blocksat-host
 ```
 
-After running, configure reverse path filters by running the following from the
-host (not from the container):
+After running, configure reverse path filters by running the following on the
+Docker host (not from the container):
 
 ```
 blocksat-cli rp -i dvb0_0
 blocksat-cli rp -i dvb0_1
 ```
 
-## SDR Container
+## SDR Receiver
 
-First, build the image:
-
-```
-docker build -t blockstream/blocksat-sdr -f sdr.docker ..
-```
-
-Next, run the container as follows:
+The important point for running the SDR receiver inside a container is that you
+need to share the RTL-SDR USB device (connected to the Docker host) with the
+container. To do so, run the container as follows:
 
 ```
 docker run --rm \
 	--privileged \
 	-v /dev/bus/usb:/dev/bus/usb \
-	-it blockstream/blocksat-sdr
+	-v blocksat-cfg:/root/.blocksat/ \
+	-it blockstream/blocksat-host
 ```
 
 Note **privileged mode** is used in order to allow the container to access the
-RTL-SDR USB device of the host.
+RTL-SDR USB device and to allow the execution of `sysctl`, which is used by the
+SDR application for changing option `fs.pipe-max-size`.
 
 > On a Mac OSX host, you will need to set up a
 > [docker-machine](https://docs.docker.com/machine/) in order share the SDR USB

@@ -193,10 +193,10 @@ def run_or_print_root_cmd(cmd, logger=None):
         print("> " + " ".join(cmd) + "\n")
 
 
-def run_and_log(cmd, logger=None, cwd=None):
+def run_and_log(cmd, logger=None, cwd=None, env=None):
     assert(isinstance(cmd, list))
     if (logger is not None):
         logger.debug("> " + " ".join(cmd))
-    subprocess.run(cmd, cwd=cwd)
+    subprocess.run(cmd, cwd=cwd, env=env)
 
 

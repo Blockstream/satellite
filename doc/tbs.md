@@ -11,12 +11,16 @@ to prepare the host for driving the TBS 5927.
 - [TBS5927 Professional DVB-S2 TV Tuner USB](#tbs5927-professional-dvb-s2-tv-tuner-usb)
     - [Hardware Connections](#hardware-connections)
     - [TBS 5927 Drivers](#tbs-5927-drivers)
-    - [Configuration Helper](#configuration-helper)
-    - [Host Requirements](#host-requirements)
+    - [Setup Configuration Helper](#setup-configuration-helper)
+    - [Software Requirements](#software-requirements)
+    - [Configure the Host](#configure-the-host)
     - [Launch](#launch)
-    - [Docker](#docker)
+    - [Next Steps](#next-steps)
     - [Further Information](#further-information)
-    - [Building dvb-apps from source](#building-dvb-apps-from-source)
+        - [Docker](#docker)
+        - [Useful Resources](#useful-resources)
+        - [Install Binary Packages Manually](#install-binary-packages-manually)
+        - [Building dvb-apps from source](#building-dvb-apps-from-source)
 
 <!-- markdown-toc end -->
 
@@ -54,21 +58,88 @@ Once the script completes the installation, reboot the virtual machine.
 ## Setup Configuration Helper
 
 Some configurations depend on your specific setup. To obtain detailed
-instructions, please run the configuration helper as follows:
+instructions, please run the configuration helper and the instructions menu as
+follows:
 
 ```
 blocksat-cli cfg
+blocksat-cli instructions
 ```
 
-Furthermore, in order to run the demodulator, it is necessary to have the
-so-called *channel configuration file*. The above configuration helper will
-generate this configuration file for you.
+## Software Requirements
 
-Also, the configuration helper will print out all instructions that follow.
+Now, install all software pre-requisites (in the virtual machine) by running:
 
-## Host Requirements
+```
+blocksat-cli deps install
+```
 
-Now, install all pre-requisites (in the virtual machine):
+> NOTE: this command supports the `apt` and `dnf` package managers. For other
+> package managers, refer to the instructions [by the end of this
+> guide](#install-binary-packages-manually) and adapt package names accordingly.
+
+## Configure the Host
+
+Next, you need to create and configure the network interfaces that will output
+the IP traffic received via the TBS5927. You can see all required configurations
+by running the following as a non-root user:
+
+```
+blocksat-cli usb config
+```
+
+To effectively apply the configurations, run the same command as root, i.e.,
+with `sudo` in front, as follows:
+
+```
+sudo blocksat-cli usb config
+```
+
+Note this command will define arbitrary IP addresses to the interfaces. If you
+need (or want) to define specific IP addresses instead, for example to avoid IP
+address conflicts, use command-line argument `--ip`.
+
+## Launch
+
+Finally, launch the DVB-S2 interface by running:
+
+```
+blocksat-cli usb launch
+```
+
+> NOTE: you can run this command with a non-root user. Only the configuration
+> step (`blocksat-cli usb config`) requires root access.
+
+At this point, if your dish is already correctly pointed, you should be able to
+start receiving data on Bitcoin Satellite. Please follow the [instructions for
+Bitcoin Satellite configuration](bitcoin.md). If your antenna is not pointed
+yet, please follow the [antenna alignment guide](antenna-pointing.md).
+
+## Next Steps
+
+At this point, if your antenna is already correctly pointed, you should be able
+to start receiving data on Bitcoin Satellite. Please follow the [instructions
+for Bitcoin Satellite configuration](bitcoin.md). If your antenna is not pointed
+yet, refer to the [antenna alignment guide](antenna-pointing.md).a
+
+## Further Information
+
+### Docker
+
+There is a Docker image available in this repository for running the Linux USB
+receiver host on a container. Please refer to instructions in the [Docker
+guide](../docker/README.md).
+
+### Useful Resources
+
+- [TBS 5927 User guide](https://www.tbsiptv.com/download/tbs5927/tbs5957_user_guide.pdf)
+- [TBS 5927 Datasheet](https://www.tbsiptv.com/download/tbs5927/tbs5927_professtional_dvb-S2_TV_Tuner_USB_data_sheet.pdf)
+- [TBS Drivers Wiki](https://github.com/tbsdtv/linux_media/wiki).
+
+### Install Binary Packages Manually
+
+The following instructions are an alternative to the automatic installation via
+the CLI (with command `blocksat-cli deps install`).
 
 On Ubuntu/Debian:
 
@@ -99,53 +170,11 @@ sudo dnf install dvb-apps
 Alternatively, you can build `dvb-apps` from source. Refer to the [instructions
 presented further below.](#building-dvb-apps-from-source)
 
-## Configure the Host
 
-Run the following as root:
+### Building dvb-apps from source
 
-```
-sudo blocksat-cli usb config
-```
-
-This script will create network interfaces in order to handle the IP traffic
-received via the satellite link. It will define arbitrary IP addresses to the
-interfaces. To define a specific IP instead, use command-line argument `--ip`.
-
-> NOTE: root privileges are required in order to configure firewall and *reverse
-> path (RP) filtering*, as well as accessing the adapter at `/dev/dvb`. You will
-> be prompted to accept or refuse the firewall and RP configurations.
-
-## Launch
-
-Finally, launch the DVB-S2 interface by running:
-
-```
-blocksat-cli usb launch
-```
-
-> NOTE: you can run this command with a non-root user. Only the configuration
-> step (`blocksat-cli usb config`) requires root access.
-
-At this point, if your dish is already correctly pointed, you should be able to
-start receiving data in Bitcoin Satellite. Please follow the [instructions for
-Bitcoin Satellite configuration](bitcoin.md). If your antenna is not pointed
-yet, please follow the [antenna alignment guide](antenna-pointing.md).
-
-## Docker
-
-There is a Docker image available in this repository for running the Linux USB
-setup. Please refer to instructions in the [Docker guide](../docker/README.md).
-
-## Further Information
-
-- [User guide](https://www.tbsiptv.com/download/tbs5927/tbs5957_user_guide.pdf)
-- [Datasheet](https://www.tbsiptv.com/download/tbs5927/tbs5927_professtional_dvb-S2_TV_Tuner_USB_data_sheet.pdf)
-- [Drivers](https://github.com/tbsdtv/linux_media/wiki).
-
-## Building dvb-apps from source
-
-If instead of installing `dvb-apps` from binary packages you desire to build it
-from source, here are some instructions:
+If instead of installing `dvb-apps` from a binary package you desire to build it
+from source, here are the instructions:
 
 ```
 git clone https://github.com/Blockstream/dvb-apps
@@ -153,7 +182,4 @@ cd dvb-apps
 make
 sudo make install
 ```
-
-More information can be found at
-[linuxtv's wiki page](https://www.linuxtv.org/wiki/index.php/LinuxTV_dvb-apps).
 

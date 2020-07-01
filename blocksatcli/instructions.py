@@ -224,54 +224,39 @@ def _print_usb_rx_instructions(info):
 
     util._print_sub_header("Host Requirements")
 
-    print("Now, install all pre-requisites (in the virtual machine):")
 
-    install_info = """
-    On Ubuntu/Debian:
+    print("Now, install all pre-requisites (in the virtual machine) by running:")
 
-    sudo apt apt update
-    sudo apt install python3 iproute2 iptables dvb-apps dvb-tools
-
-
-    On Fedora
-
-    sudo dnf update
-    sudo dnf install python3 iproute iptables dvb-apps v4l-utils
-    """
-    print(install_info)
-
-    _print("""
-    If dvb-apps is not available on your distribution (for example on Fedora 31
-    and 32), you can build it from source by running:
+    print("""
+    blocksat-cli deps install
     """)
 
-    build_info = """    git clone https://github.com/Blockstream/dvb-apps
-    cd dvb-apps
-    make
-    sudo make install
-    """
-
-    print(build_info)
+    _print("""
+    NOTE: this command supports the apt and dnf package managers. For other
+    package managers, refer to the instructions at \"doc/tbs.md\" or:""")
+    print("https://github.com/Blockstream/satellite/blob/master/doc/tbs.md")
 
     util.prompt_for_enter()
 
     util._print_sub_header("Configure the Host")
 
-    print("Run the following as root:")
+    _print("""Next, you need to create and configure the network interfaces that
+    will output the IP traffic received via the TBS5927. You can see all
+    required configurations by running the following as a non-root user:""")
+
+    print("\n    blocksat-cli usb config\n")
+
+
+    _print("""To effectively apply the configurations, run the same command as
+    root, i.e., with sudo in front, as follows:""")
 
     print("\n    sudo blocksat-cli usb config\n")
 
     _print("""
-    This script will create network interfaces in order to handle the IP traffic
-    received via the satellite link. It will define arbitrary IP addresses to the
-    interfaces. To define a specific IP instead, use command-line argument `--ip`.
+    Note this command will define arbitrary IP addresses to the interfaces. If
+    you need (or want) to define specific IP addresses instead, for example to
+    avoid IP address conflicts, use command-line argument `--ip`.
     """)
-
-    _print(
-        "NOTE: root privileges are required in order to configure firewall "
-        "and reverse path (RP) filtering, as well as accessing the adapter "
-        "at `/dev/dvb`. You will be prompted to accept or refuse the "
-        "firewall and RP configurations.")
 
     util.prompt_for_enter()
 
@@ -326,12 +311,10 @@ def _print_sdr_instructions(info):
 
     _print(
         """
-        NOTE: This command assumes and has been tested with Ubuntu
-        18.04 and Fedora 31. Please adapt if necessary in case you
-        are using another Linux distribution or version.""")
-
-    _print("If you prefer to build all software components manually, please "
-           "refer to the SDR Guide at \"doc/sdr.md\" or:")
+        NOTE: This command supports Ubuntu (18.04, 19.10, and 20.04) and Fedora
+        (30, 31, and 32). In case you are using another Linux distribution or
+        version, please refer to the manual compilation and installation
+        instructions at \"doc/sdr.md\" or:""")
     print("https://github.com/Blockstream/satellite/blob/master/doc/sdr.md")
 
     util.prompt_for_enter()
@@ -425,7 +408,7 @@ def _print_next_steps():
     util._print_header("Next Steps")
     _print("""
     At this point, if your dish is already correctly pointed, you should be able to
-    start receiving data in Bitcoin Satellite.
+    start receiving data on Bitcoin Satellite.
     """)
 
     print("You can generate a bitcoin.conf configuration file for Bitcoin Satellite using:")

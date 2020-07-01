@@ -2,7 +2,7 @@
 
 - [Frequency Bands](frequency.md)
 - [Hardware Guide](hardware.md)
-- Receiver Configuration:
+- Receiver Setup:
     - [Novra S400](s400.md)
     - [TBS5927](tbs.md)
     - [SDR Setup](sdr.md)

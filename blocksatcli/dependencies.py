@@ -4,7 +4,24 @@ from . import config, defs, util
 import os, subprocess, logging
 from shutil import which
 from pprint import pformat
+import distro
 logger = logging.getLogger(__name__)
+
+
+def _check_distro(supported_distros, setup_type):
+    """Check if distribution is supported"""
+    base_url = "https://github.com/Blockstream/satellite/blob/master/doc/"
+    instructions_url = {
+        defs.sdr_setup_type : "sdr.md",
+        defs.linux_usb_setup_type : "tbs.md"
+    }
+    full_url = base_url + instructions_url[setup_type]
+    if (distro.id() not in supported_distros):
+        print("{} is not a supported Linux distribution for "
+              "the {} setup".format(distro.name(), setup_type))
+        util.fill_print("Please, refer to {} receiver setup instructions at "
+                        "{}".format(setup_type, full_url))
+        raise ValueError("Unsupported Linux distribution")
 
 
 def _enable_pkg_repo(interactive):
@@ -29,7 +46,16 @@ def _enable_pkg_repo(interactive):
 
 
 def _install_packages(apt_list, dnf_list, interactive=True, update=False):
-    """Install binary packages"""
+    """Install binary packages
+
+    Args:
+        apt_list    : List of package names for installation via apt
+        dnf_list    : List of package names for installation via dnf
+        interactive : Whether to run an interactive install (w/ user prompting)
+        update      : Whether to update pre-installed packages instead
+
+
+    """
     if (which("apt")):
         manager = "apt"
         cmd = ["apt-get", "install"]
@@ -46,29 +72,44 @@ def _install_packages(apt_list, dnf_list, interactive=True, update=False):
     else:
         raise RuntimeError("Could not find a supported package manager")
 
+    env = None
     if (not interactive):
         cmd.append("-y")
+        if (manager == "apt"):
+            env = os.environ.copy()
+            env["DEBIAN_FRONTEND"] = "noninteractive"
 
-    util.run_and_log(util.root_cmd(cmd), logger)
+    util.run_and_log(util.root_cmd(cmd), logger, env=env)
+
+
+def _install_common(interactive=True, update=False):
+    """Install dependencies that are common to all setups"""
+    util._print_header("Installing Common Dependencies")
+    apt_pkg_list = ["software-properties-common"]
+    dnf_pkg_list = ["dnf-plugins-core"]
+    _install_packages(apt_pkg_list, dnf_pkg_list, interactive, update)
+    # Enable our binary package repository
+    _enable_pkg_repo(interactive)
 
 
 def _install_sdr(interactive=True, update=False):
+    """Install SDR dependencies"""
     util._print_header("Installing SDR Dependencies")
-
-    if (os.geteuid() != 0):
-        util.fill_print("Some commands require root access and will prompt "
-                        "for password")
-
-    # Mainstream binary packages
-    apt_pkg_list = ["software-properties-common", "gqrx-sdr", "rtl-sdr"]
-    dnf_pkg_list = ["dnf-plugins-core", "gqrx", "rtl-sdr"]
+    apt_pkg_list = ["gqrx-sdr", "rtl-sdr", "leandvb", "tsduck"]
+    dnf_pkg_list = ["gqrx", "rtl-sdr", "leandvb", "tsduck"]
+    # NOTE: leandvb and tsduck come from our repository
     _install_packages(apt_pkg_list, dnf_pkg_list, interactive, update)
 
-    # Enable our binary package repository and install our binary packages
-    _enable_pkg_repo(interactive)
-    _install_packages(["leandvb", "tsduck"], ["leandvb", "tsduck"],
-                      interactive,
-                      update)
+
+def _install_usb(interactive=True, update=False):
+    """Install USB receiver dependencies"""
+    util._print_header("Installing USB Demodulator Dependencies")
+    apt_pkg_list = ["python3", "iproute2", "iptables", "dvb-apps", "dvb-tools"]
+    dnf_pkg_list = ["python3", "iproute", "iptables", "dvb-apps", "v4l-utils"]
+    # NOTE: the only package from our repository is dvb-apps in the specific
+    # case of dnf (RPM) installation, because dvb-apps is not available on the
+    # mainstream fc31/32 repository
+    _install_packages(apt_pkg_list, dnf_pkg_list, interactive, update)
 
 
 def _print_help(args):
@@ -88,7 +129,7 @@ def subparser(subparsers):
 
     p.set_defaults(func=_print_help)
     p.add_argument("--target",
-                   choices=["sdr"],
+                   choices=["sdr", "usb"],
                    default=None,
                    help="Target setup type for installation of dependencies")
     p.add_argument("-y", "--yes",
@@ -117,7 +158,8 @@ def run(args):
     """Run installations"""
     if (args.target is not None):
         target_map = {
-            "sdr" : defs.sdr_setup_type
+            "sdr" : defs.sdr_setup_type,
+            "usb" : defs.linux_usb_setup_type
         }
         target = target_map[args.target]
     else:
@@ -126,10 +168,27 @@ def run(args):
             return
         target = info['setup']['type']
 
-    if (target == defs.sdr_setup_type):
-        _install_sdr(interactive=(not args.yes), update=args.update)
-    else:
-        print("Installation of dependencies no supported yet "
-              "for {} demodulator setup".format(info['setup']['type']))
+    # Check if demodulator setup supports automatic installation of dependencies
+    if (target not in [defs.sdr_setup_type, defs.linux_usb_setup_type]):
+        raise ValueError("Installation of dependencies not supported yet "
+                         "for {} demodulator setup".format(
+                             info['setup']['type']))
 
+    if (os.geteuid() != 0):
+        util.fill_print("Some commands require root access and will prompt "
+                        "for password")
+
+    # Interactive installation? I.e., requires user to press "y/n"
+    interactive = (not args.yes)
+
+    # Common dependencies (regardless of setup)
+    _install_common(interactive=interactive, update=args.update)
+
+    if (target == defs.sdr_setup_type):
+        # The SDR packages are only available to the distributions below:
+        _check_distro(["ubuntu", "fedora", "centos"],
+                      defs.sdr_setup_type)
+        _install_sdr(interactive=interactive, update=args.update)
+    elif (target == defs.linux_usb_setup_type):
+        _install_usb(interactive=interactive, update=args.update)
 
