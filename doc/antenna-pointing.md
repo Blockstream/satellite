@@ -110,8 +110,10 @@ demodulator:
 - [SDR-based](#sdr-based)
 
 As an alternative, if you prefer, you can try using a satellite finder prior to
-locking the receiver. See the instructions at the [satellite finder
-section](#satellite-finder).
+locking the receiver. This is generally more useful for the TBS5927 and S400
+receivers. In contrast, for SDR-based receivers, the SDR signal visualization
+tools are sufficient for pointing. Refer to the instructions at the [satellite
+finder section](#satellite-finder).
 
 
 ### TBS5927
@@ -464,24 +466,44 @@ Prior to locking the satellite receiver (TBS5927, S400, or SDR receiver), you
 can try to find the satellite using a satellite finder.
 
 A satellite finder usually has two connections: one to the LNB (typically
-labeled as *to satellite*) and one to the receiver. The receiver connection is
-used to provide power to the finder. However, some finder models come with an
+labeled as *satellite*) and one to the receiver. The receiver connection is used
+to provide power to the finder. However, some finder models come with an
 alternative power supply, in which case the connection to the receiver is
 unnecessary.
 
-<!-- Moreover, even though you can place the finder inline between the receiver and -->
-<!-- the LNB/antenna, we recommend that you run the finder standalone (not connected -->
-<!-- to the receiver) when a power supply is available. -->
+In terms of functionality, some finders only measure the signal level, whereas
+other models are capable of demodulating signals and locking to them. We will
+consider both of them next.
 
-Next, you need to select a free-to-air (FTA) TV signal as a reference. This is
-because the Blockstream Satellite signal runs in a DVB-S2 mode (called VCM -
-*variable coding and modulation*) that is not supported by most satellite
-finders. Thus, a TV signal in the same satellite can be used as a reference, to
-make sure that your antenna is pointed to the correct satellite.
+A basic finder model (such as the `SF-95DR`) does not have signal parameter
+configurations and can only measure signal level. In this case, connect the
+finder inline between the receiver (TBS5927 or S400) and the LNB. Run the
+receiver normally, so that the receiver can power up the finder. Then, try to
+point the antenna until you get good signal levels on the finder. Once you do
+achieve good signal strength on the finder, check if the receiver is locked too,
+following the instructions for your receiver:
 
-There are lists of FTA TV signals available on the web. For example, refer to
-the following lists, for the satellites that are used by the Blockstream
-Satellite network:
+- [TBS5927](#tbs5927)
+- [Novra S400](#novra-s400)
+- [SDR-based](#sdr-based)
+
+Next, if you are using a satellite finder that supports DVB-S2 demodulation, you
+can configure it to lock to a free-to-air (FTA) TV signal. The rationale is that
+the Blockstream Satellite signal runs in a DVB-S2 mode (called VCM - *variable
+coding and modulation*) that is not supported by most satellite finders that
+support DVB-S2. Thus, a TV signal in the same satellite can be used as a
+reference, to make sure that your antenna is pointed to the correct satellite.
+
+For such models of satellite finders (with DVB-S2 demodulation), we recommend
+that you run the finder standalone rather than inline with the receiver. In this
+case, you would connect the `satellite` port of the finder directly to the LNB,
+provided that the finder has a power supply. If your finder can only be powered
+by a receiver, then connect to your receiver normally such that the finder is
+inline between the receiver and the LNB.
+
+Next, define the parameters of the reference FTA TV signal. There are lists of
+signals available on the web. For example, refer to the following lists, for the
+satellites that are used by the Blockstream Satellite network:
 - [Galaxy 18](https://www.lyngsat.com/Galaxy-18.html)
 - [Eutelsat 113](https://www.lyngsat.com/Eutelsat-113-West-A.html)
 - [Telstar 18N](https://www.lyngsat.com/Telstar-11N.html)
