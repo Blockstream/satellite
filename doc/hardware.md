@@ -33,15 +33,18 @@ Satellite receiver setup.
 There are three possible satellite kits:
 
 1. SDR Kit (w/ SDR-based Demodulator)
-2. Basic USB Kit (w/ Linux USB Demodulator)
-3. Pro Ethernet Kit (w/ Standalone Demodulator)
+2. [Basic USB Kit](https://store.blockstream.com/product/blockstream-satellite-basic-kit/). (w/ Linux USB Demodulator)
+3. [Pro Ethernet Kit](https://store.blockstream.com/product/blockstream-satellite-pro-kit/). (w/ Standalone Demodulator)
 
-Kits #2 and #3 will
-[soon](https://blockstream.com/2020/05/04/en-announcing-blockstream-satellite-2/)
-be available for pre-order at the Blockstream Store. However, users can also
-purchase the individual components of the kits, which are detailed next.
+Kits #2 and #3 are available for pre-order at the [Blockstream
+Store](https://store.blockstream.com/product-category/satellite_kits/).
+
+Users can also purchase the individual components of the kits, which are
+detailed next.
 
 ### Blockstream Satellite Basic Kit
+
+Available at the [Blockstream Store](https://store.blockstream.com/product/blockstream-satellite-basic-kit/).
 
 Components:
 
@@ -77,6 +80,8 @@ Components:
       and door frames.
 
 ### Blockstream Satellite Pro Kit
+
+Available at the [Blockstream Store](https://store.blockstream.com/product/blockstream-satellite-pro-kit/).
 
 Components:
 
@@ -123,7 +128,7 @@ Components:
 
 The following table summarizes the different features offered by each of them:
 
-|                                       | SDR                | Basic USB Kit      | Pro Ethernet Kit   |
+|                                       | SDR                | [Basic USB Kit](https://store.blockstream.com/product/blockstream-satellite-basic-kit/)      | [Pro Ethernet Kit](https://store.blockstream.com/product/blockstream-satellite-pro-kit/)   |
 |---------------------------------------|:------------------:|:------------------:|:------------------:|
 | Blockstream Kit Available             | DIY                | :heavy_check_mark: | :heavy_check_mark: |
 | USB Interface                         | :heavy_check_mark: | :heavy_check_mark: |                    |
@@ -135,7 +140,7 @@ The following table summarizes the different features offered by each of them:
 | CPU Utilization                       | High               | Low                | None               |
 | Multiple Host Connections<sup>4</sup> |                    |                    | :heavy_check_mark: |
 | Optional Rack Mountable               |                    |                    | :heavy_check_mark: |
-| Compatible with Flat Panel            | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
+| Compatible with [Flat Panel](https://store.blockstream.com/product/flat-panel-antenna/)            | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
 
 <sup>1</sup> Support means that the interface provides a 22 kHz signal for
 switching the band of a Universal LNB between Ku low and Ku high bands. This
@@ -206,6 +211,15 @@ diameter, while in C band it is expected to work with 60cm or higher. However, a
 larger antenna is always better. When possible, we recommend installing an
 antenna larger than the referred minimum if one is readily available. Antennas
 of 60cm, 90cm, and 1.2m are readily available.
+
+An alternative to conventional satellite dishes is the stylish and more compact
+form factor of a flat panel antenna. A recommended flat panel model is
+[available at our
+store](https://store.blockstream.com/product/flat-panel-antenna/). This antenna
+includes the LNB internally, and so there is no need to purchase an LNB (and LNB
+bracket) when using a flat panel. Note, however, that this flat panel model only
+works in Ku band, so it is not suitable for reception from [T18V C band
+region](frequency.md).
 
 The Blockstream Satellite network propagates two independent data streams. One
 is a more reliable stream that is designed to work with the minimum supported

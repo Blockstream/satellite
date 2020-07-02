@@ -28,15 +28,20 @@ You can find detailed guidance for these steps along this documentation.
 
 ## Hardware
 
-There are three supported setup options with varying levels of budget,
+The first step to get started with Blockstream Satellite is to gather all the
+required hardware components. Satellite Kits with all components included are
+available at the [Blockstream
+Store](https://store.blockstream.com/product-category/satellite_kits/).
+
+There are three supported hardware setup options with varying levels of budget,
 performance, and CPU usage, as well as different form factors. They are
 summarized in the table below:
 
-| **Setup**                        | Budget          | Performance/Reliability | CPU Usage  | Form Factor | Dual Satellite* |
-|----------------------------------|-----------------|-------------------------|------------|-------------|-----------------|
-| **Software-defined Radio (SDR)** | Most Affordable | Limited                 | High       | USB Dongle  | No              |
-| **Linux USB Receiver**           | Moderate        | Excellent               | Low        | USB Device  | No              |
-| **Standalone Demodulator**       | Higher          | Excellent               | None       | Standalone  | Yes             |
+| **Setup**                        | Kit Available                                                                             | Budget          | Performance/Reliability | CPU Usage  | Form Factor | Dual Satellite* |
+|----------------------------------|-------------------------------------------------------------------------------------------|-----------------|-------------------------|------------|-------------|-----------------|
+| **Software-defined Radio (SDR)** | :heavy_multiplication_x:                                                                  | Most Affordable | Limited                 | High       | USB Dongle  | No              |
+| **Linux USB Receiver**           | [Basic Kit](https://store.blockstream.com/product/blockstream-satellite-basic-kit/)       | Moderate        | Excellent               | Low        | USB Device  | No              |
+| **Standalone Demodulator**       | [Pro Kit](https://store.blockstream.com/product/blockstream-satellite-pro-kit/)           | Higher          | Excellent               | None       | Standalone  | Yes             |
 
 <sup>*</sup> Specific to locations that have overlapping coverage from two satellites.
 
@@ -54,6 +59,13 @@ they must attend to the specifications of the satellite that covers your
 region. This is because they must be appropriate for the frequency band of your
 satellite.
 
+An alternative to the satellite dish and LNB is the [Flat Panel
+Antenna](https://store.blockstream.com/product/flat-panel-antenna/), available
+at the Blockstream Store. This antenna includes the functionality of the LNB
+internally, so it substitutes the dish, LNB and mounting bracket
+altogether. However, note it only works in Ku band (i.e. does not work with
+satellite T18V C band).
+
 Additionally, each of the above three setups has specific complementary
 components, which are summarized below:
 
@@ -64,7 +76,8 @@ components, which are summarized below:
 | Standalone Demodulator | Novra S400 PRO DVB satellite Receiver and Ethernet Cable  |
 
 Please refer to the comprehensive [hardware guide](doc/hardware.md) in order to
-pick the appropriate components.
+pick the appropriate components or visit [our
+store](https://store.blockstream.com/product-category/satellite_kits/).
 
 ## Software and Setup Configuration
 
