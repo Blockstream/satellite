@@ -451,11 +451,6 @@ def subparser(subparsers):
                                   description="Launch a USB DVB-S2 receiver",
                                   help='Launch a Linux USB DVB-S2 receiver')
 
-    p1.add_argument('-c', '--chan-conf',
-                    default="channels.conf",
-                    help='Channel configurations file within the configuration \
-                    directory')
-
     p1.add_argument('-l', '--lnb',
                     choices=defs.lnb_options,
                     default=None,
@@ -622,7 +617,7 @@ def launch(args):
     user_info, adapter, frontend = common_params
 
     # Channel configuration file
-    chan_conf = os.path.join(args.cfg_dir, os.path.basename(args.chan_conf))
+    chan_conf = user_info['setup']['channel']
 
     # Zap
     zap_ps = zap(adapter, frontend, chan_conf, user_info, lnb=args.lnb,

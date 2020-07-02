@@ -421,18 +421,18 @@ def configure(args):
     if not os.path.exists(args.cfg_dir):
         os.makedirs(args.cfg_dir)
 
+    # Channel configuration file
+    if (user_setup['type'] == defs.linux_usb_setup_type):
+        chan_file = os.path.join(args.cfg_dir, args.cfg + "-channel.conf")
+        _cfg_chan_conf(user_info, chan_file)
+        user_info['setup']['channel'] = chan_file
+
+    # JSON configuration file
     with open(cfg_file, 'w') as fd:
         json.dump(user_info, fd)
 
     util._print_header("JSON configuration file")
     print("Saved configurations on %s" %(cfg_file))
-
-    if (user_setup['type'] == defs.linux_usb_setup_type):
-        if 'chan_conf' in args:
-            chan_file = os.path.join(args.cfg_dir, args.chan_conf)
-        else:
-            chan_file = os.path.join(args.cfg_dir, "channels.conf")
-        _cfg_chan_conf(user_info, chan_file)
 
     util._print_header("Next Steps")
 
