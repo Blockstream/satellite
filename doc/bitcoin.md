@@ -9,6 +9,7 @@
         - [From Binary Packages](#from-binary-packages)
         - [From Source](#from-source)
     - [Configuration](#configuration)
+    - [Running](#running)
     - [Further Information](#further-information)
 
 <!-- markdown-toc end -->
@@ -110,6 +111,48 @@ follows:
 blocksat-cli btc -d datadir
 ```
 
+## Running
+
+Next, run `bitcoind` as usual, like so:
+
+```
+bitcoind
+```
+
+Note that Bitcoin Satellite is a fork of Bitcoin Core Version 0.19, hence other
+[Bitcoin Core configuration options](https://wiki.bitcoin.com/w/Running_Bitcoin)
+are supported and can be added to the generated `bitcoin.conf` configuration
+file as needed, or directly as arguments to the above command. For example, you
+can run the node based on satellite links only (unplugged from the internet),
+using option `connect=0` on `bitcoin.conf` or by using command:
+
+```
+bitcoind -connect=0
+```
+
+Also, you can run `bitcoind` in daemon mode:
+
+```
+bitcoind -daemon
+```
+
+Once `bitcoind` is running, observe the logs at `~/.bitcoin/debug.log` (or at
+your alternative `datadir`). For example, you will see logs such as the ones
+below, which indicate the bit rate of the traffic received from satellite via
+the TBS5927 device:
+
+```
+2020-07-02T18:15:33Z UDP multicast group 0: Average bit rate    0.09 Mbit/sec (blocksat-tbs-lowspeed)
+2020-07-02T18:15:37Z UDP multicast group 1: Average bit rate    1.54 Mbit/sec (blocksat-tbs-highspeed)
+```
+
+At any time, you can check the number of blocks being received concurrently over
+satellite with the following command:
+
+```
+bitcoin-cli getchunkstats
+```
+
 ## Further Information
 
 In a Blockstream Satellite receiver setup, the satellite demodulator will decode
@@ -151,11 +194,4 @@ In this case, we have that:
 
 To simplify this process, command `blocksat-cli btc` generates the
 `bitcoin.conf` file for you.
-
-Lastly, note that Bitcoin Satellite is a fork of Bitcoin Core Version 0.19,
-hence other [Bitcoin Core configuration
-options](https://wiki.bitcoin.com/w/Running_Bitcoin) are supported and can be
-added to the generated `bitcoin.conf` configuration file as needed. For example,
-to run the node based on satellite links only (unplugged from the internet), add
-option `connect=0` to `bitcoin.conf`.
 
