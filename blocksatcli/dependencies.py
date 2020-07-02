@@ -41,16 +41,23 @@ def _enable_pkg_repo(interactive):
         if (not interactive):
             cmd.append("-y")
         util.run_and_log(util.root_cmd(cmd), logger)
+    elif (which("yum")):
+        cmd = ["yum", "copr", "enable", "blockstream/satellite"]
+        if (not interactive):
+            cmd.append("-y")
+        util.run_and_log(util.root_cmd(cmd), logger)
     else:
         raise RuntimeError("Could not find a supported package manager")
 
 
-def _install_packages(apt_list, dnf_list, interactive=True, update=False):
+def _install_packages(apt_list, dnf_list, yum_list, interactive=True,
+                      update=False):
     """Install binary packages
 
     Args:
         apt_list    : List of package names for installation via apt
         dnf_list    : List of package names for installation via dnf
+        dnf_list    : List of package names for installation via yum
         interactive : Whether to run an interactive install (w/ user prompting)
         update      : Whether to update pre-installed packages instead
 
@@ -69,6 +76,13 @@ def _install_packages(apt_list, dnf_list, interactive=True, update=False):
         else:
             cmd = ["dnf", "install"]
         cmd.extend(dnf_list)
+    elif (which("yum")):
+        manager = "yum"
+        if (update):
+            cmd = ["yum", "upgrade"]
+        else:
+            cmd = ["yum", "install"]
+        cmd.extend(yum_list)
     else:
         raise RuntimeError("Could not find a supported package manager")
 
@@ -87,7 +101,14 @@ def _install_common(interactive=True, update=False):
     util._print_header("Installing Common Dependencies")
     apt_pkg_list = ["software-properties-common"]
     dnf_pkg_list = ["dnf-plugins-core"]
-    _install_packages(apt_pkg_list, dnf_pkg_list, interactive, update)
+    yum_pkg_list = ["yum-plugin-copr"]
+
+    if distro.id() == "centos":
+        dnf_pkg_list.append("epel-release")
+        yum_pkg_list.append("epel-release")
+
+    _install_packages(apt_pkg_list, dnf_pkg_list, yum_pkg_list, interactive,
+                      update)
     # Enable our binary package repository
     _enable_pkg_repo(interactive)
 
@@ -97,8 +118,11 @@ def _install_sdr(interactive=True, update=False):
     util._print_header("Installing SDR Dependencies")
     apt_pkg_list = ["gqrx-sdr", "rtl-sdr", "leandvb", "tsduck"]
     dnf_pkg_list = ["gqrx", "rtl-sdr", "leandvb", "tsduck"]
-    # NOTE: leandvb and tsduck come from our repository
-    _install_packages(apt_pkg_list, dnf_pkg_list, interactive, update)
+    yum_pkg_list = ["rtl-sdr", "leandvb", "tsduck"]
+    # NOTE: leandvb and tsduck come from our repository. Also, note gqrx is not
+    # available on CentOS (hence not included on the yum list).
+    _install_packages(apt_pkg_list, dnf_pkg_list, yum_pkg_list, interactive,
+                      update)
 
 
 def _install_usb(interactive=True, update=False):
@@ -106,10 +130,12 @@ def _install_usb(interactive=True, update=False):
     util._print_header("Installing USB Demodulator Dependencies")
     apt_pkg_list = ["python3", "iproute2", "iptables", "dvb-apps", "dvb-tools"]
     dnf_pkg_list = ["python3", "iproute", "iptables", "dvb-apps", "v4l-utils"]
+    yum_pkg_list = ["python3", "iproute", "iptables", "dvb-apps", "v4l-utils"]
     # NOTE: the only package from our repository is dvb-apps in the specific
     # case of dnf (RPM) installation, because dvb-apps is not available on the
     # mainstream fc31/32 repository
-    _install_packages(apt_pkg_list, dnf_pkg_list, interactive, update)
+    _install_packages(apt_pkg_list, dnf_pkg_list, yum_pkg_list, interactive,
+                      update)
 
 
 def _print_help(args):

@@ -54,9 +54,9 @@ To install them all at once, run:
 blocksat-cli deps install
 ```
 
-> NOTE: This command supports Ubuntu (18.04, 19.10, and 20.04) and Fedora (30,
-> 31, and 32). In case you are using another Linux distribution or version,
-> please refer to the [manual compilation and installation
+> NOTE: This command supports Ubuntu (18.04, 19.10, and 20.04), Fedora (30, 31,
+> and 32), and CentOS 7. In case you are using another Linux distribution or
+> version, please refer to the [manual compilation and installation
 > instructions](#manual-compilation-of-sdr-software).
 
 If you prefer to install all software components manually, please refer to the

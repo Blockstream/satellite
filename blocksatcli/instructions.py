@@ -232,8 +232,8 @@ def _print_usb_rx_instructions(info):
     """)
 
     _print("""
-    NOTE: this command supports the apt and dnf package managers. For other
-    package managers, refer to the instructions at \"doc/tbs.md\" or:""")
+    NOTE: this command supports the apt, dnf, and yum package managers. For
+    other package managers, refer to the instructions at \"doc/tbs.md\" or:""")
     print("https://github.com/Blockstream/satellite/blob/master/doc/tbs.md")
 
     util.prompt_for_enter()
@@ -311,10 +311,10 @@ def _print_sdr_instructions(info):
 
     _print(
         """
-        NOTE: This command supports Ubuntu (18.04, 19.10, and 20.04) and Fedora
-        (30, 31, and 32). In case you are using another Linux distribution or
-        version, please refer to the manual compilation and installation
-        instructions at \"doc/sdr.md\" or:""")
+        NOTE: This command supports Ubuntu (18.04, 19.10, and 20.04), Fedora
+        (30, 31, and 32), and CentOS 7. In case you are using another
+        Linux distribution or version, please refer to the manual compilation
+        and installation instructions at \"doc/sdr.md\" or:""")
     print("https://github.com/Blockstream/satellite/blob/master/doc/sdr.md")
 
     util.prompt_for_enter()

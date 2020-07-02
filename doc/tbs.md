@@ -74,8 +74,8 @@ Now, install all software pre-requisites (in the virtual machine) by running:
 blocksat-cli deps install
 ```
 
-> NOTE: this command supports the `apt` and `dnf` package managers. For other
-> package managers, refer to the instructions [by the end of this
+> NOTE: this command supports the `apt`, `dnf` and `yum` package managers. For
+> other package managers, refer to the instructions [by the end of this
 > guide](#install-binary-packages-manually) and adapt package names accordingly.
 
 ## Configure the Host

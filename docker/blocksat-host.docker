@@ -6,8 +6,10 @@ MAINTAINER Blockstream Satellite
 SHELL ["/bin/bash", "-c"]
 RUN if [[ $distro == *"ubuntu"* ]]; then \
 	apt update && DEBIAN_FRONTEND=noninteractive apt install -y python3-pip; \
-	else \
+	elif [[ $distro == *"fedora"* ]]; then \
 	dnf update -y && dnf install -y python3-pip; \
+	else \
+	yum update -y && yum install -y python3-pip; \
 	fi
 
 # Install the local distribution of the CLI
