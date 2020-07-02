@@ -128,12 +128,22 @@ def _install_sdr(interactive=True, update=False):
 def _install_usb(interactive=True, update=False):
     """Install USB receiver dependencies"""
     util._print_header("Installing USB Demodulator Dependencies")
-    apt_pkg_list = ["python3", "iproute2", "iptables", "dvb-apps", "dvb-tools"]
-    dnf_pkg_list = ["python3", "iproute", "iptables", "dvb-apps", "v4l-utils"]
-    yum_pkg_list = ["python3", "iproute", "iptables", "dvb-apps", "v4l-utils"]
+    apt_pkg_list = ["iproute2", "iptables", "dvb-apps", "dvb-tools"]
+    dnf_pkg_list = ["iproute", "iptables", "dvb-apps", "v4l-utils"]
+    yum_pkg_list = ["iproute", "iptables", "dvb-apps", "v4l-utils"]
     # NOTE: the only package from our repository is dvb-apps in the specific
     # case of dnf (RPM) installation, because dvb-apps is not available on the
     # mainstream fc31/32 repository
+    _install_packages(apt_pkg_list, dnf_pkg_list, yum_pkg_list, interactive,
+                      update)
+
+
+def _install_standalone(interactive=True, update=False):
+    """Install standalone receiver dependencies"""
+    util._print_header("Installing Standalone Demodulator Dependencies")
+    apt_pkg_list = ["iproute2", "iptables"]
+    dnf_pkg_list = ["iproute", "iptables"]
+    yum_pkg_list = ["iproute", "iptables"]
     _install_packages(apt_pkg_list, dnf_pkg_list, yum_pkg_list, interactive,
                       update)
 
@@ -155,7 +165,7 @@ def subparser(subparsers):
 
     p.set_defaults(func=_print_help)
     p.add_argument("--target",
-                   choices=["sdr", "usb"],
+                   choices=["sdr", "usb", "standalone"],
                    default=None,
                    help="Target setup type for installation of dependencies")
     p.add_argument("-y", "--yes",
@@ -184,8 +194,9 @@ def run(args):
     """Run installations"""
     if (args.target is not None):
         target_map = {
-            "sdr" : defs.sdr_setup_type,
-            "usb" : defs.linux_usb_setup_type
+            "sdr"        : defs.sdr_setup_type,
+            "usb"        : defs.linux_usb_setup_type,
+            "standalone" : defs.standalone_setup_type
         }
         target = target_map[args.target]
     else:
@@ -193,12 +204,6 @@ def run(args):
         if (info is None):
             return
         target = info['setup']['type']
-
-    # Check if demodulator setup supports automatic installation of dependencies
-    if (target not in [defs.sdr_setup_type, defs.linux_usb_setup_type]):
-        raise ValueError("Installation of dependencies not supported yet "
-                         "for {} demodulator setup".format(
-                             info['setup']['type']))
 
     if (os.geteuid() != 0):
         util.fill_print("Some commands require root access and will prompt "
@@ -217,4 +222,8 @@ def run(args):
         _install_sdr(interactive=interactive, update=args.update)
     elif (target == defs.linux_usb_setup_type):
         _install_usb(interactive=interactive, update=args.update)
+    elif (target == defs.standalone_setup_type):
+        _install_standalone(interactive=interactive, update=args.update)
+    else:
+        raise ValueError("Unexpected receiver target")
 
