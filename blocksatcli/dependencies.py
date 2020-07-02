@@ -24,34 +24,41 @@ def _check_distro(supported_distros, setup_type):
         raise ValueError("Unsupported Linux distribution")
 
 
-def _enable_pkg_repo(interactive):
+def _enable_pkg_repo(interactive, dry):
     """Enable Blockstream Satellite's binary package repository"""
+    cmds = list()
     if (which("apt")):
         cmd = ["add-apt-repository", "ppa:blockstream/satellite"]
         if (not interactive):
             cmd.append("-y")
-        util.run_and_log(util.root_cmd(cmd), logger)
+        cmds.append(cmd)
 
         cmd = ["apt", "update"]
         if (not interactive):
             cmd.append("-y")
-        util.run_and_log(util.root_cmd(cmd), logger)
+        cmds.append(cmd)
     elif (which("dnf")):
         cmd = ["dnf", "copr", "enable", "blockstream/satellite"]
         if (not interactive):
             cmd.append("-y")
-        util.run_and_log(util.root_cmd(cmd), logger)
+        cmds.append(cmd)
     elif (which("yum")):
         cmd = ["yum", "copr", "enable", "blockstream/satellite"]
         if (not interactive):
             cmd.append("-y")
-        util.run_and_log(util.root_cmd(cmd), logger)
+        cmds.append(cmd)
     else:
         raise RuntimeError("Could not find a supported package manager")
 
+    for cmd in cmds:
+        if (dry):
+            print(" ".join(util.root_cmd(cmd)))
+        else:
+            util.run_and_log(util.root_cmd(cmd), logger)
+
 
 def _install_packages(apt_list, dnf_list, yum_list, interactive=True,
-                      update=False):
+                      update=False, dry=False):
     """Install binary packages
 
     Args:
@@ -60,6 +67,7 @@ def _install_packages(apt_list, dnf_list, yum_list, interactive=True,
         dnf_list    : List of package names for installation via yum
         interactive : Whether to run an interactive install (w/ user prompting)
         update      : Whether to update pre-installed packages instead
+        dry         : Print commands instead of executing them
 
 
     """
@@ -93,10 +101,13 @@ def _install_packages(apt_list, dnf_list, yum_list, interactive=True,
             env = os.environ.copy()
             env["DEBIAN_FRONTEND"] = "noninteractive"
 
-    util.run_and_log(util.root_cmd(cmd), logger, env=env)
+    if (dry):
+        print(" ".join(util.root_cmd(cmd)))
+    else:
+        util.run_and_log(util.root_cmd(cmd), logger, env=env)
 
 
-def _install_common(interactive=True, update=False):
+def _install_common(interactive=True, update=False, dry=False):
     """Install dependencies that are common to all setups"""
     util._print_header("Installing Common Dependencies")
     apt_pkg_list = ["software-properties-common"]
@@ -108,12 +119,12 @@ def _install_common(interactive=True, update=False):
         yum_pkg_list.append("epel-release")
 
     _install_packages(apt_pkg_list, dnf_pkg_list, yum_pkg_list, interactive,
-                      update)
+                      update, dry)
     # Enable our binary package repository
-    _enable_pkg_repo(interactive)
+    _enable_pkg_repo(interactive, dry)
 
 
-def _install_sdr(interactive=True, update=False):
+def _install_sdr(interactive=True, update=False, dry=False):
     """Install SDR dependencies"""
     util._print_header("Installing SDR Dependencies")
     apt_pkg_list = ["gqrx-sdr", "rtl-sdr", "leandvb", "tsduck"]
@@ -122,10 +133,10 @@ def _install_sdr(interactive=True, update=False):
     # NOTE: leandvb and tsduck come from our repository. Also, note gqrx is not
     # available on CentOS (hence not included on the yum list).
     _install_packages(apt_pkg_list, dnf_pkg_list, yum_pkg_list, interactive,
-                      update)
+                      update, dry)
 
 
-def _install_usb(interactive=True, update=False):
+def _install_usb(interactive=True, update=False, dry=False):
     """Install USB receiver dependencies"""
     util._print_header("Installing USB Demodulator Dependencies")
     apt_pkg_list = ["iproute2", "iptables", "dvb-apps", "dvb-tools"]
@@ -135,17 +146,17 @@ def _install_usb(interactive=True, update=False):
     # case of dnf (RPM) installation, because dvb-apps is not available on the
     # mainstream fc31/32 repository
     _install_packages(apt_pkg_list, dnf_pkg_list, yum_pkg_list, interactive,
-                      update)
+                      update, dry)
 
 
-def _install_standalone(interactive=True, update=False):
+def _install_standalone(interactive=True, update=False, dry=False):
     """Install standalone receiver dependencies"""
     util._print_header("Installing Standalone Demodulator Dependencies")
     apt_pkg_list = ["iproute2", "iptables"]
     dnf_pkg_list = ["iproute", "iptables"]
     yum_pkg_list = ["iproute", "iptables"]
     _install_packages(apt_pkg_list, dnf_pkg_list, yum_pkg_list, interactive,
-                      update)
+                      update, dry)
 
 
 def _print_help(args):
@@ -173,6 +184,10 @@ def subparser(subparsers):
                    default=False,
                    help="Non-interactive mode. Answers \"yes\" automatically \
                    to binary package installation prompts")
+    p.add_argument("--dry-run",
+                   action='store_true',
+                   default=False,
+                   help="Prints all commands but does not execute them")
 
     subsubp = p.add_subparsers(title='subcommands',
                                help='Target sub-command')
@@ -213,17 +228,21 @@ def run(args):
     interactive = (not args.yes)
 
     # Common dependencies (regardless of setup)
-    _install_common(interactive=interactive, update=args.update)
+    _install_common(interactive=interactive, update=args.update,
+                    dry=args.dry_run)
 
     if (target == defs.sdr_setup_type):
         # The SDR packages are only available to the distributions below:
         _check_distro(["ubuntu", "fedora", "centos"],
                       defs.sdr_setup_type)
-        _install_sdr(interactive=interactive, update=args.update)
+        _install_sdr(interactive=interactive, update=args.update,
+                     dry=args.dry_run)
     elif (target == defs.linux_usb_setup_type):
-        _install_usb(interactive=interactive, update=args.update)
+        _install_usb(interactive=interactive, update=args.update,
+                     dry=args.dry_run)
     elif (target == defs.standalone_setup_type):
-        _install_standalone(interactive=interactive, update=args.update)
+        _install_standalone(interactive=interactive, update=args.update,
+                            dry=args.dry_run)
     else:
         raise ValueError("Unexpected receiver target")
 
