@@ -88,12 +88,19 @@ Next, run the configuration helper:
 blocksat-cli cfg
 ```
 
-Then, run the instructions helper:
+Then, run the instructions helper and follow the instructions:
 ```
 blocksat-cli instructions
 ```
 
-After following the instructions, the next steps include the installation of
+Within the set of instructions, a required step is the installation of software
+dependencies, which is accomplished with the following command:
+
+```
+blocksat-cli deps install
+```
+
+After following all instructions, the next steps include the installation of
 [Bitcoin Satellite](doc/bitcoin.md) and the [antenna
 pointing](doc/antenna-pointing.md). Please follow the user guide.
 
