@@ -95,7 +95,7 @@ values.
 Furthermore, in the SDR setup, you must choose which stream you would like to
 receive from the two streams that are simultaneously broadcast through the
 Blockstream Satellite network (refer to more information in the [Antenna
-Pointing Guide](antenna-pointing.md#optimize-snr)).
+Pointing Guide](antenna-pointing.md#optimize-the-snr)).
 
 By default, the application will try to decode the low-throughput stream. To try
 decoding the high-throughput stream, run with option `-m high`, as follows:

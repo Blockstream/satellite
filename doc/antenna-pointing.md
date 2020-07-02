@@ -11,11 +11,12 @@ described next.
 
 - [Antenna Pointing](#antenna-pointing)
     - [Mount the Antenna](#mount-the-antenna)
-    - [Achieve Signal Lock](#achieve-signal-lock)
+    - [Find the Satellite and Lock the Signal](#find-the-satellite-and-lock-the-signal)
         - [TBS5927](#tbs5927)
         - [Novra S400](#novra-s400)
         - [SDR-based](#sdr-based)
-    - [Optimize SNR](#optimize-snr)
+        - [Satellite Finder](#satellite-finder)
+    - [Optimize the SNR](#optimize-the-snr)
     - [Next Steps](#next-steps)
 
 <!-- markdown-toc end -->
@@ -29,11 +30,9 @@ Tool**](https://blockstream.com/satellite/#satellite-resources).
 After entering your address or latitude/longitude, the tool will give you the
 three parameters that are explained next:
 
-- **Azimuth**: the side to side angle of your antenna. If you think of the
-  antenna fixed within a vertical plane and loose such that it can be rotated
-  from side to side (in the horizontal plane), the azimuth determines the
-  direction to which it points after being rotated. 0 degrees refers to North,
-  90 degrees points to East, 180 degrees to South and 270 degrees to West.
+- **Azimuth**: the side to side angle of your antenna. 0 degrees refers to
+  North, 90 degrees points to East, 180 degrees to South and 270 degrees to
+  West.
 
 - **Elevation**: the up and down adjustment of your antenna. The antenna aiming
   tool provides the number of degrees above the horizon to which your antenna
@@ -51,23 +50,22 @@ Azimuth                                        |  Elevation                     
 ![Azimuth](img/azimuth.png?raw=true "Azimuth") | ![Elevation](img/elevation.png?raw=true "Elevation") | ![Polarity](img/lnb_polarization.png?raw=true "Polarity") |
 
 Next, visually inspect the direction your antenna must point to. Use a compass
-or smartphone app to identify the direction. Ensure that there are no obstacles
-such as trees or buildings in the path between your antenna location and the
-area of the sky that your antenna must point to. It is important that you have
-clear line of sight to that area of the sky.
-
-**NOTE:** There are many useful smartphone apps that will aid in pointing your
-antenna. Some even have augmented reality features that allow you to see the
-satellites in the sky so that you can ensure you have good line of sight. We
-advise to use such apps, as they can be quite helpful.
+or smartphone app (e.g., Satellite Pointer for
+[Android](https://play.google.com/store/apps/details?id=com.tda.satpointer&hl=pt_BR)
+and [iOS](https://apps.apple.com/br/app/satellite-pointer/id994565490)) to
+identify the direction. Ensure that there are no obstacles such as trees or
+buildings in the path between your antenna location and the area of the sky that
+your antenna must point to. It is important that you have clear line of sight to
+that area of the sky.
 
 **IMPORTANT:** If using a compass app on a smartphone, make sure to configure
 the app such that it displays **true north**, instead of the **magnetic
 north**. This is because the azimuth angle that is provided by our dish
 alignment tool refers to true north. Also, if using an ordinary compass, or a
 compass-based satellite finder, please make sure to convert the true azimuth
-obtained from the dish alignment tool into magnetic azimuth. To do so, you will
-need to check the *magnetic declination* at your location.
+obtained from the dish alignment tool into magnetic azimuth. You can obtain both
+true and magnetic azimuth angles using a tool such as [Dish
+Pointer](https://www.dishpointer.com).
 
 Next, install the satellite antenna according to the directions accompanying it,
 or have it done professionally. If you install it yourself, proceed with the
@@ -88,15 +86,16 @@ that you can adjust the azimuth for pointing. You can do the same for elevation
 and polarization, but the azimuth is typically easier to sweep as an initial
 pointing attempt.
 
-## Achieve Signal Lock
+## Find the Satellite and Lock the Signal
 
 Assuming that the receiver is properly configured and connected (refer to
 [instructions](../README.md#software-and-setup-configuration) otherwise), your
-next step is to adjust the antenna pointing until the receiver can lock to
-Blockstream Satellite's signal. Please note that this is expected to be the most
-time-consuming part of the setup process, especially when pointing an antenna
-for the first time. Do note that a single degree shifted on the dish represents
-a change of thousands of kilometers over the geosynchronous orbit.
+next step is to find the satellite. You will adjust the antenna pointing until
+the receiver can lock to Blockstream Satellite's signal. Please note that this
+is expected to be the most time-consuming part of the setup process, especially
+when pointing an antenna for the first time. Do note that a single degree
+shifted on the dish represents a change of thousands of kilometers over the
+geosynchronous orbit.
 
 The process will be easier with a laptop than can be watched while moving the
 antenna. If you are not able to watch the computer from the antenna site, you’ll
@@ -109,6 +108,10 @@ demodulator:
 - [TBS5927](#tbs5927)
 - [Novra S400](#novra-s400)
 - [SDR-based](#sdr-based)
+
+As an alternative, if you prefer, you can try using a satellite finder prior to
+locking the receiver. See the instructions at the [satellite finder
+section](#satellite-finder).
 
 
 ### TBS5927
@@ -175,7 +178,7 @@ POLARIZATION = HORIZONTAL
 > = PSK/8` (as in the above example) or, in case your C/N is lower, `MODULATION
 > = QPSK`, as shown below. This distinction is due to the two streams that are
 > concurrently broadcast over the Blockstream Satellite network. More
-> information [later along this guide](#optimize-snr).
+> information [later along this guide](#optimize-the-snr).
 
 ```
 Got parameters for DVBS2:
@@ -205,7 +208,7 @@ the optimal position. At this point, you can experiment with gentle adjustments
 to the pointing angles until you can maximize the C/N.
 
 Further instructions for the target C/N levels are presented in the [next
-section](#optimize-snr).
+section](#optimize-the-snr).
 
 ### Novra S400
 
@@ -250,7 +253,7 @@ better:
 ![S400 RF Improved](img/s400_rf_status_better_snr.png?raw=true "S400 RF Improved")
 
 See further instructions for the target C/N levels in the [next
-section](#optimize-snr).
+section](#optimize-the-snr).
 
 In terms of signal level, once the unit is locked, you can see the *signal
 strength* also under *RF1 Detailed Status* of page `Interfaces > RF1`. The
@@ -455,7 +458,89 @@ parameters. Typically it is easier to let two of them be fixed and try adjusting
 only one of them at a time. Try to get a sense of the best MER values you can
 get and then set the dish pointing fixed to the best direction.
 
-## Optimize SNR
+### Satellite Finder
+
+Prior to locking the satellite receiver (TBS5927, S400, or SDR receiver), you
+can try to find the satellite using a satellite finder.
+
+A satellite finder usually has two connections: one to the LNB (typically
+labeled as *to satellite*) and one to the receiver. The receiver connection is
+used to provide power to the finder. However, some finder models come with an
+alternative power supply, in which case the connection to the receiver is
+unnecessary.
+
+<!-- Moreover, even though you can place the finder inline between the receiver and -->
+<!-- the LNB/antenna, we recommend that you run the finder standalone (not connected -->
+<!-- to the receiver) when a power supply is available. -->
+
+Next, you need to select a free-to-air (FTA) TV signal as a reference. This is
+because the Blockstream Satellite signal runs in a DVB-S2 mode (called VCM -
+*variable coding and modulation*) that is not supported by most satellite
+finders. Thus, a TV signal in the same satellite can be used as a reference, to
+make sure that your antenna is pointed to the correct satellite.
+
+There are lists of FTA TV signals available on the web. For example, refer to
+the following lists, for the satellites that are used by the Blockstream
+Satellite network:
+- [Galaxy 18](https://www.lyngsat.com/Galaxy-18.html)
+- [Eutelsat 113](https://www.lyngsat.com/Eutelsat-113-West-A.html)
+- [Telstar 18N](https://www.lyngsat.com/Telstar-11N.html)
+- [Telstar 18V](https://www.lyngsat.com/Telstar-18-Vantage.html)
+
+After choosing a TV signal, you need to configure the finder with the signal
+parameters. Typically, you will need to set the following:
+
+- LO Frequency: the frequency of your LNB. If you are unsure, run the CLI
+  command below:
+
+  ```
+  blocksat-cli instructions
+  ```
+
+  The LO frequency will be displayed on the first page.
+
+- Downlink Frequency: the downlink frequency of the FTA TV signal of choice.
+- Symbol rate: the symbol rate of the FTA TV signal of choice. This is often
+  abbreviated as `SR`. So, for example, on [this
+  list](https://www.lyngsat.com/Eutelsat-113-West-A.html), you see a column
+  labeled `SR-FEC`, which stands for the *symbol rate* and *FEC*.
+- Polarity: whether the signal is horizontal or vertically polarized. This is
+  usually informed next to the downlink frequency with letter `V` (for vertical)
+  or `H` (for horizontal).
+- 22 kHz: this refers to a 22 kHz signal that can be used to change the LO
+  frequency of a Universal LNB. See [the notes regarding Universal
+  LNBs](hardware.md#universal-lnb). You only need to enable this option if you
+  are using a Universal LNB and if the FTA TV signal you selected is in [Ku high
+  band](frequency.md). Otherwise, leave it disabled.
+
+For example, the following table provides information of an FTA TV signal.
+
+| Frequency | SR-FEC   |
+|-----------|----------|
+|  	11974 V | 3330-2/3 |
+
+In this case, the signal has the following properties:
+- The downlink frequency is 11974 MHz.
+- The symbol rate is 3330 ksymbols/second (or kbaud).
+- The downlink signal is vertically polarized (see the `V` next to the downlink
+  frequency).
+
+After you configure the satellite finder, you will typically be presented with a
+signal strength and (or) quality indicator. Try to point your antenna until you
+can maximize these levels.
+
+Once you lock to the FTA TV signal on the satellite finder, you can infer that
+you are pointed to the correct satellite. At this point, you can disconnect the
+satellite finder and connect the LNB/antenna back to your receiver. Your next
+step is to verify that your receiver can lock to the Blockstream Satellite
+signal. Thus, follow the specific instructions of your receiver:
+
+- [TBS5927](#tbs5927)
+- [Novra S400](#novra-s400)
+- [SDR-based](#sdr-based)
+
+
+## Optimize the SNR
 
 Blockstream Satellite's signal is composed by two multiplexed streams, one of
 which requires higher signal quality to be decoded than the other. The two
