@@ -23,7 +23,7 @@ def cfg_standalone(args):
     """Configurations for standalone DVB demodulator
     """
     # User info
-    user_info = config.read_cfg_file(args.cfg_file, args.cfg_dir)
+    user_info = config.read_cfg_file(args.cfg, args.cfg_dir)
 
     if 'netdev' not in user_info['setup']:
         assert(args.interface is not None), \

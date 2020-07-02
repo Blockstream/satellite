@@ -25,9 +25,9 @@ def main():
                             formatter_class=ArgumentDefaultsHelpFormatter)
     parser.add_argument('-d', '--debug', action='store_true',
                         help='Set debug mode')
-    parser.add_argument('--cfg-file',
-                        default="config.json",
-                        help="Configuration file name")
+    parser.add_argument('--cfg',
+                        default="config",
+                        help="Target configuration set")
     parser.add_argument('--cfg-dir',
                         default=default_cfg_dir,
                         help="Directory to use for configuration files")

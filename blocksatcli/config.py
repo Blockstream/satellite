@@ -323,6 +323,17 @@ def _cfg_chan_conf(info, chan_file):
         logging.debug(f.read())
 
 
+def _cfg_file_name(cfg_name, directory):
+    """Get the name of the configuration JSON file"""
+    # Remove paths
+    basename = os.path.basename(cfg_name)
+    # Remove extension
+    noext = os.path.splitext(basename)[0]
+    # Add JSON extension
+    json_file = noext + ".json"
+    return os.path.join(directory, json_file)
+
+
 def _read_cfg_file(cfg_file):
     """Read configuration file"""
 
@@ -347,20 +358,20 @@ def _rst_cfg_file(cfg_file):
     return True
 
 
-def read_cfg_file(basename, directory):
+def read_cfg_file(cfg_name, directory):
     """Read configuration file
 
     If not available, run configuration helper.
 
     """
-    cfg_file = os.path.join(directory, os.path.basename(basename))
-    info = _read_cfg_file(cfg_file)
+    cfg_file = _cfg_file_name(cfg_name, directory)
+    info     = _read_cfg_file(cfg_file)
 
     while (info is None):
         print("Missing {} configuration file".format(cfg_file))
         if (util._ask_yes_or_no("Run configuration helper now?")):
             configure(Namespace(cfg_dir=directory,
-                                cfg_file=basename))
+                                cfg=cfg_name))
         else:
             print("Abort")
             return
@@ -388,7 +399,7 @@ def configure(args):
     """Configure Blocksat Receiver setup
 
     """
-    cfg_file = os.path.join(args.cfg_dir, os.path.basename(args.cfg_file))
+    cfg_file = _cfg_file_name(args.cfg, args.cfg_dir)
     rst_ok   = _rst_cfg_file(cfg_file)
     if (not rst_ok):
         return

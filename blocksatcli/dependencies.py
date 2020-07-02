@@ -200,7 +200,7 @@ def run(args):
         }
         target = target_map[args.target]
     else:
-        info = config.read_cfg_file(args.cfg_file, args.cfg_dir)
+        info = config.read_cfg_file(args.cfg, args.cfg_dir)
         if (info is None):
             return
         target = info['setup']['type']

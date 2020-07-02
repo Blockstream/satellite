@@ -540,7 +540,7 @@ def subparser(subparsers):
 
 def _common(args):
     # User info
-    user_info = config.read_cfg_file(args.cfg_file, args.cfg_dir)
+    user_info = config.read_cfg_file(args.cfg, args.cfg_dir)
 
     if (user_info is None):
         return
