@@ -43,8 +43,10 @@ def _print_s400_instructions(info):
     util._print_sub_header("S400's web user interface (UI)")
     print("Next, you need to access the web UI of the S400:\n")
     _item(
-        "Configure you host's network interface to the same subnet as the S400"
-        ". By default, the S400 is configured with IP address 192.168.1.2 on "
+        "Configure you host's network interface to the same subnet as the S400."
+    )
+    print()
+    _print("By default, the S400 is configured with IP address 192.168.1.2 on "
         "LAN1 and 192.168.2.2 on LAN2. So, if you are connecting to LAN1, "
         "make sure your host's network interface has IP address 192.168.1.x, "
         "where \"x\" could be any number higher than 2. For example, you could "
@@ -165,10 +167,15 @@ def _print_s400_instructions(info):
     by running:
     """)
 
-    print("\n```\nblocksat-cli standalone -i ifname\n```\n")
-    print(textwrap.fill("where \'ifname\' should be replaced with the name "
-                        "of the network interface that is connected to the "
-                        "S400."))
+    print("\n    sudo blocksat-cli standalone\n\n")
+
+    _print("""If you would like to review the changes that will be made before
+    applying them, first run the command as a non-root user:
+    """)
+
+    print("\n    blocksat-cli standalone\n\n")
+
+    util.prompt_for_enter()
 
 
 def _print_usb_rx_instructions(info):
@@ -354,9 +361,10 @@ def _print_freq_info(info):
 
     util._print_header("Frequencies")
 
-    print("| Downlink %2s band frequency                     | %8.2f MHz |" %(sat['band'], sat['dl_freq']))
-    print("| Your LNB local oscillator (LO) frequency       | %8.2f MHz |" %(lo_freq))
-    print("| L-band frequency to configure on your receiver | %7.2f MHz  |" %(l_freq))
+    print("For your information, your setup relies on the following frequencies:\n")
+    print("| Downlink %2s band frequency            | %8.2f MHz |" %(sat['band'], sat['dl_freq']))
+    print("| LNB local oscillator (LO) frequency   | %8.2f MHz |" %(lo_freq))
+    print("| Receiver L-band frequency             | %7.2f MHz  |" %(l_freq))
     print()
 
     if (lnb['universal'] and (setup['type'] == defs.sdr_setup_type)):

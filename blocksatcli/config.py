@@ -36,8 +36,8 @@ def _cfg_rx_setup():
         defs.demods,
         question,
         "Setup",
-        lambda x : '{} receiver, using {} demodulator'.format(
-            x['type'], (x['vendor'] + " " + x['model']).strip()))
+        lambda x : '{} ({} receiver)'.format(
+            (x['vendor'] + " " + x['model']).strip(), x['type']))
 
     # Network interface connected to the standalone demodulator
     if (setup['type'] == defs.standalone_setup_type):
