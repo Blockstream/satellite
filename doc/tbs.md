@@ -53,6 +53,13 @@ cd util/
 ./tbsdriver.sh
 ```
 
+> NOTE: if you have not cloned the repository, you can download the script
+> directly by running:
+>
+> ```
+> wget https://raw.githubusercontent.com/Blockstream/satellite/master/util/tbsdriver.sh
+> ```
+
 Once the script completes the installation, reboot the virtual machine.
 
 ## Setup Configuration Helper
@@ -81,18 +88,18 @@ blocksat-cli deps install
 ## Configure the Host
 
 Next, you need to create and configure the network interfaces that will output
-the IP traffic received via the TBS5927. You can see all required configurations
-by running the following as a non-root user:
-
-```
-blocksat-cli usb config
-```
-
-To effectively apply the configurations, run the same command as root, i.e.,
-with `sudo` in front, as follows:
+the IP traffic received via the TBS5927. You can apply all configurations by
+running the following command:
 
 ```
 sudo blocksat-cli usb config
+```
+
+If you would like to review the changes that will be made before applying them,
+first run the command as a non-root user:
+
+```
+blocksat-cli usb config
 ```
 
 Note this command will define arbitrary IP addresses to the interfaces. If you
@@ -101,7 +108,7 @@ address conflicts, use command-line argument `--ip`.
 
 ## Launch
 
-Finally, launch the DVB-S2 interface by running:
+Finally, start the DVB-S2 receiver by running:
 
 ```
 blocksat-cli usb launch

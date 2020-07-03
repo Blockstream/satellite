@@ -217,13 +217,16 @@ def _print_usb_rx_instructions(info):
     virtual machine.
     """.format(name))
     _print("""
-    Next, install the drivers for the {0}. A helper script is available in the
-    `util` directory from the root of this repository:
+    Next, install the drivers for the {0}. First download the helper script by
+    running:
     """.format(name))
 
-    _item("From the util/ folder, run:")
+    print("    wget https://raw.githubusercontent.com/"
+          "Blockstream/satellite/master/util/tbsdriver.sh\n")
+
+    _item("Then, run the script:")
     print("""
-    ./tbsdriver.sh
+    bash tbsdriver.sh
     """)
     print("Once the script completes the installation, reboot the virtual machine.")
 
@@ -248,16 +251,16 @@ def _print_usb_rx_instructions(info):
     util._print_sub_header("Configure the Host")
 
     _print("""Next, you need to create and configure the network interfaces that
-    will output the IP traffic received via the TBS5927. You can see all
-    required configurations by running the following as a non-root user:""")
-
-    print("\n    blocksat-cli usb config\n")
-
-
-    _print("""To effectively apply the configurations, run the same command as
-    root, i.e., with sudo in front, as follows:""")
+    will output the IP traffic received via the TBS5927. You can apply all
+    configurations by running the following command:""")
 
     print("\n    sudo blocksat-cli usb config\n")
+
+    _print("""If you would like to review the changes that will be made before
+    applying them, first run the command as a non-root user:
+    """)
+
+    print("\n    blocksat-cli usb config\n")
 
     _print("""
     Note this command will define arbitrary IP addresses to the interfaces. If
@@ -269,7 +272,7 @@ def _print_usb_rx_instructions(info):
 
     util._print_sub_header("Launch")
 
-    print("Finally, launch the DVB-S2 interface by running:")
+    print("Finally, start the DVB-S2 receiver by running:")
 
     print("\n    blocksat-cli usb launch\n")
 
