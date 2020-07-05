@@ -66,6 +66,10 @@ def _print_s400_instructions(info):
     util.prompt_for_enter()
 
     util._print_sub_header("S400 Configurations")
+
+    _print("Next, you need to configure the S400 to receive the Blockstream "
+           "Satellite signal.")
+
     print("1. First you need to log in as admin, on the top right of the page.")
     _item("Password: \"password\"")
     print()
@@ -158,6 +162,20 @@ def _print_s400_instructions(info):
               ))
 
         util.prompt_for_enter()
+
+    util._print_sub_header("Host Requirements")
+
+    _print("Next, make sure that you have all software pre-requisites "
+           "available in your host. Run:")
+
+    print("""
+    blocksat-cli deps install
+    """)
+
+    _print("""
+    NOTE: this command supports the apt, dnf, and yum package managers.""")
+
+    util.prompt_for_enter()
 
     util._print_sub_header("Host Configuration")
 
