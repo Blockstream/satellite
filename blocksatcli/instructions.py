@@ -185,13 +185,13 @@ def _print_s400_instructions(info):
     by running:
     """)
 
-    print("\n    sudo blocksat-cli standalone\n\n")
+    print("\n    sudo blocksat-cli standalone cfg\n\n")
 
     _print("""If you would like to review the changes that will be made before
     applying them, first run the command as a non-root user:
     """)
 
-    print("\n    blocksat-cli standalone\n\n")
+    print("\n    blocksat-cli standalone cfg\n\n")
 
     util.prompt_for_enter()
 

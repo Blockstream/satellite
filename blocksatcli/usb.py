@@ -444,7 +444,7 @@ def subparser(subparsers):
     p.set_defaults(func=print_help)
 
     subsubparsers = p.add_subparsers(title='subcommands',
-                                         help='Target USB sub-command')
+                                     help='Target sub-command')
 
     # Launch
     p1 = subsubparsers.add_parser('launch',

@@ -136,7 +136,7 @@ def subparser(subparsers):
                    record=False)
 
     subsubparsers = p.add_subparsers(title='subcommands',
-                                     help='Target SDR sub-command')
+                                     help='Target sub-command')
     # IQ recording
     p2 = subsubparsers.add_parser('rec',
                                   description="Record IQ samples instead of "

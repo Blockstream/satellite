@@ -1,14 +1,12 @@
 """Standalone Demodulator"""
-from argparse import ArgumentDefaultsHelpFormatter
+from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 from . import rp, firewall, defs, config
 
 
 def subparser(subparsers):
     p = subparsers.add_parser('standalone',
-                              description="Configure host to receive \
-                              data from standalone DVB-S2 demodulator",
-                              help='Configure host to receive from \
-                              standalone DVB-S2 demodulator',
+                              description="Standalone DVB-S2 receiver manager",
+                              help='Manage the standalone DVB-S2 receiver',
                               formatter_class=ArgumentDefaultsHelpFormatter)
     p.add_argument('-i', '--interface',
                     default=None,
@@ -16,8 +14,18 @@ def subparser(subparsers):
                     demodulator')
     p.add_argument('-y', '--yes', default=False, action='store_true',
                    help="Default to answering Yes to configuration prompts")
-    p.set_defaults(func=cfg_standalone)
+    p.set_defaults(func=print_help)
+
+    subsubparsers = p.add_subparsers(title='subcommands',
+                                     help='Target sub-command')
+    p1 = subsubparsers.add_parser('config', aliases=['cfg'],
+                                  description='Initial configurations',
+                                  help='Configure the host to receive data \
+                                  from the standalone demodulator')
+    p1.set_defaults(func=cfg_standalone)
+
     return p
+
 
 def cfg_standalone(args):
     """Configurations for standalone DVB demodulator
@@ -37,4 +45,11 @@ def cfg_standalone(args):
     firewall.configure([interface], defs.src_ports, igmp=True,
                        prompt=(not args.yes))
 
+
+def print_help(args):
+    """Re-create argparse's help menu for the standalone command"""
+    parser     = ArgumentParser()
+    subparsers = parser.add_subparsers(title='', help='')
+    parser     = subparser(subparsers)
+    print(parser.format_help())
 
