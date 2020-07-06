@@ -451,6 +451,20 @@ def _print_next_steps():
     print("You can generate a bitcoin.conf configuration file for Bitcoin Satellite using:")
     print("\n    blocksat-cli btc\n")
 
+
+    print("Next, you can install bitcoin-satellite by running:")
+    print("\n    blocksat-cli deps install --btc\n")
+
+    print("Note that:")
+    _item("The installation works in Ubuntu (18.04, 19.10, and 20.04), Fedora "
+          "(30, 31, and 32), and CentOS (7 and 8).")
+
+    _item("bitcoin-satellite is a fork of bitcoin core, and, as such, it "
+          "installs applications with the same name (i.e., bitcoind, "
+          "bitcoin-cli, bitcoin-qt, and bitcoin-tx). Hence, the installation "
+          "of bitcoin-satellite will fail if you already have bitcoin core "
+          "installed.")
+
     print("For further information, refer to \"doc/bitcoin.md\" or:\n")
     print("https://github.com/Blockstream/satellite/blob/master/doc/bitcoin.md\n")
 
