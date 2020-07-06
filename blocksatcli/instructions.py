@@ -290,7 +290,7 @@ def _print_usb_rx_instructions(info):
 
     util._print_sub_header("Launch")
 
-    print("Finally, start the DVB-S2 receiver by running:")
+    print("Finally, start the receiver by running:")
 
     print("\n    blocksat-cli usb launch\n")
 

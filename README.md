@@ -6,8 +6,8 @@ Satellite receiver.
 The Blockstream Satellite network broadcasts the Bitcoin blockchain using the
 [second-generation Digital Video Broadcasting Satellite (DVB-S2)
 standard](https://en.wikipedia.org/wiki/DVB-S2). To receive this signal, you
-will need a DVB-S2 demodulator, for which there are a couple of options. The
-output of the demodulator will be a data stream that you will feed to a host
+will need a DVB-S2 receiver, for which there are a couple of options. The
+output of the receiver will be a data stream that you will feed to a host
 running the [Bitcoin
 Satellite](https://github.com/Blockstream/bitcoinsatellite/) application. This
 application, in turn, will decode the blocks received over satellite and keep
@@ -18,13 +18,14 @@ Find out if your location has coverage by looking at our [Coverage
 
 To assemble a receiver setup, you will need to go through the following steps:
 
-1. Get the required hardware, such as the DVB-S2 demodulator, the satellite
+1. Get the required hardware, such as the DVB-S2 receiver, the satellite
    dish/antenna and the low-noise block downconverter (LNB).
-2. Install all software requirements and configure the receiver setup.
+2. Install all software requirements, configure the receiver, and configure the
+   host.
 3. Align your satellite dish appropriately to receive the Blockstream Satellite
    signal.
 
-You can find detailed guidance for these steps along this documentation.
+You can find detailed guidance for these steps on this documentation.
 
 ## Hardware
 
@@ -33,15 +34,15 @@ required hardware components. Satellite Kits with all components included are
 available at the [Blockstream
 Store](https://store.blockstream.com/product-category/satellite_kits/).
 
-There are three supported hardware setup options with varying levels of budget,
-performance, and CPU usage, as well as different form factors. They are
-summarized in the table below:
+There are three supported options with varying levels of budget, performance,
+and CPU usage, as well as different form factors. They are summarized in the
+table below:
 
 | **Setup**                        | Kit Available                                                                             | Budget          | Performance/Reliability | CPU Usage  | Form Factor | Dual Satellite* |
 |----------------------------------|-------------------------------------------------------------------------------------------|-----------------|-------------------------|------------|-------------|-----------------|
 | **Software-defined Radio (SDR)** | :heavy_multiplication_x:                                                                  | Most Affordable | Limited                 | High       | USB Dongle  | No              |
 | **Linux USB Receiver**           | [Basic Kit](https://store.blockstream.com/product/blockstream-satellite-basic-kit/)       | Moderate        | Excellent               | Low        | USB Device  | No              |
-| **Standalone Demodulator**       | [Pro Kit](https://store.blockstream.com/product/blockstream-satellite-pro-kit/)           | Higher          | Excellent               | None       | Standalone  | Yes             |
+| **Standalone Receiver**          | [Pro Kit](https://store.blockstream.com/product/blockstream-satellite-pro-kit/)           | Higher          | Excellent               | None       | Standalone  | Yes             |
 
 <sup>*</sup> Specific to locations that have overlapping coverage from two satellites.
 
@@ -73,7 +74,7 @@ components, which are summarized below:
 |--------------------|---------|
 | Software-defined Radio (SDR) | RTL-SDR dongle, LNB Power Supply, SMA Cable and SMA to F adapter |
 | Linux USB Receiver | TBS5927 Professional DVB-S2 TV Tuner USB |
-| Standalone Demodulator | Novra S400 PRO DVB satellite Receiver and Ethernet Cable  |
+| Standalone Receiver | Novra S400 PRO DVB satellite Receiver and Ethernet Cable  |
 
 Please refer to the comprehensive [hardware guide](doc/hardware.md) in order to
 pick the appropriate components or visit [our
@@ -81,9 +82,9 @@ store](https://store.blockstream.com/product-category/satellite_kits/).
 
 ## Software and Setup Configuration
 
-Setup configurations are dependent on your demodulator choice and on the
-satellite that covers your region. To obtain the configuration instructions that
-are suitable to your setup, please use the Blockstream Satellite command-line
+Setup configurations are dependent on your receiver choice and on the satellite
+that covers your region. To obtain the configuration instructions that are
+suitable to your setup, please use the Blockstream Satellite command-line
 interface (CLI).
 
 First install the CLI as follows:
@@ -106,16 +107,20 @@ Then, run the instructions helper and follow the instructions:
 blocksat-cli instructions
 ```
 
-Within the set of instructions, a required step is the installation of software
-dependencies, which is accomplished with the following command:
+Within the set of instructions, a common required step is the installation of
+software dependencies, which is accomplished with the following command:
 
 ```
 blocksat-cli deps install
 ```
 
-After following all instructions, the next steps include the installation of
-[Bitcoin Satellite](doc/bitcoin.md) and the [antenna
-pointing](doc/antenna-pointing.md). Please follow the user guide.
+After following all instructions, the next steps include the receiver/host
+configuration, the installation of [Bitcoin Satellite](doc/bitcoin.md) and the
+[antenna pointing](doc/antenna-pointing.md). Please follow the user guide.
+
+A [quick reference guide](doc/quick-reference.md) is available if you are
+familiar with the commands and steps of the process. Otherwise, we commend
+following the detailed user guide below:
 
 ## User Guide
 
@@ -127,7 +132,9 @@ pointing](doc/antenna-pointing.md). Please follow the user guide.
     - [SDR Setup](doc/sdr.md)
 - [Antenna Pointing](doc/antenna-pointing.md)
 - [Bitcoin Satellite](doc/bitcoin.md)
-- [Satellite API](api/README.md)
+- Further Information
+  - [Quick Reference](doc/quick-reference.md)
+  - [Satellite API](api/README.md)
 
 ## Support
 

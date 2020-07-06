@@ -108,7 +108,7 @@ address conflicts, use command-line argument `--ip`.
 
 ## Launch
 
-Finally, start the DVB-S2 receiver by running:
+Finally, start the receiver by running:
 
 ```
 blocksat-cli usb launch

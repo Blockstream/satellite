@@ -8,4 +8,6 @@
     - [SDR Setup](sdr.md)
 - [Bitcoin Satellite](bitcoin.md)
 - [Antenna Pointing](antenna-pointing.md)
-- [Satellite API](../api/README.md)
+- Further Information
+  - [Quick Reference](quick-reference.md)
+  - [Satellite API](../api/README.md)
