@@ -106,6 +106,9 @@ Note this command will define arbitrary IP addresses to the interfaces. If you
 need (or want) to define specific IP addresses instead, for example to avoid IP
 address conflicts, use command-line argument `--ip`.
 
+Furthermore, note that this configuration is not persistent across reboots. If
+you reboot you computer, you need to run `sudo blocksat-cli usb config` again.
+
 ## Launch
 
 Finally, start the receiver by running:

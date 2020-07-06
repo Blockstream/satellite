@@ -290,6 +290,10 @@ def _print_usb_rx_instructions(info):
     avoid IP address conflicts, use command-line argument `--ip`.
     """)
 
+    _print("""Furthermore, note that this configuration is not persistent across
+    reboots. If you reboot you computer, you need to run `sudo blocksat-cli usb
+    config` again.""")
+
     util.prompt_for_enter()
 
     util._print_sub_header("Launch")
