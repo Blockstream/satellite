@@ -107,7 +107,7 @@ def _install_packages(apt_list, dnf_list, yum_list, interactive=True,
         util.run_and_log(util.root_cmd(cmd), logger, env=env)
 
 
-def _install_common(interactive=True, update=False, dry=False):
+def _install_common(interactive=True, update=False, dry=False, btc=False):
     """Install dependencies that are common to all setups"""
     util._print_header("Installing Common Dependencies")
     apt_pkg_list = ["software-properties-common"]
@@ -122,6 +122,15 @@ def _install_common(interactive=True, update=False, dry=False):
                       update, dry)
     # Enable our binary package repository
     _enable_pkg_repo(interactive, dry)
+
+    # Install bitcoin-satellite
+    if (btc):
+        apt_pkg_list = ["bitcoin-satellite", "bitcoin-satellite-qt",
+                        "bitcoin-satellite-tx"]
+        dnf_pkg_list = ["bitcoin-satellite", "bitcoin-satellite-qt"]
+        yum_pkg_list = ["bitcoin-satellite", "bitcoin-satellite-qt"]
+        _install_packages(apt_pkg_list, dnf_pkg_list, yum_pkg_list, interactive,
+                          update, dry)
 
 
 def _install_sdr(interactive=True, update=False, dry=False):
@@ -195,6 +204,10 @@ def subparser(subparsers):
     p1 = subsubp.add_parser('install',
                             description="Install software dependencies",
                             help='Install software dependencies')
+    p1.add_argument("--btc",
+                    action='store_true',
+                    default=False,
+                    help="Install bitcoin-satellite")
     p1.set_defaults(func=run, update=False)
 
     p1 = subsubp.add_parser('update',
@@ -229,7 +242,7 @@ def run(args):
 
     # Common dependencies (regardless of setup)
     _install_common(interactive=interactive, update=args.update,
-                    dry=args.dry_run)
+                    dry=args.dry_run, btc=args.btc)
 
     if (target == defs.sdr_setup_type):
         # The SDR packages are only available to the distributions below:

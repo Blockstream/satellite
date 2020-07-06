@@ -6,11 +6,12 @@
 - [Bitcoin Satellite](#bitcoin-satellite)
     - [Overview](#overview)
     - [Installation](#installation)
-        - [From Binary Packages](#from-binary-packages)
-        - [From Source](#from-source)
     - [Configuration](#configuration)
     - [Running](#running)
     - [Further Information](#further-information)
+        - [UDP Multicast Reception Option](#udp-multicast-reception-option)
+        - [Installation from Binary Packages](#installation-from-binary-packages)
+        - [Installation from Source](#installation-from-source)
 
 <!-- markdown-toc end -->
 
@@ -24,74 +25,25 @@ datagrams with multicast addressing.
 
 ## Installation
 
-### From Binary Packages
-
-You can install `bitcoin-satellite` directly from binary packages that are
-available for the following distribution/releases:
-
-- Ubuntu Bionic (18.04), Eoan (19.10), and Focal (20.04)
-- Fedora 30, 31, and 32
-- CentOS 7 and 8
-
-Ubuntu:
+Install bitcoin-satellite by running:
 
 ```
-add-apt-repository ppa:blockstream/satellite
-apt-get update
-apt-get install bitcoin-satellite
+blocksat-cli deps install --btc
 ```
 
-> If command `add-apt-repository` is not available, install
-> `software-properties-common`.
+> NOTE:
+>
+> - This command supports Ubuntu (18.04, 19.10, and 20.04), Fedora (30,
+> 31, and 32), and CentOS 7.
+>
+> - bitcoin-satellite is a fork of bitcoin core, and, as such, it installs
+> applications with the same name (i.e., `bitcoind`, `bitcoin-cli`,
+> `bitcoin-qt`, and `bitcoin-tx`). Hence, the installation of
+> `bitcoin-satellite` will fail if you already have bitcoin core installed.
 
-Fedora:
-
-```
-dnf copr enable blockstream/satellite
-dnf install bitcoin-satellite
-```
-
-> If command `dnf copr enable` is not available, install `dnf-plugins-core`.
-
-CentOS:
-
-```
-yum copr enable blockstream/satellite
-yum install bitcoin-satellite
-```
-
-> If command `yum copr enable` is not available, install `yum-plugin-copr`.
-
-### From Source
-
-To build Bitcoin Satellite from source, first clone the repository:
-
-```
-git clone https://github.com/Blockstream/bitcoinsatellite.git
-cd bitcoinsatellite/
-```
-
-Then, install all build requirements listed [in the project's
-documentation](https://github.com/Blockstream/bitcoinsatellite/blob/master/doc/build-unix.md#dependency-build-instructions-ubuntu--debian).
-
-Next, run:
-
-```
-./autogen.sh
-./configure
-make
-```
-
-This will build the `bitcoind` application binary within the `src/` directory
-and you can execute it from there. Alternatively, you can install the
-application in your system:
-
-```
-make install
-```
-
-Detailed build instructions can be found within [the project's documentation
-](https://github.com/Blockstream/bitcoinsatellite/tree/master/doc#building).
+Alternatively, you can install bitcoin-satellite manually [from binary
+packages](#installation-from-binary-packages) or [from
+source](#installation-from-source).
 
 ## Configuration
 
@@ -155,6 +107,8 @@ bitcoin-cli getchunkstats
 
 ## Further Information
 
+### UDP Multicast Reception Option
+
 In a Blockstream Satellite receiver setup, the satellite demodulator will decode
 and output a UDP/IPv4 stream, which in turn Bitcoin Satellite can listen to. In
 order for Bitcoin Satellite to listen to such stream, option `udpmulticast` must
@@ -195,3 +149,72 @@ In this case, we have that:
 To simplify this process, command `blocksat-cli btc` generates the
 `bitcoin.conf` file for you.
 
+
+### Installation from Binary Packages
+
+You can install `bitcoin-satellite` directly from binary packages that are
+available for the following distribution/releases:
+
+- Ubuntu Bionic (18.04), Eoan (19.10), and Focal (20.04)
+- Fedora 30, 31, and 32
+- CentOS 7 and 8
+
+Ubuntu:
+
+```
+add-apt-repository ppa:blockstream/satellite
+apt-get update
+apt-get install bitcoin-satellite
+```
+
+> If command `add-apt-repository` is not available, install
+> `software-properties-common`.
+
+Fedora:
+
+```
+dnf copr enable blockstream/satellite
+dnf install bitcoin-satellite
+```
+
+> If command `dnf copr enable` is not available, install `dnf-plugins-core`.
+
+CentOS:
+
+```
+yum copr enable blockstream/satellite
+yum install bitcoin-satellite
+```
+
+> If command `yum copr enable` is not available, install `yum-plugin-copr`.
+
+### Installation from Source
+
+To build Bitcoin Satellite from source, first clone the repository:
+
+```
+git clone https://github.com/Blockstream/bitcoinsatellite.git
+cd bitcoinsatellite/
+```
+
+Then, install all build requirements listed [in the project's
+documentation](https://github.com/Blockstream/bitcoinsatellite/blob/master/doc/build-unix.md#dependency-build-instructions-ubuntu--debian).
+
+Next, run:
+
+```
+./autogen.sh
+./configure
+make
+```
+
+This will build the `bitcoind` application binary within the `src/` directory
+and you can execute it from there. Alternatively, you can install the
+application in your system:
+
+```
+make install
+```
+
+Detailed build instructions can be found within [the project's documentation
+](https://github.com/Blockstream/bitcoinsatellite/tree/master/doc#building).
