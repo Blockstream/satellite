@@ -18,8 +18,8 @@ COPY dist/* ~/src/blocksat-cli/dist/
 RUN pip3 install \~/src/blocksat-cli/dist/blocksat-cli-*.tar.gz
 
 # Install SDR software dependencies via the CLI
-RUN blocksat-cli --debug deps -y --target sdr install --btc
+RUN blocksat-cli --debug deps -y install --target sdr --btc
 
 # Install USB software dependencies via the CLI
-RUN blocksat-cli --debug deps -y --target usb install
+RUN blocksat-cli --debug deps -y install --target usb
 

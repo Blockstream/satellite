@@ -197,6 +197,29 @@ def run_and_log(cmd, logger=None, cwd=None, env=None):
     assert(isinstance(cmd, list))
     if (logger is not None):
         logger.debug("> " + " ".join(cmd))
-    subprocess.run(cmd, cwd=cwd, env=env)
+    res = subprocess.run(cmd, cwd=cwd, env=env)
+    res.check_returncode()
+
+
+class ProcessRunner():
+    def __init__(self, logger=None, dry=False):
+        self.logger   = logger
+        self.dry      = dry
+        self.last_cwd = None
+
+    def run(self, cmd, cwd=None, env=None):
+        assert(isinstance(cmd, list))
+        if (self.dry):
+            if (cwd != self.last_cwd):
+                print("cd {}".format(cwd))
+                self.last_cwd = cwd
+            print(" ".join(cmd))
+            return
+
+        if (self.logger is not None):
+            self.logger.debug("> " + " ".join(cmd))
+
+        res = subprocess.run(cmd, cwd=cwd, env=env)
+        res.check_returncode()
 
 

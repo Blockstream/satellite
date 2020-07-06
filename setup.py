@@ -33,7 +33,8 @@ setup(
     author_email = "satellite@blockstream.com",
     url = "https://github.com/Blockstream/satellite",
     install_requires=[
-        'distro'
+        'distro',
+        'requests'
     ],
     classifiers=[
         'Programming Language :: Python :: 3',

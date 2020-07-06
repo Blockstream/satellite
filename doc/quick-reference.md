@@ -68,8 +68,7 @@ sudo blocksat-cli standalone cfg
 
 Install the drivers:
 ```
-wget https://raw.githubusercontent.com/Blockstream/satellite/master/util/tbsdriver.sh
-source tbsdriver.sh
+blocksat-cli deps tbs-drivers
 ```
 
 Configure the host's interfacing with the TBS5927:

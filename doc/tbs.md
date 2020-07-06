@@ -43,22 +43,11 @@ machine for running the TBS5927. If you do so, please note that all commands
 recommended in the remainder of this page are supposed to be executed in the
 virtual machine.
 
-Next, install the drivers for the TBS 5927. A helper script is available in the
-`util` directory from the root of this repository:
-
-Run:
+Next, install the drivers for the TBS 5927 by running:
 
 ```
-cd util/
-./tbsdriver.sh
+blocksat-cli deps tbs-drivers
 ```
-
-> NOTE: if you have not cloned the repository, you can download the script
-> directly by running:
->
-> ```
-> wget https://raw.githubusercontent.com/Blockstream/satellite/master/util/tbsdriver.sh
-> ```
 
 Once the script completes the installation, reboot the virtual machine.
 

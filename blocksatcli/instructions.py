@@ -238,19 +238,15 @@ def _print_usb_rx_instructions(info):
     recommended in the remainder of this page are supposed to be executed in the
     virtual machine.
     """.format(name))
-    _print("""
-    Next, install the drivers for the {0}. First download the helper script by
-    running:
-    """.format(name))
 
-    print("    wget https://raw.githubusercontent.com/"
-          "Blockstream/satellite/master/util/tbsdriver.sh\n")
+    _print("Next, install the drivers for the {0} by running:".format(name))
 
-    _item("Then, run the script:")
     print("""
-    bash tbsdriver.sh
+    blocksat-cli deps tbs-drivers
     """)
-    print("Once the script completes the installation, reboot the virtual machine.")
+
+    print("Once the script completes the installation, reboot the virtual "
+          "machine.")
 
     util.prompt_for_enter()
 

@@ -4,8 +4,29 @@ from . import config, defs, util
 import os, subprocess, logging
 from shutil import which
 from pprint import pformat
-import distro
+import platform, distro, requests
 logger = logging.getLogger(__name__)
+
+
+def _download_file(url, destdir, dry_run):
+    filename   = url.split('/')[-1]
+    local_path = os.path.join(destdir, url.split('/')[-1])
+
+    if (dry_run):
+        print("Download: {}".format(url))
+        print("Save at: {}".format(destdir))
+        return
+
+    logger.debug("Download {} and save at {}".format(filename, destdir))
+    with requests.get(url, stream=True) as r:
+        r.raise_for_status()
+        with open(local_path, 'wb') as f:
+            for chunk in r.iter_content(chunk_size=8192):
+                # If you have chunk encoded response uncomment if
+                # and set chunk_size parameter to None.
+                #if chunk:
+                f.write(chunk)
+    return local_path
 
 
 def _check_distro(supported_distros, setup_type):
@@ -44,6 +65,34 @@ def _enable_pkg_repo(interactive, dry):
         cmds.append(cmd)
     elif (which("yum")):
         cmd = ["yum", "copr", "enable", "blockstream/satellite"]
+        if (not interactive):
+            cmd.append("-y")
+        cmds.append(cmd)
+    else:
+        raise RuntimeError("Could not find a supported package manager")
+
+    for cmd in cmds:
+        if (dry):
+            print(" ".join(util.root_cmd(cmd)))
+        else:
+            util.run_and_log(util.root_cmd(cmd), logger)
+
+
+def _update_pkg_repo(interactive, dry):
+    """Update binary package repository"""
+    cmds = list()
+    if (which("apt")):
+        cmd = ["apt", "update"]
+        if (not interactive):
+            cmd.append("-y")
+        cmds.append(cmd)
+    elif (which("dnf")):
+        cmd = ["dnf", "update"]
+        if (not interactive):
+            cmd.append("-y")
+        cmds.append(cmd)
+    elif (which("yum")):
+        cmd = ["yum", "update"]
         if (not interactive):
             cmd.append("-y")
         cmds.append(cmd)
@@ -184,10 +233,6 @@ def subparser(subparsers):
                               formatter_class=ArgumentDefaultsHelpFormatter)
 
     p.set_defaults(func=_print_help)
-    p.add_argument("--target",
-                   choices=["sdr", "usb", "standalone"],
-                   default=None,
-                   help="Target setup type for installation of dependencies")
     p.add_argument("-y", "--yes",
                    action='store_true',
                    default=False,
@@ -204,16 +249,33 @@ def subparser(subparsers):
     p1 = subsubp.add_parser('install',
                             description="Install software dependencies",
                             help='Install software dependencies')
+    p1.add_argument("--target",
+                    choices=["sdr", "usb", "standalone"],
+                    default=None,
+                    help="Target setup type for installation of dependencies")
     p1.add_argument("--btc",
                     action='store_true',
                     default=False,
                     help="Install bitcoin-satellite")
     p1.set_defaults(func=run, update=False)
 
-    p1 = subsubp.add_parser('update',
+    p2 = subsubp.add_parser('update',
                             description="Update software dependencies",
                             help='Update software dependencies')
-    p1.set_defaults(func=run, update=True)
+    p2.add_argument("--target",
+                    choices=["sdr", "usb", "standalone"],
+                    default=None,
+                    help="Target setup type for the update of dependencies")
+    p2.add_argument("--btc",
+                    action='store_true',
+                    default=False,
+                    help="Update bitcoin-satellite")
+    p2.set_defaults(func=run, update=True)
+
+    p3 = subsubp.add_parser('tbs-drivers',
+                            description="Install TBS USB demodulator drivers",
+                            help='Install TBS USB demodulator drivers')
+    p3.set_defaults(func=drivers)
 
     return p
 
@@ -233,7 +295,7 @@ def run(args):
             return
         target = info['setup']['type']
 
-    if (os.geteuid() != 0):
+    if (os.geteuid() != 0 and not args.dry_run):
         util.fill_print("Some commands require root access and will prompt "
                         "for password")
 
@@ -258,4 +320,85 @@ def run(args):
                             dry=args.dry_run)
     else:
         raise ValueError("Unexpected receiver target")
+
+
+def drivers(args):
+    if (os.geteuid() != 0 and not args.dry_run):
+        util.fill_print("Some commands require root access and will prompt "
+                        "for password")
+
+    # Interactive installation? I.e., requires user to press "y/n"
+    interactive = (not args.yes)
+
+    runner = util.ProcessRunner(logger, args.dry_run)
+
+    # Install pre-requisites
+    linux_release = platform.release()
+    linux_headers = "linux-headers-" + linux_release
+    apt_pkg_list  = ["make", "gcc", "git", "patch", "patchutils",
+                     "libproc-processtable-perl",
+                     linux_headers]
+    dnf_pkg_list  = ["make", "gcc", "git", "patch", "patchutils",
+                     "perl-Proc-ProcessTable", "perl-Digest-SHA",
+                     "kernel-devel", "kernel-headers"]
+    yum_pkg_list  =  dnf_pkg_list
+
+    # On dnf, the kernel-devel/headers package will come based on the most
+    # recent kernel version. Hence, we must run "dnf update" to make sure the
+    # kernel gets updated to this version.
+    _update_pkg_repo(interactive, args.dry_run)
+    _install_packages(apt_pkg_list, dnf_pkg_list, yum_pkg_list,
+                      interactive=interactive, update=False, dry=args.dry_run)
+
+    # Clone the driver repositories
+    driver_src_dir  = os.path.join(args.cfg_dir, "src", "tbsdriver")
+    media_build_dir = os.path.join(driver_src_dir, "media_build")
+    media_dir       = os.path.join(driver_src_dir, "media")
+
+    if not os.path.exists(driver_src_dir):
+        os.makedirs(driver_src_dir)
+
+    if os.path.exists(media_build_dir):
+        runner.run(["git", "pull", "origin", "master"], cwd = media_build_dir)
+    else:
+        runner.run(["git", "clone",
+                    "https://github.com/tbsdtv/media_build.git"],
+                   cwd = driver_src_dir)
+
+    if os.path.exists(media_dir):
+        runner.run(["git", "pull", "origin", "latest"], cwd = media_dir)
+    else:
+        runner.run(["git", "clone", "--depth=1",
+                    "https://github.com/tbsdtv/linux_media.git",
+                    "-b", "latest", "./media"], cwd = driver_src_dir)
+
+    # Build the media drivers
+    nproc = int(subprocess.check_output(["nproc"]).decode().rstrip())
+    nproc_arg = "-j" + str(nproc)
+
+    runner.run(["make", "cleanall"], cwd = media_build_dir)
+    runner.run(["make", "dir", "DIR=../media"], cwd = media_build_dir)
+    runner.run(["make", "allyesconfig"], cwd = media_build_dir)
+    runner.run(["make", nproc_arg], cwd = media_build_dir)
+
+    # Delete the previous Media Tree installation
+    media_lib_path = "/lib/modules/" + linux_release + \
+                     "/kernel/drivers/media/"
+    runner.run(
+        util.root_cmd(["rm", "-rf", media_lib_path]),
+        cwd = media_build_dir
+    )
+
+    # Install the new Media Tree
+    runner.run(util.root_cmd(["make", "install"]), cwd = media_build_dir)
+
+    # Download the firmware
+    tbs_linux_url = "https://www.tbsdtv.com/download/document/linux/"
+    fw_tarball    = "tbs-tuner-firmwares_v1.0.tar.bz2"
+    fw_url        = tbs_linux_url + fw_tarball
+    _download_file(fw_url, driver_src_dir, args.dry_run)
+
+    # Install the firmware
+    runner.run(util.root_cmd(["tar", "jxvf", fw_tarball, "-C",
+                              "/lib/firmware/"]), cwd = driver_src_dir)
 
