@@ -63,6 +63,8 @@ def subparser(subparsers):
                        help='Samples per symbol, or, equivalently, the '
                            'target oversampling ratio')
     rtl_group = rtl_p.add_mutually_exclusive_group()
+    rtl_group.add_argument('--rtl-idx', default=0, type=int,
+                           help='RTL-SDR device index')
     rtl_group.add_argument('-g', '--gain', default=40, type=float,
                            help='RTL-SDR Rx gain')
     rtl_group.add_argument('-f', '--iq-file', default=None,
@@ -192,8 +194,8 @@ def run(args):
         l_band_freq -= cfo_corr_range
 
     if (args.iq_file is None or args.record):
-        rtl_cmd = ["rtl_sdr", "-g", str(args.gain), "-f",
-                   str(l_band_freq), "-s", str(samp_rate)]
+        rtl_cmd = ["rtl_sdr", "-g", str(args.gain), "-f", str(l_band_freq),
+                   "-s", str(samp_rate), "-d", str(args.rtl_idx)]
         if (args.record):
             bytes_per_sec = (2*samp_rate)/(2**20)
             print("IQ recording will be saved on file {}".format(

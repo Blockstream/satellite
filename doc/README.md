@@ -10,4 +10,5 @@
 - [Antenna Pointing](antenna-pointing.md)
 - Further Information
   - [Quick Reference](quick-reference.md)
+  - [Dual-Satellite Reception](dual-satellite.md)
   - [Satellite API](../api/README.md)

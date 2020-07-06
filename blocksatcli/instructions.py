@@ -123,8 +123,8 @@ def _print_s400_instructions(info):
           "on the antenna pointing afterwards.")
     print()
 
-    print("4. Go to Services > Tun1:\n")
-    print("Scroll to \"Manage MPE PIDs\"")
+    print("4. Go to Services > RF1:\n")
+    print("Scroll to \"Manage MPE/ULE PIDs\"")
     for pid in defs.pids:
         print("- Enter %d on \"New PID\" and click \"Add\"." %(pid))
     _item("Apply")
@@ -136,6 +136,10 @@ def _print_s400_instructions(info):
           "configure the IP addresses. Note LAN 1 is the interface that "
           "will deliver the data packets received over satellite, whereas "
           "LAN2 is optional and exclusively for management.")
+    _item("""If you are configuring the second RF interface on the S400 for a
+    dual-satellite setup, on step 2, go to \"Interfaces > RF2\" instead of
+    \"RF1\". Correspondingly, on step 3, check the \"RF 2 Lock\" indicator,
+    and on step 4, go to \"Services > RF2\".""")
     print()
 
     util.prompt_for_enter()

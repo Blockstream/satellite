@@ -7,11 +7,10 @@ The Blockstream Satellite network broadcasts the Bitcoin blockchain using the
 [second-generation Digital Video Broadcasting Satellite (DVB-S2)
 standard](https://en.wikipedia.org/wiki/DVB-S2). To receive this signal, you
 will need a DVB-S2 receiver, for which there are a couple of options. The
-output of the receiver will be a data stream that you will feed to a host
-running the [Bitcoin
-Satellite](https://github.com/Blockstream/bitcoinsatellite/) application. This
-application, in turn, will decode the blocks received over satellite and keep
-the blockchain in sync.
+receiver output will be a data stream that you will feed to a host running the
+[Bitcoin Satellite](https://github.com/Blockstream/bitcoinsatellite/)
+application. This application, in turn, will decode the blocks received over
+satellite and keep the blockchain in sync.
 
 Find out if your location has coverage by looking at our [Coverage
    Map](https://blockstream.com/satellite/#satellite_network-coverage).
@@ -29,14 +28,13 @@ You can find detailed guidance for these steps on this documentation.
 
 ## Hardware
 
-The first step to get started with Blockstream Satellite is to gather all the
-required hardware components. Satellite Kits with all components included are
+The first step to getting started with Blockstream Satellite is to gather all
+the required hardware components. Satellite Kits with all parts included are
 available at the [Blockstream
 Store](https://store.blockstream.com/product-category/satellite_kits/).
 
 There are three supported options with varying levels of budget, performance,
-and CPU usage, as well as different form factors. They are summarized in the
-table below:
+CPU usage, and form factors. They are summarized in the table below:
 
 | **Setup**                        | Kit Available                                                                             | Budget          | Performance/Reliability | CPU Usage  | Form Factor | Dual Satellite* |
 |----------------------------------|-------------------------------------------------------------------------------------------|-----------------|-------------------------|------------|-------------|-----------------|
@@ -83,11 +81,11 @@ store](https://store.blockstream.com/product-category/satellite_kits/).
 ## Software and Setup Configuration
 
 Setup configurations are dependent on your receiver choice and on the satellite
-that covers your region. To obtain the configuration instructions that are
-suitable to your setup, please use the Blockstream Satellite command-line
-interface (CLI).
+that covers your region. To obtain the configuration instructions for your
+setup, please use the Blockstream Satellite command-line interface (CLI).
 
-First install the CLI as follows:
+First, install the CLI as follows:
+
 ```
 sudo pip3 install blocksat-cli
 ```
@@ -98,11 +96,13 @@ sudo pip3 install blocksat-cli
 > the installation using `sudo`.
 
 Next, run the configuration helper:
+
 ```
 blocksat-cli cfg
 ```
 
 Then, run the instructions helper and follow the instructions:
+
 ```
 blocksat-cli instructions
 ```
@@ -134,6 +134,7 @@ following the detailed user guide below:
 - [Bitcoin Satellite](doc/bitcoin.md)
 - Further Information
   - [Quick Reference](doc/quick-reference.md)
+  - [Dual-Satellite Reception](doc/dual-satellite.md)
   - [Satellite API](api/README.md)
 
 ## Support
