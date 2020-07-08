@@ -1,7 +1,7 @@
 """Manage software dependencies"""
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 from . import config, defs, util
-import os, subprocess, logging, glob
+import sys, os, subprocess, logging, glob
 from shutil import which
 from pprint import pformat
 import platform, distro, requests
@@ -124,12 +124,12 @@ def _update_pkg_repo(interactive, dry):
             cmd.append("-y")
         cmds.append(cmd)
     elif (which("dnf")):
-        cmd = ["dnf", "update"]
+        cmd = ["dnf", "check-update"]
         if (not interactive):
             cmd.append("-y")
         cmds.append(cmd)
     elif (which("yum")):
-        cmd = ["yum", "update"]
+        cmd = ["yum", "check-update"]
         if (not interactive):
             cmd.append("-y")
         cmds.append(cmd)
@@ -372,20 +372,60 @@ def drivers(args):
     runner = util.ProcessRunner(logger, args.dry_run)
 
     # Install pre-requisites
-    linux_release = platform.release()
-    linux_headers = "linux-headers-" + linux_release
-    apt_pkg_list  = ["make", "gcc", "git", "patch", "patchutils",
+    linux_release  = platform.release()
+    linux_headers  = "linux-headers-" + linux_release
+    kernel_devel   = "kernel-devel-" + linux_release
+    kernel_headers = "kernel-headers-" + linux_release
+    apt_pkg_list   = ["make", "gcc", "git", "patch", "patchutils",
                      "libproc-processtable-perl",
                      linux_headers]
-    dnf_pkg_list  = ["make", "gcc", "git", "patch", "patchutils",
+    dnf_pkg_list   = ["make", "gcc", "git", "patch", "patchutils",
                      "perl-Proc-ProcessTable", "perl-Digest-SHA",
-                     "kernel-devel", "kernel-headers"]
-    yum_pkg_list  =  dnf_pkg_list
+                      kernel_devel, kernel_headers]
+    yum_pkg_list   =  dnf_pkg_list
 
-    # On dnf, the kernel-devel/headers package will come based on the most
-    # recent kernel version. Hence, we must run "dnf update" to make sure the
-    # kernel gets updated to this version.
-    _update_pkg_repo(interactive, args.dry_run)
+    # On dnf, not always the kernel-devel/headers package will be available for
+    # the same version as the current kernel. Check:
+    dnf_update_required = False
+    if (which("dnf")):
+        res_d = runner.run(["dnf", "list", kernel_devel],
+                           stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                           nocheck = True)
+        res_h = runner.run(["dnf", "list", kernel_headers],
+                           stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                           nocheck = True)
+        if (not args.dry_run):
+            kernel_devel_unavailable   = (res_d.returncode != 0)
+            kernel_headers_unavailable = (res_h.returncode != 0)
+            dnf_update_required        = kernel_devel_unavailable or \
+                                         kernel_headers_unavailable
+            if (kernel_devel_unavailable):
+                print("Could not find package {}".format(kernel_devel))
+            if (kernel_headers_unavailable):
+                print("Could not find package {}".format(kernel_headers))
+
+    # If the target kernel-devel/kernel-headers versions are not available for
+    # the current release, suggest to run dnf update:
+    if (dnf_update_required):
+        res = runner.run(["dnf", "list", "--upgrades", "kernel"],
+                         stdout=subprocess.DEVNULL,
+                         stderr=subprocess.DEVNULL,
+                         nocheck = True)
+        kernel_update_available = (res.returncode == 0)
+        if (kernel_update_available):
+            print("Kernel update required")
+            if (util._ask_yes_or_no("OK to run \"dnf update\"?")):
+                cmd = ["dnf", "update"]
+                runner.run(util.root_cmd(cmd))
+                print("Please reboot to load the new kernel and try the " +
+                      "command below again:")
+                print("\n  blocksat-cli deps tbs-drivers\n")
+                sys.exit(1)
+                return
+        else:
+            logger.warning("Could not find an available kernel update")
+
+    #_update_pkg_repo(interactive, args.dry_run)
     _install_packages(apt_pkg_list, dnf_pkg_list, yum_pkg_list,
                       interactive=interactive, update=False, dry=args.dry_run)
 
@@ -440,6 +480,8 @@ def drivers(args):
     # Install the firmware
     runner.run(util.root_cmd(["tar", "jxvf", fw_tarball, "-C",
                               "/lib/firmware/"]), cwd = driver_src_dir)
+
+    print("Installation completed successfully. Please reboot now.")
 
 
 def check_apps(apps):

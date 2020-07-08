@@ -217,7 +217,8 @@ class ProcessRunner():
         self.dry      = dry
         self.last_cwd = None
 
-    def run(self, cmd, cwd=None, env=None):
+    def run(self, cmd, cwd=None, env=None, stdout=None, stderr=None,
+            nocheck=False):
         assert(isinstance(cmd, list))
         if (self.dry):
             if (cwd != self.last_cwd):
@@ -229,7 +230,10 @@ class ProcessRunner():
         if (self.logger is not None):
             self.logger.debug("> " + " ".join(cmd))
 
-        res = subprocess.run(cmd, cwd=cwd, env=env)
-        res.check_returncode()
+        res = subprocess.run(cmd, cwd=cwd, env=env, stdout=stdout,
+                             stderr=stderr)
+        if (not nocheck):
+            res.check_returncode()
+        return res
 
 
