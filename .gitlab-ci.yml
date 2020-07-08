@@ -1,0 +1,18 @@
+.test-dependencies:
+  script:
+    - python3 -m unittest discover
+
+test-ubuntu:
+  image: ubuntu:focal
+  extends: .test-dependencies
+  before_script:
+    - apt update -y && apt install -y make python3 python3-setuptools python3-pip
+    - make && make install
+
+test-fedora:
+  image: fedora:32
+  extends: .test-dependencies
+  before_script:
+    - dnf update -y && dnf install -y make python3 python3-setuptools python3-pip
+    - make && make install
+

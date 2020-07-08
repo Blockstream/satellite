@@ -4,9 +4,9 @@ DIST       = dist/blocksat-cli-$(VERSION).tar.gz
 DISTRO     = ubuntu:bionic
 DISTRO_ALT = $(subst :,-,$(DISTRO))
 
-.PHONY: all docker clean clean-py pip
+.PHONY: all clean clean-py sdist wheel install docker pip
 
-all: docker
+all: sdist
 
 clean: clean-py
 
@@ -20,13 +20,20 @@ clean-py:
 $(DIST): $(PY_FILES)
 	python3 setup.py sdist
 
+sdist: $(DIST)
+
+wheel: $(DIST)
+	python3 setup.py bdist_wheel
+
+install: $(DIST)
+	pip3 install $(DIST)
+
 docker: $(DIST)
 	docker build --build-arg distro=$(DISTRO) \
 	-t blockstream/blocksat-host \
 	-t blockstream/blocksat-host-$(DISTRO_ALT) \
 	-f docker/blocksat-host.docker .
 
-pip: clean
-	python3 setup.py sdist bdist_wheel
+pip: clean wheel
 	python3 -m twine upload --repository pypi dist/*
 
