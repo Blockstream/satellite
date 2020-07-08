@@ -8,12 +8,6 @@ def subparser(subparsers):
                               description="Standalone DVB-S2 receiver manager",
                               help='Manage the standalone DVB-S2 receiver',
                               formatter_class=ArgumentDefaultsHelpFormatter)
-    p.add_argument('-i', '--interface',
-                    default=None,
-                    help='Network interface connected to the standalone \
-                    demodulator')
-    p.add_argument('-y', '--yes', default=False, action='store_true',
-                   help="Default to answering Yes to configuration prompts")
     p.set_defaults(func=print_help)
 
     subsubparsers = p.add_subparsers(title='subcommands',
@@ -22,6 +16,12 @@ def subparser(subparsers):
                                   description='Initial configurations',
                                   help='Configure the host to receive data \
                                   from the standalone demodulator')
+    p1.add_argument('-i', '--interface',
+                    default=None,
+                    help='Network interface connected to the standalone \
+                    demodulator')
+    p1.add_argument('-y', '--yes', default=False, action='store_true',
+                    help="Default to answering Yes to configuration prompts")
     p1.set_defaults(func=cfg_standalone)
 
     return p
