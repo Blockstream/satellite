@@ -458,6 +458,14 @@ def drivers(args):
     runner.run(["make", "cleanall"], cwd = media_build_dir)
     runner.run(["make", "dir", "DIR=../media"], cwd = media_build_dir)
     runner.run(["make", "allyesconfig"], cwd = media_build_dir)
+
+    # FIXME: Temporary workaround for error "modpost: "__devm_regmap_init_sccb"
+    # ov9650.ko undefined!": disable ov9650 from the build.
+    if (distro.id() == "fedora"):
+        runner.run(["sed", "-i",
+                    "s/CONFIG_VIDEO_OV9650=m/CONFIG_VIDEO_OV9650=n/g",
+                    "v4l/.config"], cwd = media_build_dir)
+
     runner.run(["make", nproc_arg], cwd = media_build_dir)
 
     # Delete the previous Media Tree installation
