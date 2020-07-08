@@ -1,7 +1,7 @@
 """Manage software dependencies"""
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 from . import config, defs, util
-import os, subprocess, logging
+import os, subprocess, logging, glob
 from shutil import which
 from pprint import pformat
 import platform, distro, requests
@@ -45,6 +45,43 @@ def _check_distro(supported_distros, setup_type):
         raise ValueError("Unsupported Linux distribution")
 
 
+def _check_pkg_repo():
+    """Check if Blockstream Satellite's binary package repository is enabled
+
+    Returns:
+        (bool) True if the repository is already enabled
+
+    """
+    found = False
+    if (which("apt")):
+        apt_sources = glob.glob("/etc/apt/sources.list.d/*")
+        apt_sources.append("/etc/apt/sources.list")
+        cmd = ["grep", "blockstream/satellite"]
+        cmd.extend(apt_sources)
+        res = util.run_and_log(cmd, stdout=subprocess.DEVNULL, nocheck=True,
+                               logger=logger)
+        found = (res.returncode == 0)
+    elif (which("dnf")):
+        pkgs  = util.run_and_log(["dnf", "copr", "list", "--enabled"],
+                                 logger=logger,
+                                 output=True)
+        found =  ("copr.fedorainfracloud.org/blockstream/satellite" in pkgs)
+    elif (which("yum")):
+        yum_sources = glob.glob("/etc/yum.repos.d/*")
+        cmd = ["grep", "blockstream/satellite"]
+        cmd.extend(yum_sources)
+        res = util.run_and_log(cmd, stdout=subprocess.DEVNULL, nocheck=True,
+                               logger=logger)
+        found = (res.returncode == 0)
+    else:
+        raise RuntimeError("Could not find a supported package manager")
+
+    if (found):
+        logger.debug("blockstream/satellite repository already enabled")
+
+    return found
+
+
 def _enable_pkg_repo(interactive, dry):
     """Enable Blockstream Satellite's binary package repository"""
     cmds = list()
@@ -75,7 +112,7 @@ def _enable_pkg_repo(interactive, dry):
         if (dry):
             print(" ".join(util.root_cmd(cmd)))
         else:
-            util.run_and_log(util.root_cmd(cmd), logger)
+            util.run_and_log(util.root_cmd(cmd), logger=logger)
 
 
 def _update_pkg_repo(interactive, dry):
@@ -103,7 +140,7 @@ def _update_pkg_repo(interactive, dry):
         if (dry):
             print(" ".join(util.root_cmd(cmd)))
         else:
-            util.run_and_log(util.root_cmd(cmd), logger)
+            util.run_and_log(util.root_cmd(cmd), logger=logger)
 
 
 def _install_packages(apt_list, dnf_list, yum_list, interactive=True,
@@ -153,7 +190,7 @@ def _install_packages(apt_list, dnf_list, yum_list, interactive=True,
     if (dry):
         print(" ".join(util.root_cmd(cmd)))
     else:
-        util.run_and_log(util.root_cmd(cmd), logger, env=env)
+        util.run_and_log(util.root_cmd(cmd), logger=logger, env=env)
 
 
 def _install_common(interactive=True, update=False, dry=False, btc=False):
@@ -169,8 +206,10 @@ def _install_common(interactive=True, update=False, dry=False, btc=False):
 
     _install_packages(apt_pkg_list, dnf_pkg_list, yum_pkg_list, interactive,
                       update, dry)
+
     # Enable our binary package repository
-    _enable_pkg_repo(interactive, dry)
+    if not _check_pkg_repo():
+        _enable_pkg_repo(interactive, dry)
 
     # Install bitcoin-satellite
     if (btc):

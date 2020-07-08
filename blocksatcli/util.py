@@ -193,12 +193,22 @@ def run_or_print_root_cmd(cmd, logger=None):
         print("> " + " ".join(cmd) + "\n")
 
 
-def run_and_log(cmd, logger=None, cwd=None, env=None):
+def run_and_log(cmd, logger=None, cwd=None, env=None, output=False, stdout=None,
+                stderr=None, nocheck=False):
     assert(isinstance(cmd, list))
     if (logger is not None):
         logger.debug("> " + " ".join(cmd))
-    res = subprocess.run(cmd, cwd=cwd, env=env)
-    res.check_returncode()
+
+    if (output):
+        res = subprocess.check_output(cmd, cwd=cwd, env=env)
+        # NOTE: don't overwrite stdout/stderr for check_output
+        return res.decode().splitlines()
+    else:
+        res = subprocess.run(cmd, cwd=cwd, env=env, stdout=stdout,
+                             stderr=stderr)
+        if (not nocheck):
+            res.check_returncode()
+        return res
 
 
 class ProcessRunner():
