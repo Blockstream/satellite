@@ -1,6 +1,6 @@
 """Standalone Demodulator"""
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
-from . import rp, firewall, defs, config
+from . import rp, firewall, defs, config, dependencies
 
 
 def subparser(subparsers):
@@ -40,6 +40,10 @@ def cfg_standalone(args):
 
     interface = args.interface if (args.interface is not None) else \
                 user_info['setup']['netdev']
+
+    # Check if all dependencies are installed
+    if (not dependencies.check_apps(["iptables"])):
+        return
 
     rp.set_filters([interface], prompt=(not args.yes))
     firewall.configure([interface], defs.src_ports, igmp=True,

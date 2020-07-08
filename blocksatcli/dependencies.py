@@ -402,3 +402,17 @@ def drivers(args):
     runner.run(util.root_cmd(["tar", "jxvf", fw_tarball, "-C",
                               "/lib/firmware/"]), cwd = driver_src_dir)
 
+
+def check_apps(apps):
+    """Check if required apps are installed"""
+    for app in apps:
+        if (not which(app)):
+            logging.error("Couldn't find {}. Is it installed?".format(app))
+            print("\nTo install software dependencies, run:")
+            print("""
+            blocksat-cli deps install
+            """)
+            return False
+    # All apps are installed
+    return True
+

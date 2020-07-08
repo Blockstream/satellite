@@ -1,6 +1,6 @@
 """SDR Receiver Wrapper"""
 from argparse import ArgumentDefaultsHelpFormatter
-from . import config, defs, util
+from . import config, defs, util, dependencies
 import subprocess, logging, textwrap, os
 from shutil import which
 logger = logging.getLogger(__name__)
@@ -34,21 +34,6 @@ def _tune_max_pipe_size(pipesize):
         return subprocess.check_output(cmd)
     else:
         return True
-
-
-def _check_apps(tsp_disabled):
-    """Check if required apps are installed"""
-
-    apps      = ["rtl_sdr", "leandvb", "ldpc_tool", "tsp"]
-
-    for app in apps:
-        if (app == "tsp" and tsp_disabled):
-            continue
-        if (not which(app)):
-            logging.error("Couldn't find {}. Is it installed?".format(app))
-            return False
-    # All apps are installed
-    return True
 
 
 def subparser(subparsers):
@@ -163,12 +148,13 @@ def run(args):
     if (not _tune_max_pipe_size(pipe_size_bytes)):
         return
 
-    tsp_unused = args.no_tsp or args.record
-    if (not _check_apps(tsp_unused)):
-        print("\nTo install software dependencies, run:")
-        print("""
-        blocksat-cli deps install
-        """)
+    # Check if all dependencies are installed
+    apps = ["rtl_sdr"]
+    if not args.record:
+        apps.extend(["leandvb", "ldpc_tool"])
+    if not args.no_tsp:
+        apps.append("tsp")
+    if (not dependencies.check_apps(apps)):
         return
 
     # Demodulator configs

@@ -3,7 +3,7 @@ from pprint import pformat
 from ipaddress import IPv4Interface
 import os, sys, signal, argparse, subprocess, time, logging, threading, json
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
-from . import config, util, defs, rp, firewall, ip
+from . import config, util, defs, rp, firewall, ip, dependencies
 import textwrap
 logger = logging.getLogger(__name__)
 
@@ -540,6 +540,10 @@ def _common(args):
     if (user_info is None):
         return
 
+    # Check if dvbnet is available before trying to find the adapter
+    if (not dependencies.check_apps(["dvbnet", "dvb-fe-tool"])):
+        return
+
     # Find adapter
     if (args.adapter is None):
         adapter, frontend = _find_adapter()
@@ -561,6 +565,13 @@ def usb_config(args):
     if (common_params is None):
         return
     user_info, adapter, frontend = common_params
+
+    # Check if dependencies other than dvbnet are installed
+    apps = ["ip"]
+    if not args.skip_firewall:
+        apps.append("iptables")
+    if (not dependencies.check_apps(apps)):
+        return
 
     if args.ip is None:
         ips = ip.compute_rx_ips(user_info['sat']['ip'], len(args.pid))
@@ -616,6 +627,10 @@ def launch(args):
         return
     user_info, adapter, frontend = common_params
 
+    # Check if all dependencies are installed
+    if (not dependencies.check_apps(["dvbv5-zap"])):
+        return
+
     # Channel configuration file
     chan_conf = user_info['setup']['channel']
 
@@ -670,6 +685,9 @@ def list_subcommand(args):
     Handles the find-adapter subcommand
 
     """
+    if (not dependencies.check_apps(["dvbnet", "dvb-fe-tool"])):
+        return
+
     _find_adapter(list_only=True)
 
 
@@ -681,6 +699,9 @@ def rm_subcommand(args):
     if (os.geteuid() != 0):
         logger.error("Root access is required to remove dvbnet interfaces.")
         print("Please, run as root.")
+        return
+
+    if (not dependencies.check_apps(["dvbnet", "dvb-fe-tool", "ip"])):
         return
 
     # Find adapter
