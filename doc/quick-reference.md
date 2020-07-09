@@ -32,6 +32,12 @@ Install the command-line interface (CLI):
 sudo pip3 install blocksat-cli
 ```
 
+Alternatively, to upgrade a previous installation of the CLI, run:
+
+```
+sudo pip3 install blocksat-cli --upgrade
+```
+
 Set initial configurations:
 
 ```
