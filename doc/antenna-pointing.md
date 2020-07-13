@@ -103,7 +103,7 @@ need two people: one to move the antenna and one to monitor the computer.
 
 The instructions for locking to Blockstream Satellite's signal vary depending on
 your hardware. Please refer to the specific instructions of your chosen
-demodulator:
+receiver:
 
 - [TBS5927](#tbs5927)
 - [Novra S400](#novra-s400)
@@ -141,7 +141,7 @@ RF     (0x01) Signal= -48,05dBm
 At this point, you can expect at least that the signal level is sufficiently
 high, provided that the LNB is really on and connected. This is because the LNB
 amplifies the signal received over satellite and feeds a reasonably high signal
-level into the demodulator. You can expect the level to be higher than -69 dBm,
+level into the receiver. You can expect the level to be higher than -69 dBm,
 which is the minimum supported level specified for the TBS5927, and not higher
 than -23 dBm, which is TBS5927's maximum.
 
@@ -153,8 +153,8 @@ the elevation. Every time you make an adjustment, wait a few seconds and check
 if the unit has found the signal in this position. If not, try another
 adjustment and so on.
 
-Once the demodulator finds a carrier, it will print a line starting with
-`Carrier`, as follows:
+Once the receiver finds a carrier, it will print a line starting with `Carrier`,
+as follows:
 
 ```
 Carrier(0x03) Signal= -48,08dBm
@@ -204,7 +204,7 @@ Lock   (0x1f) Signal= -47,73dBm C/N= 7,20dB postBER= 0
 ```
 
 You should pay special attention to the carrier-to-noise ratio (C/N)
-parameter. The higher the C/N value, the better. Given that the demodulator is
+parameter. The higher the C/N value, the better. Given that the receiver is
 locked already, you can infer that the antenna pointing is already very close to
 the optimal position. At this point, you can experiment with gentle adjustments
 to the pointing angles until you can maximize the C/N.
@@ -577,9 +577,9 @@ As explained in the [hardware guide](hardware.md#satellite-dish), it may only be
 feasible to receive the high-throughput stream with a dish of 90 cm or higher.
 
 There are several related indicators of SNR and the measurement you will have
-access to depends on your demodulator. You can compare the recommended SNR in
-the above table to any of the following (related) metrics that you can read from
-the demodulator:
+access to depends on your receiver. You can compare the recommended SNR in the
+above table to any of the following (related) metrics that you can read from the
+receiver:
 
 - C/N (carrier-to-noise ratio)
 - Es/No
@@ -589,14 +589,14 @@ For example, if using an SDR setup, you will see MER measurements and it is
 recommended to have at least 7.5 dB of MER for reliable reception of the
 high-throughput stream.
 
-Note that, regardless of SNR, the USB and standalone demodulators will
-continuously try to receive both high and low-throughput streams. For example,
-if you start with insufficient SNR for the high-throughput stream, but at some
-point the SNR improves and becomes sufficient, then the demodulator will start
-to get high-throughput packets. This holds only for the TBS 5927 and the Novra
-S400 demodulators. In contrast, this is **not currently possible** in the SDR
-setup. In the SDR setup, you will need to specify which stream you want to try
-receiving, as explained in the [SDR Guide](sdr.md#running).
+Note that, regardless of SNR, the USB and standalone receivers will continuously
+try to receive both high and low-throughput streams. For example, if you start
+with insufficient SNR for the high-throughput stream, but at some point the SNR
+improves and becomes sufficient, then the receiver will start to get
+high-throughput packets. This holds only for the TBS 5927 and the Novra S400
+receivers. In contrast, this is **not currently possible** in the SDR setup. In
+the SDR setup, you will need to specify which stream you want to try receiving,
+as explained in the [SDR Guide](sdr.md#running).
 
 ## Next Steps
 

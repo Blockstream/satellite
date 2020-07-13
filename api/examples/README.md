@@ -124,13 +124,13 @@ Then, launch the API data reader as follows:
 ```
 
 where `ifname` is the name of the network interface that is connected to your
-Blockstream Satellite receiver/demodulator.
+Blockstream Satellite receiver.
 
-> In case you are using a [USB demodulator](../../doc/tbs.md), the interface
+> In case you are using a [USB receiver](../../doc/tbs.md), the interface
 > will typically be named `dvb0_0` and `dvb0_1`, although the numbers may
 > occasionally vary. Check `ifconfig` or `ip a`.
 >
-> In case you are using an [SDR-based demodulator](../../sdr.md), the interface
+> In case you are using an [SDR-based receiver](../../sdr.md), the interface
 > will be the loopback interface, typically named `lo` in the operating system.
 
 Next, send some data. On another terminal session, activate the Python virtual
@@ -166,10 +166,10 @@ directly to the server through the Internet. Hence, the way to receive Testnet
 data is with the demo receiver that is explained in [Example
 3](#example-3-receiving-data-from-the-api-sandbox)).
 
-Once the API server effectively transmits your data and your satellite
-receiver/demodulator receives the transmission, the data is expected to appear
-at the API data reader application. In the end, the received file will be saved
-in the `downloads` folder.
+Once the API server effectively transmits your data and your satellite receiver
+gets the transmission, the data is expected to appear at the API data reader
+application. In the end, the received file will be saved in the `downloads`
+folder.
 
 For further understanding, you can compare the received file with the one that
 was sent. For example, by running `md5sum` on both files. Also, you can test
@@ -213,13 +213,13 @@ In this case, launch the API data reader as follows:
 ```
 
 where `ifname` is the name of the network interface that is connected to your
-Blockstream Satellite receiver/demodulator.
+Blockstream Satellite receiver.
 
-> In case you are using a [USB demodulator](../../doc/tbs.md), the interface
+> In case you are using a [USB receiver](../../doc/tbs.md), the interface
 > will typically be named `dvb0_0` and `dvb0_1`, although the numbers may
 > occasionally vary. Check `ifconfig` or `ip a`.
 >
-> In case you are using an [SDR-based demodulator](../../sdr.md), the interface
+> In case you are using an [SDR-based receiver](../../sdr.md), the interface
 > will be the loopback interface, typically named `lo` in the operating system.
 
 Next, send some data using:
@@ -355,7 +355,7 @@ server. That is, it needs to be launched as follows:
 
 User messages sent over the API are encapsulated over UDP/IPv4. The UDP
 datagrams, in turn, are broadcast over the satellite network and received by the
-Blockstream Satellite receivers/demodulators.
+Blockstream Satellite receivers.
 
 The UDP datagrams are formatted as follows:
 

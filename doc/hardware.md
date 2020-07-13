@@ -12,7 +12,7 @@ Satellite receiver setup.
         - [Blockstream Satellite Pro Kit](#blockstream-satellite-pro-kit)
     - [Satellite Kit Comparison](#satellite-kit-comparison)
 - [Hardware Requirements](#hardware-requirements)
-    - [Demodulator Options](#demodulator-options)
+    - [Receiver Options](#receiver-options)
     - [Common Components](#common-components)
         - [Satellite Dish](#satellite-dish)
         - [LNB](#lnb)
@@ -21,7 +21,7 @@ Satellite receiver setup.
     - [Setup-Specific Components](#setup-specific-components)
         - [Components for a Software-defined Radio (SDR) Setup](#components-for-a-software-defined-radio-sdr-setup)
         - [Components for a Linux USB Receiver Setup](#components-for-a-linux-usb-receiver-setup)
-        - [Components for a Standalone Demodulator Setup](#components-for-a-standalone-demodulator-setup)
+        - [Components for a Standalone Receiver Setup](#components-for-a-standalone-receiver-setup)
     - [Further Notes](#further-notes)
         - [“Universal” LNB:](#universal-lnb)
         - [LNB vs LNBF:](#lnb-vs-lnbf)
@@ -32,9 +32,9 @@ Satellite receiver setup.
 
 There are three possible satellite kits:
 
-1. SDR Kit (w/ SDR-based Demodulator)
-2. [Basic USB Kit](https://store.blockstream.com/product/blockstream-satellite-basic-kit/). (w/ Linux USB Demodulator)
-3. [Pro Ethernet Kit](https://store.blockstream.com/product/blockstream-satellite-pro-kit/). (w/ Standalone Demodulator)
+1. SDR Kit (w/ SDR-based Receiver)
+2. [Basic USB Kit](https://store.blockstream.com/product/blockstream-satellite-basic-kit/). (w/ Linux USB Receiver)
+3. [Pro Ethernet Kit](https://store.blockstream.com/product/blockstream-satellite-pro-kit/). (w/ Standalone Receiver)
 
 Kits #2 and #3 are available for pre-order at the [Blockstream
 Store](https://store.blockstream.com/product-category/satellite_kits/).
@@ -147,7 +147,7 @@ switching the band of a Universal LNB between Ku low and Ku high bands. This
 feature is required in order to use Universal LNBs for receiving from the Galaxy
 18 and Eutelsat 113 satellites.
 
-<sup>2</sup> The demodulator can receive the two streams that are sent over the
+<sup>2</sup> The receiver can receive the two streams that are sent over the
 Blockstream Satellite network concurrently. More information on the two streams
 below.
 
@@ -155,8 +155,8 @@ below.
 overlapping coverage from satellites. This feature enables greater redundancy,
 higher bitrate, and faster sync times.
 
-<sup>4</sup> The demodulator can feed the data stream received over satellite to
-multiple hosts at the same time. The demodulator decodes multicast-addressed
+<sup>4</sup> The receiver can feed the data stream received over satellite to
+multiple hosts at the same time. The receiver decodes multicast-addressed
 packets sent over DVB-S2 and relays the multicast packets to multiple hosts
 listening for them in the network.
 
@@ -165,34 +165,33 @@ the remainder of this page.
 
 # Hardware Requirements
 
-## Demodulator Options
+## Receiver Options
 
-The demodulator is the device or software application that processes the
-incoming satellite signal and decodes the data stream from it. There are three
-supported types of demodulator. For each of them, specific hardware components
-are required.
+The receiver is the device or software application that processes the incoming
+satellite signal and decodes the data stream from it. There are three supported
+types of receiver. For each of them, specific hardware components are required.
 
-The three demodulator options are summarized below:
+The three receiver options are summarized below:
 
-- **Software-defined Radio (SDR)**: this demodulator is entirely implemented in
+- **Software-defined Radio (SDR)**: this receiver is entirely implemented in
   software. You will need an SDR interface, which you will connect to the USB
   port of your PC. The SDR interface will collect and feed signal samples to the
-  demodulator application/software running in your PC, which in turn will decode
+  receiver application/software running in your PC, which in turn will decode
   and output the data stream to be fed into [Bitcoin
   Satellite](https://github.com/Blockstream/bitcoinsatellite). This is the most
   affordable option among the three, as it works with affordable RTL-SDR USB
   dongles. However, it is also the option that is expected to present the most
   limited performance and reliability among the three. Also, this option is
-  CPU-intensive, since the demodulator application will run in the CPU.
+  CPU-intensive, since the receiver application will run in the CPU.
 
-- **Linux USB Demodulator**: in this setup the demodulation is entirely carried out
-  in hardware, in the external demodulator device that is connected to your host
+- **Linux USB Receiver**: in this setup the demodulation is entirely carried out
+  in hardware, in the external receiver device that is connected to your host
   via USB. In this option, you will need to install specific drivers and Linux
-  DVB-S2 apps that will allow the host to configure the external demodulator and
+  DVB-S2 apps that will allow the host to configure the external receiver and
   get the data from it. This option is expected to perform greatly and with
   negligible CPU usage of the host.
 
-- **Standalone Demodulator**: this is also a hardware-based setup, with the
+- **Standalone Receiver**: this is also a hardware-based setup, with the
   difference that it is completely independent of the host PC. It connects to
   the PC through the network and can potentially feed multiple PCs
   concurrently. This is also expected to be a great option in terms of
@@ -201,36 +200,36 @@ The three demodulator options are summarized below:
 ## Common Components
 
 These are the hardware components that are required in all setups, regardless of
-the demodulator choice.
+the receiver choice.
 
 ### Satellite Dish
 
 Blockstream Satellite is designed to work with small antennas. In [Ku
-band](frequency.md), it is expected to work with antennas of only 45cm in
-diameter, while in C band it is expected to work with 60cm or higher. However, a
-larger antenna is always better. When possible, we recommend installing an
-antenna larger than the referred minimum if one is readily available. Antennas
-of 60cm, 90cm, and 1.2m are readily available.
+band](frequency.md#signal-bands), it is expected to work with antennas of only
+45cm in diameter, while in C band it is expected to work with 60cm or
+higher. However, a larger antenna is always better. When possible, we recommend
+installing an antenna larger than the referred minimum if one is readily
+available. Antennas of 60cm, 90cm, and 1.2m are readily available.
 
 An alternative to conventional satellite dishes is the stylish and more compact
 form factor of a flat panel antenna. A recommended flat panel model is
 [available at our
 store](https://store.blockstream.com/product/flat-panel-antenna/). This antenna
-includes the LNB internally, and so there is no need to purchase an LNB (and LNB
-bracket) when using a flat panel. Note, however, that this flat panel model only
-works in Ku band, so it is not suitable for reception from [T18V C band
-region](frequency.md).
+includes the LNB internally, and so there is no need to purchase an LNB (nor an
+LNB bracket) when using a flat panel. Note, however, that this model only works
+in Ku band, so it is not suitable for reception from [T18V C band
+region](frequency.md#signal-bands).
 
 The Blockstream Satellite network propagates two independent data streams. One
 is a more reliable stream that is designed to work with the minimum supported
 antenna size. The other stream has much higher bit-rate and accordingly requires
 better signal quality on the receive side. It is designed to work with a 90cm
-dish. Hence, you can decide dish size based on what you want to accomplish with
-your Blockstream Satellite setup.
+dish. Hence, you can decide the dish size based on what you want to accomplish
+with your Blockstream Satellite setup.
 
-| Stream          | Throughput | Minimum Dish Size                 | Purpose               |
-|-----------------|------------|-----------------------------------|-----------------------|
-| Low-throughput  | ~96 kbps   | 45 cm in Ku band, 60 cm in C Band | Repeats the past 24h of blocks and keeps receiver nodes in sync  |
+| Stream          | Throughput | Minimum Dish Size                 | Purpose                                                                              |
+|-----------------|------------|-----------------------------------|--------------------------------------------------------------------------------------|
+| Low-throughput  | ~96 kbps   | 45 cm in Ku band, 60 cm in C Band | Repeats the past 24h of blocks and keeps receiver nodes in sync                      |
 | High-throughput | ~1.55 Mbps | 90 cm                             | Broadcasts the entire blockchain and keeps receiver nodes in sync with lower latency |
 
 > NOTE: the minimum dish size specified for the high-throughput stream is a safe
@@ -261,15 +260,17 @@ parameters are the following:
 - LO Stability
 
 **In a nutshell,** you are advised to use a PLL LNB with linear polarization and
-LO stability within `+- 250 kHz` or less, and the LNB should be suitable for the
-frequency of the satellite covering your location.
+LO stability within `+- 250 kHz` or less. Also, the LNB should be suitable for
+the frequency of the signal covering your location.
 
 Regarding **frequency range**, you must verify that the input frequency range of
 the LNB encompasses the frequency of the Blockstream Satellite signal in your
 coverage area. For example, if you are located in North America and you are
 covered by the Eutelsat 113 satellite, your Blockstream Satellite frequency is
 12066.9 GHz. Thus, an LNB that operates from 11.7 GHz to 12.2 GHz would work. In
-contrast, an LNB that operates from 10.7 GHz to 11.7 GHz would **not** work.
+contrast, an LNB that operates from 10.7 GHz to 11.7 GHz would **not** work. You
+can check the signal frequencies of each region in [the frequency
+guide](frequency.md#signal-frequencies).
 
 Regarding **polarization**, an LNB with **Linear Polarization** is
 required. While most Ku band LNBs are linearly polarized, some popular satellite
@@ -290,13 +291,14 @@ typically more accurate and stable. Hence, we advise to look for a PLL LNB,
 instead of a traditional dielectric oscillator (DRO) LNB.
 
 If you would like (or you need) to use a less stable LNB, it can also be
-used. The disadvantage is that this will increase the changes of eventually
-losing the signal, and so it will degrade the reliability of your setup.
+used. The disadvantage is that it will likely reduce the reliability of your
+setup (for example, increase the bit error rate).
 
-Please note also that, in case you are using an SDR-based setup, a **Universal
-LNB** may pose extra difficulties. Please refer to the [explanation regarding
-Universal LNBs](#universal-lnb). This limitation **does not** apply when using a
-Linux USB receiver or a Standalone demodulator.
+A common LNB option is the so-called **Universal Ku band LNB**. However, please
+note that, if you are using an SDR-based setup, a **Universal LNB** may pose
+extra difficulties. Please refer to the [explanation regarding Universal
+LNBs](#universal-lnb). This limitation **does not** apply when using the Linux
+USB or Standalone receiver options.
 
 Lastly, to avoid confusion, please note that *LNBF* and *LNB* often refer to the
 same thing. You can find further information [later in this page](#lnb-vs-lnbf).
@@ -314,14 +316,14 @@ ring that will accept a generic LNB.
 
 ### Coaxial Cables
 
-You will need a coaxial cable to connect the LNB to the demodulator or, in the
-case of the SDR-based setup, to connect the LNB to the power supply. The most
-popular and recommended type of coaxial cable is an RG6.
+You will need a coaxial cable to connect the LNB to the receiver or, in the case
+of the SDR-based setup, to connect the LNB to the power supply. The most popular
+and recommended type of coaxial cable is an RG6.
 
 ## Setup-Specific Components
 
 This section summarizes the additional components that are required for each
-type of setup, according to the demodulator choice.
+type of setup, according to the receiver choice.
 
 ### Components for a Software-defined Radio (SDR) Setup
 
@@ -360,9 +362,9 @@ tuner are marketed as **extended tuning range RTL-SDR** or **XTR RTL-SDR**.
 
 The next component is the **LNB Power Supply** (or Power Inserter). It supplies
 a DC voltage to the LNB via the coaxial cable, typically of 13 VDC or 18 VDC. On
-a non-SDR setup, the demodulator itself can provide power to the LNB, so there
-is no need for an external power supply. In contrast, this is not possible with
-an SDR-based setup using the SDR interface alone. Hence, an external supply is
+a non-SDR setup, the receiver itself can provide power to the LNB, so there is
+no need for an external power supply. In contrast, this is not possible with an
+SDR-based setup using the SDR interface alone. Hence, an external supply is
 required.
 
 The type of power supply that is easy to find in the market is known as "Single
@@ -407,24 +409,24 @@ to F male adapter in order to connect the RTL-SDR to the **non-powered** port
 ### Components for a Linux USB Receiver Setup
 
 The only specific component in this setup is the external USB-based DVB-S2
-demodulator. The supported demodulator is the [TBS5927 Professional DVB-S2 TV
+receiver. The supported receiver is the [TBS5927 Professional DVB-S2 TV
 Tuner USB](https://www.tbsdtv.com/products/tbs5927-dvb-s2-tv-tuner-usb.html). It
 connects to the Linux PC via a USB2.0 connection, and the package includes both
-the USB cable and a power supply for the demodulator. The LNB, in turn, connects
+the USB cable and a power supply for the receiver. The LNB, in turn, connects
 directly to interval *LNB IN* of the TBS5927.
 
 ![USB Connections](img/usb_connections.png?raw=true "USB Connections")
 
-> NOTE: although the TBS5927 demodulator offers Windows support, we do not
+> NOTE: although the TBS5927 receiver offers Windows support, we do not
 > support Windows as operating system for a Blockstream Satellite setup.
 
-### Components for a Standalone Demodulator Setup
+### Components for a Standalone Receiver Setup
 
-In this setup, a standalone DVB-S2 demodulator connects to the host PC (or to
-the network) through an Ethernet cable. The supported standalone demodulator is
-the [Novra S400 PRO DVB satellite
+In this setup, a standalone DVB-S2 receiver connects to the host PC (or to the
+network) through an Ethernet cable. The supported standalone receiver is the
+[Novra S400 PRO DVB satellite
 Receiver](https://novra.com/product/s400-pro-dvb-satellite-receiver). Other than
-the demodulator, you only need an Ethernet Cable.
+the receiver, you only need an Ethernet Cable.
 
 ![Standalone Connections](img/standalone_connections.png?raw=true "Standalone Connections")
 
@@ -444,10 +446,9 @@ since the default Ku sub-band of Universal LNBs is typically the low band, it is
 often acceptable to use these within Ku low band region, as the 22 kHz tone
 generator won't be necessary.
 
-Note that, in contrast to an SDR setup, both Linux USB and Standalone
-[demodulator options](#demodulator-options) support generation of the 22
-kHz. Hence, with these demodulators, it is acceptable to use a Universal LNB in
-any Ku band region.
+Note that, in contrast to an SDR setup, both Linux USB and Standalone [receiver
+options](#receiver-options) support the generation of 22 kHz. Hence, with these
+receivers, it is acceptable to use a Universal LNB in any Ku band region.
 
 In case you do want to switch the sub-band of a Universal LNB with an SDR setup,
 so that you can use it within Ku high band region, you will need to place a 22

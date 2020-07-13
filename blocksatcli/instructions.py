@@ -20,9 +20,9 @@ def _print_s400_instructions(info):
     util._print_header("Novra S400")
 
     _print("""
-    The Novra S400 is a standalone demodulator, which will receive data from
-    satellite and output IP packets to the host over the network. Hence, you will
-    need to configure both the S400 and the host.
+    The Novra S400 is a standalone receiver, which will receive data from
+    satellite and output IP packets to the host over the network. Hence, you
+    will need to configure both the S400 and the host.
     """)
 
     util._print_sub_header("Connections")
@@ -209,9 +209,9 @@ def _print_usb_rx_instructions(info):
     util._print_header(name)
 
     _print("""
-    The {0} is a USB demodulator, which will receive data from satellite and
+    The {0} is a USB receiver, which will receive data from satellite and
     will output data to the host over USB. The host, in turn, is responsible for
-    configuring the demodulator using specific DVB-S2 tools. Hence, next, you
+    configuring the receiver using specific DVB-S2 tools. Hence, next, you
     need to prepare the host for driving the {0}.
     """.format(name))
 
@@ -330,7 +330,7 @@ def _print_sdr_instructions(info):
 
     print("The SDR-based setup relies on the applications listed below:\n")
 
-    _item("leandvb: a software-based DVB-S2 demodulator.")
+    _item("leandvb: a software-based DVB-S2 receiver application.")
     _item("rtl_sdr: reads samples taken by the RTL-SDR and feeds them into leandvb.")
     _item("TSDuck: unpacks the output of leandvb and produces "
           "IP packets to be fed to Bitcoin Satellite.")

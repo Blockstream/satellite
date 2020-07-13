@@ -27,8 +27,8 @@ receiver](../doc/tbs.md) inside a container. It is that the drivers of the USB
 receiver must be installed on the Docker host, rather than the Docker
 container. This means that the image in this directory does not contain the
 drivers. Instead, you will need to install the drivers on your Docker
-host. Please refer to the driver installation instructions on the [USB
-demodulator guide](tbs.md#tbs-5927-drivers).
+host. Please refer to the driver installation instructions on the [USB receiver
+guide](tbs.md#tbs-5927-drivers).
 
 After installing the drivers and connecting the TBS5927 device to your Docker
 host, you can then start the container. You will need to share the DVB network

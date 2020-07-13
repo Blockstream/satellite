@@ -167,9 +167,9 @@ def _configure_firewall(net_if, ports, igmp=False, prompt=True):
     if (not igmp):
         return
 
-    # IGMP rule supports standalone DVB demodulators. The host in this case will
+    # IGMP rule supports standalone DVB receivers. The host in this case will
     # need to periodically send IGMP membership reports in order for upstream
-    # switches between itself and the DVB demodulator to continue delivering the
+    # switches between itself and the DVB receiver to continue delivering the
     # multicast-addressed traffic. This overcomes the scenario where group
     # membership timeouts are implemented by the intermediate switches.
     cmd = util.root_cmd([
@@ -184,7 +184,7 @@ def _configure_firewall(net_if, ports, igmp=False, prompt=True):
         print(" ".join(cmd))
     elif (not _is_iptables_igmp_rule_set(net_if, cmd)):
         print("Configure also a firewall rule to accept IGMP queries. This is " +
-              "necessary when using a standalone DVB demodulator.")
+              "necessary when using a standalone DVB-S2 receiver.")
         if ((not prompt) or
             util._ask_yes_or_no("Add corresponding ACCEPT rule on firewall?")):
             _add_iptables_rule(net_if, cmd)
@@ -226,7 +226,7 @@ def subparser(subparsers):
                    help='Network interface')
     p.add_argument('--standalone', default=False,
                    action='store_true',
-                   help='Configure for standalone DVB-S2 demodulator')
+                   help='Apply configurations for a standalone DVB-S2 receiver')
     p.set_defaults(func=firewall_subcommand)
     return p
 

@@ -1,4 +1,4 @@
-"""Linux USB demodulator"""
+"""Linux USB receiver"""
 from pprint import pformat
 from ipaddress import IPv4Interface
 import os, sys, signal, argparse, subprocess, time, logging, threading, json

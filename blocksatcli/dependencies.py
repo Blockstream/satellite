@@ -235,7 +235,7 @@ def _install_sdr(interactive=True, update=False, dry=False):
 
 def _install_usb(interactive=True, update=False, dry=False):
     """Install USB receiver dependencies"""
-    util._print_header("Installing USB Demodulator Dependencies")
+    util._print_header("Installing USB Receiver Dependencies")
     apt_pkg_list = ["iproute2", "iptables", "dvb-apps", "dvb-tools"]
     dnf_pkg_list = ["iproute", "iptables", "dvb-apps", "v4l-utils"]
     yum_pkg_list = ["iproute", "iptables", "dvb-apps", "v4l-utils"]
@@ -248,7 +248,7 @@ def _install_usb(interactive=True, update=False, dry=False):
 
 def _install_standalone(interactive=True, update=False, dry=False):
     """Install standalone receiver dependencies"""
-    util._print_header("Installing Standalone Demodulator Dependencies")
+    util._print_header("Installing Standalone Receiver Dependencies")
     apt_pkg_list = ["iproute2", "iptables"]
     dnf_pkg_list = ["iproute", "iptables"]
     yum_pkg_list = ["iproute", "iptables"]
@@ -312,8 +312,8 @@ def subparser(subparsers):
     p2.set_defaults(func=run, update=True)
 
     p3 = subsubp.add_parser('tbs-drivers',
-                            description="Install TBS USB demodulator drivers",
-                            help='Install TBS USB demodulator drivers')
+                            description="Install TBS USB receiver drivers",
+                            help='Install TBS USB receiver drivers')
     p3.set_defaults(func=drivers)
 
     return p

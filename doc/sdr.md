@@ -39,7 +39,7 @@ interface. Permanent damage may occur to your SDR and/or your computer.
 The SDR-based setup relies on the applications listed below:
 
 - [leandvb](http://www.pabr.org/radio/leandvb/leandvb.en.html): a software-based
-  DVB-S2 demodulator.
+  DVB-S2 receiver application.
 - [rtl_sdr](https://github.com/osmocom/rtl-sdr): reads samples taken by the
   RTL-SDR and feeds them into
   [leandvb](http://www.pabr.org/radio/leandvb/leandvb.en.html).

@@ -4,9 +4,9 @@
 **Table of Contents**
 
 - [Dual-Satellite Connection](#dual-satellite-connection)
-    - [Novra S400 standalone demodulator](#novra-s400-standalone-demodulator)
-    - [TBS5927 USB demodulator](#tbs5927-usb-demodulator)
-    - [SDR-based demodulator](#sdr-based-demodulator)
+    - [Novra S400 standalone receiver](#novra-s400-standalone-receiver)
+    - [TBS5927 USB receiver](#tbs5927-usb-receiver)
+    - [SDR-based receiver](#sdr-based-receiver)
 
 <!-- markdown-toc end -->
 
@@ -24,8 +24,8 @@ If you are in such a region with overlapping coverage, you can simultaneously
 connect to the two satellites and double the bitcoin block transfer speed. To do
 so, you need separate antennas pointed to each satellite. Correspondingly, you
 need two LNBs (one per dish), double the number of cables, connectors, etc. The
-only exception is the demodulator, in case you have one that supports dual
-satellite connectivity.
+only exception refers to the receiver device, in case you have one that supports
+dual satellite connectivity.
 
 If you have the Novra S400 receiver of the [Pro Ethernet
 Kit](https://store.blockstream.com/product/blockstream-satellite-pro-kit/), you
@@ -55,7 +55,7 @@ information regarding the parts of your second receiver setup. Subsequently, you
 can run all commands in the CLI using option `--cfg rx2`. Specific instructions
 are provided next.
 
-## Novra S400 standalone demodulator
+## Novra S400 standalone receiver
 
 On the Novra S400, you need to configure the two RF interfaces on the same
 unit. Each interface will be connected to a different antenna and receiving from
@@ -75,10 +75,10 @@ blocksat-cli --cfg rx2 instructions
 
 Use these instructions to configure interface RF2.
 
-## TBS5927 USB demodulator
+## TBS5927 USB receiver
 
 
-With a TBS5927 USB demodulator, you would ordinarily run the following sequence
+With a TBS5927 USB receiver, you would ordinarily run the following sequence
 of commands:
 
 1. Initial configurations:
@@ -113,7 +113,7 @@ blocksat-cli --cfg rx2 usb launch
 
 Make sure to select the second TBS5927 unit on both steps.
 
-## SDR-based demodulator
+## SDR-based receiver
 
 To set up an SDR-based receiver, you would ordinarily run the following sequence
 of commands:

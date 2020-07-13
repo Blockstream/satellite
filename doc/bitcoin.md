@@ -109,15 +109,15 @@ bitcoin-cli getchunkstats
 
 ### UDP Multicast Reception Option
 
-In a Blockstream Satellite receiver setup, the satellite demodulator will decode
+In a Blockstream Satellite receiver setup, the satellite receiver will decode
 and output a UDP/IPv4 stream, which in turn Bitcoin Satellite can listen to. In
 order for Bitcoin Satellite to listen to such stream, option `udpmulticast` must
 be added to bitcoin's configuration file (i.e. the `bitcoin.conf` file).
 
 There are several possibilities regarding the configuration of option
 `udpmulticast`. It depends on your hardware setup and, more specifically, your
-[demodulator type](hardware.md#demodulator-options), as well on the satellite
-that you are receiving from. The option is described as follows:
+[receiver type](hardware.md#receiver-options), as well on the satellite that you
+are receiving from. The option is described as follows:
 
 ```
  -udpmulticast=<if>,<dst_ip>:<port>,<src_ip>,<trusted>[,<label>]
@@ -136,7 +136,7 @@ udpmulticast=dvb0_0,239.0.0.2:4434,172.16.235.9,1,blocksat
 In this case, we have that:
 
 - `dvb0_0` is the name of the network interface that receives data out of the
-  demodulator.
+  receiver.
 - `239.0.0.2:4434` is the destination IP address and port of the packets that
   are sent over satellite.
 - `172.16.235.9` is the IP address of one of our Tx nodes that broadcasts data

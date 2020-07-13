@@ -30,7 +30,7 @@ def _cfg_rx_setup():
 
     util._print_header("Receiver Setup")
 
-    # Demodulator
+    # Receiver
     question = "Please, inform your DVB-S2 receiver setup from the list below:"
     setup = util._ask_multiple_choice(
         defs.demods,
@@ -39,7 +39,7 @@ def _cfg_rx_setup():
         lambda x : '{} ({} receiver)'.format(
             (x['vendor'] + " " + x['model']).strip(), x['type']))
 
-    # Network interface connected to the standalone demodulator
+    # Network interface connected to the standalone receiver
     if (setup['type'] == defs.standalone_setup_type):
         try:
             devices = os.listdir('/sys/class/net/')

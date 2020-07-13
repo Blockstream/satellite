@@ -7,13 +7,13 @@ receiver setup. In a nutshell, you need to go through the following:
 
 - [1. Common Steps](#1-common-steps)
 - [2. Receiver-specific Configuration Steps](#2-receiver-specific-configuration-steps)
-    - [Novra S400 standalone demodulator](#novra-s400-standalone-demodulator)
-    - [TBS5927 USB demodulator](#tbs5927-usb-demodulator)
-    - [SDR-based demodulator](#sdr-based-demodulator)
+    - [Novra S400 standalone receiver](#novra-s400-standalone-receiver)
+    - [TBS5927 USB receiver](#tbs5927-usb-receiver)
+    - [SDR-based receiver](#sdr-based-receiver)
 - [3. Receiver-specific Antenna Alignment Steps](#3-receiver-specific-antenna-alignment-steps)
-    - [Novra S400 standalone demodulator](#novra-s400-standalone-demodulator)
-    - [TBS5927 USB demodulator](#tbs5927-usb-demodulator)
-    - [SDR-based demodulator](#sdr-based-demodulator)
+    - [Novra S400 standalone receiver](#novra-s400-standalone-receiver)
+    - [TBS5927 USB receiver](#tbs5927-usb-receiver)
+    - [SDR-based receiver](#sdr-based-receiver)
 - [4. Bitcoin-satellite Setup](#4-bitcoin-satellite-setup)
 
 <!-- markdown-toc end -->
@@ -58,7 +58,7 @@ blocksat-cli instructions
 
 ## 2. Receiver-specific Configuration Steps
 
-### Novra S400 standalone demodulator
+### Novra S400 standalone receiver
 
 Set all configurations on the S400 by following the instructions from:
 ```
@@ -70,7 +70,7 @@ Configure the host to communicate with the S400:
 sudo blocksat-cli standalone cfg
 ```
 
-### TBS5927 USB demodulator
+### TBS5927 USB receiver
 
 Install the drivers:
 ```
@@ -87,7 +87,7 @@ Start the USB receiver:
 blocksat-cli usb launch
 ```
 
-### SDR-based demodulator
+### SDR-based receiver
 
 Configure Gqrx:
 ```
@@ -108,12 +108,12 @@ guide](antenna-pointing.md#find-the-satellite-and-lock-the-signal).
 In summary, you will try to point your antenna until you get a signal lock on
 your receiver.
 
-### Novra S400 standalone demodulator
+### Novra S400 standalone receiver
 
 While pointing the antenna, check the lock indicator on the S400's web UI until
 it becomes green (locked).
 
-### TBS5927 USB demodulator
+### TBS5927 USB receiver
 
 Make sure that the USB receiver is running with:
 ```
@@ -123,7 +123,7 @@ blocksat-cli usb launch
 While pointing the antenna, check the receiver logs on the terminal until the
 receiver logs a `Lock`.
 
-### SDR-based demodulator
+### SDR-based receiver
 
 Run gqrx:
 ```

@@ -1,4 +1,4 @@
-"""Standalone Demodulator"""
+"""Standalone Receiver"""
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 from . import rp, firewall, defs, config, dependencies
 
@@ -15,11 +15,11 @@ def subparser(subparsers):
     p1 = subsubparsers.add_parser('config', aliases=['cfg'],
                                   description='Initial configurations',
                                   help='Configure the host to receive data \
-                                  from the standalone demodulator')
+                                  from the standalone receiver')
     p1.add_argument('-i', '--interface',
                     default=None,
                     help='Network interface connected to the standalone \
-                    demodulator')
+                    receiver')
     p1.add_argument('-y', '--yes', default=False, action='store_true',
                     help="Default to answering Yes to configuration prompts")
     p1.set_defaults(func=cfg_standalone)
@@ -28,7 +28,7 @@ def subparser(subparsers):
 
 
 def cfg_standalone(args):
-    """Configurations for standalone DVB demodulator
+    """Configure the host to communicate with the the standalone DVB-S2 receiver
     """
     # User info
     user_info = config.read_cfg_file(args.cfg, args.cfg_dir)

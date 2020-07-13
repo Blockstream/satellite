@@ -22,7 +22,7 @@ def _tune_max_pipe_size(pipesize):
 
         print(textwrap.fill("The maximum pipe size that is currently "
                             "configured in your OS is of {} bytes, which is "
-                            "not sufficient for the demodulator application. "
+                            "not sufficient for the receiver application. "
                             "It will be necessary to run the following command "
                             "as root:".format(current_max), width=80))
         print("\n" + " ".join(cmd) + "\n")
@@ -157,7 +157,7 @@ def run(args):
     if (not dependencies.check_apps(apps)):
         return
 
-    # Demodulator configs
+    # Receiver configs
     l_band_freq = info['freqs']['l_band']*1e6
     modcod      = defs.low_rate_modcod if args.modcod == "low" else \
                   defs.high_rate_modcod
