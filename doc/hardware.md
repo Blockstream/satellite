@@ -335,13 +335,19 @@ type of setup, according to the receiver choice.
 | SMA to F adapter | SMA Female, F Male                     |
 
 The supported **SDR interface** is the RTL-SDR, which is a low-cost USB
-dongle. More specifically, an RTL-SDR of model RTL2832U. However, there are two
-specifications to observe when purchasing an RTL-SDR: the oscillator and the
-tuner. We recommend using an RTL-SDR with a temperature-controlled crystal
-oscillator (TCXO), as the TCXO has better frequency stability than a
-conventional crystal oscillator (XO). There are a few models in the market
-featuring TCXO with frequency accuracy within 0.5 ppm to 1.0 ppm, which are good
-choices. Regarding tuner, the choice depends on the satellite covering your
+dongle. More specifically, an RTL-SDR of model RTL2832U.
+
+There are two specifications to observe when purchasing an RTL-SDR:
+
+1. Oscillator
+2. Tuner
+
+We recommend using an RTL-SDR with a temperature-controlled crystal oscillator
+(TCXO), as the TCXO has better frequency stability than a conventional crystal
+oscillator (XO). There are a few models in the market featuring TCXO with
+frequency accuracy within 0.5 ppm to 1.0 ppm, which are good choices.
+
+Regarding the tuner, the choice depends on the satellite covering your
 location. The two recommended tuners are the R820T2 and the E4000. The table
 that follows summarizes which tuner to pick for each satellite:
 
@@ -354,18 +360,24 @@ that follows summarizes which tuner to pick for each satellite:
 | Telstar 18V Ku     | E4000         |
 | Telstar 18V C      | R820T2        |
 
+This tuner recommendation has to do with the L-band frequencies that are
+expected in each region, as summarized in the [frequency
+guide](frequency.md#l-band-frequencies). The E4000 tuner is recommended for the
+regions where the expected L-band frequency is close to the maximum tuning range
+of the R820T2 tuner (1766 MHz).
+
 Hence, for example, if you are going to receive from Galaxy 18, you should get
 an RTL-SDR RTL2832U with tuner R820T2 and TCXO. In contrast, for example, if you
 are going to receive from Telstar 11N Africa, you should get an RTL-SDR RTL2832U
 with tuner E4000 and TCXO. Note that the RTL-SDR models featuring the E4000
 tuner are marketed as **extended tuning range RTL-SDR** or **XTR RTL-SDR**.
 
-The next component is the **LNB Power Supply** (or Power Inserter). It supplies
-a DC voltage to the LNB via the coaxial cable, typically of 13 VDC or 18 VDC. On
-a non-SDR setup, the receiver itself can provide power to the LNB, so there is
-no need for an external power supply. In contrast, this is not possible with an
-SDR-based setup using the SDR interface alone. Hence, an external supply is
-required.
+The next component of the SDR receiver setup is the **LNB Power Supply** (or
+Power Inserter). This component supplies a DC voltage to the LNB via the coaxial
+cable, typically of 13 VDC or 18 VDC. On a non-SDR setup, the receiver itself
+can provide power to the LNB, so there is no need for an external power
+supply. In contrast, this is not possible with an SDR-based setup using the SDR
+interface alone. Hence, an external supply is required.
 
 The type of power supply that is easy to find in the market is known as "Single
 Wire Multiswitch" (SWM) power supply. You can look for an SWM power inserter and
@@ -386,8 +398,8 @@ polarization LNBs** accept two DC voltage levels. Such LNBs use the supplied
 voltage in order to switch between vertical and horizontal polarization. A
 supplied DC voltage of +18 VDC sets the LNB to horizontal polarization, whereas
 a voltage of +13 VDC sets the LNB to vertical polarization. Please keep this in
-mind when rotating the LNB for a specific polarization angle during antenna
-pointing.
+mind when rotating the LNB for a specific polarization angle during the antenna
+pointing stage.
 
 **Further notes**:
 

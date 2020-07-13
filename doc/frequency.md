@@ -6,6 +6,7 @@
 - [Frequency Guide](#frequency-guide)
     - [Signal Bands](#signal-bands)
     - [Signal Frequencies](#signal-frequencies)
+    - [L-band Frequencies](#l-band-frequencies)
 
 <!-- markdown-toc end -->
 
@@ -38,4 +39,19 @@ signals that we broadcast in each coverage region:
 | Telstar 11N Europe | Ku Low  | 11484.3 MHz  |
 | Telstar 18V Ku     | Ku Low  | 11506.75 MHz |
 | Telstar 18V C      | C       | 4053.83 MHz  |
+
+## L-band Frequencies
+
+Next, the table that follows summarizes the L-band frequencies to be used in
+each region based on the typical local oscillator (LO) frequencies:
+
+| LO Frequency        | 5150 MHz    | 9750 MHz    | 10600 MHz    | 10750 MHz    |
+|---------------------|-------------|-------------|--------------|--------------|
+| Galaxy 18           |             |             | 1416.40 MHz  | 1266.40 MHz  |
+| Eutelsat 113        |             |             | 1466.90 MHz  | 1316.90 MHz  |
+| Telstar 11N Africa  |             | 1730.70 MHz |              |              |
+| Telstar 11N Europe  |             | 1734.30 MHz |              |              |
+| Telstar 18V Ku Band |             | 1756.75 MHz |              |              |
+| Telstar 18V C Band  | 1096.17 MHz |             |              |              |
+
 

@@ -85,7 +85,10 @@ def _ask_multiple_choice(vec, msg, label, to_str, help_msg = None,
         Chosen element
 
     """
-    assert(len(vec) > 1)
+    if (none_option):
+        assert(len(vec) > 0)
+    else:
+        assert(len(vec) > 1)
 
     print(msg)
 

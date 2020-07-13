@@ -1,5 +1,5 @@
 """User setup configuration"""
-import os, json, logging
+import sys, os, json, logging
 from argparse import ArgumentDefaultsHelpFormatter, Namespace
 from pprint import pprint, pformat
 from . import util, defs, instructions
@@ -9,7 +9,7 @@ from decimal import Decimal, getcontext
 
 def _cfg_satellite():
     """Configure satellite covering the user"""
-
+    os.system('clear')
     util._print_header("Satellite")
 
     help_msg = "Not sure? Check the coverage map at:\n" \
@@ -25,9 +25,14 @@ def _cfg_satellite():
     return sat
 
 
+def _get_rx_name(rx):
+    """Concatenate vendor/model to form the receiver name"""
+    return (rx['vendor'] + " " + rx['model']).strip()
+
+
 def _cfg_rx_setup():
     """Configure Rx setup - which receiver user is using """
-
+    os.system('clear')
     util._print_header("Receiver Setup")
 
     # Receiver
@@ -36,8 +41,7 @@ def _cfg_rx_setup():
         defs.demods,
         question,
         "Setup",
-        lambda x : '{} ({} receiver)'.format(
-            (x['vendor'] + " " + x['model']).strip(), x['type']))
+        lambda x : '{} ({} receiver)'.format(_get_rx_name(x), x['type']))
 
     # Network interface connected to the standalone receiver
     if (setup['type'] == defs.standalone_setup_type):
@@ -48,7 +52,7 @@ def _cfg_rx_setup():
             pass
 
         question = "Which network interface is connected to the {}?".format(
-            setup['model'])
+            _get_rx_name(setup))
         if (devices is not None):
             netdev = util._ask_multiple_choice(devices,
                                                question,
@@ -80,6 +84,73 @@ def _cfg_rx_setup():
     return setup
 
 
+def _ask_lnb_freq_range():
+    """Prompt the user for the LNB's input frequency range"""
+    in_range = []
+    while (True):
+        while (len(in_range) != 2):
+            try:
+                resp = input("Inform the two extreme frequencies (in MHz) of "
+                             "your LNB's frequency range, separated by comma: ")
+                in_range = [float(x) for x in resp.split(",")]
+            except ValueError:
+                continue
+
+        if (in_range[1] < in_range[0]):
+            in_range = []
+            print("Please, provide the lowest frequency first, followed by "
+                  "the highest.")
+            continue
+
+        if (in_range[0] < 3000 or in_range[1] < 3000):
+            in_range = []
+            print("Please, provide the frequencies in MHz.")
+            continue
+
+        break
+
+    return in_range
+
+
+def _ask_lnb_lo(single_lo=True):
+    """Prompt the user for the LNB's LO frequencies"""
+    if (single_lo):
+        while (True):
+            lo_freq = util.typed_input("LNB LO frequency in MHz", in_type=float)
+
+            if (lo_freq < 3000):
+                print("Please, provide the frequencies in MHz.")
+                continue
+
+            break
+        return lo_freq
+
+    lo_freq = []
+    while (True):
+        while (len(lo_freq) != 2):
+            try:
+                resp = input("Inform the two LO frequencies in MHz, separated "
+                             "by comma: ")
+                lo_freq = [float(x) for x in resp.split(",")]
+            except ValueError:
+                continue
+
+        if (lo_freq[1] < lo_freq[0]):
+            lo_freq = []
+            print("Please, provide the low LO frequency first, followed by "
+                  "the high LO frequency.")
+            continue
+
+        if (lo_freq[0] < 3000 or lo_freq[1] < 3000):
+            lo_freq = []
+            print("Please, provide the frequencies in MHz.")
+            continue
+
+        break
+
+    return lo_freq
+
+
 def _cfg_custom_lnb(sat):
     """Configure custom LNB based on user-entered specs
 
@@ -97,40 +168,44 @@ def _cfg_custom_lnb(sat):
 
     if (sat['band'].lower() != custom_lnb_band.lower()):
         logging.error(
-            "You must use a %s band LNB in order to receive from %s" %(
+            "You must use a %s band LNB to receive from %s" %(
                 sat['band'], sat['name']))
-        exit(1)
+        sys.exit(1)
 
 
     if (custom_lnb_band == "Ku"):
         custom_lnb_universal = util._ask_yes_or_no("Is it a Universal Ku band LNB?")
 
         if (custom_lnb_universal):
-            print(textwrap.fill(
-                "A Universal Ku band LNB has two LO (local oscillator) " + \
-                " frequencies. Typically the two frequencies are 9750 MHz " +
-                "and 10600 MHz."))
-            if (util._ask_yes_or_no("Does your LNB have LO frequencies 9750 MHz and 10600 MHz?")):
-                custom_lnb_lo_freq = [9750.0, 10600]
+            # Input frequency range
+            print()
+            util.fill_print("""A Universal Ku band LNB typically covers an
+            input frequency range from 10.7 to 12.75 GHz.""")
+            if (util._ask_yes_or_no("Does your LNB cover this input range "
+                                    "from 10.7 to 12.75 GHz?")):
+                custom_lnb_in_range = [10700.0, 12750.0]
             else:
-                custom_lnb_lo_freq = []
-                while (len(custom_lnb_lo_freq) != 2):
-                    try:
-                        resp = input("Inform the two LO frequencies in MHz, "
-                                     "separated by comma: ")
-                        custom_lnb_lo_freq = [float(x) for x in resp.split(",")]
-                    except ValueError:
-                        continue
+                custom_lnb_in_range = _ask_lnb_freq_range()
 
+            # LO
+            print()
+            util.fill_print( """A Universal Ku band LNB has two LO (local
+            oscillator) frequencies. Typically the two frequencies are 9750
+            MHz and 10600 MHz.""")
+            if (util._ask_yes_or_no("Does your LNB have LO frequencies 9750 "
+                                    "MHz and 10600 MHz?")):
+                custom_lnb_lo_freq = [9750.0, 10600.0]
+            else:
+                custom_lnb_lo_freq = _ask_lnb_lo(single_lo=False)
         else:
             # Non-universal Ku-band LNB
-            custom_lnb_lo_freq = util.typed_input("LNB LO frequency in MHz",
-                                                  in_type=float)
+            custom_lnb_in_range = _ask_lnb_freq_range()
+            custom_lnb_lo_freq  = _ask_lnb_lo()
     else:
         # C-band LNB
         custom_lnb_universal = False
-        custom_lnb_lo_freq = util.typed_input("LNB LO frequency in MHz",
-                                              in_type=float)
+        custom_lnb_in_range  = _ask_lnb_freq_range()
+        custom_lnb_lo_freq   = _ask_lnb_lo()
 
     # Polarization
     question = "Choose the LNB polarization:"
@@ -154,11 +229,38 @@ def _cfg_custom_lnb(sat):
     return {
         'vendor'    : "",
         'model'     : "",
-        "lo_freq"   : custom_lnb_lo_freq,
+        'in_range'  : custom_lnb_in_range,
+        'lo_freq'   : custom_lnb_lo_freq,
         'universal' : custom_lnb_universal,
         'band'      : custom_lnb_band,
         'pol'       : pol['id']
     }
+
+
+def _sat_freq_in_lnb_range(sat, lnb):
+    """Check if the satellite signal is within the LNB input range"""
+    return sat['dl_freq'] > lnb['in_range'][0] and \
+        sat['dl_freq'] < lnb['in_range'][1]
+
+
+def _ask_lnb(sat):
+    """Ask the user's LNB"""
+    question = "Please, inform your LNB model:"
+    lnb_options = [lnb for lnb in defs.lnbs if _sat_freq_in_lnb_range(sat, lnb)
+                   and lnb['vendor'] != 'Selfsat']
+    lnb = util._ask_multiple_choice(
+        lnb_options,
+        question, "LNB",
+        lambda x : "{} {} {}".format(
+            x['vendor'], x['model'],
+            "(Universal Ku band LNBF)" if x['universal'] else ""),
+        none_option = True,
+        none_str = "Other")
+
+    if (lnb is None):
+        lnb = _cfg_custom_lnb(sat)
+
+    return lnb
 
 
 def _cfg_lnb(sat, setup):
@@ -176,29 +278,29 @@ def _cfg_lnb(sat, setup):
                 lnb["v1_pointed"] = False
                 return lnb
 
+    os.system('clear')
     util._print_header("LNB")
 
-    question = "Please, inform your LNB model:"
-    lnb = util._ask_multiple_choice(
-        defs.lnbs, question, "LNB",
-        lambda x : "{} {} {}".format(
-            x['vendor'], x['model'],
-            "(Universal Ku band LNBF)" if x['universal'] else ""),
-        none_option = True,
-        none_str = "Other")
+    lnb = _ask_lnb(sat)
 
-    if (lnb is None):
-        lnb = _cfg_custom_lnb(sat)
+    if (not _sat_freq_in_lnb_range(sat, lnb)):
+        logging.warning("Your LNB's input frequency range does not cover the "
+                        "frequency of {} ({} MHz)".format(
+                            sat['name'], sat['dl_freq']))
+        if not util._ask_yes_or_no("Continue anyway?", default="n"):
+            logging.error("Invalid LNB")
+            sys.exit(1)
 
     if (sat['band'].lower() != lnb['band'].lower()):
         logging.error("The LNB you chose cannot operate " + \
                       "in %s band (band of satellite %s)" %(sat['band'],
                                                             sat['alias']))
-        exit(1)
+        sys.exit(1)
 
     # For dual polarization LNBs, we must know whether it was pointed before for
     # blocksat v1 in order to define the polarization on channels.conf
     if (lnb['pol'].lower() == "dual"):
+        print()
         prev_setup = util._ask_yes_or_no(
             "Are you reusing an LNB that is already pointed and that was used "
             "for the previous version of Blockstream Satellite (before the "
@@ -228,7 +330,7 @@ def _cfg_lnb(sat, setup):
     return lnb
 
 
-def _cfg_frequencies(sat, lnb):
+def _cfg_frequencies(sat, lnb, setup):
     """Print summary of frequencies
 
     Inform the downlink RF frequency, the LNB LO frequency and the L-band
@@ -262,6 +364,12 @@ def _cfg_frequencies(sat, lnb):
         if_freq = float(Decimal(lo_freq) - Decimal(sat['dl_freq']))
     else:
         raise ValueError("Unknown satellite band")
+
+    if (if_freq < setup['tun_range'][0] or if_freq > setup['tun_range'][1]):
+        logging.error("Your LNB yields an L-band frequency that is out of "
+                      "the tuning range of the {} receiver.".format(
+                          _get_rx_name(setup)))
+        sys.exit(1)
 
     return {
         'dl'     : sat['dl_freq'],
@@ -404,10 +512,14 @@ def configure(args):
     if (not rst_ok):
         return
 
-    user_sat   = _cfg_satellite()
-    user_setup = _cfg_rx_setup()
-    user_lnb   = _cfg_lnb(user_sat, user_setup)
-    user_freqs = _cfg_frequencies(user_sat, user_lnb)
+    try:
+        user_sat   = _cfg_satellite()
+        user_setup = _cfg_rx_setup()
+        user_lnb   = _cfg_lnb(user_sat, user_setup)
+        user_freqs = _cfg_frequencies(user_sat, user_lnb, user_setup)
+    except KeyboardInterrupt:
+        print("\nAbort")
+        sys.exit(1)
 
     user_info = {
         'sat'   : user_sat,

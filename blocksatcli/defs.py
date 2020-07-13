@@ -74,19 +74,22 @@ standalone_setup_type = "Standalone"
 
 demods = [
     {
-        'vendor' : "Novra",
-        'model'  : "S400",
-        'type'   : standalone_setup_type
+        'vendor'    : "Novra",
+        'model'     : "S400",
+        'type'      : standalone_setup_type,
+        'tun_range' : (950.0, 2150.0)
     },
     {
-        'vendor' : "TBS",
-        'model'  : "5927",
-        'type'   : linux_usb_setup_type
+        'vendor'    : "TBS",
+        'model'     : "5927",
+        'type'      : linux_usb_setup_type,
+        'tun_range' : (950.0, 2150.0)
     },
     {
-        'vendor' : "",
-        'model'  : "RTL-SDR",
-        'type'   : sdr_setup_type
+        'vendor'    : "",
+        'model'     : "RTL-SDR",
+        'type'      : sdr_setup_type,
+        'tun_range' : (24.0, 1766.0) # assuming R820T2
     }
 ]
 
@@ -106,24 +109,9 @@ ku_band_thresh = 11700.0
 
 lnbs = [
     {
-        'vendor'    : "Avenger",
-        'model'     : "PLL321S-2",
-        'lo_freq'   : [9750.0, 10600.0],
-        'universal' : True,
-        'band'      : "Ku",
-        'pol'       : "Dual"
-    },
-    {
-        'vendor'    : "Maverick",
-        'model'     : "MK1",
-        "lo_freq"   : 10750.0,
-        'universal' : False,
-        'band'      : "Ku",
-        'pol'       : "Dual"
-    },
-    {
         'vendor'    : "GEOSATpro",
         'model'     : "UL1PLL",
+        'in_range'  : [10700.0, 12750.0],
         'lo_freq'   : [9750.0, 10600.0],
         'universal' : True,
         'band'      : "Ku",
@@ -131,7 +119,8 @@ lnbs = [
     },
     {
         'vendor'    : "Titanium",
-        'model'     : "C1",
+        'model'     : "C1-PLL",
+        'in_range'  : [3700.0, 4200.0],
         "lo_freq"   : 5150.0,
         'universal' : False,
         'band'      : "C",
@@ -140,8 +129,27 @@ lnbs = [
     {
         'vendor'    : "Selfsat",
         'model'     : "H50D",
+        'in_range'  : [10700.0, 12750.0],
         'lo_freq'   : [9750.0, 10600.0],
         'universal' : True,
+        'band'      : "Ku",
+        'pol'       : "Dual"
+    },
+    {
+        'vendor'    : "Avenger",
+        'model'     : "PLL321S-2",
+        'in_range'  : [10700.0, 12750.0],
+        'lo_freq'   : [9750.0, 10600.0],
+        'universal' : True,
+        'band'      : "Ku",
+        'pol'       : "Dual"
+    },
+    {
+        'vendor'    : "Maverick",
+        'model'     : "MK1-PLL",
+        'in_range'  : [11700.0, 12200.0],
+        "lo_freq"   : 10750.0,
+        'universal' : False,
         'band'      : "Ku",
         'pol'       : "Dual"
     }
