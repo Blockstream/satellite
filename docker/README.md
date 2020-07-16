@@ -6,29 +6,25 @@
 - [Running on Docker](#running-on-docker)
     - [USB Receiver](#usb-receiver)
     - [SDR Receiver](#sdr-receiver)
+    - [Build the Docker Image Locally](#build-the-docker-image-locally)
 
 <!-- markdown-toc end -->
 
-This directory contains a Docker image recipe for a container that can be used
-as the *Blockstream Satellite host*, that is, the host that has the ability and
-all software dependencies to interface with the supported satellite receivers.
-
-To build the image, run the following from the root directory of this
-repository:
-
-```
-make docker
-```
+A Docker image is available to be used as the *Blockstream Satellite host*, that
+is, the machine with everything you need to interface with the supported
+satellite receivers. All you need to do is run this `blockstream/blocksat-host`
+image via Docker and provide the appropriate resources to the container, as
+explained next.
 
 ## USB Receiver
 
 First of all, there is an important limitation to running the [Linux USB
 receiver](../doc/tbs.md) inside a container. It is that the drivers of the USB
 receiver must be installed on the Docker host, rather than the Docker
-container. This means that the image in this directory does not contain the
-drivers. Instead, you will need to install the drivers on your Docker
-host. Please refer to the driver installation instructions on the [USB receiver
-guide](tbs.md#tbs-5927-drivers).
+container. This means that the referred `blockstream/blocksat-host` image does
+not contain the drivers. Instead, you will need to install the drivers on your
+Docker host. Please refer to the driver installation instructions on the [USB
+receiver guide](tbs.md#tbs-5927-drivers).
 
 After installing the drivers and connecting the TBS5927 device to your Docker
 host, you can then start the container. You will need to share the DVB network
@@ -80,3 +76,13 @@ SDR application for changing option `fs.pipe-max-size`.
 > driver](https://docs.docker.com/machine/drivers/). Then, run the above `docker
 > run` command normally.
 
+
+## Build the Docker Image Locally
+
+You can also build the Docker image locally, rather than pulling it from Docker
+Hub. To build the image, run the following from the root directory of this
+repository:
+
+```
+make docker
+```

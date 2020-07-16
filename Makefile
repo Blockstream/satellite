@@ -3,6 +3,7 @@ VERSION    = $(shell grep "__version__ =" blocksatcli/main.py | cut -d '"' -f2)
 DIST       = dist/blocksat-cli-$(VERSION).tar.gz
 DISTRO     = ubuntu:bionic
 DISTRO_ALT = $(subst :,-,$(DISTRO))
+DOCKERHUB_REPO = blockstream
 
 .PHONY: all clean clean-py sdist wheel install docker pip
 
@@ -30,10 +31,12 @@ install: $(DIST)
 
 docker: $(DIST)
 	docker build --build-arg distro=$(DISTRO) \
-	-t blockstream/blocksat-host \
-	-t blockstream/blocksat-host-$(DISTRO_ALT) \
+	-t $(DOCKERHUB_REPO)/blocksat-host \
+	-t $(DOCKERHUB_REPO)/blocksat-host-$(DISTRO_ALT) \
 	-f docker/blocksat-host.docker .
 
 pip: clean wheel
 	python3 -m twine upload --repository pypi dist/*
 
+docker-push: docker
+	docker push $(DOCKERHUB_REPO)/blocksat-host

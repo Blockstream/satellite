@@ -1,4 +1,5 @@
 .test-dependencies:
+  stage: test
   script:
     - python3 -m unittest blocksatcli/verify_deps_instal.py
 
@@ -26,3 +27,16 @@ test-fedora:
     - dnf update -y && dnf install -y make python3 python3-setuptools python3-pip
     - make && make install
 
+docker-upload:
+  image: docker
+  stage: deploy
+  only:
+    refs:
+      - master
+    changes:
+      - blocksatcli/main.py
+  before_script:
+    - apk add make python3 py3-setuptools py3-pip
+  script:
+    - echo $DOCKERHUB_PW | docker login -u $DOCKERHUB_USER --password-stdin
+    - make docker-push
