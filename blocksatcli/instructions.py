@@ -1,7 +1,7 @@
 """Instructions for the user"""
 from argparse import ArgumentDefaultsHelpFormatter
 from . import util, defs, config
-import textwrap, logging
+import os, textwrap, logging
 
 
 def _item(text):
@@ -384,6 +384,7 @@ def _print_freq_info(info):
     lo_freq = info['freqs']['lo']
     l_freq  = info['freqs']['l_band']
 
+    os.system('clear')
     util._print_header("Frequencies")
 
     print("For your information, your setup relies on the following frequencies:\n")
