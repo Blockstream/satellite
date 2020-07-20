@@ -1,5 +1,9 @@
 .test-dependencies:
   script:
+    - python3 -m unittest blocksatcli/verify_deps_instal.py
+
+test:
+  script:
     - python3 -m unittest discover
 
 test-ubuntu:
