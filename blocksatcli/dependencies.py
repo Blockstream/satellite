@@ -118,31 +118,25 @@ def _enable_pkg_repo(interactive, dry):
 
 
 def _update_pkg_repo(interactive, dry):
-    """Update binary package repository"""
-    cmds = list()
-    if (which("apt")):
-        cmd = ["apt", "update"]
-        if (not interactive):
-            cmd.append("-y")
-        cmds.append(cmd)
-    elif (which("dnf")):
-        cmd = ["dnf", "check-update"]
-        if (not interactive):
-            cmd.append("-y")
-        cmds.append(cmd)
-    elif (which("yum")):
-        cmd = ["yum", "check-update"]
-        if (not interactive):
-            cmd.append("-y")
-        cmds.append(cmd)
-    else:
-        raise RuntimeError("Could not find a supported package manager")
+    """Update APT's package index
 
-    for cmd in cmds:
-        if (dry):
-            print(" ".join(util.root_cmd(cmd)))
-        else:
-            util.run_and_log(util.root_cmd(cmd), logger=logger)
+    NOTE: this function updates APT only. On dnf/yum, there is no need to run an
+    update manually. The tool (dnf/yum) updates the package index automatically
+    when an install/upgrade command is called.
+
+    """
+
+    if (not which("apt")):
+        return
+
+    cmd = ["apt", "update"]
+    if (not interactive):
+        cmd.append("-y")
+
+    if (dry):
+        print(" ".join(util.root_cmd(cmd)))
+    else:
+        util.run_and_log(util.root_cmd(cmd), logger=logger)
 
 
 def _install_packages(apt_list, dnf_list, yum_list, interactive=True,
@@ -343,6 +337,9 @@ def run(args):
     # Interactive installation? I.e., requires user to press "y/n"
     interactive = (not args.yes)
 
+    # Update package index
+    _update_pkg_repo(interactive, args.dry_run)
+
     # Common dependencies (regardless of setup)
     _install_common(interactive=interactive, update=args.update,
                     dry=args.dry_run, btc=args.btc)
@@ -427,7 +424,7 @@ def drivers(args):
         else:
             logger.warning("Could not find an available kernel update")
 
-    #_update_pkg_repo(interactive, args.dry_run)
+    _update_pkg_repo(interactive, args.dry_run)
     _install_packages(apt_pkg_list, dnf_pkg_list, yum_pkg_list,
                       interactive=interactive, update=False, dry=args.dry_run)
 
