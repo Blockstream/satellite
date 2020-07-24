@@ -294,7 +294,7 @@ def subparser(subparsers):
                     help="Install bitcoin-satellite")
     p1.set_defaults(func=run, update=False)
 
-    p2 = subsubp.add_parser('update',
+    p2 = subsubp.add_parser('update', aliases=['upgrade'],
                             description="Update software dependencies",
                             help='Update software dependencies')
     p2.add_argument("--target",

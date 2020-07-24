@@ -50,6 +50,12 @@ Install software dependencies:
 blocksat-cli deps install
 ```
 
+> To update the dependencies, run:
+>
+> ```
+> blocksat-cli deps update
+> ```
+
 Get instructions:
 
 ```
@@ -152,6 +158,12 @@ Install bitcoin-satellite:
 ```
 blocksat-cli deps install --btc
 ```
+
+> To update a previous installation of bitcoin-satellite, run:
+>
+> ```
+> blocksat-cli deps update --btc
+> ```
 
 Generate the `bitcoin.conf` configuration file:
 ```
