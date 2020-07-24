@@ -213,8 +213,20 @@ def _install_common(interactive=True, update=False, dry=False, btc=False):
                         "bitcoin-satellite-tx"]
         dnf_pkg_list = ["bitcoin-satellite", "bitcoin-satellite-qt"]
         yum_pkg_list = ["bitcoin-satellite", "bitcoin-satellite-qt"]
-        _install_packages(apt_pkg_list, dnf_pkg_list, yum_pkg_list, interactive,
-                          update, dry)
+
+        if (which("dnf")):
+            # dnf matches partial package names, and so it seems that when
+            # bitcoin-satellite and bitcoin-satellite-qt are installed in one
+            # go, only the latter gets installed. The former is matched to
+            # bitcoin-satellite-qt and assumed as installed. Hence, as a
+            # workaround, install the two packages separately.
+            for pkg in dnf_pkg_list:
+                _install_packages(apt_pkg_list, [pkg], [pkg],
+                                  interactive, update, dry)
+        else:
+            _install_packages(apt_pkg_list, [], yum_pkg_list,
+                              interactive, update, dry)
+
 
 
 def _install_sdr(interactive=True, update=False, dry=False):
