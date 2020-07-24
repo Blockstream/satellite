@@ -204,7 +204,7 @@ def _install_common(interactive=True, update=False, dry=False, btc=False):
                       update, dry)
 
     # Enable our binary package repository
-    if not _check_pkg_repo():
+    if dry or (not _check_pkg_repo()):
         _enable_pkg_repo(interactive, dry)
 
     # Install bitcoin-satellite
@@ -337,6 +337,9 @@ def run(args):
     # Interactive installation? I.e., requires user to press "y/n"
     interactive = (not args.yes)
 
+    if (args.dry_run):
+        util._print_header("Dry Run Mode")
+
     # Update package index
     _update_pkg_repo(interactive, args.dry_run)
 
@@ -367,6 +370,9 @@ def drivers(args):
 
     # Interactive installation? I.e., requires user to press "y/n"
     interactive = (not args.yes)
+
+    if (args.dry_run):
+        util._print_header("Dry Run Mode")
 
     runner = util.ProcessRunner(logger, args.dry_run)
 
@@ -488,7 +494,8 @@ def drivers(args):
     runner.run(util.root_cmd(["tar", "jxvf", fw_tarball, "-C",
                               "/lib/firmware/"]), cwd = driver_src_dir)
 
-    print("Installation completed successfully. Please reboot now.")
+    if (not args.dry_run):
+        print("Installation completed successfully. Please reboot now.")
 
 
 def check_apps(apps):
