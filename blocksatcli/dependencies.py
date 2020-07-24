@@ -62,9 +62,11 @@ def _check_pkg_repo():
                                logger=logger)
         found = (res.returncode == 0)
     elif (which("dnf")):
-        pkgs  = util.run_and_log(["dnf", "copr", "list", "--enabled"],
-                                 logger=logger,
-                                 output=True)
+        pkgs  = util.run_and_log(
+            util.root_cmd(["dnf", "copr", "list", "--enabled"]),
+            logger=logger,
+            output=True
+        )
         found =  ("copr.fedorainfracloud.org/blockstream/satellite" in pkgs)
     elif (which("yum")):
         yum_sources = glob.glob("/etc/yum.repos.d/*")
