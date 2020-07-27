@@ -543,6 +543,7 @@ def configure(args):
     with open(cfg_file, 'w') as fd:
         json.dump(user_info, fd)
 
+    os.system('clear')
     util._print_header("JSON configuration file")
     print("Saved configurations on %s" %(cfg_file))
 
