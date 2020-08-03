@@ -11,6 +11,26 @@ from math import ceil
 # Example user-specific message header
 USER_HEADER_FORMAT = '255sxI'
 
+
+def _print_error(error):
+    """Print error returned by API server"""
+    h = "----------------------------------------------------------------------"
+    if (isinstance(error, dict)):
+        error_str = "ERROR: "
+        if ("title" in error):
+            error_str += error["title"]
+        if ("code" in error):
+            error_str += " (code: {})".format(error["code"])
+        print(h)
+        print(textwrap.fill(error_str))
+        if ("detail" in error):
+            print()
+            print(textwrap.fill(error["detail"]))
+        print(h)
+    else:
+        print("ERROR: " + error)
+
+
 class Order:
     """API Transmission Order
 
@@ -41,7 +61,7 @@ class Order:
         if (r.status_code != requests.codes.ok):
             if "errors" in r.json():
                 for error in r.json()["errors"]:
-                    print("ERROR: " + error["title"] + "\n" + error["detail"])
+                    _print_error(error)
 
         r.raise_for_status()
 
@@ -52,10 +72,11 @@ class Order:
         """Bump the order
         """
         if (self.order["status"] == "transmitting"):
-            raise ValueError("Cannot bump - order is already in transmission")
+            raise ValueError("Cannot bump order - already in transmission")
 
-        if (self.order["status"] == "sent"):
-            raise ValueError("Cannot bump - order was already transmitted")
+        if (self.order["status"] == "sent" or
+            self.order["status"] == "received"):
+            raise ValueError("Cannot bump order - already transmitted")
 
         if (self.order["unpaid_bid"] > 0):
             unpaid_bid_msg = "(%d msat paid, %d msat unpaid)" %(
@@ -88,7 +109,7 @@ class Order:
         if (r.status_code != requests.codes.ok):
             if "errors" in r.json():
                 for error in r.json()["errors"]:
-                    print("ERROR: " + error["title"] + "\n" + error["detail"])
+                    _print_error(error)
 
         r.raise_for_status()
 
@@ -115,7 +136,7 @@ class Order:
         if (r.status_code != requests.codes.ok):
             if "errors" in r.json():
                 for error in r.json()["errors"]:
-                    print("ERROR: " + error["title"] + "\n" + error["detail"])
+                    _print_error(error)
 
         r.raise_for_status()
 
@@ -400,12 +421,7 @@ def main():
         try:
             if "errors" in r.json():
                 for error in r.json()["errors"]:
-                    if (isinstance(error, dict) and "title" in error and
-                        "detail" in error):
-                        print("ERROR: " + error["title"] + "\n" +
-                              error["detail"])
-                    else:
-                        print("ERROR: " + error)
+                    _print_error(error)
         except ValueError:
             print(r.text)
 
