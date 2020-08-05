@@ -135,11 +135,11 @@ If you do not wish to rely on the automatic installation handled by command
 First, enable our repository for binary packages. On Ubuntu/Debian, run:
 
 ```
-add-apt-repository ppa:blockstream/satellite
+apt-add-repository ppa:blockstream/satellite
 apt-get update
 ```
 
-> If command `add-apt-repository` is not available in your system, install
+> If command `apt-add-repository` is not available in your system, install
 > package `software-properties-common`.
 
 On Fedora, run:
