@@ -35,6 +35,7 @@ docker-upload:
       - master
     changes:
       - blocksatcli/main.py
+      - docker/blocksat-host.docker
   before_script:
     - apk add make python3 py3-setuptools py3-pip
   script:
