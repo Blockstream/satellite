@@ -33,14 +33,14 @@ interfaces at `/dev/` (typically named `dvb0_0` and `dvb0_1`) and adapt the
 command below accordingly:
 
 ```
-docker run --rm \
+docker run --rm -it \
 	--device=/dev/dvb0_0 \
 	--device=/dev/dvb0_1 \
 	--network=host \
 	--cap-add=NET_ADMIN \
 	--cap-add=SYS_ADMIN \
 	-v blocksat-cfg:/root/.blocksat/ \
-	-it blockstream/blocksat-host
+	blockstream/blocksat-host
 ```
 
 After running, configure reverse path filters by running the following on the
@@ -58,11 +58,11 @@ need to share the RTL-SDR USB device (connected to the Docker host) with the
 container. To do so, run the container as follows:
 
 ```
-docker run --rm \
+docker run --rm -it \
 	--privileged \
 	-v /dev/bus/usb:/dev/bus/usb \
 	-v blocksat-cfg:/root/.blocksat/ \
-	-it blockstream/blocksat-host
+	blockstream/blocksat-host
 ```
 
 Note **privileged mode** is used in order to allow the container to access the

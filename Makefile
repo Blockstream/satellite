@@ -1,7 +1,7 @@
 PY_FILES   = $(shell find blocksatcli -type f -name '*.py')
 VERSION    = $(shell grep "__version__ =" blocksatcli/main.py | cut -d '"' -f2)
 DIST       = dist/blocksat-cli-$(VERSION).tar.gz
-DISTRO     = ubuntu:bionic
+DISTRO     = ubuntu:focal
 DISTRO_ALT = $(subst :,-,$(DISTRO))
 DOCKERHUB_REPO = blockstream
 

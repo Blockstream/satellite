@@ -1,4 +1,4 @@
-ARG distro=ubuntu:bionic
+ARG distro=ubuntu:focal
 FROM $distro
 ARG distro
 MAINTAINER Blockstream Satellite
