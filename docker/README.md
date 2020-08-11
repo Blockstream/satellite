@@ -6,6 +6,7 @@
 - [Running on Docker](#running-on-docker)
     - [USB Receiver](#usb-receiver)
     - [SDR Receiver](#sdr-receiver)
+    - [Bitcoin Satellite](#bitcoin-satellite)
     - [Build the Docker Image Locally](#build-the-docker-image-locally)
 
 <!-- markdown-toc end -->
@@ -76,6 +77,34 @@ SDR application for changing option `fs.pipe-max-size`.
 > driver](https://docs.docker.com/machine/drivers/). Then, run the above `docker
 > run` command normally.
 
+
+## Bitcoin Satellite
+
+In addition to controlling or running the satellite receivers, you can also run
+[Bitcoin Satellite](../doc/bitcoin.md) using the `blocksat-host` container. For
+example, you can run the following:
+
+```
+docker run --rm -it \
+	-v ~/.bitcoin/:/root/.bitcoin/ \
+	-v blocksat-cfg:/root/.blocksat/ \
+	blockstream/blocksat-host
+```
+
+> NOTE: with option `-v ~/.bitcoin/:/root/.bitcoin/`, by default `bitcoind`
+> running inside the container will use your host's directory `~/.bitcoin/` as
+> its Bitcoin [data directory](https://en.bitcoin.it/wiki/Data_directory).
+
+Then, inside the container, run `bitcoind` [as
+usual](../doc/bitcoin.md#running).
+
+Also, if you have not [generated your `bitcoin.conf`
+configurations](../doc/bitcoin.md#configuration) yet, you can run the following
+inside the container:
+
+```
+blocksat-cli btc
+```
 
 ## Build the Docker Image Locally
 
