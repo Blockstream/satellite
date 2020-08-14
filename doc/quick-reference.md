@@ -5,26 +5,25 @@ receiver setup. In a nutshell, you need to go through the following:
 
 <!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-generate-toc again -->
 
-- [1. Common Steps](#1-common-steps)
-- [2. Receiver-specific Configuration Steps](#2-receiver-specific-configuration-steps)
+- [1. CLI Installation and Upgrade](#1-cli-installation-and-upgrade)
+- [2. Common Steps](#2-common-steps)
+- [3. Receiver-specific Configuration Steps](#3-receiver-specific-configuration-steps)
     - [Novra S400 standalone receiver](#novra-s400-standalone-receiver)
     - [TBS5927 USB receiver](#tbs5927-usb-receiver)
     - [SDR-based receiver](#sdr-based-receiver)
-- [3. Receiver-specific Antenna Alignment Steps](#3-receiver-specific-antenna-alignment-steps)
+- [4. Receiver-specific Antenna Alignment Steps](#4-receiver-specific-antenna-alignment-steps)
     - [Novra S400 standalone receiver](#novra-s400-standalone-receiver)
     - [TBS5927 USB receiver](#tbs5927-usb-receiver)
     - [SDR-based receiver](#sdr-based-receiver)
-- [4. Bitcoin-satellite Setup](#4-bitcoin-satellite-setup)
+- [5. Bitcoin-satellite Setup](#5-bitcoin-satellite-setup)
 
 <!-- markdown-toc end -->
 
 Please refer to the [main guide](README.md) for detailed explanations on all
 steps.
 
-## 1. Common Steps
 
-These are the commands that are applicable to all the supported types of
-receivers.
+## 1. CLI Installation and Upgrade
 
 Install the command-line interface (CLI):
 
@@ -37,6 +36,17 @@ Alternatively, to upgrade a previous installation of the CLI, run:
 ```
 sudo pip3 install blocksat-cli --upgrade
 ```
+
+To check your current version, run:
+
+```
+blocksat-cli -v
+```
+
+## 2. Common Steps
+
+These are the commands that are applicable to all the supported types of
+receivers.
 
 Set initial configurations:
 
@@ -62,7 +72,7 @@ Get instructions:
 blocksat-cli instructions
 ```
 
-## 2. Receiver-specific Configuration Steps
+## 3. Receiver-specific Configuration Steps
 
 ### Novra S400 standalone receiver
 
@@ -105,7 +115,7 @@ Run the SDR receiver:
 blocksat-cli sdr
 ```
 
-## 3. Receiver-specific Antenna Alignment Steps
+## 4. Receiver-specific Antenna Alignment Steps
 
 This is the most time-consuming part of the process and has detailed guidance on
 the [antenna alignment
@@ -152,7 +162,7 @@ step.
 On the plots that open up, confirm the presence of the signal. Then, wait until
 the receiver prints `LOCKED` on the terminal.
 
-## 4. Bitcoin-satellite Setup
+## 5. Bitcoin-satellite Setup
 
 Install bitcoin-satellite:
 ```
