@@ -56,12 +56,12 @@ def main():
         assert(platform.system() == 'Linux'), \
             "Command {} is currently Linux-only".format(args.subcommand)
 
-    log_format = '%(levelname)s: %(message)s'
-    if (args.debug):
-        logging.basicConfig(level=logging.DEBUG, format=log_format)
-        logging.debug('[Debug Mode]')
-    else:
-        logging.basicConfig(level=logging.INFO, format=log_format)
+    logging.basicConfig(
+        level=logging.DEBUG if args.debug else logging.INFO,
+        format='%(asctime)s %(levelname)-8s %(message)s',
+        datefmt='%Y-%m-%d %H:%M:%S'
+    )
+    logging.debug('[Debug Mode]')
 
     if hasattr(args, 'func'):
         args.func(args)
