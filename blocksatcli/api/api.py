@@ -12,7 +12,8 @@ from . import bidding, net
 from .gpg import Gpg
 
 
-logger = logging.getLogger(__name__)
+logger          = logging.getLogger(__name__)
+blocksat_pubkey = '87D07253F69E4CD8629B0A21A94A007EC9D4458C'
 
 
 def _get_server_addr(net, server):
@@ -35,6 +36,19 @@ def config(args):
 
     gpg = Gpg(gpghome, args.verbose, interactive=True)
     gpg.create_keys(name, email, comment)
+
+    # Import Blockstream's public key
+    key_server    = 'keys.openpgp.org'
+    import_result = gpg.gpg.recv_keys(key_server, blocksat_pubkey)
+
+    # Note: the order is important here. Add Blockstream's public key only after
+    # adding the user's key. With that, the user's key becomes the first key,
+    # which is used by default.
+    logger.info("Imported key {} from {}".format(
+        import_result.fingerprints[0], key_server
+    ))
+
+    gpg.gpg.trust_keys(blocksat_pubkey, 'TRUST_ULTIMATE')
 
 
 def send(args):
@@ -79,6 +93,8 @@ def send(args):
         # recipient is not defined.
         if (args.recipient is None):
             recipient = gpg.get_default_public_key()["fingerprint"]
+            assert(recipient != blocksat_pubkey), \
+                "Defaul public key is not the user's public key"
         else:
             # Make sure the key exists
             gpg.get_public_key(args.recipient)
