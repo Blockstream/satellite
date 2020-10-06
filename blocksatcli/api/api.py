@@ -1,6 +1,7 @@
 """Blocksat API"""
 import os, getpass, textwrap, logging
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
+import qrcode
 from .. import util, defs
 from .. import config as blocksatcli_config
 from .order import ApiOrder
@@ -107,6 +108,11 @@ def send(args):
     # API transmission order
     order = ApiOrder(server_addr)
     res   = order.send(msg.get_data(), bid)
+
+    # Print QR code
+    qr = qrcode.QRCode()
+    qr.add_data(res["lightning_invoice"]["payreq"])
+    qr.print_ascii()
 
 
 def listen(args):
@@ -239,6 +245,11 @@ def bump(args):
     server_addr = _get_server_addr(args.net, args.server)
     order       = ApiOrder(server_addr)
     res         = order.bump(args.bid, args.uuid, args.auth_token)
+
+    # Print QR code
+    qr = qrcode.QRCode()
+    qr.add_data(res["lightning_invoice"]["payreq"])
+    qr.print_ascii()
 
 
 def delete(args):

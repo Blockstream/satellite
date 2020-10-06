@@ -36,7 +36,8 @@ setup(
         'distro',
         'requests',
         'python-gnupg>=0.4.5',
-        'sseclient-py'
+        'sseclient-py',
+        'qrcode'
     ],
     classifiers=[
         'Programming Language :: Python :: 3',
