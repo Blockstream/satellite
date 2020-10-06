@@ -41,6 +41,7 @@ repository](https://github.com/Blockstream/satellite-api).
         - [Lightning Wallets](#lightning-wallets)
         - [Plaintext Mode](#plaintext-mode)
         - [Receiving Messages Sent from the Browser](#receiving-messages-sent-from-the-browser)
+        - [Reliable Transmissions](#reliable-transmissions)
         - [Running on Testnet](#running-on-testnet)
         - [Bump and delete API orders](#bump-and-delete-api-orders)
         - [Password-protected GPG keyring](#password-protected-gpg-keyring)
@@ -257,6 +258,41 @@ browser. To do so, run the sender application as follows:
 ```
 blocksat-cli api send --plaintext --send-raw
 ```
+
+### Reliable Transmissions
+
+The API messages sent over satellite are not guaranteed to be received by all
+satellite receivers. Each receiver experiences a unique reception quality,
+depending primarily on its location, weather conditions, and the adopted
+receiver hardware. When the signal quality is low, the receiver can fail to
+receive data correctly. In other words, the satellite communications link is
+lossy.
+
+One way to increase the chances of successful reception is to use forward error
+correction (FEC). In essence, FEC adds redundancy to the transmit data so that
+receivers can recover the original message even if some parts are missing. This
+is the mechanism that is used, for instance, in Bitcoin Satellite ([see further
+details in the project's
+Wiki](https://github.com/Blockstream/bitcoinsatellite/wiki#forward-error-correction-fec)).
+
+To send an API message using FEC encoding, run:
+
+```
+blocksat-cli api send --fec
+```
+
+Correspondingly, to receive an FEC-encoded message, use:
+
+```
+blocksat-cli api listen --fec
+```
+
+In general, the higher the number of extra (redundant) pieces of data sent over
+satellite, the better the protection to data loss over the satellite link.  The
+user can tune this parameter using the command-line argument
+`--fec-overhead`. By default, this argument is `0.1` (equivalent to 10%), such
+that, for a message that originally occupies 10 packets, the application sends
+one extra packet.
 
 ### Running on Testnet
 

@@ -182,22 +182,31 @@ class BlocksatPktHandler:
         """Return the number of fragments corresponding to a sequence number"""
         return len(self.frag_map[seq_num].keys())
 
-    def concat(self, seq_num):
-        """Concatenate all Blocksat Packet payloads composing an API message"""
+    def concat(self, seq_num, force=False):
+        """Concatenate all Blocksat Packet payloads composing an API message
+
+        Args:
+            seq_num : API message sequence number
+            force   : Force concatenation even if there are fragment gaps
+
+        """
         assert(seq_num in self.frag_map)
 
         # The caller should call this function only when it's known that the
         # message can be decoded
-        if (not self._check_gaps(seq_num)):
+        if (not force and not self._check_gaps(seq_num)):
             raise RuntimeError("Gap found between message fragments")
 
-        if (not self._check_ready(seq_num)):
+        if (not force and not self._check_ready(seq_num)):
             raise RuntimeError("Tried to decode while fragments are missing")
 
         api_msg = bytes()
         for i_frag in sorted(self.frag_map[seq_num]):
             assert(isinstance(self.frag_map[seq_num][i_frag].payload, bytes))
             api_msg += self.frag_map[seq_num][i_frag].payload
+
+        logger.debug("BlocksatPktHandler: Concatenated message with {} bytes "
+                     "(force: {})".format(len(api_msg), force))
         return api_msg
 
     def split(self, data, seq_num):

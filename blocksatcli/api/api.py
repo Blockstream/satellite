@@ -114,6 +114,10 @@ def send(args):
 
         msg.encrypt(gpg, recipient, sign_cfg, args.trust)
 
+    # Forward error correction encoding
+    if (args.fec):
+        msg.fec_encode(args.fec_overhead)
+
     # Actual number of bytes used for satellite transmission
     tx_len = calc_ota_msg_len(msg.get_length())
     logger.info("Satellite transmission will use %d bytes" %(tx_len))
@@ -176,6 +180,9 @@ def listen(args):
     # Handler to collect groups of Blocksat packets that form an API message
     pkt_handler = BlocksatPktHandler()
 
+    # Set of decoded messages (to avoid repeated decoding)
+    decoded_msgs = set()
+
     logger.info("Waiting for data...")
     while True:
         try:
@@ -190,11 +197,22 @@ def listen(args):
         # Feed new packet into the packet handler
         data_ready = pkt_handler.append(pkt)
 
-        if (not data_ready):
+        # Decode each message only once
+        seq_num = pkt.seq_num
+        if (seq_num in decoded_msgs):
+            logger.debug("Message {} has already been decoded".format(seq_num))
+            continue
+
+        # With FEC, the data may become decodable before the last fragment
+        if (args.fec):
+            msg = ApiMsg(pkt_handler.concat(seq_num, force=True),
+                         msg_format="fec_encoded")
+            if (not msg.is_fec_decodable()):
+                continue
+        elif (not data_ready):
             continue
 
         # API message is ready to be decoded
-        seq_num = pkt.seq_num
         logger.info("-------- API message {:d}".format(seq_num))
         logger.debug("Message source: {}:{}".format(addr[0], addr[1]))
         logger.info("Fragments: {:d}".format(pkt_handler.get_n_frags(seq_num)))
@@ -203,8 +221,16 @@ def listen(args):
         order = ApiOrder(server_addr, seq_num=seq_num)
         order.confirm_rx(args.region, args.tls_cert, args.tls_key)
 
-        # Decoded the data from the collection of Blocksat Packets
-        data = pkt_handler.concat(seq_num)
+        # Decode the data from the available FEC chunks or from the complete
+        # collection of Blocksat Packets
+        if (args.fec):
+            msg.fec_decode()
+            data = msg.data['original']
+        else:
+            data = pkt_handler.concat(seq_num)
+
+        # Mark as decoded
+        decoded_msgs.add(seq_num)
 
         if (len(data) <= 0):
             logger.warning("Empty message")
@@ -428,6 +454,20 @@ def subparser(subparsers):
         help="Send data in plaintext format, i.e., without encryption"
     )
     p2.add_argument(
+        '--fec',
+        default=False,
+        action="store_true",
+        help="Send data with forward error correction (FEC) encoding"
+    )
+    p2.add_argument(
+        '--fec-overhead',
+        default=0.1,
+        type=float,
+        help="Target ratio between the overhead FEC chunks and the original "
+        "chunks. For example, 0.1 implies one overhead (redundant) chunk for "
+        "every 10 original chunks"
+    )
+    p2.add_argument(
         '--no-password',
         default=False,
         action="store_true",
@@ -489,6 +529,13 @@ def subparser(subparsers):
         "Note this option saves all incoming messages, including those "
         "broadcast by other users. In contrast, the default mode (without this "
         "option) only saves the messages that are successfully decrypted."
+    )
+    p3.add_argument(
+        '--fec',
+        default=False,
+        action="store_true",
+        help="Assume the incoming data has forward error correction (FEC) "
+        "encoding"
     )
     p3.add_argument(
         '--no-password',

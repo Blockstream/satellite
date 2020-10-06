@@ -1,5 +1,5 @@
-import os, unittest, zlib, shutil
-from . import msg
+import os, unittest, zlib, shutil, string, random, math
+from . import msg, pkt
 from .gpg import Gpg
 
 
@@ -225,6 +225,59 @@ class TestApi(unittest.TestCase):
         self.assertEqual(rx_msg.data['original'], data)
 
         self._teardown_gpg()
+
+    def test_fec_encoding_decoding(self):
+        """Test FEC encoding and decoding"""
+        fec_overhead = 0.1
+
+        # Random data
+        n_bytes = 100000
+        data    = ''.join(random.choice(string.ascii_letters + string.digits)\
+                          for _ in range(n_bytes)).encode()
+
+        # Define the original message, encapsulate it, and apply FEC encoding
+        tx_msg = msg.ApiMsg(data)
+        tx_msg.encapsulate()
+        tx_msg.fec_encode(fec_overhead)
+
+        # Number of original and FEC overhead chunks
+        n_chunks          = math.ceil(len(data) / msg.FEC_CHUNK_SIZE)
+        n_overhead_chunks = math.ceil(fec_overhead * n_chunks)
+
+        # Check that the generated overhead is correct
+        assert((tx_msg.get_length() % pkt.MAX_PAYLOAD) == 0)
+        n_payloads = tx_msg.get_length() // pkt.MAX_PAYLOAD
+        self.assertEqual(n_payloads, n_chunks + n_overhead_chunks)
+
+        # ApiMsg on the Rx end (starting from the full FEC-encoded data)
+        rx_msg = msg.ApiMsg(tx_msg.get_data(), msg_format="fec_encoded")
+        rx_msg.fec_decode()
+        rx_msg.decapsulate()
+
+        # Check that the decoded data matches the original
+        self.assertEqual(rx_msg.data['original'], data)
+
+        # Drop a number of chunks corresponding to the overhead chunks (the
+        # maximum number that can be dropped). Then, try to decode:
+        n_drop  = n_overhead_chunks
+        rx_msg2 = msg.ApiMsg(tx_msg.get_data()[:-(n_drop * pkt.MAX_PAYLOAD)],
+                             msg_format="fec_encoded")
+        rx_msg2.fec_decode()
+        rx_msg2.decapsulate()
+
+        # The decoding should still work
+        self.assertTrue(rx_msg2.is_fec_decodable())
+        self.assertEqual(rx_msg2.data['original'], data)
+
+        # Drop more chunks than the decoder can tolerate
+        n_drop  = n_overhead_chunks + 1
+        rx_msg3 = msg.ApiMsg(tx_msg.get_data()[:-(n_drop * pkt.MAX_PAYLOAD)],
+                             msg_format="fec_encoded")
+
+        # Now the decoding should fail
+        self.assertFalse(rx_msg3.is_fec_decodable())
+        with self.assertRaises(RuntimeError):
+            rx_msg3.fec_decode()
 
     def test_save(self):
         """Test saving of API msg data"""

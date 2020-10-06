@@ -37,7 +37,8 @@ setup(
         'requests',
         'python-gnupg>=0.4.5',
         'sseclient-py',
-        'qrcode'
+        'qrcode',
+        'zfec>=1.5.4'
     ],
     classifiers=[
         'Programming Language :: Python :: 3',
