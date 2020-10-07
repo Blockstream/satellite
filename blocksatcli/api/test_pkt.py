@@ -1,8 +1,13 @@
-import unittest, string, random
+import unittest, string, random, time
 from . import pkt
 
 
 class TestOrder(unittest.TestCase):
+    def _rnd_string(self, n_bytes):
+        """Generate random string with given number of bytes"""
+        return ''.join(random.choice(string.ascii_letters + string.digits) \
+                for _ in range(n_bytes)).encode()
+
     def test_pack_unpack(self):
         """Test packing and unpacking to/from Blocksat Packet"""
         seq_num    = 1
@@ -29,9 +34,7 @@ class TestOrder(unittest.TestCase):
     def test_handler(self):
         """Test extraction of API message from collection of Blockst Packets"""
         # Random data
-        n_bytes = 10000
-        data    = ''.join(random.choice(string.ascii_letters + string.digits)\
-                          for _ in range(n_bytes)).encode()
+        data = self._rnd_string(n_bytes = 10000)
 
         # Distribute data into packets
         seq_num = 1
@@ -56,9 +59,7 @@ class TestOrder(unittest.TestCase):
     def test_unordered_packet_handling(self):
         """Test decoding of API message from out-of-order Blocksat Packets"""
         # Random data
-        n_bytes = 10000
-        data    = ''.join(random.choice(string.ascii_letters + string.digits)\
-                          for _ in range(n_bytes)).encode()
+        data = self._rnd_string(n_bytes = 10000)
 
         # Distribute data into packets
         seq_num    = 1
@@ -81,9 +82,7 @@ class TestOrder(unittest.TestCase):
     def test_packet_gap_handling(self):
         """Test decoding of API message with gap on Blocksat Packets"""
         # Random data
-        n_bytes = 10000
-        data    = ''.join(random.choice(string.ascii_letters + string.digits) \
-                          for _ in range(n_bytes)).encode()
+        data = self._rnd_string(n_bytes = 10000)
 
         # Distribute data into packets
         seq_num    = 1
@@ -116,9 +115,7 @@ class TestOrder(unittest.TestCase):
     def test_ota_msg_len(self):
         """Test over-the-air message length computation"""
         # Random data
-        n_bytes = 10000
-        data    = ''.join(random.choice(string.ascii_letters + string.digits)\
-                          for _ in range(n_bytes)).encode()
+        data = self._rnd_string(n_bytes = 10000)
 
         # Expected number of bytes sent over-the-air
         expected_ota_len = pkt.calc_ota_msg_len(len(data))
@@ -137,4 +134,33 @@ class TestOrder(unittest.TestCase):
 
         # Check
         self.assertEqual(expected_ota_len, total_len)
+
+    def test_fragment_clean_up(self):
+        """Test automatic cleaning of old pending fragments"""
+        # Random data
+        data = self._rnd_string(n_bytes = 10000)
+
+        # Create a packet handler with a short timeout
+        timeout = 0.5
+        handler = pkt.BlocksatPktHandler(timeout = timeout)
+
+        # Distribute data into packets
+        seq_num = 1
+        handler.split(data, seq_num)
+
+        # Try to clean
+        handler.clean()
+
+        # It should not have cleaned anything (timeout interval has not elapsed)
+        assert(seq_num in handler.frag_map)
+
+        # Wait enough to time out
+        time.sleep(timeout)
+
+        # Try to clean again
+        handler.clean()
+
+        # Now it should be clean
+        assert(seq_num not in handler.frag_map)
+        assert(handler.frag_map == {})
 

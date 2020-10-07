@@ -232,6 +232,12 @@ def listen(args):
         # Mark as decoded
         decoded_msgs.add(seq_num)
 
+        # Delete message from the packet handler
+        del pkt_handler.frag_map[seq_num]
+
+        # Clean up old (timed-out) messages from the packet handler
+        pkt_handler.clean()
+
         if (len(data) <= 0):
             logger.warning("Empty message")
             continue

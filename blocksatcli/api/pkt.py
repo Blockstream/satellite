@@ -1,5 +1,5 @@
 """Encapsulation of API messages into Blocksat Packets"""
-import logging, struct
+import logging, struct, time
 from math import ceil
 
 
@@ -103,8 +103,15 @@ class BlocksatPktHandler:
     ApiMsg, it generates multiple Blocksat Packets.
 
     """
-    def __init__(self):
+    def __init__(self, timeout=7200):
+        """BlocksatPktHandler Constructor
+
+        Args:
+            timeout : Timeout in seconds to remove old pending fragments.
+
+        """
         self.frag_map = {}
+        self.timeout  = timeout
 
     def _check_gaps(self, seq_num):
         """Check if there is any fragment number gap
@@ -113,7 +120,7 @@ class BlocksatPktHandler:
             (bool) True when there are no gaps (everything is OK).
 
         """
-        frag_idxs = sorted(self.frag_map[seq_num].keys())
+        frag_idxs = sorted(self.frag_map[seq_num]['frags'].keys())
         for i,x in enumerate(frag_idxs):
             if (i == 0 and x != 0):
                 if (x > 1):
@@ -136,7 +143,7 @@ class BlocksatPktHandler:
         """
         # Find the last fragment of the sequence
         i_last_frag = None
-        for pkt in self.frag_map[seq_num].values():
+        for pkt in self.frag_map[seq_num]['frags'].values():
             if (not pkt.more_frags):
                 i_last_frag = pkt.frag_num
                 break;
@@ -147,7 +154,7 @@ class BlocksatPktHandler:
 
         # Because packets can be processed out of order, check that all packets
         # before the last fragment are also available:
-        frags = self.frag_map[pkt.seq_num].keys()
+        frags = self.frag_map[pkt.seq_num]['frags'].keys()
         return all([i in frags for i in range(i_last_frag)])
 
     def append(self, pkt):
@@ -166,8 +173,13 @@ class BlocksatPktHandler:
 
         if (pkt.seq_num not in self.frag_map):
             self.frag_map[pkt.seq_num] = {}
+            self.frag_map[pkt.seq_num]['frags'] = {}
 
-        self.frag_map[pkt.seq_num][pkt.frag_num] = pkt
+        self.frag_map[pkt.seq_num]['frags'][pkt.frag_num] = pkt
+
+        # Timestamp the last fragment reception of this sequence number. Use
+        # this timestamp to clean old fragments that were never decoded.
+        self.frag_map[pkt.seq_num]['t_last'] = time.time()
 
         logger.debug("BlocksatPktHandler: Append fragment {}, "
                      "Seq Num {}".format(pkt.frag_num, pkt.seq_num))
@@ -176,11 +188,11 @@ class BlocksatPktHandler:
 
     def get_frags(self, seq_num):
         """Get the Blocksat Packets sorted by fragment number"""
-        return [x[1] for x in sorted(self.frag_map[seq_num].items())]
+        return [x[1] for x in sorted(self.frag_map[seq_num]['frags'].items())]
 
     def get_n_frags(self, seq_num):
         """Return the number of fragments corresponding to a sequence number"""
-        return len(self.frag_map[seq_num].keys())
+        return len(self.frag_map[seq_num]['frags'].keys())
 
     def concat(self, seq_num, force=False):
         """Concatenate all Blocksat Packet payloads composing an API message
@@ -201,9 +213,9 @@ class BlocksatPktHandler:
             raise RuntimeError("Tried to decode while fragments are missing")
 
         api_msg = bytes()
-        for i_frag in sorted(self.frag_map[seq_num]):
-            assert(isinstance(self.frag_map[seq_num][i_frag].payload, bytes))
-            api_msg += self.frag_map[seq_num][i_frag].payload
+        for i_frag, frag in sorted(self.frag_map[seq_num]['frags'].items()):
+            assert(isinstance(frag.payload, bytes))
+            api_msg += frag.payload
 
         logger.debug("BlocksatPktHandler: Concatenated message with {} bytes "
                      "(force: {})".format(len(api_msg), force))
@@ -226,11 +238,8 @@ class BlocksatPktHandler:
         n_frags = ceil(len(data) / MAX_PAYLOAD)
         pkts    = list()
 
-        logging.debug("Message size: {:d} bytes\tFragments: {:d}".format(
-            len(data), n_frags))
-
-        if (seq_num not in self.frag_map):
-            self.frag_map[seq_num] = {}
+        logger.debug("BlocksatPktHandler: Message size: {:d} bytes\t"
+                     "Fragments: {:d}".format(len(data), n_frags))
 
         for i_frag in range(n_frags):
             # Is this the last_fragment?
@@ -244,7 +253,23 @@ class BlocksatPktHandler:
             pkt = BlocksatPkt(seq_num, i_frag, more_frags, data[s_byte:e_byte])
 
             # Add to fragment map
-            self.frag_map[seq_num][i_frag] = pkt
+            self.append(pkt)
+
+    def clean(self):
+        """Throw away old (timed-out) pending fragments
+        """
+        # Find the timed-out messages
+        timed_out = []
+        t_now     = time.time()
+        for seq_num in self.frag_map:
+            if (t_now - self.frag_map[seq_num]['t_last'] > self.timeout):
+                timed_out.append(seq_num)
+
+        # Delete the timed-out messages
+        for seq_num in timed_out:
+            logger.debug("BlocksatPktHandler: Delete Seq Num {} from fragment "
+                         "map".format(seq_num))
+            del self.frag_map[seq_num]
 
 
 def calc_ota_msg_len(msg_len):
