@@ -97,6 +97,14 @@ class DemoRx():
         # Sequence number
         seq_num = order["tx_seq_num"]
 
+        # If the sequence number has rolled back, maybe it is because the server
+        # has restarted the sequence numbers (not uncommon on test
+        # environments). In this case, restart the sequence.
+        if (self.last_seq_num is not None and seq_num < self.last_seq_num):
+            logger.warning("Tx sequence number rolled back from {} to "
+                           "{}".format(self.last_seq_num, seq_num))
+            self.last_seq_num = None
+
         rx_pending = True
         while (rx_pending):
             # Receive all messages until caught up
