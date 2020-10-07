@@ -8,12 +8,17 @@ def fill_print(text):
     print()
 
 
-def typed_input(msg, hint=None, in_type=int):
+def typed_input(msg, hint=None, in_type=int, default=None):
     """Ask for user input of a specific type"""
     res = None
     while (res is None):
         try:
-            res = in_type(input(msg + ": "))
+            if (default is not None):
+                assert(isinstance(default, in_type))
+                input_val = input(msg + ": [{}] ".format(default)) or default
+            else:
+                input_val = input(msg + ": ")
+            res = in_type(input_val)
         except ValueError:
             if (hint is None):
                 if (in_type == int):

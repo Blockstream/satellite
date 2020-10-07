@@ -1,4 +1,6 @@
 import logging
+from math import ceil
+from .. import util
 
 
 logger = logging.getLogger(__name__)
@@ -20,17 +22,15 @@ def ask_bid(data_size, prev_bid=None):
         # Suggest a 5% higher msat/byte ratio
         prev_ratio      = float(prev_bid) / data_size
         suggested_ratio = 1.05 * prev_ratio
-        min_bid         = data_size * suggested_ratio
+        min_bid         = int(ceil(data_size * suggested_ratio))
     else:
         min_bid = data_size * 50
 
     print("")
-    bid     = input("Your " +
-                    ("new total " if prev_bid is not None else "") +
-                    "bid to transmit %d bytes " %(data_size) +
-                    "(in millisatoshis): [%d] " %(min_bid)) \
-                    or min_bid
-    bid     = int(bid)
+    msg = "Your {}bid to transmit {:d} bytes (in millisatoshis)".format(
+        ("new total " if prev_bid is not None else ""), data_size, min_bid)
+
+    bid = util.typed_input(msg, default=min_bid)
     print()
 
     if (prev_bid is not None):
