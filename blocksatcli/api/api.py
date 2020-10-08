@@ -272,7 +272,10 @@ def listen(args):
                 continue
 
         # Finalize the processing of the decoded message
-        msg.save(download_dir)
+        if (args.stdout):
+            msg.serialize()
+        else:
+            msg.save(download_dir)
 
         if (args.echo):
             # Not all messages can be decoded in UTF-8 (binary files
@@ -555,6 +558,12 @@ def subparser(subparsers):
         action='store_true',
         help="Print the contents of all incoming text messages to the console, "
         "as long as these messages are decodable in UTF-8"
+    )
+    p3.add_argument(
+        '--stdout',
+        default=False,
+        action='store_true',
+        help="Serialize the received data to stdout instead of saving on a file"
     )
     p3.add_argument(
         '-r',

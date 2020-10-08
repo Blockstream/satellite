@@ -1,5 +1,5 @@
 """API Messages"""
-import os, logging, time, struct, zlib
+import sys, os, logging, time, struct, zlib
 from math import ceil, floor
 import zfec
 from . import pkt
@@ -499,4 +499,16 @@ class ApiMsg:
 
         logger.info("Saved in %s." %(dst_file))
 
+    def serialize(self, target='original'):
+        """Serialize data to stdout
+
+        Args:
+            target : Target bytes array to print (original, encapsulated or
+                     encrypted).
+
+        """
+        data = self.get_data(target)
+        assert(isinstance(data, bytes))
+        sys.stdout.buffer.write(data)
+        sys.stdout.buffer.flush()
 
