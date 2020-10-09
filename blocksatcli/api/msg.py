@@ -474,6 +474,9 @@ class ApiMsg:
             target  : Target bytes array to save (original, encapsulated or
                       encrypted).
 
+        Returns:
+            Path to the downloaded file.
+
         """
         data = self.get_data(target)
         assert(isinstance(data, bytes))
@@ -498,6 +501,7 @@ class ApiMsg:
         f.close()
 
         logger.info("Saved in %s." %(dst_file))
+        return dst_file
 
     def serialize(self, target='original'):
         """Serialize data to stdout

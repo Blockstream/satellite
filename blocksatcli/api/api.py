@@ -1,5 +1,5 @@
 """Blocksat API"""
-import os, getpass, textwrap, logging
+import os, getpass, textwrap, logging, subprocess, shlex
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 import qrcode
 from .. import util, defs
@@ -275,7 +275,7 @@ def listen(args):
         if (args.stdout):
             msg.serialize()
         else:
-            msg.save(download_dir)
+            download_path = msg.save(download_dir)
 
         if (args.echo):
             # Not all messages can be decoded in UTF-8 (binary files
@@ -289,6 +289,13 @@ def listen(args):
                 logger.debug("Message not decodable in UFT-8")
         else:
             logger.debug("Message: {}".format(msg.data['original']))
+
+        if (args.exec):
+            cmd = shlex.split(
+                args.exec.replace("{}", shlex.quote(download_path))
+            )
+            logger.debug("Exec:\n> {}".format(" ".join(cmd)))
+            subprocess.run(cmd)
 
 
 def bump(args):
@@ -559,11 +566,17 @@ def subparser(subparsers):
         help="Print the contents of all incoming text messages to the console, "
         "as long as these messages are decodable in UTF-8"
     )
-    p3.add_argument(
+    stdout_exec_arg = p3.add_mutually_exclusive_group()
+    stdout_exec_arg.add_argument(
         '--stdout',
         default=False,
         action='store_true',
         help="Serialize the received data to stdout instead of saving on a file"
+    )
+    stdout_exec_arg.add_argument(
+        '--exec',
+        help="Execute command for each downloaded file. Replaces the string "
+        "\'{}\' with the path to the downloaded file."
     )
     p3.add_argument(
         '-r',
