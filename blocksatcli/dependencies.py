@@ -264,58 +264,6 @@ def _install_standalone(interactive=True, update=False, dry=False):
                       update, dry)
 
 
-def _check_cli_updates(interactive):
-    """Check if the CLI has updates"""
-
-    logger.debug("Checking blocksat-cli updates")
-
-    # If pip is not available, then definitely the CLI was not installed via pip
-    if (not which("pip3")):
-        return
-
-    # Is blocksat-cli installed?
-    res = subprocess.run(["pip3", "show", "blocksat-cli"],
-                         stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-    found = (res.returncode == 0)
-
-    # If the CLI was not installed via pip, don't check updates
-    if (not found):
-        return
-
-    # Is the CLI outdated?
-    try:
-        outdated_list = json.loads(
-            subprocess.check_output(["pip3", "list", "--outdated",
-                                     "--format", "json"],
-                                    stderr=subprocess.DEVNULL).decode()
-        )
-    except subprocess.CalledProcessError:
-        # Don't break if the command fails. It could be a problem on pip. For
-        # example, there is a bug in which pip throws a TypeError on the "list
-        # --outdated" command saying: '>' not supported between instances of
-        # 'Version' and 'Version'
-        logger.warning("Failed to check blocksat-cli updates.")
-        return
-
-    cli_outdated = False
-    for package in outdated_list:
-        if (package['name'] == "blocksat-cli"):
-            cli_outdated = True
-            print("Update available for blocksat-cli")
-            print("Current version: {}.\nLatest version: {}.".format(
-                package['version'], package['latest_version']
-            ))
-            if ((not interactive) or util._ask_yes_or_no("Update now?")):
-                cmd = ["pip3", "install", "blocksat-cli", "--upgrade"]
-                util.run_and_log(util.root_cmd(cmd))
-                print("Updated successfully")
-                print("Please, run command again to use the new version")
-                exit()
-
-    if (not cli_outdated):
-        logger.debug("blocksat-cli is up-to-date")
-
-
 def _print_help(args):
     """Re-create argparse's help menu"""
     parser     = ArgumentParser()
@@ -385,10 +333,6 @@ def run(args):
     # Interactive installation? I.e., requires user to press "y/n"
     interactive = (not args.yes)
 
-    # Check CLI updates
-    if (not args.dry_run):
-        _check_cli_updates(interactive)
-
     if (args.target is not None):
         target_map = {
             "sdr"        : defs.sdr_setup_type,
@@ -435,10 +379,6 @@ def run(args):
 def drivers(args):
     # Interactive installation? I.e., requires user to press "y/n"
     interactive = (not args.yes)
-
-    # Check CLI updates
-    if (not args.dry_run):
-        _check_cli_updates(interactive)
 
     if (os.geteuid() != 0 and not args.dry_run):
         util.fill_print("Some commands require root access and will prompt "

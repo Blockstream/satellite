@@ -1,14 +1,16 @@
 #!/usr/bin/env python3
-import logging, os
-from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
-from . import defs, config, util, instructions, gqrx, bitcoin, sdr, rp, \
-    firewall, standalone, usb, dependencies
-from .api import api
-from os import environ
-import platform
 
 
 __version__ = "0.2.9"
+
+
+import logging, os
+from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
+from . import defs, config, util, instructions, gqrx, bitcoin, sdr, rp, \
+    firewall, standalone, usb, dependencies, update
+from .api import api
+from os import environ
+import platform
 
 
 def main():
@@ -62,6 +64,9 @@ def main():
         datefmt='%Y-%m-%d %H:%M:%S'
     )
     logging.debug('[Debug Mode]')
+
+    # Check CLI updates
+    update.check_cli_updates(args, __version__)
 
     if hasattr(args, 'func'):
         args.func(args)
