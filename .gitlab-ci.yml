@@ -14,7 +14,9 @@ test-ubuntu:
   extends: .test-dependencies
   only:
     changes:
+      - blocksatcli/main.py
       - blocksatcli/dependencies.py
+      - docker/blocksat-host.docker
   before_script:
     - apt update -y && apt install -y make python3 python3-setuptools python3-pip
     - make && make install
@@ -24,7 +26,9 @@ test-fedora:
   extends: .test-dependencies
   only:
     changes:
+      - blocksatcli/main.py
       - blocksatcli/dependencies.py
+      - docker/blocksat-host.docker
   before_script:
     - dnf update -y && dnf install -y make python3 python3-setuptools python3-pip
     - make && make install
