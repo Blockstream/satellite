@@ -6,7 +6,7 @@ DISTRO     = ubuntu:focal
 DISTRO_ALT = $(subst :,-,$(DISTRO))
 DOCKERHUB_REPO = blockstream
 
-.PHONY: all clean clean-py sdist wheel install docker pypi
+.PHONY: all clean clean-py sdist wheel install docker pypi testpypi
 
 all: sdist
 
@@ -40,6 +40,9 @@ docker: $(SDIST)
 
 pypi: clean sdist wheel
 	python3 -m twine upload --repository pypi dist/*
+
+testpypi: clean sdist wheel
+	python3 -m twine upload --repository testpypi dist/*
 
 docker-push: docker
 	docker push $(DOCKERHUB_REPO)/blocksat-host
