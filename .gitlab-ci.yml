@@ -4,10 +4,10 @@
     - python3 -m unittest blocksatcli/verify_deps_instal.py
 
 test:
-  image: python
+  image: python:3.8.6
   script:
-    - python3 setup.py install
-    - python3 -m unittest discover
+    - pip3 install tox
+    - tox
 
 test-ubuntu:
   image: ubuntu:focal
