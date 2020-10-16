@@ -4,19 +4,9 @@ from ipaddress import IPv4Interface
 import os, sys, signal, argparse, subprocess, time, logging, threading, json
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 from . import config, util, defs, rp, firewall, ip, dependencies
+from .monitor import Monitor
 import textwrap
 logger = logging.getLogger(__name__)
-
-
-def _setup_logfile(cfg_dir):
-    """Setup directory and file for dvbv5-zap logs"""
-    log_dir = os.path.join(cfg_dir, "logs")
-    if not os.path.exists(log_dir):
-        os.makedirs(log_dir)
-
-    name    = "usb-" + time.strftime("%Y%m%d-%H%M%S") + ".log"
-    logfile = os.path.join(log_dir, name)
-    return logfile
 
 
 def _find_v4l_lnb(info):
@@ -346,7 +336,7 @@ def _rm_dvbnet_interface(adapter, ifname, verbose=True):
 
 
 def zap(adapter, frontend, ch_conf_file, user_info, lnb="UNIVERSAL",
-        output=None, timeout=None, monitor=False, scrolling=False):
+        output=None, timeout=None, monitor=False):
     """Run zapper
 
     Args:
@@ -359,21 +349,24 @@ def zap(adapter, frontend, ch_conf_file, user_info, lnb="UNIVERSAL",
         timeout      : Run the zap for this specified duration
         monitor      : Monitor mode. Monitors DVB traffic stats (throughput and
                        packets per second), but does not deliver data upstream.
-        scrolling    : Whether to print zap logs by scrolling rather than
-                       printing always on the same line.
 
     Returns:
         Subprocess object
 
     """
 
-    util._print_header("Tuning DVB Receiver")
-    print("Running dvbv5-zap")
+    util._print_header("Tuning the DVB-S2 Receiver")
 
     # LNB name to use when calling dvbv5-zap
     if (lnb is None):
         # Find suitable LNB within v4l-utils preset LNBs
         lnb = _find_v4l_lnb(user_info)['alias']
+
+    print("Running dvbv5-zap")
+    print("  - Config:   {}".format(ch_conf_file))
+    print("  - Adapter:  {}".format(adapter))
+    print("  - Frontend: {}".format(frontend))
+    print("  - LNB:      {}".format(lnb))
 
     cmd = ["dvbv5-zap", "-c", ch_conf_file, "-a", str(adapter), "-f",
            str(frontend), "-l", lnb, "-v"]
@@ -416,13 +409,8 @@ def zap(adapter, frontend, ch_conf_file, user_info, lnb="UNIVERSAL",
 
     logger.debug("> " + " ".join(cmd))
 
-    if (scrolling):
-        ps = subprocess.Popen(cmd, stdout=subprocess.PIPE,
-                              stderr=subprocess.PIPE, universal_newlines=True)
-    else:
-        ps = subprocess.Popen(cmd)
-
-    return ps
+    return subprocess.Popen(cmd, stdout=subprocess.PIPE,
+                            stderr=subprocess.PIPE, universal_newlines=True)
 
 
 def subparser(subparsers):
@@ -548,6 +536,8 @@ def _common(args):
     if (args.adapter is None):
         adapter, frontend = _find_adapter()
     else:
+        if (args.frontend is None):
+            raise ValueError("argument --adapter requires --frontend.")
         adapter  = args.adapter
         frontend = args.frontend
 
@@ -615,6 +605,62 @@ def usb_config(args):
     return
 
 
+log_key_map = {
+    'Lock'    : 'lock',
+    'Signal'  : 'level',
+    'C/N'     : 'snr',
+    'postBER' : 'ber'
+}
+
+
+def _parse_log(line):
+    """Parse logs from dvbv5-zap and convert to format accepted by monitor.py"""
+    if (line is None or line == "\n"):
+        return
+
+    # Don't process the "Layer A" lines
+    if ("Layer" in line):
+        return
+
+    # Only process lines containing "Signal"
+    if ("Signal" not in line):
+        return
+    d           = {}
+    elements    = line.split()
+    n_elem      = len(elements)
+    d['lock']   = ("Lock" in line, None)
+    for i, elem in enumerate(elements):
+        # Each metric is printed as "name=value"
+        if (elem[-1] == "=" and (i+1) <= n_elem):
+            key       = elem[:-1]
+            raw_value = elements[i+1]
+
+            # Convert key to the nomenclature adopted on monitor.py
+            key = log_key_map[key]
+
+            # Fix any scientific notation
+            if ("^" in raw_value):
+                raw_value = raw_value.replace("x10^","e")
+
+            # Parse value and unit
+            unit = None
+            if ("%" in raw_value):
+                unit = "%"
+                val  = float(raw_value[:-1].replace(",","."))
+            elif (raw_value[-2:] == "dB"):
+                val  = float(raw_value[:-2].replace(",","."))
+                unit = "dB"
+            elif (raw_value[-3:] == "dBm"):
+                val  = float(raw_value[:-3].replace(",","."))
+                unit = "dBm"
+            else:
+                val = float(raw_value.replace(",", "."))
+
+            d[key] = (val, unit)
+
+    return d
+
+
 def launch(args):
     """Launch the DVB interface from scratch
 
@@ -631,17 +677,16 @@ def launch(args):
     if (not dependencies.check_apps(["dvbv5-zap"])):
         return
 
+    # Log Monitoring
+    monitor = Monitor(args.cfg_dir, logfile=args.logfile, scroll=args.scrolling)
+
     # Channel configuration file
     chan_conf = user_info['setup']['channel']
 
     # Zap
     zap_ps = zap(adapter, frontend, chan_conf, user_info, lnb=args.lnb,
                  output=args.record_file, timeout=args.timeout,
-                 monitor=args.monitor, scrolling=(args.scrolling
-                                                  or args.logfile))
-
-    # Prepare logs
-    logfile = None if (not args.logfile) else _setup_logfile(args.cfg_dir)
+                 monitor=args.monitor)
 
     # Handler for SIGINT
     def signal_handler(sig, frame):
@@ -652,30 +697,19 @@ def launch(args):
     signal.signal(signal.SIGINT, signal_handler)
     signal.signal(signal.SIGTERM, signal_handler)
 
+    util._print_header("Receiver Monitoring")
+    print()
+
     # Listen to dvbv5-zap indefinitely
-    if (args.scrolling or args.logfile):
-        # Loop indefinitely over zap
-        prev_line = None
-        while (zap_ps.poll() is None):
-            line = zap_ps.stderr.readline()
-            if (line and line != "\n"):
-                pretty_line = '\r{}: '.format(
-                    time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime())) + line
-                if (("Signal" in line) and ("Layer" not in line)):
-                    prev_line = pretty_line.replace("\n", " ")
-                else:
-                    concat_line = pretty_line if prev_line is None else \
-                                  (prev_line + line)
-                    final_line  = " ".join(concat_line.split()) + "\n"
-                    prev_line   = None
-                    print(final_line, end='')
-                    if (logfile is not None):
-                        with open(logfile, 'a') as fd:
-                            fd.write(final_line)
-            else:
-                time.sleep(1)
-    else:
-        zap_ps.wait()
+    while (zap_ps.poll() is None):
+        line    = zap_ps.stderr.readline()
+        metrics = _parse_log(line)
+
+        if (metrics is None):
+            continue
+
+        monitor.update(metrics)
+
     sys.exit(zap_ps.poll())
 
 

@@ -113,7 +113,7 @@ def _plot_dvb(ds, ds_name):
     keys.remove("time")
     keys.remove("date")
 
-    formatter = DateFormatter('%H:%M')
+    formatter = DateFormatter('%m/%d %H:%M')
 
     path = os.path.join("figs", ds_name)
     if not os.path.isdir(path):
