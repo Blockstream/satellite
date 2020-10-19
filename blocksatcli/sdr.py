@@ -194,11 +194,12 @@ def run(args):
             rtl_cmd.append("-")
 
     ldvb_cmd  = ["leandvb", "--nhelpers", str(args.n_helpers), "-f",
-                str(samp_rate), "--sr", str(sym_rate), "--roll-off",
-                str(defs.rolloff), "--standard", "DVB-S2", "--sampler", "rrc",
-                "--rrc-rej", str(args.rrc_rej), "--modcods", modcod,
-                "--framesizes", str(args.framesizes), "--inpipe",
-                str(pipe_size_bytes)]
+                 str(samp_rate), "--sr", str(sym_rate), "--roll-off",
+                 str(defs.rolloff), "--standard", "DVB-S2", "--sampler", "rrc",
+                 "--rrc-rej", str(args.rrc_rej), "--modcods", modcod,
+                 "--framesizes", str(args.framesizes)]
+    if (args.iq_file is None):
+        ldvb_cmd.extend(["--inpipe", str(pipe_size_bytes)])
     if (args.debug_ts == 1):
         ldvb_cmd.append("-d")
     elif (args.debug_ts > 1):
