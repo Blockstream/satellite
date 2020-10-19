@@ -38,7 +38,8 @@ setup(
         'python-gnupg>=0.4.5',
         'sseclient-py',
         'qrcode',
-        'zfec>=1.5.4'
+        'zfec>=1.5.4',
+        'emoji'
     ],
     classifiers=[
         'Programming Language :: Python :: 3',

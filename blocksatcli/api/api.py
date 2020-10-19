@@ -134,6 +134,13 @@ def send(args):
     qr.add_data(res["lightning_invoice"]["payreq"])
     qr.print_ascii()
 
+    # Wait until the transmission completes (after the ground station confirms
+    # reception). Stop if it is canceled.
+    try:
+        order.wait_state(['received', 'cancelled'])
+    except KeyboardInterrupt:
+        pass
+
 
 def listen(args):
     """Listen to API messages received over satellite"""
@@ -301,8 +308,13 @@ def listen(args):
 def bump(args):
     """Bump the bid of an API order"""
     server_addr = _get_server_addr(args.net, args.server)
-    order       = ApiOrder(server_addr)
-    res         = order.bump(args.bid, args.uuid, args.auth_token)
+
+    # Fetch the ApiOrder
+    order = ApiOrder(server_addr)
+    order.get(args.uuid, args.auth_token)
+
+    # Bump bid
+    res = order.bump(args.bid)
 
     # Print QR code
     qr = qrcode.QRCode()
@@ -313,8 +325,13 @@ def bump(args):
 def delete(args):
     """Cancel an API order"""
     server_addr = _get_server_addr(args.net, args.server)
-    order       = ApiOrder(server_addr)
-    order.delete(args.uuid, args.auth_token)
+
+    # Fetch the ApiOrder
+    order = ApiOrder(server_addr)
+    order.get(args.uuid, args.auth_token)
+
+    # Delete it
+    order.delete()
 
 
 def demo_rx(args):

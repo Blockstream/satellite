@@ -1,5 +1,6 @@
-import logging, json, requests, textwrap
+import logging, json, requests, textwrap, time
 from . import bidding, pkt
+import emoji
 
 
 logger = logging.getLogger(__name__)
@@ -16,9 +17,9 @@ class ApiOrder:
 
     """
     def __init__(self, server, seq_num=None):
-        # Get order UUID and Authorization Token from user input
         self.uuid       = None
         self.auth_token = None
+        self.order      = {}
 
         # API server address
         self.server = server
@@ -65,11 +66,14 @@ class ApiOrder:
 
         return uuid, auth_token
 
-    def _fetch(self, uuid, auth_token):
+    def _fetch(self):
         """Fetch a specific order from the server"""
-        r = requests.get(self.server + '/order/' + uuid,
+        assert(self.uuid is not None)
+        assert(self.auth_token is not None)
+
+        r = requests.get(self.server + '/order/' + self.uuid,
                          headers = {
-                             'X-Auth-Token': auth_token
+                             'X-Auth-Token': self.auth_token
                          })
 
         if (r.status_code != requests.codes.ok):
@@ -77,10 +81,23 @@ class ApiOrder:
 
         r.raise_for_status()
 
+        self.order = r.json()
+        logger.debug(json.dumps(r.json(), indent=4, sort_keys=True))
+
+    def get(self, uuid=None, auth_token=None):
+        """Get the API order information
+
+        Args:
+            uuid       : Order UUID. If not defined, prompt user.
+            auth_token : Authentication token. If not defined, prompt user.
+
+        """
+        if (uuid is None or auth_token is None):
+            uuid, auth_token = self._prompt_for_uuid_token()
+
         self.uuid       = uuid
         self.auth_token = auth_token
-        self.order      = r.json()
-        logger.debug(json.dumps(r.json(), indent=4, sort_keys=True))
+        self._fetch()
 
     def send(self, data, bid):
         """Send the transmission order
@@ -108,20 +125,24 @@ class ApiOrder:
         # Raise error if response status indicates failure
         r.raise_for_status()
 
+        # Save the UUID and authentication token from the response
+        res             = r.json()
+        self.uuid       = res['uuid']
+        self.auth_token = res['auth_token']
+
         # Print the response
-        logger.info("Data successfully queued for transmission\n")
-
-        print("--\nAuthentication Token:\n%s" %(r.json()["auth_token"]))
-        print("--\nUUID:\n%s" %(r.json()["uuid"]))
-        print("--\nLightning Invoice Number:\n%s" %(
-            r.json()["lightning_invoice"]["payreq"]))
-        print("--\nAmount Due:\n%s millisatoshis\n" %(
-            r.json()["lightning_invoice"]["msatoshi"]))
-
         logger.debug("API Response:")
-        logger.debug(json.dumps(r.json(), indent=4, sort_keys=True))
+        logger.debug(json.dumps(res, indent=4, sort_keys=True))
 
-        return r.json()
+        logger.info("Data successfully queued for transmission\n")
+        print("--\nUUID:\n%s" %(res["uuid"]))
+        print("--\nAuthentication Token:\n%s" %(res["auth_token"]))
+        print("--\nAmount Due:\n%s millisatoshis\n" %(
+            res["lightning_invoice"]["msatoshi"]))
+        print("--\nLightning Invoice Number:\n%s" %(
+            res["lightning_invoice"]["payreq"]))
+
+        return res
 
     def get_data(self):
         """Get data content sent over an API order"""
@@ -134,6 +155,81 @@ class ApiOrder:
         if (r.status_code == requests.codes.ok):
             data        = r.content
             return data
+
+    def wait_state(self, target, timeout=120):
+        """Wait until the order achieves a target state (or states)
+
+        Args:
+            target  : String or list of strings with the state(s) to wait for.
+            timeout : Timeout in seconds.
+
+        Returns:
+            (bool) Whether the state was successfully reached.
+
+        """
+        assert(isinstance(target, str) or  isinstance(target, list))
+
+        state_seen = {
+            'pending'      : False,
+            'paid'         : False,
+            'transmitting' : False,
+            'sent'         : False,
+            'received'     : False,
+            'cancelled'    : False,
+            'expired'      : False
+        }
+        msg = {
+            'pending'      : "- Waiting payment confirmation...",
+            'paid'         : "- Payment confirmed. Ready to launch transmission... :rocket:",
+            'transmitting' : "- Order in transmission... :satellite:",
+            'sent'         : "- Order successfully transmitted :heavy_check_mark:",
+            'received'     : "- Reception confirmed by the ground station :satellite_antenna:",
+            'cancelled'    : "- Transmission cancelled :stop_sign:",
+            'expired'      : "- Order expired"
+        }
+        requires = {
+            'pending'      : [],
+            'paid'         : ['pending'],
+            'transmitting' : ['pending', 'paid'],
+            'sent'         : ['pending', 'paid', 'transmitting'],
+            'received'     : ['pending', 'paid', 'transmitting', 'sent'],
+            'cancelled'    : ['pending'],
+            'expired'      : ['pending']
+        }
+
+        if (not isinstance(target, list)):
+            target = [target]
+        assert([state in state_seen.keys() for state in target])
+
+        s_time = time.time()
+        while (True):
+            self._fetch()
+
+            if (not state_seen[self.order['status']]):
+                state_seen[self.order['status']] = True
+
+                # If the status is not polled fast enough, some intermediate
+                # states may not be seen. Mark the implied states as observed
+                # and print their messages.
+                for prereq_state in requires[self.order['status']]:
+                    if (not state_seen[prereq_state]):
+                        state_seen[prereq_state] = True
+                        print(emoji.emojize(msg[prereq_state]))
+
+                # Print the current state
+                print(emoji.emojize(msg[self.order['status']]))
+
+            if (self.order['status'] in target):
+                break
+
+            c_time = time.time()
+            if ((c_time - s_time) > timeout):
+                print("Timeout")
+                break
+
+            time.sleep(0.5)
+
+        return ('status' in self.order and self.order['status'] in target)
 
     def confirm_tx(self, regions, tls_cert=None, tls_key=None):
         """Confirm transmission of an API message
@@ -197,24 +293,18 @@ class ApiOrder:
         else:
             logger.info("Server response: " + r.json()['message'])
 
-    def bump(self, bid=None, uuid=None, auth_token=None):
+    def bump(self, bid=None):
         """Bump the order
 
         Args:
-            bid        : New bid in msats. If not defined, prompt user.
-            uuid       : Order UUID. If not defined, prompt user.
-            auth_token : Authentication token. If not defined, prompt user.
+            bid : New bid in msats. If not defined, prompt user.
 
         Returns:
             Dictionary with order metadata
 
         """
-
-        if (uuid is None or auth_token is None):
-            uuid, auth_token = self._prompt_for_uuid_token()
-
-        # Fetch the order to be bumped
-        self._fetch(uuid, auth_token)
+        if (not self.order):
+            self._fetch()
 
         if (self.order["status"] == "transmitting"):
             raise ValueError("Cannot bump order - already in transmission")
@@ -275,23 +365,15 @@ class ApiOrder:
 
         return r.json()
 
-    def delete(self, uuid=None, auth_token=None):
+    def delete(self):
         """Delete the order
-
-        Args:
-            uuid       : Order UUID. If not defined, prompt user.
-            auth_token : Authentication token. If not defined, prompt user.
 
         Returns:
             API response
 
         """
-
-        if (uuid is None or auth_token is None):
-            uuid, auth_token = self._prompt_for_uuid_token()
-
-        # Fetch the order to be bumped
-        self._fetch(uuid, auth_token)
+        if (not self.order):
+            self._fetch()
 
         # Post delete request
         r = requests.delete(self.server + '/order/' + self.uuid,
