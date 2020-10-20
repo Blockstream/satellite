@@ -245,3 +245,34 @@ class ProcessRunner():
         return res
 
 
+class Pipe():
+    """Unnamed pipe wrapper"""
+    def __init__(self):
+        """Create unnamed pipe"""
+        r_fd, w_fd = os.pipe()
+
+        self.r_fd  = r_fd                  # read file descriptor
+        self.r_fo  = os.fdopen(r_fd, "r")  # read file object
+
+        self.w_fd  = w_fd                  # write file descriptor
+        self.w_fo  = os.fdopen(w_fd, "w")  # write file object
+
+    def __del__(self):
+        """Close pipe"""
+        self.r_fo.close()
+        self.w_fo.close()
+
+    def readline(self):
+        """Read line from pipe file"""
+        return self.r_fo.readline()
+
+    def write(self, data):
+        """Write data to pipe file
+
+        Args:
+            data : The data to write into the pipe file
+
+        """
+        self.w_fo.write(data)
+
+

@@ -278,7 +278,7 @@ def subparser(subparsers):
                     action='store_true',
                     help='Print logs line-by-line, i.e. with scrolling, rather \
                     than always on the same line')
-    p2.add_argument('--interval',
+    p2.add_argument('--log-interval',
                     type=float,
                     default=1.0,
                     help="Log interval")

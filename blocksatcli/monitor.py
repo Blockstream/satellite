@@ -15,7 +15,7 @@ class Monitor():
     file, and reports to a server.
 
     """
-    def __init__(self, cfg_dir, logfile=False, scroll=False):
+    def __init__(self, cfg_dir, logfile=False, scroll=False, echo=True):
         """Monitor Constructor
 
         Args:
@@ -23,11 +23,14 @@ class Monitor():
             logfile : Whether to dump logs into a file
             scroll  : Whether to print logs with scrolling or continuously
                       overwrite the same line
+            echo    : Whether to echo (print) every update to receiver metrics
+                      to stdout.
 
         """
         self.cfg_dir = cfg_dir
         self.logfile = None
         self.scroll  = scroll
+        self.echo    = echo
         if (logfile):
             self._setup_logfile()
 
@@ -86,7 +89,7 @@ class Monitor():
 
         name         = time.strftime("%Y%m%d-%H%M%S") + ".log"
         self.logfile = os.path.join(log_dir, name)
-        logger.info("Saving logs on {}".format(self.logfile))
+        logger.info("Saving logs at {}".format(self.logfile))
 
     def get_stats(self, strip_unit=True):
         """Get dictionary with the receiver stats
@@ -125,10 +128,11 @@ class Monitor():
         self.stats = data
 
         # Print to console
-        print_end = '\n' if self.scroll else '\r'
-        if (not self.scroll):
-            sys.stdout.write("\033[K")
-        print(str(self), end=print_end)
+        if (self.echo):
+            print_end = '\n' if self.scroll else '\r'
+            if (not self.scroll):
+                sys.stdout.write("\033[K")
+            print(str(self), end=print_end)
 
         # Append metrics to log file
         if (self.logfile):

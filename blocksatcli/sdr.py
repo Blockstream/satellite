@@ -1,8 +1,9 @@
 """SDR Receiver Wrapper"""
+import subprocess, logging, textwrap, os, threading, time
 from argparse import ArgumentDefaultsHelpFormatter
-from . import config, defs, util, dependencies
-import subprocess, logging, textwrap, os
 from shutil import which
+from . import config, defs, util, dependencies
+from .monitor import Monitor
 logger = logging.getLogger(__name__)
 
 
@@ -36,12 +37,119 @@ def _tune_max_pipe_size(pipesize):
         return True
 
 
+# Rx status metrics printed by leandvb
+rx_stat_map = {
+    'SS' : { # based on the AGC but not calibrated to dBm (unitless)
+        'key'  : 'level',
+        'unit' : None
+    },
+    'MER' : {
+        'key'  : 'snr',
+        'unit' : 'dB'
+    },
+    'VBER' : { # measured based on the BCH decoder output
+        'key'  : 'ber',
+        'unit' : None
+    }
+}
+
+
+def _monitor_demod_info(info_pipe, args):
+    """Monitor leandvb's demodulator information
+
+    Continuously reads the demodulator information printed by leandvb into the
+    descriptor pointed by --fd-info, which is tied to an unnamed pipe file.
+
+    Args:
+        info_pipe : Pipe object pointing to the pipe file that is used as
+                    leandvb's --fd-info descriptor
+        args      : SDR parser arguments
+
+    """
+    assert(isinstance(info_pipe, util.Pipe))
+
+    # "Standard" status format accepted by the Monitor class
+    status = {
+        'lock'    : (False, None),
+        'level'   : None,
+        'snr'     : None,
+        'ber'     : None
+    }
+
+    # Log Monitoring
+    #
+    # If debugging leandvb, don't echo the logs to stdout, otherwise the
+    # logs get mixed on the console and it becomes hard to read them.
+    echo = (args.debug_dvbs2 == 0)
+
+    # Force scrolling logs if using a monitoring option on TSDuck
+    scrolling = args.monitor_bitrate or args.monitor_ts or args.scrolling
+
+    monitor = monitoring.Monitor(
+        args.cfg_dir,
+        logfile = args.logfile,
+        scroll = scrolling,
+        echo = echo
+    )
+
+    t_last_update = time.time()
+    while True:
+        line = info_pipe.readline()
+
+        if "FRAMELOCK" in line:
+            status['lock'] = (line.split()[-1] == "1", None)
+
+        for metric in rx_stat_map:
+            if metric in line:
+                val         = float(line.split()[-1])
+                unit        = rx_stat_map[metric]['unit']
+                key         = rx_stat_map[metric]['key']
+                status[key] = (val, unit)
+
+        # Is it time to log a new line?
+        t_now = time.time()
+        if (t_now - t_last_update) < log_interval:
+            continue
+
+        # If unlocked, clear the status metrics that depend on receiver locking
+        # (they will show garbage if unlocked). If locked, just make sure that
+        # all the required metrics are filled in the status dictionary.
+        ready = True
+        for metric in rx_stat_map:
+            key = rx_stat_map[metric]['key']
+            if status['lock'][0]:
+                if key not in status or status[key] is None:
+                    ready = False
+            else:
+                if (key in status):
+                    del status[key]
+
+        if (not ready):
+            continue
+
+        monitor.update(status)
+
+        t_last_update = t_now
+
+
 def subparser(subparsers):
     """Parser for sdr command"""
     p = subparsers.add_parser('sdr',
                               description="Launch SDR receiver",
                               help='Launch SDR receiver',
                               formatter_class=ArgumentDefaultsHelpFormatter)
+
+    p.add_argument('--logfile', default=False,
+                   action='store_true',
+                   help='Save logs on a file')
+    p.add_argument('-s', '--scrolling', default=False,
+                   action='store_true',
+                   help='Print logs line-by-line, i.e. with scrolling, rather \
+                   than always on the same line')
+    p.add_argument('--log-interval',
+                   type=float,
+                   default=1.0,
+                   help="Log interval")
 
     rtl_p = p.add_argument_group('rtl_sdr options')
     rtl_p.add_argument('--sps', default=2.0, type=float,
@@ -59,8 +167,8 @@ def subparser(subparsers):
     ldvb_p.add_argument('-n', '--n-helpers', default=6, type=int,
                         help='Number of instances of the external LDPC decoder \
                         to spawn as child processes')
-    ldvb_p.add_argument('-d', '--debug-ts', action='count', default=0,
-                        help="Activate debugging on leandvb. Use it multiple "
+    ldvb_p.add_argument('-d', '--debug-dvbs2', action='count', default=0,
+                        help="Debug leandvb's DVB-S2 decoding. Use it multiple "
                         "times to increase the debugging level")
     ldvb_p.add_argument('-v', '--verbose', default=False, action='store_true',
                         help='leandvb in verbose mode')
@@ -112,12 +220,12 @@ def subparser(subparsers):
     tsp_p.add_argument('--analyze-file', default="ts-analysis.txt",
                        action='store_true',
                        help='File on which to save the MPEG-TS analysis.')
-    tsp_p.add_argument('--no-bitrate-monitoring', default=False,
+    tsp_p.add_argument('--monitor-bitrate', default=False,
                        action='store_true',
-                       help='Disable bitrate monitoring')
+                       help='Monitor the MPEG TS bitrate')
     tsp_p.add_argument('--monitor-ts', default=False,
                        action='store_true',
-                       help='Mnitor MPEG TS sequence discontinuities')
+                       help='Monitor MPEG TS sequence discontinuities')
     p.set_defaults(func=run,
                    record=False)
 
@@ -200,10 +308,8 @@ def run(args):
                  "--framesizes", str(args.framesizes)]
     if (args.iq_file is None):
         ldvb_cmd.extend(["--inpipe", str(pipe_size_bytes)])
-    if (args.debug_ts == 1):
-        ldvb_cmd.append("-d")
-    elif (args.debug_ts > 1):
-        ldvb_cmd.extend(["-d", "-d"])
+    if (args.debug_dvbs2 > 0):
+        ldvb_cmd.extend(("-d " * args.debug_dvbs2).split())
     if (args.ldpc_dec == "ext"):
         ldvb_cmd.extend(["--ldpc-helper", which("ldpc_tool"),
                          "--ldpc-iterations", str(args.ldpc_iterations)])
@@ -218,7 +324,7 @@ def run(args):
     if (derotate != 0.0):
         ldvb_cmd.extend(["--derotate", str(int(derotate))])
 
-    ldvb_stderr = None if (args.debug_ts > 0) else subprocess.DEVNULL
+    ldvb_stderr = None if (args.debug_dvbs2 > 0) else subprocess.DEVNULL
 
     # Input
     tsp_cmd  = ["tsp", "--realtime", "--buffer-size-mb",
@@ -232,12 +338,10 @@ def run(args):
         if (not util._ask_yes_or_no("Proceed?", default="y")):
             return
         tsp_cmd.extend(["-P", "analyze", "-o", args.analyze_file])
-    if (not args.no_bitrate_monitoring):
-        # Monitor Bitrate
+    if (args.monitor_bitrate):
         tsp_cmd.extend(["-P", "bitrate_monitor", "-p",
                         str(args.bitrate_period), "--min", "0"])
     if (args.monitor_ts):
-        # Monitor MPEG TS discontinuities
         tsp_cmd.extend(["-P", "continuity"])
 
     # MPE plugin
@@ -249,6 +353,7 @@ def run(args):
 
     logger.debug("Run:")
 
+    # If recording IQ samples, run the rtl_sdr only
     if (args.record):
         p1 = subprocess.Popen(rtl_cmd)
         try:
@@ -256,18 +361,42 @@ def run(args):
         except KeyboardInterrupt:
             p1.kill()
         return
-    elif (args.iq_file is None):
+
+    # Create unnamed pipe to receive real-time demodulation information from
+    # leandvb (via --fd-info). Collect this information on a daemon thread.
+    if (args.iq_file is None):
+        info_pipe = util.Pipe()
+        fd_info   = str(info_pipe.w_fd)
+        ldvb_cmd.extend(["--fd-info", fd_info])
+
+        t = threading.Thread(
+            target = _monitor_demod_info,
+            args   = (info_pipe, args),
+            daemon = True
+        )
+        t.start()
+
+    if (args.iq_file is None):
         full_cmd  = "> " + " ".join(rtl_cmd) + " | \\\n" + \
                     " ".join(ldvb_cmd)
         p1 = subprocess.Popen(rtl_cmd, stdout=subprocess.PIPE)
-        p2 = subprocess.Popen(ldvb_cmd, stdin=p1.stdout, stdout=subprocess.PIPE,
-                              stderr=ldvb_stderr)
+        p2 = subprocess.Popen(
+            ldvb_cmd,
+            stdin=p1.stdout,
+            stdout=subprocess.PIPE,
+            stderr=ldvb_stderr,
+            pass_fds=[fd_info]
+        )
     else:
         full_cmd   = "> " + " ".join(ldvb_cmd) + " < " + args.iq_file
         fd_iq_file = open(args.iq_file)
-        p2 = subprocess.Popen(ldvb_cmd, stdin=fd_iq_file,
-                              stdout=subprocess.PIPE,
-                              stderr=ldvb_stderr)
+        p2 = subprocess.Popen(
+            ldvb_cmd,
+            stdin=fd_iq_file,
+            stdout=subprocess.PIPE,
+            stderr=ldvb_stderr
+        )
+
     if (not args.no_tsp):
         full_cmd += " | \\\n" + " ".join(tsp_cmd)
         logger.debug(full_cmd)
