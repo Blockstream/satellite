@@ -314,7 +314,9 @@ def monitor(args):
         args.cfg_dir,
         logfile = args.log_file,
         scroll = args.log_scrolling,
-        min_interval = args.log_interval
+        min_interval = args.log_interval,
+        server = args.monitoring_server,
+        port = args.monitoring_port
     )
 
     util._print_header("Receiver Monitoring")

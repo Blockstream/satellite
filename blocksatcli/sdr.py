@@ -89,7 +89,9 @@ def _monitor_demod_info(info_pipe, args):
         logfile = args.log_file,
         scroll = scrolling,
         echo = echo,
-        min_interval = args.log_interval
+        min_interval = args.log_interval,
+        server = args.monitoring_server,
+        port = args.monitoring_port
     )
 
     while True:

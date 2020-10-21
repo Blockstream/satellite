@@ -3,6 +3,7 @@ mcast_ip       = "239.0.0.2"
 btc_port       = "4434"
 btc_dst_addr   = mcast_ip + ":" + btc_port
 src_ports      = ["4433", "4434"]
+monitor_port   = 4435
 pids           = [32, 33]
 rolloff        = 0.2
 sym_rate = {

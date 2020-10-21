@@ -1,11 +1,30 @@
 """Monitor the satellite receiver"""
-import sys, os, time, logging, math
-from . import defs
+import sys, os, time, logging, math, requests, threading, json
+from http.server import HTTPServer, BaseHTTPRequestHandler
 from datetime import datetime
+from . import defs
 
 
 logger = logging.getLogger(__name__)
 sats   = [ x['alias'] for x in defs.satellites]
+
+
+class Server(BaseHTTPRequestHandler):
+    """Server that replies the Rx stats requested via HTTP"""
+    monitor = None # trick to access the Monitor object
+    def _set_headers(self):
+        self.send_response(200)
+        self.send_header('Content-type', 'application/json')
+        self.end_headers()
+
+    def do_HEAD(self):
+        self._set_headers()
+
+    def do_GET(self):
+        self._set_headers()
+        self.wfile.write(
+            json.dumps(self.monitor.get_stats()).encode()
+        )
 
 
 class Monitor():
@@ -16,7 +35,7 @@ class Monitor():
 
     """
     def __init__(self, cfg_dir, logfile=False, scroll=False, echo=True,
-                 min_interval=1.0):
+                 min_interval=1.0, server=False, port=defs.monitor_port):
         """Monitor Constructor
 
         Args:
@@ -67,6 +86,22 @@ class Monitor():
 
         # State
         self.t_last_print = time.time()
+
+        # Launch HTTP server on a daemon thread
+        if (server):
+            self.sever_thread = threading.Thread(
+                target=self._run_server,
+                args=(port,),
+                daemon=True
+            )
+            self.sever_thread.start()
+
+    def _run_server(self, port):
+        """Run HTTP server with access to the Monitor object"""
+        server_address = ('', port)
+        Server.monitor = self
+        self.httpd = HTTPServer(server_address, Server)
+        self.httpd.serve_forever()
 
     def __str__(self):
         """Return string containing the receiver stats"""
@@ -177,5 +212,19 @@ def add_to_parser(parser):
         type=float,
         default=1.0,
         help="Logging interval in seconds"
+    )
+
+    ms_p = parser.add_argument_group('receiver monitoring server options')
+    ms_p.add_argument(
+        '--monitoring-server',
+        default=False,
+        action='store_true',
+        help='Run HTTP server to monitor the receiver'
+    )
+    ms_p.add_argument(
+        '--monitoring-port',
+        default=defs.monitor_port,
+        type=int,
+        help='Monitoring server\'s port'
     )
 
