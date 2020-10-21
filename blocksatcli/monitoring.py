@@ -9,6 +9,59 @@ logger = logging.getLogger(__name__)
 sats   = [ x['alias'] for x in defs.satellites]
 
 
+class Reporter():
+    """Receiver Reporter
+
+    Sends receiver metrics to a remote server.
+
+    """
+    def __init__(self, addr, sat, hostname, tls_cert=None, tls_key=None):
+        """Reporter Constructor
+
+        Args:
+            addr     : Remote server address
+            sat      : Satellite name
+            hostname : Hostname used to identify the reports
+
+        """
+        assert(addr is not None), "Reporting destination address undefined"
+        assert(sat is not None), "Reporting satellite undefined"
+        assert(hostname is not None), "Reporting hostname undefined"
+        assert(sat in sats)
+
+        self.dest_addr = addr
+        self.sat       = sat.replace('-', ' ')
+        self.hostname  = hostname
+        self.tls_cert  = tls_cert
+        self.tls_key   = tls_key
+
+        logger.info("Reporting Rx status to {} "
+                    "(hostname: {}, satellite: {})".format(
+                        self.dest_addr,
+                        self.hostname,
+                        self.sat))
+
+    def send(self, metrics):
+        """Save measurement on database
+
+        Args:
+            metrics : Dictionary with receiver metrics to send over the report
+        """
+        data = {
+            "hostname"  : self.hostname,
+            "satellite" : self.sat,
+        }
+        data.update(metrics)
+
+        try:
+            r = requests.post(self.dest_addr, data = data,
+                              cert = (self.tls_cert, self.tls_key))
+            if (r.status_code != requests.codes.ok):
+                print(r.text)
+        except requests.exceptions.ConnectionError as e:
+            print(e)
+
+
 class Server(BaseHTTPRequestHandler):
     """Server that replies the Rx stats requested via HTTP"""
     monitor = None # trick to access the Monitor object
@@ -35,7 +88,8 @@ class Monitor():
 
     """
     def __init__(self, cfg_dir, logfile=False, scroll=False, echo=True,
-                 min_interval=1.0, server=False, port=defs.monitor_port):
+                 min_interval=1.0, server=False, port=defs.monitor_port,
+                 report=False, report_opts={}):
         """Monitor Constructor
 
         Args:
@@ -49,6 +103,9 @@ class Monitor():
                            saved.
             server       : Launch server to reply the receiver status via HTTP.
             port         : Server's HTTP port, if enabled.
+            report       : Whether to report the receiver status over HTTP to
+                           a remote address.
+            report_opts  : Reporter options.
 
         """
         self.cfg_dir      = cfg_dir
@@ -56,6 +113,7 @@ class Monitor():
         self.scroll       = scroll
         self.echo         = echo
         self.min_interval = min_interval
+        self.report       = report
         if (logfile):
             self._setup_logfile()
 
@@ -83,6 +141,14 @@ class Monitor():
             }
         }
         self.stats    = {}
+
+        # Reporter sessions
+        if (report):
+            self.reporter = Reporter(report_opts['dest'],
+                                     report_opts['region'],
+                                     report_opts['hostname'],
+                                     report_opts['tls_cert'],
+                                     report_opts['tls_key'])
 
         # State
         self.t_last_print = time.time()
@@ -190,6 +256,10 @@ class Monitor():
             with open(self.logfile, 'a') as fd:
                 fd.write(str(self) + "\n")
 
+        # Report over HTTP to a remote address
+        if (self.report):
+            self.reporter.send(self.get_stats())
+
 
 def add_to_parser(parser):
     """Add receiver monitoring options to parser"""
@@ -227,4 +297,36 @@ def add_to_parser(parser):
         type=int,
         help='Monitoring server\'s port'
     )
+
+    r_p = parser.add_argument_group('receiver reporting options')
+    r_p.add_argument(
+        '--report',
+        default=False,
+        action='store_true',
+        help='Report receiver metrics to a remote HTTP server'
+    )
+    r_p.add_argument(
+        '--report-dest',
+        help='Destination address in http://ip:port format'
+    )
+    r_p.add_argument(
+        '--report-sat',
+        choices=[x['alias'].replace(' ', '-') for x in defs.satellites],
+        help='Satellite covering the receiver to be reported'
+    )
+    r_p.add_argument(
+        '--report-hostname',
+        help='Reporter\'s hostname'
+    )
+    r_p.add_argument(
+        '--report-cert',
+        default=None,
+        help="Certificate for client-side authentication with the destination"
+    )
+    r_p.add_argument(
+        '--report-key',
+        default=None,
+        help="Private key for client-side authentication with the destination"
+    )
+
 

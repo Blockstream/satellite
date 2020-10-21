@@ -91,7 +91,15 @@ def _monitor_demod_info(info_pipe, args):
         echo = echo,
         min_interval = args.log_interval,
         server = args.monitoring_server,
-        port = args.monitoring_port
+        port = args.monitoring_port,
+        report = args.report,
+        report_opts = {
+            'dest'     : args.report_dest,
+            'region'   : args.report_sat,
+            'hostname' : args.report_hostname,
+            'tls_cert' : args.report_cert,
+            'tls_key'  : args.report_key
+        }
     )
 
     while True:
