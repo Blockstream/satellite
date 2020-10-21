@@ -3,8 +3,7 @@ from pprint import pformat
 from ipaddress import IPv4Interface
 import os, sys, signal, argparse, subprocess, time, logging, threading, json
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
-from . import config, util, defs, rp, firewall, ip, dependencies
-from .monitor import Monitor
+from . import config, util, defs, rp, firewall, ip, dependencies, monitoring
 import textwrap
 logger = logging.getLogger(__name__)
 
@@ -458,14 +457,7 @@ def subparser(subparsers):
                     help='Launch dvbv5-zap in monitor mode - useful \
                     to debug packet and bit rates')
 
-    p1.add_argument('-s', '--scrolling', default=False,
-                    action='store_true',
-                    help='Print dvbv5-zap logs line-by-line, i.e. \
-                    scrolling, rather than always on the same line')
-
-    p1.add_argument('--logfile', default=False,
-                    action='store_true',
-                    help='Save dvbv5-zap logs on a file')
+    monitoring.add_to_parser(p1)
 
     p1.set_defaults(func=launch)
 
@@ -678,7 +670,12 @@ def launch(args):
         return
 
     # Log Monitoring
-    monitor = Monitor(args.cfg_dir, logfile=args.logfile, scroll=args.scrolling)
+    monitor = monitoring.Monitor(
+        args.cfg_dir,
+        logfile = args.log_file,
+        scroll = args.log_scrolling,
+        min_interval = args.log_interval
+    )
 
     # Channel configuration file
     chan_conf = user_info['setup']['channel']

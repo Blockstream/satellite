@@ -1,8 +1,7 @@
 """Standalone Receiver"""
 import logging, os, time
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
-from . import rp, firewall, defs, config, dependencies, util
-from .monitor import Monitor, Reporter
+from . import rp, firewall, defs, config, dependencies, util, monitoring
 from pysnmp.hlapi import *
 logger = logging.getLogger(__name__)
 
@@ -271,17 +270,8 @@ def subparser(subparsers):
                                   description="Monitor the standalone receiver",
                                   help='Monitor the standalone receiver',
                                   formatter_class=ArgumentDefaultsHelpFormatter)
-    p2.add_argument('--logfile', default=False,
-                    action='store_true',
-                    help='Save logs on a file')
-    p2.add_argument('-s', '--scrolling', default=False,
-                    action='store_true',
-                    help='Print logs line-by-line, i.e. with scrolling, rather \
-                    than always on the same line')
-    p2.add_argument('--log-interval',
-                    type=float,
-                    default=1.0,
-                    help="Log interval")
+    # Add the default monitoring options used by other modules
+    monitoring.add_to_parser(p2)
     p2.set_defaults(func=monitor)
 
     return p
@@ -320,7 +310,12 @@ def monitor(args):
     s400.print_demod_config()
 
     # Log Monitoring
-    monitor = Monitor(args.cfg_dir, logfile=args.logfile, scroll=args.scrolling)
+    monitor = monitoring.Monitor(
+        args.cfg_dir,
+        logfile = args.log_file,
+        scroll = args.log_scrolling,
+        min_interval = args.log_interval
+    )
 
     util._print_header("Receiver Monitoring")
 

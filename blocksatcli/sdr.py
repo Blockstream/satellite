@@ -2,8 +2,7 @@
 import subprocess, logging, textwrap, os, threading, time
 from argparse import ArgumentDefaultsHelpFormatter
 from shutil import which
-from . import config, defs, util, dependencies
-from .monitor import Monitor
+from . import config, defs, util, dependencies, monitoring
 logger = logging.getLogger(__name__)
 
 
@@ -83,16 +82,16 @@ def _monitor_demod_info(info_pipe, args):
     echo = (args.debug_dvbs2 == 0)
 
     # Force scrolling logs if using a monitoring option on TSDuck
-    scrolling = args.monitor_bitrate or args.monitor_ts or args.scrolling
+    scrolling = args.monitor_bitrate or args.monitor_ts or args.log_scrolling
 
     monitor = monitoring.Monitor(
         args.cfg_dir,
-        logfile = args.logfile,
+        logfile = args.log_file,
         scroll = scrolling,
-        echo = echo
+        echo = echo,
+        min_interval = args.log_interval
     )
 
-    t_last_update = time.time()
     while True:
         line = info_pipe.readline()
 
@@ -105,11 +104,6 @@ def _monitor_demod_info(info_pipe, args):
                 unit        = rx_stat_map[metric]['unit']
                 key         = rx_stat_map[metric]['key']
                 status[key] = (val, unit)
-
-        # Is it time to log a new line?
-        t_now = time.time()
-        if (t_now - t_last_update) < log_interval:
-            continue
 
         # If unlocked, clear the status metrics that depend on receiver locking
         # (they will show garbage if unlocked). If locked, just make sure that
@@ -129,8 +123,6 @@ def _monitor_demod_info(info_pipe, args):
 
         monitor.update(status)
 
-        t_last_update = t_now
-
 
 def subparser(subparsers):
     """Parser for sdr command"""
@@ -139,17 +131,8 @@ def subparser(subparsers):
                               help='Launch SDR receiver',
                               formatter_class=ArgumentDefaultsHelpFormatter)
 
-    p.add_argument('--logfile', default=False,
-                   action='store_true',
-                   help='Save logs on a file')
-    p.add_argument('-s', '--scrolling', default=False,
-                   action='store_true',
-                   help='Print logs line-by-line, i.e. with scrolling, rather \
-                   than always on the same line')
-    p.add_argument('--log-interval',
-                   type=float,
-                   default=1.0,
-                   help="Log interval")
+    # Monitoring options
+    monitoring.add_to_parser(p)
 
     rtl_p = p.add_argument_group('rtl_sdr options')
     rtl_p.add_argument('--sps', default=2.0, type=float,

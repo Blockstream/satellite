@@ -15,22 +15,28 @@ class Monitor():
     file, and reports to a server.
 
     """
-    def __init__(self, cfg_dir, logfile=False, scroll=False, echo=True):
+    def __init__(self, cfg_dir, logfile=False, scroll=False, echo=True,
+                 min_interval=1.0):
         """Monitor Constructor
 
         Args:
-            cfg_dir : Configuration directory where logs are saved
-            logfile : Whether to dump logs into a file
-            scroll  : Whether to print logs with scrolling or continuously
-                      overwrite the same line
-            echo    : Whether to echo (print) every update to receiver metrics
-                      to stdout.
+            cfg_dir      : Configuration directory where logs are saved
+            logfile      : Whether to dump logs into a file
+            scroll       : Whether to print logs with scrolling or continuously
+                           overwrite the same line
+            echo         : Whether to echo (print) every update to receiver
+                           metrics to stdout.
+            min_interval : Minimum interval in seconds between logs echoed or
+                           saved.
+            server       : Launch server to reply the receiver status via HTTP.
+            port         : Server's HTTP port, if enabled.
 
         """
-        self.cfg_dir = cfg_dir
-        self.logfile = None
-        self.scroll  = scroll
-        self.echo    = echo
+        self.cfg_dir      = cfg_dir
+        self.logfile      = None
+        self.scroll       = scroll
+        self.echo         = echo
+        self.min_interval = min_interval
         if (logfile):
             self._setup_logfile()
 
@@ -58,6 +64,9 @@ class Monitor():
             }
         }
         self.stats    = {}
+
+        # State
+        self.t_last_print = time.time()
 
     def __str__(self):
         """Return string containing the receiver stats"""
@@ -127,6 +136,13 @@ class Monitor():
         # Copy all the data
         self.stats = data
 
+        # Is it time to log a new line?
+        t_now = time.time()
+        if (t_now - self.t_last_print) < self.min_interval:
+            return
+
+        self.t_last_print = t_now
+
         # Print to console
         if (self.echo):
             print_end = '\n' if self.scroll else '\r'
@@ -139,4 +155,27 @@ class Monitor():
             with open(self.logfile, 'a') as fd:
                 fd.write(str(self) + "\n")
 
+
+def add_to_parser(parser):
+    """Add receiver monitoring options to parser"""
+    m_p = parser.add_argument_group('receiver logging options')
+    m_p.add_argument(
+        '--log-scrolling',
+        default=False,
+        action='store_true',
+        help='Print receiver logs line-by-line rather than repeatedly on the \
+        same line'
+    )
+    m_p.add_argument(
+        '--log-file',
+        default=False,
+        action='store_true',
+        help='Save receiver logs on a file'
+    )
+    m_p.add_argument(
+        '--log-interval',
+        type=float,
+        default=1.0,
+        help="Logging interval in seconds"
+    )
 
