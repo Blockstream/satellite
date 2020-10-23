@@ -173,9 +173,23 @@ def subparser(subparsers):
                         help='leandvb fast lock mode')
     ldvb_p.add_argument('--rrc-rej', default=30, type=int,
                         help='leandvb RRC rej parameter')
-    ldvb_p.add_argument('-m', '--modcod', default="low",
-                        choices=["low", "high"],
-                        help="Choose low-throughput vs high-throughput MODCOD")
+    channel_arg = ldvb_p.add_mutually_exclusive_group()
+    channel_arg.add_argument(
+        '-m',
+        '--modcod',
+        choices=["low", "high"],
+        help="Choose low-throughput vs high-throughput MODCOD"
+    )
+    channel_arg.add_argument(
+        '-c',
+        '--channel',
+        type=int,
+        choices=[1, 2],
+        help="Choose the channel to which the receiver will tune. Channel 1 is \
+        the low-throughput channel, which repeats the past 24h of blocks. \
+        Channel 2 is the high-throughput channel, which broadcast the full \
+        blockchain"
+    )
     ldvb_p.add_argument('--ldpc-dec', default="ext", choices=["int", "ext"],
                         help="LDPC decoder to use (internal or external)")
     ldvb_p.add_argument('--ldpc-bf', default=100,
@@ -259,13 +273,28 @@ def run(args):
 
     # Receiver configs
     l_band_freq = info['freqs']['l_band']*1e6
-    modcod      = defs.low_rate_modcod if args.modcod == "low" else \
-                  defs.high_rate_modcod
-    sym_rate    = defs.sym_rate[info['sat']['alias']]
-    samp_rate   = args.sps*sym_rate
+    sym_rate  = defs.sym_rate[info['sat']['alias']]
+    samp_rate = args.sps*sym_rate
+    # The MODCOD can be defined directly through the --modcod option or
+    # indirectly through the --channel option.
+    if (args.modcod is None and args.channel is None):
+        modcod = defs.low_rate_modcod
+    elif (args.modcod is None):
+        modcod = defs.low_rate_modcod if args.channel == 1 else \
+                 defs.high_rate_modcod
+    else:
+        modcod = defs.low_rate_modcod if args.modcod == "low" else \
+                 defs.high_rate_modcod
 
     assert(samp_rate < 2.4e6), \
         "Sample rate of {} exceeds the RTL-SDR limit".format(samp_rate)
+
+    if modcod == defs.low_rate_modcod:
+        logger.info("Tuning to the low-throughput channel "
+                    "(past 24h of Bitcoin blocks)")
+    else:
+        logger.info("Tuning to the high-throughput channel "
+                    "(full blockchain)")
 
     # Derotate up to the CFO recovery range on leandvb. If the desired
     # derotation exceeds the CFO correction range, change the L-band frequency
@@ -284,10 +313,11 @@ def run(args):
                    "-s", str(samp_rate), "-d", str(args.rtl_idx)]
         if (args.record):
             bytes_per_sec = (2*samp_rate)/(2**20)
-            print("IQ recording will be saved on file {}".format(
+            logger.info("IQ recording will be saved on file {}".format(
                 args.iq_file))
-            print(textwrap.fill("NOTE: the file will grow by approximately "
-                                "{} MB per second.".format(bytes_per_sec)))
+            logger.info(
+                textwrap.fill("NOTE: the file will grow by approximately "
+                              "{} MB per second.".format(bytes_per_sec)))
             if (not util._ask_yes_or_no("Proceed?", default="y")):
                 return
             rtl_cmd.append(args.iq_file)
@@ -326,7 +356,7 @@ def run(args):
                 str(args.max_input_packets)]
     # MPEG-TS Analyzer
     if (args.analyze):
-        print("MPEG-TS analysis will be saved on file {}".format(
+        logger.info("MPEG-TS analysis will be saved on file {}".format(
             args.analyze_file))
         if (not util._ask_yes_or_no("Proceed?", default="y")):
             return

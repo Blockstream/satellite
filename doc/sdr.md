@@ -92,16 +92,19 @@ blocksat-cli sdr -g [gain] --derotate [freq_offset]
 where `[gain]` and `[freq_offset]` should be substituted by the appropriate
 values.
 
-Furthermore, in the SDR setup, you must choose which stream you would like to
-receive from the two streams that are simultaneously broadcast through the
-Blockstream Satellite network (refer to more information in the [Antenna
-Pointing Guide](antenna-pointing.md#optimize-the-snr)).
+Furthermore, in the SDR setup, you must choose which
+[channel](https://github.com/Blockstream/bitcoinsatellite/wiki#satellite-transmissions)
+you would like to receive from the two channels that are simultaneously
+broadcast through the Blockstream Satellite network (refer to more information
+in the [Antenna Pointing Guide](antenna-pointing.md#optimize-the-snr)).
 
-By default, the application will try to decode the low-throughput stream. To try
-decoding the high-throughput stream, run with option `-m high`, as follows:
+By default, the SDR receiver tries to decode the low-throughput channel (Channel
+1), which repeats the past 24h of Bitcoin blocks. The other option is the
+high-throughput channel (Channel 2), which broadcast the full blockchain. To
+receive the latter, run with option `--channel 2`, as follows:
 
 ```
-blocksat-cli sdr -g [gain] --derotate [freq_offset] -m high
+blocksat-cli sdr -g [gain] --derotate [freq_offset] --channel 2
 ```
 
 ## Next Steps
