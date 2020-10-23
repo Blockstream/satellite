@@ -1,6 +1,6 @@
 # Changelog
 
-## [2.3.0] - 2020-10-26
+## [2.3.0] - 2020-11-02
 ### Added
 - Integrate API apps into the CLI. Support API message transmission, reception,
   and the demo-rx app directly from `blocksat-cli` commands (`api send`, `api
@@ -36,6 +36,8 @@
 - Alternative option on the SDR app to define the logical channel that the
   receiver tunes to. The new option is named `--chanel` and is mutually
   exclusive with the pre-existing `--modcod` option.
+- Support for the reception of Lightning gossip snapshots transported via the
+  satellite API.
 
 
 ### Changed

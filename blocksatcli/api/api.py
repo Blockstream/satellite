@@ -20,9 +20,12 @@ def _get_server_addr(net, server):
     if (net is None):
         return server
     else:
-        server = "https://api.blockstream.space" if \
-                 net == "main" else "https://api.blockstream.space/testnet"
-        return server
+        server_map = {
+            'main'   : "https://api.blockstream.space",
+            'test'   : "https://api.blockstream.space/testnet",
+            'gossip' : "https://api.blockstream.space/gossip",
+        }
+        return server_map[net]
 
 
 def _is_gpg_keyring_set(gnupghome):
@@ -144,15 +147,16 @@ def send(args):
     # API transmission order
     order = ApiOrder(server_addr)
     res   = order.send(msg.get_data(), bid)
+    print()
 
     # Print QR code
-    try:
-        qr = qrcode.QRCode()
-        qr.add_data(res["lightning_invoice"]["payreq"])
-        qr.print_ascii()
-    except UnicodeError:
-        print()
-        qr.print_tty()
+    if ("lightning_invoice" in res):
+        try:
+            qr = qrcode.QRCode()
+            qr.add_data(res["lightning_invoice"]["payreq"])
+            qr.print_ascii()
+        except UnicodeError:
+            qr.print_tty()
 
     # Wait until the transmission completes (after the ground station confirms
     # reception). Stop if it is canceled.
@@ -397,9 +401,11 @@ def subparser(subparsers):
     server_addr = p.add_mutually_exclusive_group()
     server_addr.add_argument(
         '--net',
-        choices=['main', 'test'],
+        choices=['main', 'test', 'gossip'],
         default=None,
-        help="Choose Mainnet (main) or Testnet (test) Satellite API"
+        help="Choose between the Mainnet Satellite API server (main), the \
+        Testnet Satellite API server (test), or the receive-only server used \
+        for Lightning gossip messages (gossip)"
     )
     server_addr.add_argument(
         '-s',

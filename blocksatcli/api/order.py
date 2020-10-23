@@ -136,10 +136,12 @@ class ApiOrder:
         logger.info("Data successfully queued for transmission\n")
         print("--\nUUID:\n%s" %(res["uuid"]))
         print("--\nAuthentication Token:\n%s" %(res["auth_token"]))
-        print("--\nAmount Due:\n%s millisatoshis\n" %(
-            res["lightning_invoice"]["msatoshi"]))
-        print("--\nLightning Invoice Number:\n%s" %(
-            res["lightning_invoice"]["payreq"]))
+
+        if ("lightning_invoice" in res):
+            print("--\nAmount Due:\n%s millisatoshis\n" %(
+                res["lightning_invoice"]["msatoshi"]))
+            print("--\nLightning Invoice Number:\n%s" %(
+                res["lightning_invoice"]["payreq"]))
 
         return res
 
