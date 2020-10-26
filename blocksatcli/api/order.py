@@ -1,6 +1,5 @@
 import logging, json, requests, textwrap, time
 from . import bidding, pkt
-import emoji
 
 
 logger = logging.getLogger(__name__)
@@ -179,12 +178,12 @@ class ApiOrder:
             'expired'      : False
         }
         msg = {
-            'pending'      : "- Waiting payment confirmation...",
-            'paid'         : "- Payment confirmed. Ready to launch transmission... :rocket:",
-            'transmitting' : "- Order in transmission... :satellite:",
-            'sent'         : "- Order successfully transmitted :heavy_check_mark:",
-            'received'     : "- Reception confirmed by the ground station :satellite_antenna:",
-            'cancelled'    : "- Transmission cancelled :stop_sign:",
+            'pending'      : "- Waiting for payment confirmation...",
+            'paid'         : "- Payment confirmed. Ready to launch transmission...",
+            'transmitting' : "- Order in transmission...",
+            'sent'         : "- Order successfully transmitted",
+            'received'     : "- Reception confirmed by the ground station",
+            'cancelled'    : "- Transmission cancelled",
             'expired'      : "- Order expired"
         }
         requires = {
@@ -214,10 +213,10 @@ class ApiOrder:
                 for prereq_state in requires[self.order['status']]:
                     if (not state_seen[prereq_state]):
                         state_seen[prereq_state] = True
-                        print(emoji.emojize(msg[prereq_state]))
+                        print(msg[prereq_state])
 
                 # Print the current state
-                print(emoji.emojize(msg[self.order['status']]))
+                print(msg[self.order['status']])
 
             if (self.order['status'] in target):
                 break
