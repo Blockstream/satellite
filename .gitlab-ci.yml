@@ -3,13 +3,57 @@
   script:
     - python3 -m unittest blocksatcli/verify_deps_instal.py
 
+.test-install-apt:
+  stage: test
+  only:
+    - web
+  before_script:
+    - apt update -y && apt install -y make python3 python3-setuptools python3-pip
+
+.test-install-dnf:
+  stage: test
+  only:
+    - web
+  before_script:
+    - dnf update -y && dnf install -y make python3 python3-setuptools python3-pip
+
 test:
   image: python:3.8.6
   script:
     - pip3 install tox
     - tox
 
-test-ubuntu:
+test-ubuntu-bionic:
+  image: ubuntu:bionic
+  extends: .test-install-apt
+  script:
+    - make && make install
+
+test-ubuntu-focal:
+  image: ubuntu:focal
+  extends: .test-install-apt
+  script:
+    - make && make install
+
+test-fedora-31:
+  image: fedora:31
+  extends: .test-install-dnf
+  script:
+    - make && make install
+
+test-fedora-32:
+  image: fedora:32
+  extends: .test-install-dnf
+  script:
+    - make && make install
+
+test-centos-8:
+  image: centos:8
+  extends: .test-install-dnf
+  script:
+    - make && make install
+
+test-ubuntu-deps:
   image: ubuntu:focal
   extends: .test-dependencies
   only:
@@ -19,7 +63,7 @@ test-ubuntu:
     - apt update -y && apt install -y make python3 python3-setuptools python3-pip
     - make && make install
 
-test-fedora:
+test-fedora-deps:
   image: fedora:32
   extends: .test-dependencies
   only:
