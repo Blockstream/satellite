@@ -53,12 +53,14 @@ class Gpg():
                                          'protect your new key: ')
 
         # Generate key
-        key_params = self.gpg.gen_key_input(key_type = "RSA",
-                                       key_length = 1024,
-                                       name_real = name,
-                                       name_comment = comment,
-                                       name_email = email,
-                                       passphrase = passphrase)
+        key_params = self.gpg.gen_key_input(
+            key_type = "RSA",
+            key_length = 1024,
+            name_real = name,
+            name_comment = comment,
+            name_email = email,
+            passphrase = passphrase
+        )
         key        = self.gpg.gen_key(key_params)
 
         # Export
@@ -66,7 +68,7 @@ class Gpg():
         private_key = self.gpg.export_keys(key.fingerprint, True,
                                            passphrase = passphrase)
 
-        logger.info("Keys generated succesfully at {}".format(
+        logger.info("Keys succesfully generated at {}".format(
             os.path.abspath(self.gpghome)))
 
     def set_passphrase(self, passphrase):

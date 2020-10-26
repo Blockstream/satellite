@@ -25,16 +25,29 @@ def _get_server_addr(net, server):
         return server
 
 
+def _is_gpg_keyring_set(gnupghome):
+    if not os.path.exists(gnupghome):
+        return False
+
+    gpg = Gpg(gnupghome)
+
+    return len(gpg.gpg.list_keys()) > 0
+
+
 def config(args):
     """Generate GPG Keys"""
     gpghome = os.path.join(args.cfg_dir, args.gnupghome)
 
+    logger.info("Generating a GPG keypair to encrypt and decrypt API messages")
+
     # Collect info for the new key
     name    = input("User name represented by the key: ")
     email   = input("E-mail address: ")
-    comment = input("Comment to attach to the user name: ")
+    comment = input("Comment to attach to the user ID: ")
 
-    gpg = Gpg(gpghome, args.verbose, interactive=True)
+    verbose = False if ('verbose' not in args) else args.verbose
+
+    gpg = Gpg(gpghome, verbose, interactive=True)
     gpg.create_keys(name, email, comment)
 
     # Import Blockstream's public key
@@ -56,14 +69,17 @@ def send(args):
     gnupghome   = os.path.join(args.cfg_dir, args.gnupghome)
     server_addr = _get_server_addr(args.net, args.server)
 
-    # GPG wrapper object
-    gpg = Gpg(gnupghome, interactive=True)
+    # Instantiate the GPG wrapper object if running with encryption
+    if (not args.plaintext):
+        if not _is_gpg_keyring_set(gnupghome):
+            config(args)
 
-    # Is there a password for accessing the GPG keyring?
-    if (args.sign and (not args.no_password)):
-        gpg_password = getpass.getpass(prompt='Password to private key '
-                                       'used for message signing: ')
-        gpg.set_passphrase(gpg_password)
+        gpg = Gpg(gnupghome, interactive=True)
+
+        if (args.sign and (not args.no_password)):
+            gpg_password = getpass.getpass(prompt='Password to private key '
+                                           'used for message signing: ')
+            gpg.set_passphrase(gpg_password)
 
     # File or text message to send over satellite
     if (args.file is None):
@@ -148,6 +164,10 @@ def listen(args):
     download_dir = os.path.join(args.cfg_dir, "api", "downloads")
     server_addr  = _get_server_addr(args.net, args.server)
 
+    # Make sure that the GPG keyring is set if decrypting messages
+    if (not args.plaintext and not _is_gpg_keyring_set(gnupghome)):
+        config(args)
+
     # Define the interface used to listen for messages
     if (args.interface):
         interface = args.interface
@@ -171,11 +191,10 @@ def listen(args):
     logger.info("Listening on interface: {}".format(interface))
     logger.info("Downloads will be saved at: {}".format(download_dir))
 
-    # GPG object
+    # GPG wrapper object
     if (not args.plaintext):
         gpg = Gpg(gnupghome, interactive=True)
 
-        # Is there a password for GPG keyring?
         if (not args.no_password):
             gpg_password = getpass.getpass(prompt='GPG keyring password for '
                                            'decryption: ')
