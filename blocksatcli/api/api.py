@@ -146,9 +146,13 @@ def send(args):
     res   = order.send(msg.get_data(), bid)
 
     # Print QR code
-    qr = qrcode.QRCode()
-    qr.add_data(res["lightning_invoice"]["payreq"])
-    qr.print_ascii()
+    try:
+        qr = qrcode.QRCode()
+        qr.add_data(res["lightning_invoice"]["payreq"])
+        qr.print_ascii()
+    except UnicodeError:
+        print()
+        qr.print_tty()
 
     # Wait until the transmission completes (after the ground station confirms
     # reception). Stop if it is canceled.
