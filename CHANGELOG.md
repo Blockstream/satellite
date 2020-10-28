@@ -5,6 +5,10 @@
 - Integrate API apps into the CLI. Support API message transmission, reception,
   and the demo-rx app directly from `blocksat-cli` commands (`api send`, `api
   listen`, and `api demo-rx`).
+- Forward error correction (FEC) support on API apps. Apply FEC-encoding on API
+  messages transmitted through the `api send` command and decode on the
+  receiving end on command `api listen`. Detect a FEC-encoded message
+  automatically on the API listener application.
 - QR code for Lightning invoices displayed on API transmissions.
 - Auto-cleaning of unfinished API messages on the API listener app.
 - Parsing of user bid input on API send/bump applications.

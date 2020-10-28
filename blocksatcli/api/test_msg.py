@@ -1,5 +1,5 @@
 import os, unittest, zlib, shutil, string, random, math
-from . import msg, pkt
+from . import msg, pkt, fec
 from .gpg import Gpg
 
 
@@ -241,13 +241,8 @@ class TestApi(unittest.TestCase):
         tx_msg.fec_encode(fec_overhead)
 
         # Number of original and FEC overhead chunks
-        n_chunks          = math.ceil(len(data) / msg.FEC_CHUNK_SIZE)
+        n_chunks          = math.ceil(len(data) / fec.CHUNK_SIZE)
         n_overhead_chunks = math.ceil(fec_overhead * n_chunks)
-
-        # Check that the generated overhead is correct
-        assert((tx_msg.get_length() % pkt.MAX_PAYLOAD) == 0)
-        n_payloads = tx_msg.get_length() // pkt.MAX_PAYLOAD
-        self.assertEqual(n_payloads, n_chunks + n_overhead_chunks)
 
         # ApiMsg on the Rx end (starting from the full FEC-encoded data)
         rx_msg = msg.ApiMsg(tx_msg.get_data(), msg_format="fec_encoded")
