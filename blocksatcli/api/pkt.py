@@ -141,21 +141,32 @@ class BlocksatPktHandler:
             (bool) True when ready to be decoded.
 
         """
-        # Find the last fragment of the sequence
-        i_last_frag = None
-        for pkt in self.frag_map[seq_num]['frags'].values():
-            if (not pkt.more_frags):
-                i_last_frag = pkt.frag_num
-                break;
-
         # The message can only be ready when the last fragment is available:
+        i_last_frag = self.frag_map[seq_num]['last_frag']
         if (i_last_frag is None):
             return False
 
         # Because packets can be processed out of order, check that all packets
         # before the last fragment are also available:
-        frags = self.frag_map[pkt.seq_num]['frags'].keys()
+        frags = self.frag_map[seq_num]['frags'].keys()
         return all([i in frags for i in range(i_last_frag)])
+
+    def _concat_pkt(self, pkt):
+        """Concatenate a single BlocksatPkt within a concatenation cache"""
+        seq_num = pkt.seq_num
+
+        # If it's an out-of-order packet, re-compute the concatenated
+        # version. Otherwise, just append directly to the cache.
+        if (self.frag_map[seq_num]['high_frag'] is not None and
+            pkt.frag_num < self.frag_map[seq_num]['high_frag']):
+
+            concat_msg = bytearray()
+            for i_frag, frag in sorted(self.frag_map[seq_num]['frags'].items()):
+                concat_msg += frag.payload
+
+            self.frag_map[seq_num]['concat'] = concat_msg
+        else:
+            self.frag_map[seq_num]['concat'] += pkt.payload
 
     def append(self, pkt):
         """Append incoming BlocksatPkt
@@ -163,6 +174,9 @@ class BlocksatPktHandler:
         Append the incoming Blocksat packet to the map of packets (fragments)
         pertaining to the same API message. Once the last fragment of a sequence
         comes, let the caller know that the API message is ready to be decoded.
+
+        Args:
+            pkt : Incoming BlocksatPkt
 
         Returns:
             (bool) True if the underlying ApiMsg is ready to be extracted from
@@ -172,7 +186,11 @@ class BlocksatPktHandler:
         assert(isinstance(pkt, BlocksatPkt))
 
         if (pkt.seq_num not in self.frag_map):
-            self.frag_map[pkt.seq_num] = {}
+            self.frag_map[pkt.seq_num] = {
+                'high_frag' : None,
+                'last_frag' : None,
+                'concat'    : bytearray()
+            }
             self.frag_map[pkt.seq_num]['frags'] = {}
 
         self.frag_map[pkt.seq_num]['frags'][pkt.frag_num] = pkt
@@ -180,6 +198,22 @@ class BlocksatPktHandler:
         # Timestamp the last fragment reception of this sequence number. Use
         # this timestamp to clean old fragments that were never decoded.
         self.frag_map[pkt.seq_num]['t_last'] = time.time()
+
+        # Concatenate payload by payload instead of waiting to concatenate
+        # everything in the end when the message is ready.
+        self._concat_pkt(pkt)
+
+        # Track the highest fragment number received so far. This information is
+        # used to identify whether the concatenation cache needs to be
+        # recomputed for out-of-order packets (see _concat_pkt()).
+        if (self.frag_map[pkt.seq_num]['high_frag'] is None or
+            pkt.frag_num > self.frag_map[pkt.seq_num]['high_frag']):
+            self.frag_map[pkt.seq_num]['high_frag'] = pkt.frag_num
+
+        # Track the last fragment of the sequence. This information is used to
+        # more quickly verify whether the message is ready (see _check_ready()).
+        if (not pkt.more_frags):
+            self.frag_map[pkt.seq_num]['last_frag'] = pkt.frag_num
 
         logger.debug("BlocksatPktHandler: Append fragment {}, "
                      "Seq Num {}".format(pkt.frag_num, pkt.seq_num))
@@ -201,6 +235,9 @@ class BlocksatPktHandler:
             seq_num : API message sequence number
             force   : Force concatenation even if there are fragment gaps
 
+        Returns:
+            Bytes array with the concatenated payloads
+
         """
         assert(seq_num in self.frag_map)
 
@@ -212,14 +249,12 @@ class BlocksatPktHandler:
         if (not force and not self._check_ready(seq_num)):
             raise RuntimeError("Tried to decode while fragments are missing")
 
-        api_msg = bytes()
-        for i_frag, frag in sorted(self.frag_map[seq_num]['frags'].items()):
-            assert(isinstance(frag.payload, bytes))
-            api_msg += frag.payload
-
         logger.debug("BlocksatPktHandler: Concatenated message with {} bytes "
-                     "(force: {})".format(len(api_msg), force))
-        return api_msg
+                     "(force: {})".format(
+                         len(self.frag_map[seq_num]['concat']), force))
+
+        # Take the concatenated message directly from the cache
+        return bytes(self.frag_map[seq_num]['concat'])
 
     def split(self, data, seq_num):
         """Split data array into Blocksat Packet(s)
