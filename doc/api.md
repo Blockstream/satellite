@@ -264,9 +264,8 @@ blocksat-cli api send --plaintext --send-raw
 The API messages sent over satellite are not guaranteed to be received by all
 satellite receivers. Each receiver experiences a unique reception quality,
 depending primarily on its location, weather conditions, and the adopted
-receiver hardware. When the signal quality is low, the receiver can fail to
-receive data correctly. In other words, the satellite communications link is
-lossy.
+receiver hardware. When the signal quality is low, it becomes more likely for
+the receiver to fail on the reception of packets.
 
 One way to increase the chances of successful reception is to use forward error
 correction (FEC). In essence, FEC adds redundancy to the transmit data so that
@@ -281,11 +280,7 @@ To send an API message using FEC encoding, run:
 blocksat-cli api send --fec
 ```
 
-Correspondingly, to receive an FEC-encoded message, use:
-
-```
-blocksat-cli api listen --fec
-```
+The `api listen` command detects and decodes FEC-encoded messages automatically.
 
 In general, the higher the number of extra (redundant) pieces of data sent over
 satellite, the better the protection to data loss over the satellite link.  The

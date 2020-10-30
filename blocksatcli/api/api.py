@@ -225,7 +225,7 @@ def listen(args):
         pkt.unpack(udp_payload)
 
         # Feed new packet into the packet handler
-        data_ready = pkt_handler.append(pkt)
+        all_frags_received = pkt_handler.append(pkt)
 
         # Decode each message only once
         seq_num = pkt.seq_num
@@ -233,13 +233,17 @@ def listen(args):
             logger.debug("Message {} has already been decoded".format(seq_num))
             continue
 
-        # With FEC, the data may become decodable before the last fragment
-        if (args.fec):
-            msg = ApiMsg(pkt_handler.concat(seq_num, force=True),
-                         msg_format="fec_encoded")
-            if (not msg.is_fec_decodable()):
-                continue
-        elif (not data_ready):
+        # Assume that the incoming message has forward error correction (FEC)
+        # encoding. With FEC, the message may become decodable before receiving
+        # all fragments (BlocksatPkts). For every packet, check if the FEC data
+        # is decodable already and proceed with the processing in the positive
+        # case. If the message is not actually FEC-encoded, it will never assert
+        # the "fec_decodable" flag. In this case, proceed with the processing
+        # only when all fragments are received.
+        msg = ApiMsg(pkt_handler.concat(seq_num, force=True),
+                     msg_format="fec_encoded")
+        fec_decodable = msg.is_fec_decodable()
+        if (not fec_decodable and not all_frags_received):
             continue
 
         # API message is ready to be decoded
@@ -253,7 +257,7 @@ def listen(args):
 
         # Decode the data from the available FEC chunks or from the complete
         # collection of Blocksat Packets
-        if (args.fec):
+        if (fec_decodable):
             msg.fec_decode()
             data = msg.data['original']
         else:
@@ -585,13 +589,6 @@ def subparser(subparsers):
         "Note this option saves all incoming messages, including those "
         "broadcast by other users. In contrast, the default mode (without this "
         "option) only saves the messages that are successfully decrypted."
-    )
-    p3.add_argument(
-        '--fec',
-        default=False,
-        action="store_true",
-        help="Assume the incoming data has forward error correction (FEC) "
-        "encoding"
     )
     p3.add_argument(
         '--no-password',
