@@ -5,7 +5,7 @@ import logging, socket, struct, fcntl, errno
 logger           = logging.getLogger(__name__)
 SIOCGIFINDEX     = 0x8933 # Ioctl request for interface index
 IP_MULTICAST_ALL = 49
-MAX_READ         = 2**16
+MAX_READ         = 2048
 
 
 class UdpSock():

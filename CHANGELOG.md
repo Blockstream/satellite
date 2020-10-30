@@ -64,3 +64,5 @@
   environment.
 - Reading of IQ file on the SDR app. It was previously failing due to option
   `--inpipe`.
+- Excessively large `bufsize` used on `recvfrom` call to receive packets via UDP
+  socket on the API listener app.
