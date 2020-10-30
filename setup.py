@@ -39,7 +39,6 @@ setup(
         'sseclient-py',
         'qrcode',
         'zfec>=1.5.4',
-        'emoji',
         'pysnmp'
     ],
     package_data={
