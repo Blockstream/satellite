@@ -287,7 +287,7 @@ class ApiOrder:
 
         if not r.ok:
             logger.error("Failed to confirm Rx of message {} "
-                         "[status code {}]" %(self.seq_num, r.status_code))
+                         "[status code {}]".format(self.seq_num, r.status_code))
             self._print_errors(r)
         else:
             logger.info("Server response: " + r.json()['message'])
