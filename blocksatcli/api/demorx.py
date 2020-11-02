@@ -128,7 +128,8 @@ class DemoRx():
                 next_seq_num, order["message_size"]))
 
             # Get the API message data
-            order = ApiOrder(self.server, seq_num=next_seq_num)
+            order = ApiOrder(self.server, seq_num=next_seq_num,
+                             tls_cert=self.tls_cert, tls_key=self.tls_key)
             data  = order.get_data()
 
             if (data is None):
@@ -148,7 +149,7 @@ class DemoRx():
             self._send_pkts(pkts)
 
             # Send transmission confirmation to the server
-            order.confirm_tx(self.regions, self.tls_cert, self.tls_key)
+            order.confirm_tx(self.regions)
 
     def run(self):
         """Run the demo-rx transmission loop"""

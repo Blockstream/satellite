@@ -145,7 +145,7 @@ def send(args):
     bid = args.bid if args.bid else bidding.ask_bid(tx_len)
 
     # API transmission order
-    order = ApiOrder(server_addr)
+    order = ApiOrder(server_addr, tls_cert=args.tls_cert, tls_key=args.tls_key)
     res   = order.send(msg.get_data(), bid)
     print()
 
@@ -256,8 +256,9 @@ def listen(args):
         logger.info("Fragments: {:d}".format(pkt_handler.get_n_frags(seq_num)))
 
         # Send confirmation of reception to API server
-        order = ApiOrder(server_addr, seq_num=seq_num)
-        order.confirm_rx(args.region, args.tls_cert, args.tls_key)
+        order = ApiOrder(server_addr, seq_num=seq_num, tls_cert=args.tls_cert,
+                         tls_key=args.tls_key)
+        order.confirm_rx(args.region)
 
         # Decode the data from the available FEC chunks or from the complete
         # collection of Blocksat Packets
@@ -341,7 +342,7 @@ def bump(args):
     server_addr = _get_server_addr(args.net, args.server)
 
     # Fetch the ApiOrder
-    order = ApiOrder(server_addr)
+    order = ApiOrder(server_addr, tls_cert=args.tls_cert, tls_key=args.tls_key)
     order.get(args.uuid, args.auth_token)
 
     # Bump bid
@@ -358,7 +359,7 @@ def delete(args):
     server_addr = _get_server_addr(args.net, args.server)
 
     # Fetch the ApiOrder
-    order = ApiOrder(server_addr)
+    order = ApiOrder(server_addr, tls_cert=args.tls_cert, tls_key=args.tls_key)
     order.get(args.uuid, args.auth_token)
 
     # Delete it

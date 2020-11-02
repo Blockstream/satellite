@@ -11,17 +11,23 @@ class ApiOrder:
     Handles the payment/bidding for transmission of API messages.
 
     Args:
-        server  : API server address where the order lives
-        seq_num : Sequence number corresponding to this API message
+        server   : API server address where the order lives
+        seq_num  : Sequence number corresponding to this API message
+        tls_key  : API client key
+        tls_cert : API client certificate
 
     """
-    def __init__(self, server, seq_num=None):
+    def __init__(self, server, seq_num=None, tls_cert=None, tls_key=None):
         self.uuid       = None
         self.auth_token = None
         self.order      = {}
 
         # API server address
         self.server = server
+
+        # TLS key/cert
+        self.tls_cert = tls_cert
+        self.tls_key = tls_key
 
         # Transmission sequence number, if defined
         self.seq_num = seq_num
@@ -73,7 +79,8 @@ class ApiOrder:
         r = requests.get(self.server + '/order/' + self.uuid,
                          headers = {
                              'X-Auth-Token': self.auth_token
-                         })
+                         },
+                         cert = (self.tls_cert, self.tls_key))
 
         if (r.status_code != requests.codes.ok):
             self._print_errors(r)
@@ -113,8 +120,9 @@ class ApiOrder:
 
         # Post request to the API
         r = requests.post(self.server + '/order',
-                          data={'bid': bid},
-                          files={'file': data})
+                          data = {'bid': bid},
+                          files = {'file': data},
+                          cert = (self.tls_cert, self.tls_key))
 
         # In case of failure, check the API error message
         if (r.status_code != requests.codes.ok and
@@ -232,18 +240,17 @@ class ApiOrder:
 
         return ('status' in self.order and self.order['status'] in target)
 
-    def confirm_tx(self, regions, tls_cert=None, tls_key=None):
+    def confirm_tx(self, regions):
         """Confirm transmission of an API message
 
         Args:
-            regions     : Regions that were covered by the transmission
-            tls_key     : API client key
-            tls_cert    : API client certificate
+            regions : Regions that were covered by the transmission
 
         """
         assert(self.seq_num is not None)
 
-        if (regions is None) or (tls_cert is None) or (tls_key is None):
+        if ((regions is None) or (self.tls_cert is None) or
+            (self.tls_key is None)):
             return
 
         assert(isinstance(regions, list))
@@ -255,7 +262,7 @@ class ApiOrder:
                           data = {
                               'regions': json.dumps(regions)
                           },
-                          cert = (tls_cert, tls_key))
+                          cert = (self.tls_cert, self.tls_key))
 
         if not r.ok:
             logger.error("Failed to confirm Tx of message {} "
@@ -264,18 +271,17 @@ class ApiOrder:
         else:
             logger.info("Server response: " + r.json()['message'])
 
-    def confirm_rx(self, region, tls_cert=None, tls_key=None):
+    def confirm_rx(self, region):
         """Confirm reception of an API message
 
         Args:
-            region     : Coverage region
-            tls_key    : API client key
-            tls_cert   : API client certificate
+            region : Coverage region
 
         """
         assert(self.seq_num is not None)
 
-        if (region is None) or (tls_cert is None) or (tls_key is None):
+        if ((region is None) or (self.tls_cert is None) or
+            (self.tls_key is None)):
             return
 
         logger.info("Confirm reception of API message {} on region {}".format(
@@ -285,7 +291,7 @@ class ApiOrder:
                           data = {
                               'region' : region
                           },
-                          cert = (tls_cert, tls_key))
+                          cert = (self.tls_cert, self.tls_key))
 
         if not r.ok:
             logger.error("Failed to confirm Rx of message {} "
@@ -346,7 +352,8 @@ class ApiOrder:
                           data={
                               'bid_increase': bid - previous_bid,
                               'auth_token': self.auth_token
-                          })
+                          },
+                          cert = (self.tls_cert, self.tls_key))
 
         if (r.status_code != requests.codes.ok):
             self._print_errors(r)
@@ -380,7 +387,8 @@ class ApiOrder:
         r = requests.delete(self.server + '/order/' + self.uuid,
                             headers = {
                              'X-Auth-Token': self.auth_token
-                            })
+                            },
+                            cert = (self.tls_cert, self.tls_key))
 
         if (r.status_code != requests.codes.ok):
             self._print_errors(r)
