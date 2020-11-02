@@ -14,17 +14,17 @@ from .gpg import Gpg
 
 logger          = logging.getLogger(__name__)
 blocksat_pubkey = '87D07253F69E4CD8629B0A21A94A007EC9D4458C'
+server_map      = {
+    'main'   : "https://api.blockstream.space",
+    'test'   : "https://api.blockstream.space/testnet",
+    'gossip' : "https://api.blockstream.space/gossip",
+}
 
 
 def _get_server_addr(net, server):
     if (net is None):
         return server
     else:
-        server_map = {
-            'main'   : "https://api.blockstream.space",
-            'test'   : "https://api.blockstream.space/testnet",
-            'gossip' : "https://api.blockstream.space/gossip",
-        }
         return server_map[net]
 
 
@@ -161,7 +161,11 @@ def send(args):
     # Wait until the transmission completes (after the ground station confirms
     # reception). Stop if it is canceled.
     try:
-        order.wait_state(['received', 'cancelled'])
+        if (server_addr == server_map['main']):
+            target_state = ['received', 'cancelled']
+        else:
+            target_state = ['sent', 'cancelled']
+        order.wait_state(target_state)
     except KeyboardInterrupt:
         pass
 
