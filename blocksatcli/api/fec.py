@@ -1,5 +1,5 @@
 """FEC Encoding/decoding"""
-import logging, struct
+import logging, struct, random
 from math import ceil, floor
 import zfec
 from . import pkt
@@ -163,8 +163,12 @@ class Fec:
                                        i_chunk, len(fec_object))
                 fec_pkts.append(metadata + chunk)
 
-        # Concatenate all FEC packets to form a single encoded data array
+        # Concatenate all FEC packets to form a single encoded data
+        # array. Concatenate them in random order so that the chunks from the
+        # same object are not sent consecutively. This strategy is useful to
+        # avoid error bursts.
         encoded_data = bytearray()
+        random.shuffle(fec_pkts)
         for fec_pkt in fec_pkts:
             encoded_data += fec_pkt
 
