@@ -145,6 +145,10 @@ def check_cli_updates(args, cli_version):
         logger.debug("pip3 unavailable")
         return
 
+    # Create the configuration directory if it does not exist
+    if not os.path.exists(args.cfg_dir):
+        os.makedirs(args.cfg_dir, exist_ok=True)
+
     # Check the update cache file first
     update_cache = UpdateCache(args.cfg_dir)
 
