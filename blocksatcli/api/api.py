@@ -57,6 +57,10 @@ def config(args):
     key_server    = 'keys.openpgp.org'
     import_result = gpg.gpg.recv_keys(key_server, blocksat_pubkey)
 
+    if (len(import_result.fingerprints) == 0):
+        logger.warning("Failed to import key {}".format(blocksat_pubkey))
+        return
+
     # Note: the order is important here. Add Blockstream's public key only after
     # adding the user's key. With that, the user's key becomes the first key,
     # which is used by default.
