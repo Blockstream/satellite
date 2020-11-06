@@ -173,6 +173,9 @@ def send(args):
 
     # Wait until the transmission completes (after the ground station confirms
     # reception). Stop if it is canceled.
+    if (args.no_wait):
+        return
+
     try:
         if (server_addr == server_map['main']):
             target_state = ['received', 'cancelled']
@@ -562,6 +565,13 @@ def subparser(subparsers):
         '--invoice-exec',
         help="Execute command with the Lightning invoice. Replaces the string "
         "\'{}\' with the Lightning bolt11 invoice string."
+    )
+    p2.add_argument(
+        '--no-wait',
+        default=False,
+        action="store_true",
+        help="Return immediately after submitting an API transmission order. "
+        "Do not wait for the payment, transmission, and reception confirmations"
     )
     p2.set_defaults(func=send)
 

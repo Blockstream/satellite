@@ -19,7 +19,8 @@
 - Option `--exec` on the API listener app to execute an arbitrary command for
   every received API message.
 - Wait mechanism on the API sender app to wait until the API message is
-  successfully transmitted over satellite.
+  successfully transmitted over satellite, optionally disabled using
+  command-line argument `--no-wait`.
 - Option `--invoice-exec` on the API sender app to execute an arbitrary command
   with the Lightning invoice string.
 - Local caching of CLI updates. Instead of checking Python `pip` every time,
