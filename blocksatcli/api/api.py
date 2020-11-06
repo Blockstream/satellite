@@ -217,7 +217,9 @@ def listen(args):
             gpg.set_passphrase(gpg_password)
 
     # Open UDP socket
-    sock = net.UdpSock(args.sock_addr, interface)
+    sock_addr = defs.gossip_dst_addr if args.sock_addr == "gossip" \
+                else args.sock_addr
+    sock = net.UdpSock(sock_addr, interface)
 
     # Handler to collect groups of Blocksat packets that form an API message
     pkt_handler = BlocksatPktHandler()
@@ -569,7 +571,7 @@ def subparser(subparsers):
     )
     p3.add_argument(
         '--sock-addr',
-        default="239.0.0.2:4433",
+        default=defs.api_dst_addr,
         help="Multicast UDP address (ip:port) used to listen for API data"
     )
     intf_arg = p3.add_mutually_exclusive_group()
@@ -704,7 +706,7 @@ def subparser(subparsers):
     p6.add_argument(
         '-d',
         '--dest',
-        default="239.0.0.2:4433",
+        default=defs.api_dst_addr,
         help="Destination address (ip:port) to which API data will be sent"
     )
     p6.add_argument(
