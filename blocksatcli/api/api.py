@@ -340,7 +340,7 @@ def listen(args):
             msg = ApiMsg(data, msg_format="encrypted")
 
             # Try to decrypt the data:
-            if (not msg.decrypt(gpg)):
+            if (not msg.decrypt(gpg, args.sender)):
                 continue
 
             # Try to decapsulate the application-layer structure if assuming it
@@ -636,7 +636,8 @@ def subparser(subparsers):
         help="Save the raw decrypted data into the download directory while "
         "ignoring the existence of a data encapsulation structure"
     )
-    p3.add_argument(
+    plaintext_arg_group = p3.add_mutually_exclusive_group()
+    plaintext_arg_group.add_argument(
         '--plaintext',
         default=False,
         action="store_true",
@@ -646,6 +647,13 @@ def subparser(subparsers):
         "Note this option saves all incoming messages, including those "
         "broadcast by other users. In contrast, the default mode (without this "
         "option) only saves the messages that are successfully decrypted."
+    )
+    plaintext_arg_group.add_argument(
+        '--sender',
+        default=None,
+        help="Public key fingerprint of a target sender used to filter the "
+        "incoming messages. When specified, the application processes only the "
+        "messages that are digitally signed by the selected sender."
     )
     p3.add_argument(
         '--no-password',
@@ -660,20 +668,20 @@ def subparser(subparsers):
         help="Print the contents of all incoming text messages to the console, "
         "as long as these messages are decodable in UTF-8"
     )
-    stdout_exec_arg = p3.add_mutually_exclusive_group()
-    stdout_exec_arg.add_argument(
+    stdout_exec_arg_group = p3.add_mutually_exclusive_group()
+    stdout_exec_arg_group.add_argument(
         '--stdout',
         default=False,
         action='store_true',
         help="Serialize the received data to stdout instead of saving on a file"
     )
-    stdout_exec_arg.add_argument(
+    stdout_exec_arg_group.add_argument(
         '--no-save',
         default=False,
         action='store_true',
         help="Do not save the files decoded from the received API messages"
     )
-    stdout_exec_arg.add_argument(
+    stdout_exec_arg_group.add_argument(
         '--exec',
         help="Execute command for each downloaded file. Replaces the string "
         "\'{}\' with the path to the downloaded file. Use at your own risk"

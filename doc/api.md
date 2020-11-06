@@ -36,6 +36,7 @@ repository](https://github.com/Blockstream/satellite-api).
         - [Choosing the Recipient](#choosing-the-recipient)
         - [Signing the Messages](#signing-the-messages)
     - [Satellite API Reception](#satellite-api-reception)
+        - [Choosing the Sender](#choosing-the-sender)
     - [Demo Receiver](#demo-receiver)
     - [Further Information](#further-information)
         - [Lightning Wallets](#lightning-wallets)
@@ -180,6 +181,25 @@ decrypted) text message to the console by running with:
 ```
 blocksat-cli api listen --echo
 ```
+
+### Choosing the Sender
+
+By default, the listener application processes any file that is successfully
+decrypted. In other words, it processes any message encrypted using your public
+key.
+
+You can also filter the messages by the sender, as follows:
+
+```
+blocksat-cli api listen --sender [fingerprint]
+```
+
+where `[fingerprint]` is the [public key
+fingerprint](https://en.wikipedia.org/wiki/Public_key_fingerprint) corresponding
+to the target sender.
+
+In this case, the listener application only processes the messages that are
+[digitally signed](#signing-the-messages) by the specific sender of interest.
 
 ## Demo Receiver
 
@@ -415,7 +435,11 @@ someone who has your public key and encrypted specifically for you as the
 
 You can use this option to integrate the API reception with other
 applications. Nevertheless, please be aware of the potential security risk if
-someone unintended has your public key and can send malicious files to
-you. Avoid unsafe commands within the `--exec` option and **use at your own
-risk**.
+someone unintended has your public key and can send malicious files to you. To
+add an extra layer of safety, you can use the `--sender` option [described
+earlier](#choosing-the-sender) to filter digitally signed messages from a
+selected sender only.
+
+In any case, avoid unsafe commands within the `--exec` option and **use at your
+own risk**.
 

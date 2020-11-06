@@ -187,6 +187,51 @@ class TestApi(unittest.TestCase):
 
         self._teardown_gpg()
 
+    def test_decryption_of_signed_data(self):
+        """Test decryption of a signed message with a signer filter"""
+        data = bytes([0,1,2,3])
+        gpg  = self._setup_gpg()
+
+        # Create a second keypair
+        gpg.create_keys("Test2", "test2@test.com", "", "test")
+
+        # Define the passphrase for decryption
+        passphrase = "test"
+        gpg.set_passphrase(passphrase)
+
+        # Define the signer and recipient as two distinct keys
+        recipient = gpg.gpg.list_keys(True)[0]["fingerprint"]
+        signer    = gpg.gpg.list_keys(True)[1]["fingerprint"]
+        assert(recipient != signer)
+
+        # Transmit message
+        tx_msg = msg.ApiMsg(data)
+
+        # Unsigned encrypted message
+        tx_msg.encrypt(gpg, recipient, sign=False, trust=False)
+        rx_msg1 = msg.ApiMsg(tx_msg.get_data(), msg_format="encrypted")
+
+        # Encrypted message signed by the actual signer of interest
+        tx_msg.encrypt(gpg, recipient, sign=signer, trust=False)
+        rx_msg2 = msg.ApiMsg(tx_msg.get_data(), msg_format="encrypted")
+
+        # Encrypted message signed by another key (the recipient key)
+        tx_msg.encrypt(gpg, recipient, sign=recipient, trust=False)
+        rx_msg3 = msg.ApiMsg(tx_msg.get_data(), msg_format="encrypted")
+
+        # Decryption without a sign filter should work in all cases
+        self.assertTrue(rx_msg1.decrypt(gpg))
+        self.assertTrue(rx_msg2.decrypt(gpg))
+        self.assertTrue(rx_msg3.decrypt(gpg))
+
+        # Decryption with a signer filter should only work for the message
+        # signed by the actual signer of interest (rx_msg2)
+        self.assertFalse(rx_msg1.decrypt(gpg, signer))
+        self.assertTrue(rx_msg2.decrypt(gpg, signer))
+        self.assertFalse(rx_msg3.decrypt(gpg, signer))
+
+        self._teardown_gpg()
+
     def test_encapsulation_and_encryption(self):
         """Test encapsulation+encryption, then decryption+decapsulation"""
         data = bytes([0,1,2,3])

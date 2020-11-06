@@ -200,11 +200,13 @@ class ApiMsg:
         logger.debug("Encrypted version of the data structure has %d bytes" %(
             len(self.data['encrypted'])))
 
-    def decrypt(self, gpg):
+    def decrypt(self, gpg, signer_filter=None):
         """Decrypt the data
 
         Args:
-            gpg : Gpg object.
+            gpg           : Gpg object.
+            signer_filter : Fingerprint of a target signer. If the message is
+                            not signed by this fingerprint, drop it.
 
         Returns:
             True if the decryption was successful.
@@ -223,25 +225,35 @@ class ApiMsg:
 
         # Is the message digitally signed?
         if (decrypted_data.fingerprint is not None):
-            signed_by = decrypted_data.fingerprint
+            signed_by      = decrypted_data.fingerprint
+            verified       = decrypted_data.trust_level is not None
+            sign_str_short = "Signed"
 
-            # Was the signature verified?
-            if decrypted_data.trust_level is not None:
-                sign_str = "Signed by %s (verified w/ trust level: %s)" %(
+            if verified:
+                sign_str_long = "Signed by %s (verified w/ trust level: %s)" %(
                     signed_by, decrypted_data.trust_text
                 )
             else:
-                sign_str = "Signed by %s (unverified)" %(signed_by)
-
-            unsign_str = ""
+                sign_str_long = "Signed by %s (unverified)" %(signed_by)
         else:
-            unsign_str = "Not signed"
-            sign_str = ""
+            sign_str_short = "Unsigned"
+            sign_str_long  = ""
+            signed_by      = None
+            verified       = False
 
         logger.info("Encrypted size: %7d bytes\t Decryption: OK    \t%s" %(
-            len(self.data['encrypted']), unsign_str))
-        if (len(sign_str) > 0):
-            logger.info(sign_str)
+            len(self.data['encrypted']), sign_str_short))
+        if (len(sign_str_long) > 0):
+            logger.info(sign_str_long)
+        if (signer_filter is not None):
+            if (signer_filter != signed_by):
+                logger.warning("Dropping message - not signed by the selected "
+                               "sender")
+                return False
+            if (not verified):
+                logger.warning("Dropping message - signature unverified")
+                return False
+
         logger.info("Decrypted size: %7d bytes" %(len(str(decrypted_data))))
 
         # We can't know whether decrypted data is encapsulated or not. So, for

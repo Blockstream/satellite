@@ -18,6 +18,8 @@
   API messages into the download directory.
 - Option `--exec` on the API listener app to execute an arbitrary command for
   every successfully decrypted API message.
+- Option `--sender` on the API listener app to filter digitally signed messages
+  from a selected sender.
 - Wait mechanism on the API sender app to wait until the API message is
   successfully transmitted over satellite, optionally disabled using
   command-line argument `--no-wait`.
