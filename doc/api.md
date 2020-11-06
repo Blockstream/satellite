@@ -43,9 +43,10 @@ repository](https://github.com/Blockstream/satellite-api).
         - [Receiving Messages Sent from the Browser](#receiving-messages-sent-from-the-browser)
         - [Reliable Transmissions](#reliable-transmissions)
         - [Running on Testnet](#running-on-testnet)
-        - [Bump and delete API orders](#bump-and-delete-api-orders)
+        - [Bump and Delete API orders](#bump-and-delete-api-orders)
         - [Password-protected GPG keyring](#password-protected-gpg-keyring)
         - [Automating Lightning Payments](#automating-lightning-payments)
+        - [Executing Commands with Received Files](#executing-commands-with-received-files)
 
 <!-- markdown-toc end -->
 
@@ -327,7 +328,7 @@ In this case, run the demo receiver as follows:
 blocksat-cli api --net test demo-rx
 ```
 
-### Bump and delete API orders
+### Bump and Delete API orders
 
 When users send messages to the Satellite API, these messages first go into the
 [Satellite Queue](https://blockstream.com/satellite-queue/). From there, the
@@ -385,3 +386,36 @@ This command will send the transmission order to the server directly with the
 given bid. Subsequently, it will execute the `lightning-cli pay` command while
 substituting `{}` with the invoice number (i.e., the `bolt11` payment request
 string).
+
+### Executing Commands with Received Files
+
+The [API data listener application](#satellite-api-reception) features the
+command-line option `--exec`, which allows the execution of an arbitrary command
+for all files received (successfully decrypted) through the satellite API
+stream. For example, it can be used as follows:
+
+```
+blocksat-cli api listen --exec 'cat {}'
+```
+
+In this case, the application will execute the given command (`cat`) for every
+incoming file while substituting `{}` with the path to the file in the download
+directory (by default at `~/.blocksat/api/downloads/`). In other words, it will
+print the contents of every incoming file on the standard output (similar to
+option `--echo`).
+
+Due to security reasons, this option is only allowed when the listener app runs
+with encryption enabled (the default mode), and it is not supported in
+[plaintext mode](#plaintext-mode). In its default mode, the listener app ignores
+the messages that it cannot decrypt (i.e., messages sent to destinations other
+than your node). Hence, the command targeted by the `--exec` option is only
+called for the successfully decrypted messages, namely the messages sent by
+someone who has your public key and encrypted specifically for you as the
+[recipient](#choosing-the-recipient).
+
+You can use this option to integrate the API reception with other
+applications. Nevertheless, please be aware of the potential security risk if
+someone unintended has your public key and can send malicious files to
+you. Avoid unsafe commands within the `--exec` option and **use at your own
+risk**.
+

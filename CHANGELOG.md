@@ -17,7 +17,7 @@
 - Option `--no-save` on the API listener app to disable the saving of decoded
   API messages into the download directory.
 - Option `--exec` on the API listener app to execute an arbitrary command for
-  every received API message.
+  every successfully decrypted API message.
 - Wait mechanism on the API sender app to wait until the API message is
   successfully transmitted over satellite, optionally disabled using
   command-line argument `--no-wait`.

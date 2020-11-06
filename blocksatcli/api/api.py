@@ -191,6 +191,24 @@ def listen(args):
     gnupghome    = os.path.join(args.cfg_dir, args.gnupghome)
     download_dir = os.path.join(args.cfg_dir, "api", "downloads")
     server_addr  = _get_server_addr(args.net, args.server)
+    sock_addr    = defs.gossip_dst_addr if args.sock_addr == "gossip" \
+                   else args.sock_addr
+
+    # Argument validation
+    if (args.exec):
+        # Do not support the option in plaintext mode, except for the gossip
+        # channel, where the `--exec` option is used in plaintext mode to load
+        # the gossip snapshots using the historian-cli.
+        if (args.plaintext and (sock_addr != defs.gossip_dst_addr)):
+            raise ValueError("Option --exec is not allowed in plaintext mode")
+
+        # Warn about unsafe commands
+        base_exec_cmd = shlex.split(args.exec)[0]
+        unsafe_cmds   = ["/bin/bash", "bash", "/bin/sh", "sh", "rm"]
+        if (base_exec_cmd in unsafe_cmds):
+            logger.warning("Running {} on --exec is considered unsafe".format(
+                base_exec_cmd
+            ))
 
     # Make sure that the GPG keyring is set if decrypting messages
     if (not args.plaintext and not _is_gpg_keyring_set(gnupghome)):
@@ -229,8 +247,6 @@ def listen(args):
             gpg.set_passphrase(gpg_password)
 
     # Open UDP socket
-    sock_addr = defs.gossip_dst_addr if args.sock_addr == "gossip" \
-                else args.sock_addr
     sock = net.UdpSock(sock_addr, interface)
 
     # Handler to collect groups of Blocksat packets that form an API message
@@ -660,7 +676,7 @@ def subparser(subparsers):
     stdout_exec_arg.add_argument(
         '--exec',
         help="Execute command for each downloaded file. Replaces the string "
-        "\'{}\' with the path to the downloaded file."
+        "\'{}\' with the path to the downloaded file. Use at your own risk"
     )
     p3.add_argument(
         '-r',
