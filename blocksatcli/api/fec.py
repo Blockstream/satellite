@@ -15,8 +15,9 @@ logger = logging.getLogger(__name__)
 HEADER_FORMAT = '!BBBIx'
 HEADER_LEN    = 8
 # Each FEC packet (chunk + metadata) should fit a single Blocksat Packet
-PKT_SIZE      = pkt.MAX_PAYLOAD
-CHUNK_SIZE    = PKT_SIZE - HEADER_LEN
+PKT_SIZE       = pkt.MAX_PAYLOAD
+CHUNK_SIZE     = PKT_SIZE - HEADER_LEN
+MAX_FEC_CHUNKS = 256 # per FEC object
 
 
 class Fec:
@@ -93,7 +94,7 @@ class Fec:
         n_overhead_chunks = ceil(self.overhead * n_chunks)
         n_fec_chunks      = n_chunks + n_overhead_chunks
 
-        assert(n_fec_chunks <= 256)
+        assert(n_fec_chunks <= MAX_FEC_CHUNKS)
         logger.debug("Original Chunks: {} / "
                      "Overhead Chunks: {} / "
                      "Total: {}".format(
@@ -139,8 +140,8 @@ class Fec:
         # encoded) should occupy up to "1/(1 + overhead)" chunks, whereas the
         # overhead chunks should occupy "overhead/(1+overhead)". Based on these
         # ratios, define the maximum size for the original data object and the
-        # required number of FEC objects:
-        max_obj_size  = floor(256/(1 + self.overhead)) * CHUNK_SIZE
+        # required number of independent FEC objects:
+        max_obj_size  = floor(MAX_FEC_CHUNKS / (1 + self.overhead)) * CHUNK_SIZE
         n_fec_objects = ceil(len(data) / max_obj_size)
 
         logger.debug("Message Size: {} / FEC Objects: {}".format(
@@ -192,19 +193,22 @@ class Fec:
             (bytearray) with the decoded (original) data object.
 
         """
-        assert(obj_len < (256 * PKT_SIZE))
+        # The original (uncoded) object must fit within the maximum number of
+        # FEC chunks. Most of the time `obj_len` will be less than the
+        # maximum. It only hits the maximum if the FEC overhead is set to zero.
+        assert(obj_len <= (MAX_FEC_CHUNKS * CHUNK_SIZE))
 
         # Number of FEC chunks required to decode the original message:
         n_chunks = ceil(obj_len / CHUNK_SIZE)
 
         # FEC decoder
-        decoder  = zfec.Decoder(n_chunks, 256)
-        # NOTE: The hard-coded "256" represents the maximum number of chunks
-        # that can be generated. The receiver does not know how many chunks
-        # the sender really generated. Nevertheless, it does not need to
+        decoder  = zfec.Decoder(n_chunks, MAX_FEC_CHUNKS)
+        # NOTE: The hard-coded "MAX_FEC_CHUNKS" represents the maximum number of
+        # chunks that can be generated. The receiver does not know how many
+        # chunks the sender really generated. Nevertheless, it does not need to
         # know, as long as it receives at least n_chunks (any combination of
-        # n_chunks). The explanation for this requirement is that the FEC
-        # scheme is a maximum distance separable (MDS) erasure code.
+        # n_chunks). The explanation for this requirement is that the FEC scheme
+        # is a maximum distance separable (MDS) erasure code.
 
         # Decode using the minimum required number of FEC chunks
         decoded_chunks = decoder.decode(chunks[:n_chunks], chunk_ids[:n_chunks])
@@ -254,6 +258,11 @@ class Fec:
             obj_id   = metadata[0]
             chunk_id = metadata[2]
             obj_len  = metadata[3]
+
+            # Check if the chunk id is valid
+            if (chunk_id >= MAX_FEC_CHUNKS):
+                logger.debug("Invalid chunk id - likely not FEC-encoded")
+                return False
 
             # All packets of a FEC object should bring the same message length
             if (obj_id not in fec_map):
