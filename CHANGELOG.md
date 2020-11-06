@@ -1,6 +1,6 @@
 # Changelog
 
-## [2.3.0] - 2020-11-02
+## [2.3.0] - 2020-11-06
 ### Added
 - Integrate API apps into the CLI. Support API message transmission, reception,
   and the demo-rx app directly from `blocksat-cli` commands (`api send`, `api
@@ -14,6 +14,8 @@
 - Parsing of user bid input on API send/bump applications.
 - Option `--stdout` on the API listener app to serialize the received API
   messages to stdout.
+- Option `--no-save` on the API listener app to disable the saving of decoded
+  API messages into the download directory.
 - Option `--exec` on the API listener app to execute an arbitrary command for
   every received API message.
 - Wait mechanism on API message transmission (`api send`) app to wait until the

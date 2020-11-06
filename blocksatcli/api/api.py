@@ -323,7 +323,7 @@ def listen(args):
         # Finalize the processing of the decoded message
         if (args.stdout):
             msg.serialize()
-        else:
+        elif (not args.no_save):
             download_path = msg.save(download_dir)
 
         if (args.echo):
@@ -626,6 +626,12 @@ def subparser(subparsers):
         default=False,
         action='store_true',
         help="Serialize the received data to stdout instead of saving on a file"
+    )
+    stdout_exec_arg.add_argument(
+        '--no-save',
+        default=False,
+        action='store_true',
+        help="Do not save the files decoded from the received API messages"
     )
     stdout_exec_arg.add_argument(
         '--exec',
