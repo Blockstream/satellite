@@ -153,14 +153,23 @@ def send(args):
     res   = order.send(msg.get_data(), bid)
     print()
 
-    # Print QR code
-    if ("lightning_invoice" in res):
+    # The API servers (except the Gossip instance) return a Lightning invoice
+    if (server_addr != server_map['gossip']):
+        payreq = res["lightning_invoice"]["payreq"]
+
+        # Print QR code
         try:
             qr = qrcode.QRCode()
-            qr.add_data(res["lightning_invoice"]["payreq"])
+            qr.add_data(payreq)
             qr.print_ascii()
         except UnicodeError:
             qr.print_tty()
+
+        # Execute arbitrary command with the Lightning invoice
+        if (args.invoice_exec):
+            cmd = shlex.split(args.invoice_exec.replace("{}", payreq))
+            logger.debug("Execute:\n> {}".format(" ".join(cmd)))
+            subprocess.run(cmd)
 
     # Wait until the transmission completes (after the ground station confirms
     # reception). Stop if it is canceled.
@@ -549,6 +558,11 @@ def subparser(subparsers):
         default=False,
         action="store_true",
         help="Whether to access the GPG keyring without a password")
+    p2.add_argument(
+        '--invoice-exec',
+        help="Execute command with the Lightning invoice. Replaces the string "
+        "\'{}\' with the Lightning bolt11 invoice string."
+    )
     p2.set_defaults(func=send)
 
     # Listen

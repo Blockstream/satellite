@@ -45,6 +45,7 @@ repository](https://github.com/Blockstream/satellite-api).
         - [Running on Testnet](#running-on-testnet)
         - [Bump and delete API orders](#bump-and-delete-api-orders)
         - [Password-protected GPG keyring](#password-protected-gpg-keyring)
+        - [Automating Lightning Payments](#automating-lightning-payments)
 
 <!-- markdown-toc end -->
 
@@ -79,9 +80,14 @@ blocksat-cli api send -f [file]
 
 where `[file]` should be replaced with the path to the file.
 
-Subsequently, get the *Lightning Invoice Number* printed on the console or the
-QR code and pay it using Bitcoin Lightning (refer to the list of [Lightning
-wallet apps](#lightning-wallets)).
+The application asks for the bid in [millisatoshis
+(msats)](https://en.bitcoin.it/wiki/Units) and suggests the minimum bid, which
+corresponds to 50 msats per byte used to transmit the message. After confirming
+the bid, get the *Lightning Invoice Number* printed on the console or the QR
+code and pay it using Bitcoin Lightning (refer to the list of [Lightning wallet
+apps](#lightning-wallets)). Once the payment is confirmed, the transmission will
+start as soon as the [transmission
+queue](https://blockstream.com/satellite-queue/) serves your message.
 
 By default, the above commands encrypt your message or file using the GPG key
 you set up [in the beginning](#encryption-keys). With that, only you (i.e., the
@@ -209,6 +215,12 @@ transmissions:
 - [Bluewallet (iOS and Android)](https://bluewallet.io/lightning/)
 - [Zap (iOS, Android, Windows, Mac, and Linux)](https://zaphq.io)
 - [Breez (iOS and Android - in Beta)](https://breez.technology)
+
+You can also set up a [Lightning
+node](https://github.com/ElementsProject/lightning#starting-lightningd) and use
+the
+[lightning-cli](https://github.com/ElementsProject/lightning#sending-and-receiving-payments)
+to handle payments.
 
 ### Plaintext Mode
 
@@ -353,3 +365,23 @@ blocksat-cli api send --sign --no-password
 blocksat-cli api listen --no-password
 ```
 
+### Automating Lightning Payments
+
+The command used to send API messages (`blocksat-cli api send`) is by default
+interactive. It prompts for the bid and prints the Lightning invoice number. The
+user, in turn, has to choose the bid and pay the invoice manually.
+
+Nevertheless, there are options to automate the payment. You can specify the bid
+using the command-line argument `--bid`. Additionally, you can run an arbitrary
+command with the invoice number. For example, you can use the
+[lightning-cli](https://github.com/ElementsProject/lightning#sending-and-receiving-payments)
+to pay the invoice automatically as follows:
+
+```
+blocksat-cli api send -f [file] --bid [bid] --invoice-exec "lightning-cli pay {}"
+```
+
+This command will send the transmission order to the server directly with the
+given bid. Subsequently, it will execute the `lightning-cli pay` command while
+substituting `{}` with the invoice number (i.e., the `bolt11` payment request
+string).

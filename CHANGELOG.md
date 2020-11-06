@@ -18,8 +18,10 @@
   API messages into the download directory.
 - Option `--exec` on the API listener app to execute an arbitrary command for
   every received API message.
-- Wait mechanism on API message transmission (`api send`) app to wait until the
-  API message is successfully transmitted over satellite.
+- Wait mechanism on the API sender app to wait until the API message is
+  successfully transmitted over satellite.
+- Option `--invoice-exec` on the API sender app to execute an arbitrary command
+  with the Lightning invoice string.
 - Local caching of CLI updates. Instead of checking Python `pip` every time,
   check once a day and cache the results on a file within the `.blocksat`
   directory.
