@@ -1,5 +1,5 @@
 """Socket communication"""
-import logging, socket, struct, fcntl, errno
+import logging, socket, struct, fcntl, errno, ipaddress
 
 
 logger           = logging.getLogger(__name__)
@@ -21,8 +21,9 @@ class UdpSock():
             Socket object
 
         """
-
+        assert(":" in sock_addr), "Socket address must be in ip:port format"
         self.ip      = sock_addr.split(":")[0]
+        assert(ipaddress.ip_address(self.ip)) # parse address
         self.port    = int(sock_addr.split(":")[1])
         self.ifindex = None
 
@@ -52,11 +53,10 @@ class UdpSock():
                 logger.info("Use argument `--sock-addr` to define the socket address.")
             raise
 
-        self.sock = sock
-
     def __del__(self):
         """Destructor"""
-        self.sock.close()
+        if hasattr(self, 'sock'):
+            self.sock.close()
 
     def _get_ifindex(self, ifname):
         """Get the index of a given interface name"""
