@@ -26,6 +26,8 @@
   command-line argument `--no-wait`.
 - Option `--invoice-exec` on the API sender app to execute an arbitrary command
   with the Lightning invoice string.
+- Handling of repeated downloads via the API listener app. Append number to file
+  if the contents differ and avoid duplicate saving if the contents match.
 - Local caching of CLI updates. Instead of checking Python `pip` every time,
   check once a day and cache the results on a file within the `.blocksat`
   directory.

@@ -1,5 +1,5 @@
 """API Messages"""
-import sys, os, logging, time, struct, zlib
+import sys, os, logging, time, struct, zlib, hashlib
 from math import ceil, floor
 import zfec
 from . import pkt
@@ -409,7 +409,14 @@ class ApiMsg:
     def save(self, dst_dir, target='original'):
         """Save data into a file
 
-        Save given sequence of octets into a file with given name.
+        Save the data of a specified container into a file. Name the file
+        according to the filename attribute of this class.
+
+        If another file with the same name and different contents already exists
+        in the download directory, save the data on a new file with an appended
+        number (e.g., "-2", "-3", and so on). Meanwhile, if a file with the same
+        name exists and its contents are also the same as the incoming data, do
+        not proceed with the saving.
 
         Args:
             dst_dir : Destination directory to save the file
@@ -417,7 +424,8 @@ class ApiMsg:
                       encrypted).
 
         Returns:
-            Path to the downloaded file.
+            Path to the downloaded file. If the file already exists, return the
+            path to the pre-existing file regardless.
 
         """
         data = self.get_data(target)
@@ -427,8 +435,25 @@ class ApiMsg:
         if not os.path.exists(dst_dir):
             os.makedirs(dst_dir)
 
-        # If the file already exists, append number
-        dst_file      = os.path.join(dst_dir, self.filename)
+        # If the file already exists, check if it has the same contents as the
+        # data array to be saved. Return in the positive case (no need to save).
+        dst_file = os.path.join(dst_dir, self.filename)
+
+        if os.path.exists(dst_file):
+            # sha256 hash of the existing file
+            with open(dst_file, "rb") as fd:
+                existing_hash = hashlib.sha256(fd.read()).hexdigest()
+
+            # sha256 hash of the incoming data
+            incoming_hash = hashlib.sha256(data).hexdigest()
+
+            if (incoming_hash == existing_hash):
+                logger.info("File {} already exists.".format(dst_file))
+                return dst_file
+
+        # At this point, if a file with the same name already exists, it can be
+        # implied that it has different contents. Hence, save the incoming data
+        # with the same name but an appended number.
         filename, ext = os.path.splitext(self.filename)
         i_file        = 1
         while (True):
@@ -442,7 +467,7 @@ class ApiMsg:
         f.write(data)
         f.close()
 
-        logger.info("Saved in %s." %(dst_file))
+        logger.info("Saved in {}.".format(dst_file))
         return dst_file
 
     def serialize(self, target='original'):

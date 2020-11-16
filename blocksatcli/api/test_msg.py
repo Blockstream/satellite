@@ -371,7 +371,24 @@ class TestApi(unittest.TestCase):
             rd_data = fd.read()
         self.assertEqual(data, rd_data.encode())
 
+        # Try saving again
+        api_msg.save(dst_dir)
+        dst_file2 = os.path.join(dst_dir, api_msg.filename + "-2")
+
+        # It should not create another file, given that the existing file has
+        # the same contents
+        self.assertFalse(os.path.exists(dst_file2))
+
+        # Try one more time, now with different contents
+        api_msg.data['original'] = bytes([4,5,6,7])
+        api_msg.save(dst_dir)
+
+        # Now it should create another file. There is a file with the same name
+        # already, but the contents do not match.
+        self.assertTrue(os.path.exists(dst_file2))
+
         # Clean up
         os.remove(dst_file)
+        os.remove(dst_file2)
 
 
