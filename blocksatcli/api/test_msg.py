@@ -271,6 +271,43 @@ class TestApi(unittest.TestCase):
 
         self._teardown_gpg()
 
+    def test_clearsign_verification(self):
+        """Test signing and verification of plaintext message"""
+        data = bytes([0,1,2,3])
+        gpg  = self._setup_gpg()
+
+        # Create a second keypair
+        gpg.create_keys("Test2", "test2@test.com", "", "test")
+
+        # Define the passphrase for signing
+        passphrase = "test"
+        gpg.set_passphrase(passphrase)
+
+        # Define the signer and recipient as two distinct keys
+        recipient = gpg.gpg.list_keys(True)[0]["fingerprint"]
+        signer    = gpg.gpg.list_keys(True)[1]["fingerprint"]
+        assert(recipient != signer)
+
+        # Original unsigned message
+        tx_msg  = msg.ApiMsg(data)
+        rx_msg1 = msg.ApiMsg(tx_msg.get_data())
+
+        # Clearsigned message
+        tx_msg.clearsign(gpg, signer)
+        rx_msg2 = msg.ApiMsg(tx_msg.get_data())
+
+        # Clearsigned message signed by another key (the recipient key)
+        tx_msg.clearsign(gpg, recipient)
+        rx_msg3 = msg.ApiMsg(tx_msg.get_data())
+
+        # The verification should filter the message signed by the actual signer
+        # of interest (rx_msg2)
+        self.assertFalse(rx_msg1.verify(gpg, signer))
+        self.assertTrue(rx_msg2.verify(gpg, signer))
+        self.assertFalse(rx_msg3.verify(gpg, signer))
+
+        self._teardown_gpg()
+
     def test_fec_encoding_decoding(self):
         """Test FEC encoding and decoding"""
         fec_overhead = 0.1

@@ -103,7 +103,8 @@ class Gpg():
             recipients,
             always_trust = always_trust,
             sign = sign,
-            passphrase = self.passphrase)
+            passphrase = self.passphrase
+        )
 
     def decrypt(self, data):
         """Decrypt a given data array"""
@@ -112,5 +113,13 @@ class Gpg():
                 "Passphrase must be defined in non-interactive mode")
 
         return self.gpg.decrypt(data, passphrase = self.passphrase)
+
+    def sign(self, data, keyid):
+        """Sign a given data array"""
+        return self.gpg.sign(
+            data,
+            keyid = keyid,
+            passphrase = self.passphrase
+        )
 
 

@@ -76,17 +76,19 @@ def send(args):
     gnupghome   = os.path.join(args.cfg_dir, args.gnupghome)
     server_addr = _get_server_addr(args.net, args.server)
 
-    # Instantiate the GPG wrapper object if running with encryption
-    if (not args.plaintext):
+    # Instantiate the GPG wrapper object if running with encryption or signing
+    if (not args.plaintext or args.sign):
         if not _is_gpg_keyring_set(gnupghome):
             config(args)
 
         gpg = Gpg(gnupghome, interactive=True)
 
-        if (args.sign and (not args.no_password)):
-            gpg_password = getpass.getpass(prompt='Password to private key '
-                                           'used for message signing: ')
-            gpg.set_passphrase(gpg_password)
+    # A passphrase is required if signing
+    if (args.sign and (not args.no_password)):
+        gpg.set_passphrase(
+            getpass.getpass(prompt='Password to private key '
+                            'used for message signing: ')
+        )
 
     # File or text message to send over satellite
     if (args.file is None):
@@ -105,6 +107,19 @@ def send(args):
         "Empty {}".format("file" if args.file else "message")
 
     msg = ApiMsg(data, filename=basename)
+
+    # If transmitting a plaintext message, it could still be
+    # clearsigned. However, in this case, the signature is not removed from the
+    # message on the Rx end. It will be part of the message.
+    if (args.plaintext and args.sign):
+        if (args.sign_key):
+            # Make sure the key exists
+            gpg.get_priv_key(args.sign_key)
+            sign_key = args.sign_key
+        else:
+            sign_key = gpg.get_default_priv_key()["fingerprint"]
+
+        msg.clearsign(gpg, sign_key)
 
     # Pack data into structure (header + data), if enabled
     if (not args.send_raw):
@@ -211,7 +226,8 @@ def listen(args):
             ))
 
     # Make sure that the GPG keyring is set if decrypting messages
-    if (not args.plaintext and not _is_gpg_keyring_set(gnupghome)):
+    if ((not args.plaintext or args.sender)
+        and not _is_gpg_keyring_set(gnupghome)):
         config(args)
 
     # Define the interface used to listen for messages
@@ -238,13 +254,16 @@ def listen(args):
     logger.info("Downloads will be saved at: {}".format(download_dir))
 
     # GPG wrapper object
-    if (not args.plaintext):
+    if (not args.plaintext or args.sender):
         gpg = Gpg(gnupghome, interactive=True)
 
-        if (not args.no_password):
-            gpg_password = getpass.getpass(prompt='GPG keyring password for '
-                                           'decryption: ')
-            gpg.set_passphrase(gpg_password)
+    # A passphrase is required for decryption (but not for signature
+    # verification)
+    if (not args.plaintext and not args.no_password):
+        gpg.set_passphrase(
+            getpass.getpass(prompt='GPG keyring password for '
+                            'decryption: ')
+        )
 
     # Open UDP socket
     sock = net.UdpSock(sock_addr, interface)
@@ -332,6 +351,10 @@ def listen(args):
                 # Try to decapsulate it
                 if (not msg.decapsulate()):
                     continue
+
+            # If filtering clearsigned messages, verify
+            if (args.sender and not msg.verify(gpg, args.sender)):
+                continue
 
             logger.info("Size: {:7d} bytes\tSaving in plaintext".format(
                 msg.get_length()))
@@ -636,8 +659,7 @@ def subparser(subparsers):
         help="Save the raw decrypted data into the download directory while "
         "ignoring the existence of a data encapsulation structure"
     )
-    plaintext_arg_group = p3.add_mutually_exclusive_group()
-    plaintext_arg_group.add_argument(
+    p3.add_argument(
         '--plaintext',
         default=False,
         action="store_true",
@@ -648,12 +670,13 @@ def subparser(subparsers):
         "broadcast by other users. In contrast, the default mode (without this "
         "option) only saves the messages that are successfully decrypted."
     )
-    plaintext_arg_group.add_argument(
+    p3.add_argument(
         '--sender',
         default=None,
         help="Public key fingerprint of a target sender used to filter the "
         "incoming messages. When specified, the application processes only the "
-        "messages that are digitally signed by the selected sender."
+        "messages that are digitally signed by the selected sender, including "
+        "clearsigned messages."
     )
     p3.add_argument(
         '--no-password',

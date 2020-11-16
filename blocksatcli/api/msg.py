@@ -243,14 +243,21 @@ class ApiMsg:
 
         logger.info("Encrypted size: %7d bytes\t Decryption: OK    \t%s" %(
             len(self.data['encrypted']), sign_str_short))
+
         if (len(sign_str_long) > 0):
             logger.info(sign_str_long)
+
         if (signer_filter is not None):
+            if (not signed_by):
+                logger.warning("Dropping message - not signed")
+                return False
+
             if (signer_filter != signed_by):
                 logger.warning("Dropping message - not signed by the selected "
                                "sender")
                 return False
-            if (not verified):
+
+            if (decrypted_data.trust_level < decrypted_data.TRUST_FULLY):
                 logger.warning("Dropping message - signature unverified")
                 return False
 
@@ -262,6 +269,78 @@ class ApiMsg:
         # overwrite the "original" data container.
         self.data['original']     = decrypted_data.data
         self.data['encapsulated'] = decrypted_data.data
+
+        return True
+
+    def clearsign(self, gpg, sign_key):
+        """Clearsign the data
+
+        Unlike the other methods in this class, this method overwrites the
+        original data container. The rationale is that, in this case, the actual
+        message to be delivered to the recipient becomes the clearsigned one,
+        including the signature.
+
+        This method should be used in plaintext mode only. In contrast, in
+        encryption mode, the signature should be enabled on the call to method
+        "encrypt" instead.
+
+        Args:
+            gpg      : Gpg object.
+            sign_key : Fingerprint to use for signing. If set to None, try with
+                       the first private key on the keyring.
+
+        """
+        data = self.data['original']
+
+        logger.debug("Sign message using key %s" %(sign_key))
+
+        signed_obj = gpg.sign(data, sign_key)
+
+        logger.debug("Signed version of the data structure has %d bytes" %(
+            len(signed_obj.data)))
+
+        self.data['original'] = signed_obj.data
+
+    def verify(self, gpg, signer):
+        """Verify signed (but non-encrypted) message from target signer
+
+        Detects whether the clearsigned plaintext messages comes from the
+        specified signer.
+
+        Args:
+            gpg    : Gpg object.
+            signer : Fingerprint of a target signer.
+
+        Returns:
+            (bool) Whether the message is signed by the target signer.
+
+        """
+        assert(signer is not None)
+
+        verif_obj = gpg.gpg.verify(self.data['original'])
+        verified  = verif_obj.trust_level is not None
+        signed_by = verif_obj.fingerprint
+
+        if (not signed_by):
+            logger.info("Dropping message - not signed")
+            return False
+
+        if (signed_by != signer):
+            logger.info("Dropping message - not signed by the selected "
+                        "sender")
+            return False
+
+        if (not verified):
+            logger.info("Dropping message - signature unverified")
+            return False
+
+        logger.info("Signed by {} (verified w/ trust level: {})".format(
+            signed_by, verif_obj.trust_text
+        ))
+
+        if (verif_obj.trust_level < verif_obj.TRUST_FULLY):
+            logger.warning("Dropping message - signature unverified")
+            return False
 
         return True
 

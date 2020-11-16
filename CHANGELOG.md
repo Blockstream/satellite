@@ -1,6 +1,6 @@
 # Changelog
 
-## [2.3.0] - 2020-11-06
+## [2.3.0] - 2020-11-16
 ### Added
 - Integrate API apps into the CLI. Support API message transmission, reception,
   and the demo-rx app directly from `blocksat-cli` commands (`api send`, `api
@@ -20,6 +20,7 @@
   every successfully decrypted API message.
 - Option `--sender` on the API listener app to filter digitally signed messages
   from a selected sender.
+- Support for clearsigning and verification of plaintext messages.
 - Wait mechanism on the API sender app to wait until the API message is
   successfully transmitted over satellite, optionally disabled using
   command-line argument `--no-wait`.

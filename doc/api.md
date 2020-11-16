@@ -267,6 +267,12 @@ to the download directory. In contrast, in normal mode (with encryption), the
 listener application only saves the messages addressed to you (i.e., the
 messages you can decrypt).
 
+Alternatively, you can filter plaintext messages by the sender, using the
+`--sender` option [explained earlier](#choosing-the-sender). In this case, the
+application retains only the
+[clearsigned](https://www.gnupg.org/gph/en/manual/x135.html) messages sent by
+the specific sender of choice.
+
 ### Receiving Messages Sent from the Browser
 
 If you want to receive a file uploaded directly on the [Satellite Queue
