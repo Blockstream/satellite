@@ -2,6 +2,7 @@
 import os, getpass, textwrap, logging, subprocess, shlex
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 import qrcode
+from shutil import which
 from .. import util, defs
 from .. import config as blocksatcli_config
 from .order import ApiOrder
@@ -203,18 +204,37 @@ def send(args):
 
 def listen(args):
     """Listen to API messages received over satellite"""
-    gnupghome    = os.path.join(args.cfg_dir, args.gnupghome)
-    download_dir = os.path.join(args.cfg_dir, "api", "downloads")
-    server_addr  = _get_server_addr(args.net, args.server)
-    sock_addr    = defs.gossip_dst_addr if args.sock_addr == "gossip" \
-                   else args.sock_addr
+    gnupghome     = os.path.join(args.cfg_dir, args.gnupghome)
+    download_dir  = os.path.join(args.cfg_dir, "api", "downloads")
+    server_addr   = server_map['gossip'] if args.gossip else \
+                    _get_server_addr(args.net, args.server)
+    sock_addr     = defs.gossip_dst_addr if args.gossip else args.sock_addr
+    historian_cli = os.path.join(args.historian_path, 'historian-cli') \
+                    if (args.historian_path) else 'historian-cli'
 
-    # Argument validation
+    # Argument validation and special cases
+    if (args.gossip):
+        if (which(historian_cli) is None):
+            logger.error("Option --gossip requires the historian-cli "
+                         "application but the latter was not found")
+            logger.info("Use option --historian-path to specify the path to "
+                        "historian-cli")
+            raise ValueError("Could not find the historian-cli application")
+
+        if (args.plaintext):
+            logger.warning("Option --gossip enables --plaintext automatically")
+
+        args.plaintext = True # NOTE: set before the --exec validation below
+
+        if (args.sock_addr != defs.api_dst_addr):
+            logger.warning("Option --gossip overrides --sock-addr")
+
+        if (args.server != server_map['main'] or args.net is not None):
+            logger.warning("Option --gossip overrides --net and --server")
+
     if (args.exec):
-        # Do not support the option in plaintext mode, except for the gossip
-        # channel, where the `--exec` option is used in plaintext mode to load
-        # the gossip snapshots using the historian-cli.
-        if (args.plaintext and (sock_addr != defs.gossip_dst_addr)):
+        # Do not support the option in plaintext mode
+        if (args.plaintext):
             raise ValueError("Option --exec is not allowed in plaintext mode")
 
         # Require either --sender or --insecure
@@ -248,7 +268,7 @@ def listen(args):
         if (user_info['setup']['type'] == defs.sdr_setup_type):
             interface = "lo"
         elif (user_info['setup']['type'] == defs.linux_usb_setup_type):
-            interface = "dvb0_0"
+            interface = "dvb0_1" if args.gossip else "dvb0_0"
         elif (user_info['setup']['type'] == defs.standalone_setup_type):
             interface = user_info['setup']['netdev']
         else:
@@ -401,6 +421,12 @@ def listen(args):
             logger.debug("Exec:\n> {}".format(" ".join(cmd)))
             subprocess.run(cmd)
 
+        if (args.gossip):
+            cmd = [historian_cli, 'snapshot', 'load',
+                   shlex.quote(download_path)]
+            logger.debug("Exec:\n> {}".format(" ".join(cmd)))
+            subprocess.run(cmd)
+
 
 def bump(args):
     """Bump the bid of an API order"""
@@ -433,12 +459,22 @@ def delete(args):
 
 def demo_rx(args):
     """Demo satellite receiver"""
-    server_addr = _get_server_addr(args.net, args.server)
+    server_addr = server_map['gossip'] if args.gossip else \
+                  _get_server_addr(args.net, args.server)
+    sock_addr   = defs.gossip_dst_addr if args.gossip else args.dest
+
+    # Argument validation and special cases
+    if (args.gossip):
+        if (args.dest != defs.api_dst_addr):
+            logger.warning("Option --gossip overrides --dest")
+
+        if (args.server != server_map['main'] or args.net is not None):
+            logger.warning("Option --gossip overrides --net and --server")
 
     # Open one socket for each interface:
     socks = list()
     for interface in args.interface:
-        sock = net.UdpSock(args.dest, interface, mcast_rx=False)
+        sock = net.UdpSock(sock_addr, interface, mcast_rx=False)
         sock.set_mcast_tx_opts(args.ttl, args.dscp)
         socks.append(sock)
 
@@ -476,7 +512,7 @@ def subparser(subparsers):
     server_addr.add_argument(
         '-s',
         '--server',
-        default='https://api.blockstream.space',
+        default=server_map['main'],
         help="Satellite API server address"
     )
     p.add_argument(
@@ -729,6 +765,22 @@ def subparser(subparsers):
         "commands."
     )
     p3.add_argument(
+        '--gossip',
+        default=False,
+        action="store_true",
+        help="Configure the application to receive Lightning gossip snapshots "
+        "and load them using the historian-cli application. This option "
+        "overrides the following options: 1) --plaintext (enabled); 2) "
+        "--sock-addr (set to {}); and 3) --server/--net (set to {})".format(
+            defs.gossip_dst_addr, server_map['gossip'])
+    )
+    p3.add_argument(
+        '--historian-path',
+        default=None,
+        help="Path to the historian-cli application. If not set, look for "
+        "historian-cli globally"
+    )
+    p3.add_argument(
         '-r',
         '--region',
         choices=range(0, 6),
@@ -847,6 +899,15 @@ def subparser(subparsers):
         choices=["transmitting", "sent"],
         default="sent",
         help='SSE event that should trigger packet transmissions'
+    )
+    p6.add_argument(
+        '--gossip',
+        default=False,
+        action="store_true",
+        help="Configure the application to fetch and relay Lightning gossip "
+        "messages. This option overrides option --sock-addr (set to {}) and "
+        "options --server/--net (set to {})".format(
+            defs.gossip_dst_addr, server_map['gossip'])
     )
     p6.set_defaults(func=demo_rx)
 
