@@ -217,6 +217,10 @@ def listen(args):
         if (args.plaintext and (sock_addr != defs.gossip_dst_addr)):
             raise ValueError("Option --exec is not allowed in plaintext mode")
 
+        # Require either --sender or --insecure
+        if (args.sender is None and not args.insecure):
+            raise ValueError("Option --exec requires a specified --sender")
+
         # Warn about unsafe commands
         base_exec_cmd = shlex.split(args.exec)[0]
         unsafe_cmds   = ["/bin/bash", "bash", "/bin/sh", "sh", "rm"]
@@ -706,8 +710,23 @@ def subparser(subparsers):
     )
     stdout_exec_arg_group.add_argument(
         '--exec',
-        help="Execute command for each downloaded file. Replaces the string "
-        "\'{}\' with the path to the downloaded file. Use at your own risk"
+        help="Execute arbitrary shell command for each downloaded file. "
+        "Use the magic string \'{}\' to represent the file path within the "
+        "command. For instance, run \"--exec \'cat {}\'\" to print every "
+        "incoming file to stdout. For security, this option must be used in "
+        "conjunction with the --sender option to limit the execution of the "
+        "specified command to digitally signed messages from a specified "
+        "sender only. See option --insecure for an alternative."
+    )
+    p3.add_argument(
+        '--insecure',
+        default=False,
+        action="store_true",
+        help="Run the --exec option while receiving messages from any sender. "
+        "In this case, any successfully decrypted message (i.e., any message) "
+        "encrypted using your public key will trigger the --exec command, "
+        "which is considered insecure. Use at your own risk and avoid unsafe "
+        "commands."
     )
     p3.add_argument(
         '-r',

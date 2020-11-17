@@ -415,37 +415,46 @@ string).
 
 ### Executing Commands with Received Files
 
-The [API data listener application](#satellite-api-reception) features the
-command-line option `--exec`, which allows the execution of an arbitrary command
-for all files received (successfully decrypted) through the satellite API
-stream. For example, it can be used as follows:
+The [API data listener application](#satellite-api-reception) provides the
+command-line option `--exec`, which configures an arbitrary command to be
+executed for each file received through the satellite API stream. For example,
+the option can be used as follows:
 
 ```
-blocksat-cli api listen --exec 'cat {}'
+blocksat-cli api listen --exec 'cat {}' --sender [fingerprint]
 ```
 
-In this case, the application will execute the given command (`cat`) for every
-incoming file while substituting `{}` with the path to the file in the download
-directory (by default at `~/.blocksat/api/downloads/`). In other words, it will
-print the contents of every incoming file on the standard output (similar to
-option `--echo`).
+where `[fingerprint]` should be the public key fingerprint corresponding to the
+[target sender](#choosing-the-sender).
 
-Due to security reasons, this option is only allowed when the listener app runs
-with encryption enabled (the default mode), and it is not supported in
-[plaintext mode](#plaintext-mode). In its default mode, the listener app ignores
-the messages that it cannot decrypt (i.e., messages sent to destinations other
-than your node). Hence, the command targeted by the `--exec` option is only
-called for the successfully decrypted messages, namely the messages sent by
-someone who has your public key and encrypted specifically for you as the
-[recipient](#choosing-the-recipient).
+In this case, the application will execute the given command (`cat`) for each
+downloaded file while substituting `{}` with the path to the file in the
+download directory. In other words, this example will print the contents of
+every incoming file on the standard output (similar to option `--echo`).
 
-You can use this option to integrate the API reception with other
-applications. Nevertheless, please be aware of the potential security risk if
-someone unintended has your public key and can send malicious files to you. To
-add an extra layer of safety, you can use the `--sender` option [described
-earlier](#choosing-the-sender) to filter digitally signed messages from a
-selected sender only.
+Due to security reasons, this option requires two safety layers:
 
-In any case, avoid unsafe commands within the `--exec` option and **use at your
-own risk**.
+- **Encryption**: it only runs the specified command for successfully decrypted
+  messages.
+
+- **Digital signature**: it requires digitally signed messages signed by a
+  specific [sender of choice](#choosing-the-sender) and verified.
+
+The encryption requirement guarantees that the `--exec` command only gets
+executed for files explicitly addressed to your node. In other words, the
+command applies to messages sent by someone who has your public key and
+encrypted specifically to your node as the
+[recipient](#choosing-the-recipient). Meanwhile, the digital signature
+guarantees that the sender is a selected (trustworthy) source and not an
+unintended one (e.g., a malicious user who has your public key).
+
+If you don't want to specify the sender, you can still run the command with
+option `--insecure`, as follows:
+
+```
+blocksat-cli api listen --exec 'cat {}' --insecure
+```
+
+In this case, make sure to **avoid unsafe commands** and **use at your own
+risk**.
 
