@@ -114,11 +114,12 @@ class Gpg():
 
         return self.gpg.decrypt(data, passphrase = self.passphrase)
 
-    def sign(self, data, keyid):
+    def sign(self, data, keyid, clearsign=True):
         """Sign a given data array"""
         return self.gpg.sign(
             data,
             keyid = keyid,
+            clearsign = clearsign,
             passphrase = self.passphrase
         )
 

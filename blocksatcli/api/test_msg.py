@@ -306,6 +306,10 @@ class TestApi(unittest.TestCase):
         self.assertTrue(rx_msg2.verify(gpg, signer))
         self.assertFalse(rx_msg3.verify(gpg, signer))
 
+        # The verifiction step should remove the signature and leave the
+        # original data only
+        self.assertEqual(rx_msg2.data['original'], data)
+
         self._teardown_gpg()
 
     def test_fec_encoding_decoding(self):

@@ -109,9 +109,7 @@ def send(args):
 
     msg = ApiMsg(data, filename=basename)
 
-    # If transmitting a plaintext message, it could still be
-    # clearsigned. However, in this case, the signature is not removed from the
-    # message on the Rx end. It will be part of the message.
+    # If transmitting a plaintext message, it could still be clearsigned.
     if (args.plaintext and args.sign):
         if (args.sign_key):
             # Make sure the key exists
@@ -380,8 +378,9 @@ def listen(args):
             if (args.sender and not msg.verify(gpg, args.sender)):
                 continue
 
-            logger.info("Size: {:7d} bytes\tSaving in plaintext".format(
-                msg.get_length()))
+            logger.info("Message Size: {:d} bytes\tSaving in plaintext".format(
+                msg.get_length(target='original')))
+
         else:
             # Cast data into ApiMsg object in encrypted form
             msg = ApiMsg(data, msg_format="encrypted")

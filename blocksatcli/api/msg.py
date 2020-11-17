@@ -305,7 +305,10 @@ class ApiMsg:
         """Verify signed (but non-encrypted) message from target signer
 
         Detects whether the clearsigned plaintext messages comes from the
-        specified signer.
+        specified signer. In the positive case, overwrite the "original" data
+        container with the underlying data, excluding the signature. In other
+        words, if the verification is succesful, remove the signature and leave
+        the data only.
 
         Args:
             gpg    : Gpg object.
@@ -341,6 +344,17 @@ class ApiMsg:
         if (verif_obj.trust_level < verif_obj.TRUST_FULLY):
             logger.warning("Dropping message - signature unverified")
             return False
+
+        # The signature has been verified. However, verif_obj does not return
+        # the original data. In this case, gpg.decrypt() can be used to get the
+        # original data, even though this is not strictly a decryption. In this
+        # case, decrypted_data.ok returns false, but the data becomes available
+        # on decrypted_data.data (although with a '\n' in the end).
+        decrypted_data = gpg.decrypt(self.data['original'])
+        assert(verif_obj.fingerprint == decrypted_data.fingerprint)
+        assert(verif_obj.trust_level == decrypted_data.trust_level)
+        assert(decrypted_data.data[-1] == ord('\n'))
+        self.data['original'] = decrypted_data.data[:-1]
 
         return True
 
@@ -467,7 +481,7 @@ class ApiMsg:
         f.write(data)
         f.close()
 
-        logger.info("Saved in {}.".format(dst_file))
+        logger.info("Saved at {}.".format(dst_file))
         return dst_file
 
     def serialize(self, target='original'):
