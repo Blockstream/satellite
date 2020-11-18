@@ -55,18 +55,24 @@ def config(args):
     gpg.create_keys(name, email, comment)
 
     # Import Blockstream's public key
-    key_server    = 'keys.openpgp.org'
-    import_result = gpg.gpg.recv_keys(key_server, blocksat_pubkey)
+    #
+    # NOTE: the order is important here. Add Blockstream's public key only after
+    # adding the user key. With that, the user key becomes the first key on the
+    # keyring, which is used by default.
+    pkg_dir  = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    key_path = os.path.join(pkg_dir, 'gpg', blocksat_pubkey + ".gpg")
+
+    with open(key_path) as fd:
+        key_data = fd.read()
+
+    import_result = gpg.gpg.import_keys(key_data)
 
     if (len(import_result.fingerprints) == 0):
         logger.warning("Failed to import key {}".format(blocksat_pubkey))
         return
 
-    # Note: the order is important here. Add Blockstream's public key only after
-    # adding the user's key. With that, the user's key becomes the first key,
-    # which is used by default.
-    logger.info("Imported key {} from {}".format(
-        import_result.fingerprints[0], key_server
+    logger.info("Imported key {}".format(
+        import_result.fingerprints[0]
     ))
 
     gpg.gpg.trust_keys(blocksat_pubkey, 'TRUST_ULTIMATE')

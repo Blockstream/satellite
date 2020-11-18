@@ -42,7 +42,7 @@ setup(
         'pysnmp'
     ],
     package_data={
-        'blocksatcli' : ['mib/*.mib', 'mib/*.txt']
+        'blocksatcli' : ['mib/*.mib', 'mib/*.txt', 'gpg/*.gpg']
     },
     classifiers=[
         'Programming Language :: Python :: 3',
