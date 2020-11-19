@@ -429,6 +429,9 @@ def listen(args):
         if (args.gossip):
             cmd = [historian_cli, 'snapshot', 'load',
                    shlex.quote(download_path)]
+            if (args.historian_destination is not None):
+                cmd.append(args.historian_destination)
+
             logger.debug("Exec:\n> {}".format(" ".join(cmd)))
             subprocess.run(cmd)
 
@@ -784,6 +787,16 @@ def subparser(subparsers):
         default=None,
         help="Path to the historian-cli application. If not set, look for "
         "historian-cli globally"
+    )
+    p3.add_argument(
+        '--historian-destination',
+        default=None,
+        help="Destination for gossip snapshots, formatted as "
+        "[nodeid]@[ipaddress]:[port]. If not set, historian-cli attempts to "
+        "discover the destination automatically. This parameter is provided as "
+        "a positional argument of command \'historian-cli snapshot load\', "
+        "which is called for each downloaded file in gossip mode (i.e., when "
+        "argument --gossip is set)."
     )
     p3.add_argument(
         '-r',
