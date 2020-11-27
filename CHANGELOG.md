@@ -1,6 +1,6 @@
 # Changelog
 
-## [2.3.0] - 2020-11-16
+## [2.3.0] - 2020-12-10
 ### Added
 - Integrate API apps into the CLI. Support API message transmission, reception,
   and the demo-rx app directly from `blocksat-cli` commands (`api send`, `api
@@ -48,6 +48,8 @@
   exclusive with the pre-existing `--modcod` option.
 - Support for the reception of Lightning gossip snapshots transported via the
   satellite API.
+- Support specification of USB DVB-S2 adapter by model name on `blocksat-cli
+  usb` command.
 
 
 ### Changed

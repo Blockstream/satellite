@@ -56,28 +56,20 @@ def _find_v4l_lnb(info):
     return options[0]
 
 
-def _find_adapter(list_only=False):
+def _find_adapter(list_only=False, target_model=None):
     """Find the DVB adapter
 
     Returns:
         Tuple with (adapter index, frontend index)
 
     """
-    util._print_header("Find DVB Adapter")
-    ps     = subprocess.Popen("dmesg", stdout=subprocess.PIPE)
-    try:
-        output = subprocess.check_output(["grep", "frontend"], stdin=ps.stdout,
-                                         stderr=subprocess.STDOUT)
-    except subprocess.CalledProcessError as grepexc:
-        if (grepexc.returncode == 1):
-            output = ""
-            pass
-    ps.wait()
+    if (target_model is None):
+        util._print_header("Find DVB Adapter")
 
     # Search a range of adapters. There is no command to list all adapters, so
     # we try to list each one individually using `dvbnet -a adapter_no -l`.
     adapters = list()
-    for a in range(0,10):
+    for a in range(0, 10):
         cmd     = ["dvbnet", "-a", str(a), "-l"]
         logger.debug("> " + " ".join(cmd))
 
@@ -104,9 +96,20 @@ def _find_adapter(list_only=False):
 
     # If nothing was obtained using dvbnet, try to inspect dmesg logs
     if (len(adapters) == 0):
-        lines       = output.splitlines()
-        adapter_set = set() # use set to filter unique values
-        adapters    = list()
+        ps = subprocess.Popen("dmesg", stdout=subprocess.PIPE)
+        try:
+            output = subprocess.check_output(["grep", "frontend"],
+                                             stdin=ps.stdout,
+                                             stderr=subprocess.STDOUT)
+        except subprocess.CalledProcessError as grepexc:
+            if (grepexc.returncode == 1):
+                output = ""
+                pass
+        ps.wait()
+
+        lines = output.splitlines()
+        adapter_set = set()  # use set to filter unique values
+        adapters = list()
         for line in lines:
             linesplit = line.decode().split()
             if ("adapter" not in linesplit):
@@ -144,23 +147,35 @@ def _find_adapter(list_only=False):
     assert(len(dvb_s2_adapters) > 0), "No DVB-S2 adapters found"
 
     chosen_adapter = None
-    for adapter in dvb_s2_adapters:
-        print("Found DVB-S2 adapter: %s %s" %(adapter["vendor"],
-                                              adapter["model"]))
-
-        if (not list_only):
-            if (len(dvb_s2_adapters) == 1 or
-                util._ask_yes_or_no("Choose adapter?")):
+    if (target_model is not None):
+        # Search without prompting
+        for adapter in dvb_s2_adapters:
+            if (adapter["model"] == target_model):
                 chosen_adapter = adapter
-                logger.debug("Chosen adapter:")
-                logger.debug(pformat(adapter))
                 break
+    else:
+        # Prompt the user
+        for adapter in dvb_s2_adapters:
+            print("Found DVB-S2 adapter: %s %s" %(adapter["vendor"],
+                                                  adapter["model"]))
+
+            if (not list_only):
+                if (len(dvb_s2_adapters) == 1 or
+                    util._ask_yes_or_no("Choose adapter?")):
+                    chosen_adapter = adapter
+                    logger.debug("Chosen adapter:")
+                    logger.debug(pformat(adapter))
+                    break
 
     if (list_only):
         return
 
     if (chosen_adapter is None):
-        raise ValueError("Please choose DVB-S2 adapter")
+        if (target_model is None):
+            err_msg = "Please choose a DVB-S2 adapter"
+        else:
+            err_msg = "Please choose a valid DVB-S2 adapter"
+        raise ValueError(err_msg)
 
     return chosen_adapter["adapter"], chosen_adapter["frontend"]
 
@@ -422,7 +437,7 @@ def subparser(subparsers):
     # Common parameters
     p.add_argument('-a', '--adapter',
                    default=None,
-                   help='DVB-S2 adapter number')
+                   help='DVB-S2 adapter number or model')
 
     p.add_argument('-f', '--frontend',
                    default=None,
@@ -505,9 +520,6 @@ def subparser(subparsers):
                                   description="Remove DVB-S2 adapter",
                                   help='Remove DVB-S2 adapter',
                                   formatter_class=ArgumentDefaultsHelpFormatter)
-    p4.add_argument('-a', '--adapter',
-                           default=None,
-                           help='DVB-S2 adapter number')
     p4.set_defaults(func=rm_subcommand)
 
     return p
@@ -528,10 +540,16 @@ def _common(args):
     if (args.adapter is None):
         adapter, frontend = _find_adapter()
     else:
-        if (args.frontend is None):
-            raise ValueError("argument --adapter requires --frontend.")
-        adapter  = args.adapter
-        frontend = args.frontend
+        if (args.adapter.isdigit()):
+            # Assume argument --adapter has the adapter number. In this case,
+            # --frontend is also required.
+            if (args.frontend is None):
+                raise ValueError("argument --adapter requires --frontend.")
+            adapter  = args.adapter
+            frontend = args.frontend
+        else:
+            # Assume argument --adapter has the target model
+            adapter, frontend = _find_adapter(target_model=args.adapter)
 
     return user_info, adapter, frontend
 
@@ -747,9 +765,12 @@ def rm_subcommand(args):
 
     # Find adapter
     if (args.adapter is None):
-        adapter, frontend = _find_adapter()
+        adapter, _ = _find_adapter()
     else:
-        adapter = args.adapter
+        # If argument --adapter holds a digit-only string, assume it refers to
+        # the adapter number. Otherwise, assume it refers to the target model.
+        adapter = args.adapter if args.adapter.isdigit() else \
+            _find_adapter(target_model=args.adapter)[0]
 
     interfaces     = _find_dvbnet_interfaces(adapter)
     chosen_devices = list()
