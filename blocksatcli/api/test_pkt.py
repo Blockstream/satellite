@@ -112,6 +112,45 @@ class TestOrder(unittest.TestCase):
         with self.assertRaises(RuntimeError):
             rx_handler.concat(seq_num)
 
+    def test_repeated_fragment(self):
+        """Test processing of repeated fragment"""
+        # Random data
+        data = self._rnd_string(n_bytes = 10000)
+
+        # Distribute data into packets
+        seq_num = 1
+        tx_handler = pkt.BlocksatPktHandler()
+        tx_handler.split(data, seq_num)
+
+        # Feed the same fragment twice to the Rx handler
+        rx_handler = pkt.BlocksatPktHandler()
+        packets = tx_handler.get_frags(seq_num)
+
+        # First time:
+        data_ready1 = rx_handler.append(packets[0])
+        concat1 = rx_handler.concat(seq_num, force=True)
+        self.assertFalse(data_ready1)
+
+        # Second time:
+        data_ready2 = rx_handler.append(packets[0])
+        concat2 = rx_handler.concat(seq_num, force=True)
+        self.assertFalse(data_ready2)
+
+        # The concatenated data should remain the same before and after feeding
+        # the same packet for the second time.
+        self.assertEqual(concat1, concat2)
+
+        # Feed a different packet but whose fragment number is the same as the
+        # one fed before. A warning should be printed in this case and the
+        # fragment should not be processed.
+        tampered_pkt = packets[1]
+        tampered_pkt.frag_num = 0
+        with self.assertLogs(level='WARNING'):
+            data_ready3 = rx_handler.append(tampered_pkt)
+        concat3 = rx_handler.concat(seq_num, force=True)
+        self.assertFalse(data_ready3)
+        self.assertEqual(concat1, concat3)
+
     def test_ota_msg_len(self):
         """Test over-the-air message length computation"""
         # Random data

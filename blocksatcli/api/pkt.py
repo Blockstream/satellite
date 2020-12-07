@@ -193,6 +193,21 @@ class BlocksatPktHandler:
             }
             self.frag_map[pkt.seq_num]['frags'] = {}
 
+        # Do not process a repeated fragment
+        if (pkt.frag_num in self.frag_map[pkt.seq_num]['frags']):
+            logger.debug("BlocksatPktHandler: fragment {} has already "
+                         "been received".format(pkt.frag_num))
+            # Check if the repeated fragment actually has the same contents
+            pre_existing_pkt = self.frag_map[pkt.seq_num]['frags'][pkt.frag_num]
+            if (pkt.payload != pre_existing_pkt.payload):
+                logger.warning(
+                    "Got the same fragment twice but with different contents "
+                    "(frag_num: {}, seq_num: {})".format(
+                        pkt.frag_num, pkt.seq_num
+                    )
+                )
+            return self._check_ready(pkt.seq_num)
+
         self.frag_map[pkt.seq_num]['frags'][pkt.frag_num] = pkt
 
         # Timestamp the last fragment reception of this sequence number. Use
