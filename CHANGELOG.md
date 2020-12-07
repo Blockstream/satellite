@@ -64,6 +64,8 @@
 - The log analyzer (plotting) script for compatibility with the new standard
   logging format.
 - Antenna pointing documentation in compliance with the new logging format.
+- The bid suggested for API transmissions. Following the update on API pricing,
+  the suggested bid is now 1 msat/byte.
 
 
 ### Removed

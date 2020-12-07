@@ -4,6 +4,7 @@ from .. import util
 
 
 logger = logging.getLogger(__name__)
+min_bid_per_byte = 1
 
 
 def ask_bid(data_size, prev_bid=None):
@@ -24,7 +25,7 @@ def ask_bid(data_size, prev_bid=None):
         suggested_ratio = 1.05 * prev_ratio
         min_bid         = int(ceil(data_size * suggested_ratio))
     else:
-        min_bid = data_size * 50
+        min_bid = data_size * min_bid_per_byte
 
     print("")
     msg = "Your {}bid to transmit {:d} bytes (in millisatoshis)".format(

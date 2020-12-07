@@ -83,12 +83,13 @@ blocksat-cli api send -f [file]
 where `[file]` should be replaced with the path to the file.
 
 The application asks for the bid in [millisatoshis
-(msats)](https://en.bitcoin.it/wiki/Units) and suggests the minimum bid, which
-corresponds to 50 msats per byte used to transmit the message. After confirming
-the bid, get the *Lightning Invoice Number* printed on the console or the QR
-code and pay it using Bitcoin Lightning (refer to the list of [Lightning wallet
-apps](#lightning-wallets)). Once the payment is confirmed, the transmission will
-start as soon as the [transmission
+(msats)](https://en.bitcoin.it/wiki/Units) and suggests the minimum acceptable
+bid, namely a bid corresponding to 1 msat per byte used to transmit the message.
+
+After confirming the bid, get the *Lightning Invoice Number* printed on the
+console or the QR code and pay it using Bitcoin Lightning (refer to the list of
+[Lightning wallet apps](#lightning-wallets)). Once the payment is confirmed, the
+transmission will start as soon as the [transmission
 queue](https://blockstream.com/satellite-queue/) serves your message.
 
 By default, the above commands encrypt your message or file using the GPG key
@@ -230,18 +231,23 @@ blocksat-cli api listen --demo
 
 ### Lightning Wallets
 
-Here are some options of handy Lightning Wallets that can be used to pay for API
+Here are some options of Lightning Wallets that can be used to pay for API
 transmissions:
 
 - [Bluewallet (iOS and Android)](https://bluewallet.io/lightning/)
-- [Zap (iOS, Android, Windows, Mac, and Linux)](https://zaphq.io)
 - [Breez (iOS and Android - in Beta)](https://breez.technology)
+- [Zap (iOS, Android, Windows, Mac, and Linux)](https://zaphq.io)
 
 You can also set up a [Lightning
 node](https://github.com/ElementsProject/lightning#starting-lightningd) and use
 the
 [lightning-cli](https://github.com/ElementsProject/lightning#sending-and-receiving-payments)
 to handle payments.
+
+> NOTE: some mobile Lightning wallet apps (such as Bluewallet and Breez) do not
+> support Lightning payments below 1 sat (or, equivalently, 1000 msats). If you
+> would like to pay for API transmissions below 1000 msats, you can do so using
+> `lightning-cli`.
 
 ### Plaintext Mode
 
