@@ -445,7 +445,11 @@ def bump(args):
     order.get(args.uuid, args.auth_token)
 
     # Bump bid
-    res = order.bump(args.bid)
+    try:
+        res = order.bump(args.bid)
+    except ValueError as e:
+        logger.error(e)
+        return
 
     # Print QR code
     qr = qrcode.QRCode()
@@ -821,11 +825,13 @@ def subparser(subparsers):
         help="New bid (in millisatoshis) for the message transmission"
     )
     p4.add_argument(
+        '-u',
         '--uuid',
         default=None,
         help="API order's universally unique identifier (UUID)"
     )
     p4.add_argument(
+        '-a',
         '--auth-token',
         default=None,
         help="API order's authentication token"
@@ -841,11 +847,13 @@ def subparser(subparsers):
         formatter_class=ArgumentDefaultsHelpFormatter
     )
     p5.add_argument(
+        '-u',
         '--uuid',
         default=None,
         help="API order's universally unique identifier (UUID)"
     )
     p5.add_argument(
+        '-a',
         '--auth-token',
         default=None,
         help="API order's authentication token"

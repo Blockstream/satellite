@@ -320,8 +320,9 @@ class ApiOrder:
             self.order["status"] == "received"):
             raise ValueError("Cannot bump order - already transmitted")
 
-        if (self.order["status"] == "cancelled"):
-            raise ValueError("Order already cancelled")
+        if (self.order["status"] == "cancelled" or
+            self.order["status"] == "expired"):
+            raise ValueError("Order already {}".format(self.order["status"]))
 
         if (self.order["unpaid_bid"] > 0):
             unpaid_bid_msg = "(%d msat paid, %d msat unpaid)" %(

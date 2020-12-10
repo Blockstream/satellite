@@ -85,6 +85,6 @@ class TestOrder(unittest.TestCase):
         res = self.order.delete()
         self.assertEqual(res['message'], "order cancelled")
 
-        # It shold work to wait for state "cancelled"
+        # It should work to wait for state "cancelled"
         self.assertTrue(self.order.wait_state("cancelled", timeout=1))
 
