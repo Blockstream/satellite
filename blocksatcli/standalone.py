@@ -1,5 +1,5 @@
 """Standalone Receiver"""
-import logging, os, time
+import logging, os, time, ipaddress
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 from . import rp, firewall, defs, config, dependencies, util, monitoring
 from pysnmp.hlapi import *
@@ -17,6 +17,7 @@ class SnmpClient():
             mib     : Target SNMP MIB
 
         """
+        assert(ipaddress.ip_address(address))  # parse address
         self.address = address
         self.port    = port
         self.mib     = mib
@@ -68,9 +69,9 @@ class SnmpClient():
         )
 
         if errorIndication:
-            print(errorIndication)
+            logger.error(errorIndication)
         elif errorStatus:
-            print('%s at %s' % (
+            logger.error('%s at %s' % (
                 errorStatus.prettyPrint(),
                 errorIndex and varBinds[int(errorIndex) - 1][0] or '?')
             )
@@ -99,15 +100,15 @@ class SnmpClient():
         )
 
         if errorIndication:
-            print(errorIndication)
+            logger.error(errorIndication)
         elif errorStatus:
-            print('%s at %s' % (
+            logger.error('%s at %s' % (
                 errorStatus.prettyPrint(),
                 errorIndex and varBinds[int(errorIndex) - 1][0] or '?')
             )
         else:
             for varBind in varBinds:
-                print(' = '.join([x.prettyPrint() for x in varBind]))
+                logger.debug(' = '.join([x.prettyPrint() for x in varBind]))
 
 
 class S400Client(SnmpClient):
@@ -162,7 +163,13 @@ class S400Client(SnmpClient):
         return stats
 
     def print_demod_config(self):
-        """Get demodulator configurations via SNMP"""
+        """Get demodulator configurations via SNMP
+
+        Returns:
+            Bool indicating whether the demodulator configurations were printed
+            successfully.
+
+        """
         res = self._get(
             's400FirmwareVersion',
             # Demodulator
@@ -182,6 +189,9 @@ class S400Client(SnmpClient):
             ('s400MpePid1RowStatus', 0),
             ('s400MpePid1RowStatus', 1)
         )
+
+        if (res is None):
+            return False
 
         # Form dictionary with the S400 configs
         cfg = {}
@@ -229,6 +239,7 @@ class S400Client(SnmpClient):
                     else:
                         val = cfg[key]
                     print("- {}: {}".format(label, val))
+        return True
 
 
 def subparser(subparsers):
@@ -307,7 +318,11 @@ def monitor(args):
     s400 = S400Client(args.demod, args.address, args.port, mib='NOVRA-s400-MIB')
 
     util._print_header("Novra S400 Receiver")
-    s400.print_demod_config()
+
+    if (not s400.print_demod_config()):
+        logger.error("s400 receiver at {}:{} is unreachable".format(
+            s400.address, s400.port))
+        return
 
     # Log Monitoring
     monitor = monitoring.Monitor(
