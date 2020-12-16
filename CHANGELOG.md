@@ -50,6 +50,7 @@
   satellite API.
 - Support specification of USB DVB-S2 adapter by model name on `blocksat-cli
   usb` command.
+- Support for non-interactive dvbnet interface removal.
 
 
 ### Changed

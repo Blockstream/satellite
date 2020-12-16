@@ -520,6 +520,10 @@ def subparser(subparsers):
                                   description="Remove DVB-S2 adapter",
                                   help='Remove DVB-S2 adapter',
                                   formatter_class=ArgumentDefaultsHelpFormatter)
+    p4.add_argument('--all', default=False,
+                    action='store_true',
+                    help='Remove all dvbnet interfaces associated with the '
+                    'adapter')
     p4.set_defaults(func=rm_subcommand)
 
     return p
@@ -776,25 +780,31 @@ def rm_subcommand(args):
     chosen_devices = list()
 
     if (len(interfaces) > 1):
-        print("Choose net device to remove:")
-        for i_dev, interface in enumerate(interfaces):
-            print("[%2u] %s" %(i_dev, interface['name']))
-        print("[ *] all")
+        if (args.all):
+            for interface in interfaces:
+                chosen_devices.append(interface['name'])
+        else:
+            print("Choose net device to remove:")
+            for i_dev, interface in enumerate(interfaces):
+                print("[%2u] %s" %(i_dev, interface['name']))
+            print("[ *] all")
 
-        try:
-            choice = input("Choose number: ")
-            if (choice == "*"):
-                i_chosen_devices = range(0, len(interfaces))
-            else:
-                i_chosen_devices = [int(choice)]
-        except ValueError:
-            raise ValueError("Please choose a number or \"*\" for all devices")
+            try:
+                choice = input("Choose number: ")
+                if (choice == "*"):
+                    i_chosen_devices = range(0, len(interfaces))
+                else:
+                    i_chosen_devices = [int(choice)]
+            except ValueError:
+                raise ValueError(
+                    "Please choose a number or \"*\" for all devices"
+                )
 
-        for i_chosen_dev in i_chosen_devices:
-            if (i_chosen_dev > len(interfaces)):
-                raise ValueError("Invalid number")
+            for i_chosen_dev in i_chosen_devices:
+                if (i_chosen_dev > len(interfaces)):
+                    raise ValueError("Invalid number")
 
-            chosen_devices.append(interfaces[i_chosen_dev]['name'])
+                chosen_devices.append(interfaces[i_chosen_dev]['name'])
 
     elif (len(interfaces) == 0):
         print("No DVB network interfaces to remove")
@@ -804,10 +814,6 @@ def rm_subcommand(args):
         chosen_devices.append(interfaces[0]['name'])
 
     for chosen_dev in chosen_devices:
-        if (not util._ask_yes_or_no("Remove interface %s?" %(chosen_dev))):
-            print("Aborting...")
-            return
-
         _rm_dvbnet_interface(adapter, chosen_dev)
 
 
