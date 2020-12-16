@@ -305,8 +305,10 @@ def _cfg_lnb(sat, setup):
             "Are you reusing an LNB that is already pointed and that was used "
             "for the previous version of Blockstream Satellite (before the "
             "upgrade to DVB-S2)?",
-        help_msg="NOTE: this information is helpful to determine the "
-            "polarization required for the LNB.")
+            default='n',
+            help_msg="NOTE: this information is helpful to determine the "
+            "polarization required for the LNB."
+        )
 
         if (prev_setup):
             question = ("In this setup, did you use one of the LNB power "
