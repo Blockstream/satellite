@@ -83,3 +83,5 @@
   `--inpipe`.
 - Excessively large `bufsize` used on `recvfrom` call to receive packets via UDP
   socket on the API listener app.
+- Dependency on package `perl-File-Copy-Recursive`, which was missing for the
+  TBS driver build on fc33.

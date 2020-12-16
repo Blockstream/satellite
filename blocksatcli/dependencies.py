@@ -399,8 +399,9 @@ def drivers(args):
                      "libproc-processtable-perl",
                      linux_headers]
     dnf_pkg_list   = ["make", "gcc", "git", "patch", "patchutils",
-                     "perl-Proc-ProcessTable", "perl-Digest-SHA",
-                      kernel_devel, kernel_headers]
+                      "perl-Proc-ProcessTable", "perl-Digest-SHA",
+                      "perl-File-Copy-Recursive", kernel_devel,
+                      kernel_headers]
     yum_pkg_list   =  dnf_pkg_list
 
     # On dnf, not always the kernel-devel/headers package will be available for
