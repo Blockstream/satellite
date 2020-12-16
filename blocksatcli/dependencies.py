@@ -5,6 +5,7 @@ import sys, os, subprocess, logging, glob, json
 from shutil import which
 from pprint import pformat
 import platform, distro, requests
+from distutils.version import LooseVersion
 logger = logging.getLogger(__name__)
 
 
@@ -441,7 +442,9 @@ def drivers(args):
                 sys.exit(1)
                 return
         else:
-            logger.warning("Could not find an available kernel update")
+            logger.error("Could not find an available kernel update")
+            sys.exit(1)
+            return
 
     _update_pkg_repo(interactive, args.dry_run)
     _install_packages(apt_pkg_list, dnf_pkg_list, yum_pkg_list,
@@ -478,8 +481,11 @@ def drivers(args):
     runner.run(["make", "allyesconfig"], cwd = media_build_dir)
 
     # FIXME: Temporary workaround for error "modpost: "__devm_regmap_init_sccb"
-    # ov9650.ko undefined!": disable ov9650 from the build.
-    if (distro.id() == "fedora"):
+    # ov9650.ko undefined!": disable ov9650 from the build. The problem was
+    # observed on kernel versions 5.3.7 and 5.7.7. Apply the workaround for any
+    # version < 5.8.
+    if (distro.id() == "fedora" and
+        LooseVersion(linux_release) < LooseVersion('5.8')):
         runner.run(["sed", "-i",
                     "s/CONFIG_VIDEO_OV9650=m/CONFIG_VIDEO_OV9650=n/g",
                     "v4l/.config"], cwd = media_build_dir)
