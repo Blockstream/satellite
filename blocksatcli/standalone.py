@@ -314,6 +314,9 @@ def cfg_standalone(args):
 def monitor(args):
     """Monitor the standalone DVB-S2 receiver"""
 
+    # User info
+    user_info = config.read_cfg_file(args.cfg, args.cfg_dir)
+
     # Client to the S400's SNMP agent
     s400 = S400Client(args.demod, args.address, args.port, mib='NOVRA-s400-MIB')
 
@@ -335,7 +338,7 @@ def monitor(args):
         report = args.report,
         report_opts = {
             'dest'     : args.report_dest,
-            'region'   : args.report_sat,
+            'region'   : user_info['sat']['alias'],
             'hostname' : args.report_hostname,
             'tls_cert' : args.report_cert,
             'tls_key'  : args.report_key

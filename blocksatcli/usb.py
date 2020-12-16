@@ -698,7 +698,7 @@ def launch(args):
         report = args.report,
         report_opts = {
             'dest'     : args.report_dest,
-            'region'   : args.report_sat,
+            'region'   : user_info['sat']['alias'],
             'hostname' : args.report_hostname,
             'tls_cert' : args.report_cert,
             'tls_key'  : args.report_key

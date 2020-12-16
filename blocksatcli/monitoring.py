@@ -53,6 +53,10 @@ class Reporter():
         }
         data.update(metrics)
 
+        logger.debug("Report {} to {}".format(
+            data, self.dest_addr
+        ))
+
         try:
             r = requests.post(self.dest_addr, data = data,
                               cert = (self.tls_cert, self.tls_key))
@@ -308,11 +312,6 @@ def add_to_parser(parser):
     r_p.add_argument(
         '--report-dest',
         help='Destination address in http://ip:port format'
-    )
-    r_p.add_argument(
-        '--report-sat',
-        choices=[x['alias'].replace(' ', '-') for x in defs.satellites],
-        help='Satellite covering the receiver to be reported'
     )
     r_p.add_argument(
         '--report-hostname',

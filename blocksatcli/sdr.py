@@ -53,7 +53,7 @@ rx_stat_map = {
 }
 
 
-def _monitor_demod_info(info_pipe, args):
+def _monitor_demod_info(info_pipe, args, sat_name):
     """Monitor leandvb's demodulator information
 
     Continuously reads the demodulator information printed by leandvb into the
@@ -63,6 +63,7 @@ def _monitor_demod_info(info_pipe, args):
         info_pipe : Pipe object pointing to the pipe file that is used as
                     leandvb's --fd-info descriptor
         args      : SDR parser arguments
+        sat_name  : Satellite name
 
     """
     assert(isinstance(info_pipe, util.Pipe))
@@ -95,7 +96,7 @@ def _monitor_demod_info(info_pipe, args):
         report = args.report,
         report_opts = {
             'dest'     : args.report_dest,
-            'region'   : args.report_sat,
+            'region'   : sat_name,
             'hostname' : args.report_hostname,
             'tls_cert' : args.report_cert,
             'tls_key'  : args.report_key
@@ -394,7 +395,7 @@ def run(args):
 
         t = threading.Thread(
             target = _monitor_demod_info,
-            args   = (info_pipe, args),
+            args   = (info_pipe, args, info['sat']['alias']),
             daemon = True
         )
         t.start()
