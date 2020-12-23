@@ -17,7 +17,8 @@ HEADER_LEN    = 8
 # Each FEC packet (chunk + metadata) should fit a single Blocksat Packet
 PKT_SIZE       = pkt.MAX_PAYLOAD
 CHUNK_SIZE     = PKT_SIZE - HEADER_LEN
-MAX_FEC_CHUNKS = 256 # per FEC object
+MAX_FEC_CHUNKS = 256  # per FEC object
+MAX_OVERHEAD   = MAX_FEC_CHUNKS - 1  # see notes in Fec.encode()
 
 
 class Fec:
@@ -137,10 +138,13 @@ class Fec:
 
         # The FEC object should contain up to 256 chunks, including the original
         # (systematic) and the overhead chunks. The original data object (to be
-        # encoded) should occupy up to "1/(1 + overhead)" chunks, whereas the
-        # overhead chunks should occupy "overhead/(1+overhead)". Based on these
-        # ratios, define the maximum size for the original data object and the
-        # required number of independent FEC objects:
+        # encoded) should occupy up to "256/(1 + overhead)" chunks, whereas the
+        # overhead chunks should occupy "(overhead * 256)/(1 + overhead)"
+        # chunks. Also, the overhead cannot be greater than 255, otherwise the
+        # original data occupies zero chunks per object.
+        assert(self.overhead <= MAX_OVERHEAD), \
+            "FEC overhead exceeds the maximum of {}".format(MAX_OVERHEAD)
+
         max_obj_size  = floor(MAX_FEC_CHUNKS / (1 + self.overhead)) * CHUNK_SIZE
         n_fec_objects = ceil(len(data) / max_obj_size)
 
