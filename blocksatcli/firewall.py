@@ -1,7 +1,11 @@
 """Configure Firewall Rules"""
 import subprocess, logging, os
 from argparse import ArgumentDefaultsHelpFormatter
-from . import util, defs
+from shutil import which
+from . import util, defs, config
+
+
+logger = logging.getLogger(__name__)
 
 
 def _get_iptables_rules(net_if):
@@ -129,8 +133,8 @@ def _add_iptables_rule(net_if, cmd):
                 print(" ".join(rule['rule']) + "\n")
 
 
-def _configure_firewall(net_if, ports, igmp=False, prompt=True):
-    """Configure firewallrules to accept blocksat traffic via DVB interface
+def _configure_iptables(net_if, ports, igmp=False, prompt=True):
+    """Configure iptables rules to accept blocksat traffic on a DVB-S2 interface
 
     Args:
         net_if : DVB network interface name
@@ -192,13 +196,109 @@ def _configure_firewall(net_if, ports, igmp=False, prompt=True):
             print("\nIGMP firewall rule cancelled")
 
 
-def configure(net_ifs, ports, igmp=False, prompt=True):
+def is_firewalld():
+    """Check if the firewall is based on firewalld"""
+    if (which('firewall-cmd') is None):
+        return False
+
+    if (which('systemctl') is None):
+        # Can't check whether firewalld is running
+        return False
+
+    res1 = subprocess.run(['systemctl', 'is-active', '--quiet', 'firewalld'])
+    res2 = subprocess.run(['systemctl', 'is-active', '--quiet', 'iptables'])
+
+    # If running (active), 'is-active' returns 0
+    if (res1.returncode == 0 and res2.returncode == 0):
+        raise ValueError(
+            "Failed to detect firewall system (firewalld or iptables)"
+        )
+
+    return (res1.returncode == 0)
+
+
+def _configure_firewalld(net_if, ports, src_ip, igmp, prompt):
+    """Configure firewalld for blocksat and IGMP traffic
+
+    Add one rich rule for blocksat traffic coming specifically from the
+    satellite of choice (corresponding to the given source IP) and another rich
+    rule (if necessary) for IGMP traffic.
+
+    NOTE: unlike the iptables configuration, the current firewalld configuration
+    disregards the network interface. The alternative to consider the interface
+    is to use firewalld zones. However, because the network interface may not be
+    dedicated to DVB-S2 traffic (e.g., when using a standalone receiver), it can
+    be undesirable to assign the interface receiving satellite traffic to a
+    dedicated zone just for blocksat. In contrast, the rich rule approach is
+    more generic and works for all types of receivers.
+
+    """
+    dry_run = os.geteuid() != 0
+    runner = util.ProcessRunner(logger, dry_run)
+
+    if len(ports) > 1:
+        portrange = "{}-{}".format(min(ports), max(ports))
+    else:
+        portrange = ports
+
+    util.fill_print(
+        "- Configure the firewall to accept Blocksat traffic arriving " +
+          "from {} towards address {} on UDP ports {}:\n".format(
+              src_ip, defs.mcast_ip, portrange)
+    )
+
+    if (not dry_run and prompt):
+        if (not util._ask_yes_or_no("Add firewalld rule?")):
+            print("\nFirewall configuration cancelled")
+            return
+
+    rich_rule = (
+        "rule "
+        "family=ipv4 "
+        "source address={} "
+        "destination address={}/32 "
+        "port port={} protocol=udp accept".format(
+            src_ip, defs.mcast_ip, portrange
+        )
+    )
+    cmd = ['firewall-cmd', '--add-rich-rule', "{}".format(rich_rule)]
+    runner.run(util.root_cmd(cmd))
+
+    if (dry_run):
+        print()
+        util.fill_print(
+            "NOTE: Add \"--permanent\" to make it persistent. In this case, "
+            "remember to reload firewalld afterwards."
+        )
+
+    # We're done, unless we also need to configure an IGMP rule
+    if (not igmp):
+        return
+
+    util.fill_print(
+        "- Allow IGMP packets. This is necessary when using a standalone "
+        "DVB-S2 receiver connected through a switch:\n"
+    )
+
+    if (not dry_run and prompt):
+        if (not util._ask_yes_or_no("Enable IGMP on the firewall?")):
+            print("\nFirewall configuration cancelled")
+            return
+
+    cmd = ['firewall-cmd', '--add-protocol=igmp']
+    runner.run(util.root_cmd(cmd))
+    print()
+
+
+def configure(net_ifs, ports, src_ip, igmp=False, prompt=True):
     """Configure firewallrules to accept blocksat traffic via DVB interface
 
     Args:
         net_ifs : List of DVB network interface names
-        ports   : ports used for blocks traffic and API traffic
+        ports   : UDP ports used by satellite traffic
+        src_ip  : Source IP to whitelist (unique to each satellite)
         igmp    : Whether or not to configure rule to accept IGMP queries
+        prompt  : Prompt user to accept configurations before executing them
 
     """
     assert(isinstance(net_ifs, list))
@@ -210,7 +310,10 @@ def configure(net_ifs, ports, igmp=False, prompt=True):
         commands on your own:\n")
 
     for i, net_if in enumerate(net_ifs):
-        _configure_firewall(net_if, ports, igmp, prompt)
+        if (is_firewalld()):
+            _configure_firewalld(net_if, ports, src_ip, igmp, prompt)
+        else:
+            _configure_iptables(net_if, ports, igmp, prompt)
 
         if (i < len(net_ifs) - 1):
             print("")
@@ -237,6 +340,12 @@ def firewall_subcommand(args):
     Handles the firewall subcommand
 
     """
-    configure([args.interface], defs.src_ports, igmp=args.standalone)
+    user_info = config.read_cfg_file(args.cfg, args.cfg_dir)
+
+    if (user_info is None):
+        return
+
+    configure([args.interface], defs.src_ports, user_info['sat']['ip'],
+              igmp=args.standalone)
 
 

@@ -608,7 +608,8 @@ def usb_config(args):
 
     # Set firewall rules
     if (not args.skip_firewall):
-        firewall.configure(net_ifs, defs.src_ports, prompt=(not args.yes))
+        firewall.configure(net_ifs, defs.src_ports, user_info['sat']['ip'],
+                           prompt=(not args.yes))
 
     # Set IP
     ip.set_ips(net_ifs, ips)

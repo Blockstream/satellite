@@ -294,6 +294,9 @@ def cfg_standalone(args):
     # User info
     user_info = config.read_cfg_file(args.cfg, args.cfg_dir)
 
+    if (user_info is None):
+        return
+
     if 'netdev' not in user_info['setup']:
         assert(args.interface is not None), \
             ("Please specify the network interface through option "
@@ -307,8 +310,8 @@ def cfg_standalone(args):
         return
 
     rp.set_filters([interface], prompt=(not args.yes))
-    firewall.configure([interface], defs.src_ports, igmp=True,
-                       prompt=(not args.yes))
+    firewall.configure([interface], defs.src_ports, user_info['sat']['ip'],
+                       igmp=True, prompt=(not args.yes))
 
 
 def monitor(args):

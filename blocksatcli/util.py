@@ -225,6 +225,19 @@ class ProcessRunner():
         self.dry      = dry
         self.last_cwd = None
 
+    def _get_cmd_str(self, orig_cmd):
+        """Generate string for command
+
+        If any argument is supposed to be quoted (i.e., has spaces), add the
+        quotes.
+
+        """
+        quoted_cmd = orig_cmd.copy()
+        for i, elem in enumerate(quoted_cmd):
+            if (" " in elem):
+                quoted_cmd[i] = "\'{}\'".format(elem)
+        return " ".join(quoted_cmd)
+
     def run(self, cmd, cwd=None, env=None, stdout=None, stderr=None,
             nocheck=False):
         assert(isinstance(cmd, list))
@@ -232,11 +245,11 @@ class ProcessRunner():
             if (cwd != self.last_cwd):
                 print("cd {}".format(cwd))
                 self.last_cwd = cwd
-            print(" ".join(cmd))
+            print(self._get_cmd_str(cmd))
             return
 
         if (self.logger is not None):
-            self.logger.debug("> " + " ".join(cmd))
+            self.logger.debug("> " + self._get_cmd_str(cmd))
 
         res = subprocess.run(cmd, cwd=cwd, env=env, stdout=stdout,
                              stderr=stderr)

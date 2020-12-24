@@ -1,6 +1,6 @@
 # Changelog
 
-## [2.3.0] - 2020-12-10
+## [2.3.0] - 2020-12-24
 ### Added
 - Integrate API apps into the CLI. Support API message transmission, reception,
   and the demo-rx app directly from `blocksat-cli` commands (`api send`, `api
@@ -51,6 +51,7 @@
 - Support specification of USB DVB-S2 adapter by model name on `blocksat-cli
   usb` command.
 - Support for non-interactive dvbnet interface removal.
+- Support for firewall configuration based on firewalld.
 
 
 ### Changed
