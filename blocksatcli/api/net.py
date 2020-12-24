@@ -117,6 +117,9 @@ class UdpSock():
                              socket.IP_TOS,
                              struct.pack('b', dscp))
 
+        # Don't loop Tx messages back to us
+        self.sock.setsockopt(socket.IPPROTO_IP, socket.IP_MULTICAST_LOOP, 0)
+
     def send(self, data):
         """Transmit UDP packet
 
