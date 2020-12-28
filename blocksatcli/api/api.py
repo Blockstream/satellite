@@ -197,10 +197,7 @@ def send(args):
         return
 
     try:
-        if (server_addr == server_map['main']):
-            target_state = ['received', 'cancelled']
-        else:
-            target_state = ['sent', 'cancelled']
+        target_state = ['sent', 'cancelled']
         order.wait_state(target_state)
     except KeyboardInterrupt:
         pass
