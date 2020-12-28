@@ -4,7 +4,7 @@
 __version__ = "0.3.0"
 
 
-import logging, os
+import logging, os, time
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 from . import defs, config, util, instructions, gqrx, bitcoin, sdr, rp, \
     firewall, standalone, usb, dependencies, update
@@ -32,6 +32,9 @@ def main():
     parser.add_argument('--cfg-dir',
                         default=default_cfg_dir,
                         help="Directory to use for configuration files")
+    parser.add_argument('--utc',
+                        action='store_true',
+                        help="Print log timestamps in UTC")
     parser.add_argument('-v', '--version', action='version',
                         version='%(prog)s {}'.format(__version__))
 
@@ -58,14 +61,16 @@ def main():
         assert(platform.system() == 'Linux'), \
             "Command {} is currently Linux-only".format(args.subcommand)
 
+    # Logging
     logging_fmt = '%(asctime)s %(levelname)-8s %(name)s %(message)s' if \
                   args.debug else '%(asctime)s %(levelname)-8s %(message)s'
-
     logging.basicConfig(
         level=logging.DEBUG if args.debug else logging.INFO,
         format=logging_fmt,
         datefmt='%Y-%m-%d %H:%M:%S'
     )
+    if (args.utc):
+        logging.Formatter.converter = time.gmtime
     logging.debug('[Debug Mode]')
 
     # Check CLI updates
