@@ -50,11 +50,11 @@ Azimuth                                        |  Elevation                     
 
 Next, visually inspect the direction to which your antenna must point. Use a
 compass or smartphone app (e.g., Satellite Pointer for
-[Android](https://play.google.com/store/apps/details?id=com.tda.satpointer&hl=pt_BR)
-and [iOS](https://apps.apple.com/br/app/satellite-pointer/id994565490)) to
-identify it. Ensure that there are no obstacles (like trees or buildings)
-between your antenna and the target area in the sky. You must have a clear line
-of sight to that area of the sky.
+[Android](https://play.google.com/store/apps/details?id=com.tda.satpointer) and
+[iOS](https://apps.apple.com/br/app/satellite-pointer/id994565490)) to identify
+it. Ensure that there are no obstacles (like trees or buildings) between your
+antenna and the target area in the sky. You must have a clear line of sight to
+that area of the sky.
 
 **IMPORTANT:** If using a compass app on a smartphone, make sure to configure
 the app to display **true north** instead of the **magnetic north**. The azimuth
