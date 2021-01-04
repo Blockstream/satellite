@@ -58,7 +58,7 @@ class Reporter():
         ))
 
         try:
-            r = requests.post(self.dest_addr, data = data,
+            r = requests.post(self.dest_addr, json=data,
                               cert = (self.tls_cert, self.tls_key))
             if (r.status_code != requests.codes.ok):
                 print(r.text)
