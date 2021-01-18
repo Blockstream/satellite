@@ -7,6 +7,8 @@ logger = logging.getLogger(__name__)
 MIN_BID_PER_BYTE = 1
 MIN_BID = 1000
 DEFAULT_BUMP_FACTOR = 1.05
+MAX_MSG_SIZE = 1050 * 1000  # maximum message size relayed by the satellite API
+MAX_BID = 10 * MIN_BID_PER_BYTE * MAX_MSG_SIZE
 
 
 def suggest_bid(data_size, prev_bid=None):
@@ -34,8 +36,8 @@ def validate_bid(bid, prev_bid=None):
     """Validate a given bid
 
     Args:
-        bid      : New bid
-        prev_bid : Previous bid, if bumping
+        bid      : New bid in msats
+        prev_bid : Previous bid in msats, used if bumping
 
     Returns:
         Bool indicating whether the bid is valid.
@@ -47,6 +49,11 @@ def validate_bid(bid, prev_bid=None):
 
     if (prev_bid is not None and bid <= prev_bid):
         print("Please provide a bid higher than the previous bid")
+        return False
+
+    if (bid > MAX_BID):
+        print("Bid too large. Are you sure you want to bid {:.2f} "
+              "sats (satoshis)?".format(bid/1e3))
         return False
 
     return True

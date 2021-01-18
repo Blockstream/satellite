@@ -55,3 +55,6 @@ class TestBidding(unittest.TestCase):
         new_bid = 1001
         prev_bid = 1000
         self.assertTrue(bidding.validate_bid(new_bid, prev_bid))
+
+        # Excessive bid
+        self.assertFalse(bidding.validate_bid(2e7))
