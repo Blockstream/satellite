@@ -333,14 +333,13 @@ class ApiOrder:
         previous_bid = self.order["bid"] + self.order["unpaid_bid"]
         tx_len       = pkt.calc_ota_msg_len(self.order["message_size"])
 
-        logger.info("Previous bid was %s msat for %s bytes %s" %(
-            previous_bid, tx_len,
-            unpaid_bid_msg))
+        logger.info("Previous bid was {:d} msat for {:d} bytes {}".format(
+            previous_bid, tx_len, unpaid_bid_msg))
 
-        logger.info("Paid bid ratio is currently %s msat/byte" %(
+        logger.info("Paid bid ratio is currently {:.2f} msat/byte".format(
             self.order["bid_per_byte"]))
-        logger.info("Total (paid + unpaid) bid ratio is currently %s msat/byte" %(
-            float(previous_bid) / tx_len))
+        logger.info("Total (paid + unpaid) bid ratio is currently {:.2f} "
+                    "msat/byte".format(float(previous_bid) / tx_len))
 
         if (bid is None):
             # Ask for new bid

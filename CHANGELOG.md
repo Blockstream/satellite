@@ -1,6 +1,6 @@
 # Changelog
 
-## [2.3.0] - 2020-12-24
+## [2.3.0] - 2021-01-18
 ### Added
 - Integrate API apps into the CLI. Support API message transmission, reception,
   and the demo-rx app directly from `blocksat-cli` commands (`api send`, `api
@@ -70,6 +70,7 @@
 - Antenna pointing documentation in compliance with the new logging format.
 - The bid suggested for API transmissions. Following the update on API pricing,
   the suggested bid is now 1 msat/byte.
+- The global minimum bid for API orders, which is now of 1000 msats.
 
 
 ### Removed

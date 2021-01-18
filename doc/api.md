@@ -84,7 +84,13 @@ where `[file]` should be replaced with the path to the file.
 
 The application asks for the bid in [millisatoshis
 (msats)](https://en.bitcoin.it/wiki/Units) and suggests the minimum acceptable
-bid, namely a bid corresponding to 1 msat per byte used to transmit the message.
+bid. To accept the suggested bid, simply press enter and continue. Otherwise, if
+you prefer to fill in the bid manually, make sure to satisfy the two
+requirements below:
+
+1. The total bid must be greater than at least 1000 msats.
+2. The ratio between the bid in msats and the number of bytes used for
+   transmission (the so-called bid/byte ratio) must be at least 1 msat/byte.
 
 After confirming the bid, get the *Lightning Invoice Number* printed on the
 console or the QR code and pay it using Bitcoin Lightning (refer to the list of
@@ -243,11 +249,6 @@ node](https://github.com/ElementsProject/lightning#starting-lightningd) and use
 the
 [lightning-cli](https://github.com/ElementsProject/lightning#sending-and-receiving-payments)
 to handle payments.
-
-> NOTE: some mobile Lightning wallet apps (such as Bluewallet and Breez) do not
-> support Lightning payments below 1 sat (or, equivalently, 1000 msats). If you
-> would like to pay for API transmissions below 1000 msats, you can do so using
-> `lightning-cli`.
 
 ### Plaintext Mode
 
