@@ -2,12 +2,10 @@
 mcast_ip        = "239.0.0.2"
 api_port        = 4433
 btc_port        = 4434
-gossip_port     = 4435
-monitor_port    = 4436
+monitor_port    = 4435
 api_dst_addr    = mcast_ip + ":" + str(api_port)
 btc_dst_addr    = mcast_ip + ":" + str(btc_port)
-gossip_dst_addr = mcast_ip + ":" + str(gossip_port)
-src_ports       = [str(api_port), str(btc_port), str(gossip_port)]
+src_ports       = [str(api_port), str(btc_port)]
 pids            = [32, 33]
 rolloff         = 0.2
 sym_rate = {

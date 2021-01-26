@@ -210,7 +210,7 @@ def listen(args):
     download_dir  = os.path.join(args.cfg_dir, "api", "downloads")
     server_addr   = server_map['gossip'] if args.gossip else \
                     _get_server_addr(args.net, args.server)
-    sock_addr     = defs.gossip_dst_addr if args.gossip else args.sock_addr
+    channel       = ApiChannel.GOSSIP.value if args.gossip else args.channel
     historian_cli = os.path.join(args.historian_path, 'historian-cli') \
                     if (args.historian_path) else 'historian-cli'
 
@@ -218,7 +218,7 @@ def listen(args):
     if (args.gossip):
         if (which(historian_cli) is None):
             logger.error("Option --gossip requires the historian-cli "
-                         "application but the latter was not found")
+                         "application but could not find it")
             logger.info("Use option --historian-path to specify the path to "
                         "historian-cli")
             raise ValueError("Could not find the historian-cli application")
@@ -226,10 +226,10 @@ def listen(args):
         if (args.plaintext):
             logger.warning("Option --gossip enables --plaintext automatically")
 
-        args.plaintext = True # NOTE: set before the --exec validation below
+        args.plaintext = True
 
-        if (args.sock_addr != defs.api_dst_addr):
-            logger.warning("Option --gossip overrides --sock-addr")
+        if (args.channel != ApiChannel.USER.value):
+            logger.warning("Option --gossip overrides --channel")
 
         if (args.server != server_map['main'] or args.net is not None):
             logger.warning("Option --gossip overrides --net and --server")
@@ -292,7 +292,7 @@ def listen(args):
         )
 
     # Open UDP socket
-    sock = net.UdpSock(sock_addr, interface)
+    sock = net.UdpSock(args.sock_addr, interface)
 
     # Handler to collect groups of Blocksat packets that form an API message
     pkt_handler = BlocksatPktHandler()
@@ -312,10 +312,8 @@ def listen(args):
         pkt.unpack(udp_payload)
 
         # Filter API channel
-        if (args.channel != ApiChannel.ALL.value and
-            pkt.chan_num != args.channel):
-            logger.debug("Packet from channel {:d} "
-                         "discarded".format(pkt.chan_num))
+        if (channel != ApiChannel.ALL.value and pkt.chan_num != channel):
+            logger.debug("Packet discarded (channel {:d})".format(pkt.chan_num))
             continue
 
         # Feed new packet into the packet handler
@@ -478,12 +476,12 @@ def demo_rx(args):
     """Demo satellite receiver"""
     server_addr = server_map['gossip'] if args.gossip else \
                   _get_server_addr(args.net, args.server)
-    sock_addr   = defs.gossip_dst_addr if args.gossip else args.dest
+    channel = ApiChannel.GOSSIP.value if args.gossip else args.channel
 
     # Argument validation and special cases
     if (args.gossip):
-        if (args.dest != defs.api_dst_addr):
-            logger.warning("Option --gossip overrides --dest")
+        if (args.channel != ApiChannel.USER.value):
+            logger.warning("Option --gossip overrides --channel")
 
         if (args.server != server_map['main'] or args.net is not None):
             logger.warning("Option --gossip overrides --net and --server")
@@ -491,11 +489,11 @@ def demo_rx(args):
     # Open one socket for each interface:
     socks = list()
     for interface in args.interface:
-        sock = net.UdpSock(sock_addr, interface, mcast_rx=False)
+        sock = net.UdpSock(args.dest, interface, mcast_rx=False)
         sock.set_mcast_tx_opts(args.ttl, args.dscp)
         socks.append(sock)
 
-    rx = DemoRx(server_addr, socks, args.bitrate, args.event, args.channel,
+    rx = DemoRx(server_addr, socks, args.bitrate, args.event, channel,
                 args.regions, args.tls_cert, args.tls_key)
     rx.run()
 
@@ -805,8 +803,8 @@ def subparser(subparsers):
         help="Configure the application to receive Lightning gossip snapshots "
         "and load them using the historian-cli application. This option "
         "overrides the following options: 1) --plaintext (enabled); 2) "
-        "--sock-addr (set to {}); and 3) --server/--net (set to {})".format(
-            defs.gossip_dst_addr, server_map['gossip'])
+        "--channel (set to {}); and 3) --server/--net (set to {})".format(
+            ApiChannel.GOSSIP.value, server_map['gossip'])
     )
     p3.add_argument(
         '--historian-path',
@@ -960,9 +958,9 @@ def subparser(subparsers):
         default=False,
         action="store_true",
         help="Configure the application to fetch and relay Lightning gossip "
-        "messages. This option overrides option --sock-addr (set to {}) and "
+        "messages. This option overrides option --channel (set to {}) and "
         "options --server/--net (set to {})".format(
-            defs.gossip_dst_addr, server_map['gossip'])
+            ApiChannel.GOSSIP.value, server_map['gossip'])
     )
     p6.set_defaults(func=demo_rx)
 
