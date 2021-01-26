@@ -1,13 +1,14 @@
 """Blocksat API"""
 import os, getpass, textwrap, logging, subprocess, shlex
-from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
+from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter, \
+    ArgumentTypeError
 import qrcode
 from shutil import which
 from .. import util, defs
 from .. import config as blocksatcli_config
 from .order import ApiOrder
 from .msg import ApiMsg
-from .pkt import BlocksatPkt, BlocksatPktHandler, calc_ota_msg_len
+from .pkt import BlocksatPkt, BlocksatPktHandler, calc_ota_msg_len, ApiChannel
 from .demorx import DemoRx
 from . import bidding, net
 from .gpg import Gpg
@@ -310,6 +311,13 @@ def listen(args):
         pkt = BlocksatPkt()
         pkt.unpack(udp_payload)
 
+        # Filter API channel
+        if (args.channel != ApiChannel.ALL.value and
+            pkt.chan_num != args.channel):
+            logger.debug("Packet from channel {:d} "
+                         "discarded".format(pkt.chan_num))
+            continue
+
         # Feed new packet into the packet handler
         all_frags_received = pkt_handler.append(pkt)
 
@@ -487,13 +495,21 @@ def demo_rx(args):
         sock.set_mcast_tx_opts(args.ttl, args.dscp)
         socks.append(sock)
 
-    rx = DemoRx(server_addr, socks, args.bitrate, args.event, args.regions,
-                args.tls_cert, args.tls_key)
+    rx = DemoRx(server_addr, socks, args.bitrate, args.event, args.channel,
+                args.regions, args.tls_cert, args.tls_key)
     rx.run()
 
 
 def subparser(subparsers):
     """Subparser for usb command"""
+    def channel_number(value):
+        ivalue = int(value)
+        if ivalue < 0 or ivalue > 255:
+            raise ArgumentTypeError(
+                "Invalid API channel number {}. "
+                "Choose number within [0, 256)".format(value))
+        return ivalue
+
     p = subparsers.add_parser(
         'api',
         description="Blockstream Satellite API",
@@ -702,6 +718,15 @@ def subparser(subparsers):
         "interface"
     )
     p3.add_argument(
+        '-c',
+        '--channel',
+        default=ApiChannel.USER.value,
+        type=channel_number,
+        help="Listen to a specific API transmission channel. If set to 0, "
+        "listen to all channels. By default, listen to user transmissions, "
+        "which are sent on channel 1"
+    )
+    p3.add_argument(
         '--save-raw',
         default=False,
         action="store_true",
@@ -888,6 +913,13 @@ def subparser(subparsers):
         multiple interfaces are provided, the same packets are sent over all \
         interfaces.",
         default=["lo"]
+    )
+    p6.add_argument(
+        '-c',
+        '--channel',
+        default=ApiChannel.USER.value,
+        type=channel_number,
+        help="Target API transmission channel"
     )
     p6.add_argument(
         '-r',

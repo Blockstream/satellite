@@ -1,15 +1,16 @@
 """Encapsulation of API messages into Blocksat Packets"""
 import logging, struct, time
+from enum import Enum
 from math import ceil
 
 
 logger             = logging.getLogger(__name__)
-HEADER_FORMAT      = '!cxHI'
+HEADER_FORMAT      = '!cBHI'
 # Header format:
 # octet 0    : Type bit on LSB, MF bit on MSB
-# octet 1    : Reserved
+# octet 1    : Channel number
 # octets 2-3 : Fragment number
-# octets 4-7 : API message's sequence number
+# octets 4-7 : Sequence number
 HEADER_LEN         = 8
 TYPE_API_DATA      = b'\x01'
 API_TYPE_LAST_FRAG = b'\x01' # Type=1 (API), MF=0
@@ -24,6 +25,15 @@ UDP_IP_HEADER      = 20 + 8
 MAX_PAYLOAD        = 1500 - (UDP_IP_HEADER + HEADER_LEN)
 
 
+class ApiChannel(Enum):
+    ALL = 0
+    USER = 1
+    CTRL = 2
+    AUTH = 3
+    GOSSIP = 4
+    BTC_SRC = 5
+
+
 class BlocksatPkt:
     """Blocksat Packet
 
@@ -34,20 +44,27 @@ class BlocksatPkt:
     convey a message. In this case, each Blocksat Packet is referred to as a
     fragment of the API message.
 
-    Each blocksat packet carries an 8-byte header and its payload, which is the
-    fragment of the API Message. The header contains the fragment number and the
-    corresponding API message sequence number. The latter can be used to
-    aggregate Blocksat Packets corresponding to the same API message.
+    Each blocksat packet carries an 8-byte header and its payload. The header
+    contains the fragment number and the corresponding API message sequence
+    number. The latter can be used to aggregate Blocksat Packets (i.e.,
+    fragments) associated with the same API message. Furthermore, the header
+    contains the so-called "channel number", which is used to support
+    multiplexing and filtering of specific API packet streams (i.e., channels).
 
-    This class implements the Blocksat Packet structure. It can generate a bytes
-    array with the full concatenated packet (header + payload). It can also do
-    the reverse, i.e., unpack the contents of a packet into header and payload.
+    This class implements the Blocksat Packet structure. It can serialize the
+    packet contents into a bytes array with the full concatenated packet (header
+    + payload). It can also execute the reverse, i.e., unpack/deserialize the
+    contents of a packet into the corresponding header and payload fields.
 
     """
-    def __init__(self, seq_num=None, frag_num=None, more_frags=None,
-                 payload=None):
+    def __init__(self, seq_num=None, frag_num=None, chan_num=None,
+                 more_frags=None, payload=None):
+        if (chan_num is not None):
+            assert(chan_num >=0 and chan_num < 256), \
+                "Channel number must be >=0 && < 256"
         self.seq_num    = seq_num
         self.frag_num   = frag_num
+        self.chan_num   = chan_num
         self.more_frags = more_frags
         self.payload    = payload
 
@@ -56,8 +73,8 @@ class BlocksatPkt:
         """
         # Assert the "more fragments" (MF) bit if this isn't the last fragment
         octet_0 = API_TYPE_MORE_FRAG if self.more_frags else API_TYPE_LAST_FRAG
-        header  = struct.pack(HEADER_FORMAT, octet_0, self.frag_num,
-                              self.seq_num)
+        header = struct.pack(HEADER_FORMAT, octet_0, self.chan_num,
+                             self.frag_num, self.seq_num)
         return header + self.payload
 
     def unpack(self, udp_payload):
@@ -78,7 +95,7 @@ class BlocksatPkt:
         self.payload = udp_payload[HEADER_LEN:]
 
         # Parse header
-        octet_0, self.frag_num, self.seq_num = struct.unpack(
+        octet_0, self.chan_num, self.frag_num, self.seq_num = struct.unpack(
             HEADER_FORMAT, header)
 
         # Sanity check
@@ -271,7 +288,7 @@ class BlocksatPktHandler:
         # Take the concatenated message directly from the cache
         return bytes(self.frag_map[seq_num]['concat'])
 
-    def split(self, data, seq_num):
+    def split(self, data, seq_num, chan_num):
         """Split data array into Blocksat Packet(s)
 
         An API message may be sent over multiple packet in case its length
@@ -280,8 +297,9 @@ class BlocksatPktHandler:
         fragment map.
 
         Args:
-            data    : Bytes object containing the API message data
-            seq_num : API Tx sequence number (`tx_seq_num` field)
+            data     : Bytes object containing the API message data
+            seq_num  : API Tx sequence number (`tx_seq_num` field)
+            chan_num : API channel number
 
         """
         assert(isinstance(data, bytes))
@@ -300,7 +318,8 @@ class BlocksatPktHandler:
             e_byte  = (i_frag + 1) * MAX_PAYLOAD # ending byte
 
             # Packetize
-            pkt = BlocksatPkt(seq_num, i_frag, more_frags, data[s_byte:e_byte])
+            pkt = BlocksatPkt(seq_num, i_frag, chan_num, more_frags,
+                              data[s_byte:e_byte])
 
             # Add to fragment map
             self.append(pkt)

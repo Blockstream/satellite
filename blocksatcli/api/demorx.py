@@ -17,7 +17,7 @@ MAX_SEQ_NUM = 2 ** 31  # Maximum transmission sequence number
 class DemoRx():
     """Demo receiver
     """
-    def __init__(self, server, socks, kbps, tx_event, regions=None,
+    def __init__(self, server, socks, kbps, tx_event, channel, regions=None,
                  tls_cert=None, tls_key=None):
         """ DemoRx Constructor
 
@@ -26,6 +26,7 @@ class DemoRx():
             socks    : Instances of UdpSock over which to send the packets
             kbps     : Target bit rate in kbps
             tx_event : SSE event to use as trigger for transmissions
+            channel  : API channel number
             regions  : Regions covered by the transmission (for Tx confirmation)
             tls_key  : API client key (for Tx confirmation)
             tls_cer  : API client certificate (for Tx confirmation)
@@ -41,6 +42,7 @@ class DemoRx():
         self.socks    = socks
         self.kbps     = kbps
         self.tx_event = tx_event
+        self.channel  = channel
         self.regions  = regions
         self.tls_cert = tls_cert
         self.tls_key  = tls_key
@@ -138,7 +140,7 @@ class DemoRx():
 
             # Split API message data into Blocksat packet(s)
             tx_handler = BlocksatPktHandler()
-            tx_handler.split(data, next_seq_num)
+            tx_handler.split(data, next_seq_num, self.channel)
             pkts = tx_handler.get_frags(next_seq_num)
 
             logger.debug("Transmission is going to take: "

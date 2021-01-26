@@ -1,4 +1,4 @@
-import unittest, string, random, time
+import unittest, string, random, time, struct
 from . import pkt
 
 
@@ -10,13 +10,15 @@ class TestOrder(unittest.TestCase):
 
     def test_pack_unpack(self):
         """Test packing and unpacking to/from Blocksat Packet"""
+        chan_num   = pkt.ApiChannel.USER.value
         seq_num    = 1
         frag_num   = 10
         more_frags = False
         payload    = "Hello".encode()
 
         # Packetize
-        tx_packet      = pkt.BlocksatPkt(seq_num, frag_num, more_frags, payload)
+        tx_packet = pkt.BlocksatPkt(seq_num, frag_num, chan_num, more_frags,
+                                    payload)
         tx_serial_data = tx_packet.pack()
 
         self.assertEqual(len(tx_serial_data), pkt.HEADER_LEN + len(payload))
@@ -37,9 +39,10 @@ class TestOrder(unittest.TestCase):
         data = self._rnd_string(n_bytes = 10000)
 
         # Distribute data into packets
+        chan_num = 1
         seq_num = 1
         handler = pkt.BlocksatPktHandler()
-        handler.split(data, seq_num)
+        handler.split(data, seq_num, chan_num)
 
         # The random data should exceed the length of a single Blocksat Packet
         assert(handler.get_n_frags(seq_num) > 1)
@@ -62,9 +65,10 @@ class TestOrder(unittest.TestCase):
         data = self._rnd_string(n_bytes = 10000)
 
         # Distribute data into packets
-        seq_num    = 1
+        chan_num = 1
+        seq_num = 1
         tx_handler = pkt.BlocksatPktHandler()
-        tx_handler.split(data, seq_num)
+        tx_handler.split(data, seq_num, chan_num)
 
         # Pass packets from the Tx handler to the Rx handler out-of-order.
         rx_handler = pkt.BlocksatPktHandler()
@@ -85,9 +89,10 @@ class TestOrder(unittest.TestCase):
         data = self._rnd_string(n_bytes = 10000)
 
         # Distribute data into packets
-        seq_num    = 1
+        chan_num = 1
+        seq_num = 1
         tx_handler = pkt.BlocksatPktHandler()
-        tx_handler.split(data, seq_num)
+        tx_handler.split(data, seq_num, chan_num)
 
         # Pass packets from the Tx handler to the Rx handler out-of-order and
         # drop a packet chosen randomly.
@@ -118,9 +123,10 @@ class TestOrder(unittest.TestCase):
         data = self._rnd_string(n_bytes = 10000)
 
         # Distribute data into packets
+        chan_num = 1
         seq_num = 1
         tx_handler = pkt.BlocksatPktHandler()
-        tx_handler.split(data, seq_num)
+        tx_handler.split(data, seq_num, chan_num)
 
         # Feed the same fragment twice to the Rx handler
         rx_handler = pkt.BlocksatPktHandler()
@@ -160,9 +166,10 @@ class TestOrder(unittest.TestCase):
         expected_ota_len = pkt.calc_ota_msg_len(len(data))
 
         # Distribute data into packets
-        seq_num    = 1
+        chan_num = 1
+        seq_num = 1
         tx_handler = pkt.BlocksatPktHandler()
-        tx_handler.split(data, seq_num)
+        tx_handler.split(data, seq_num, chan_num)
 
         # Compute sum of transmitted payload lengths
         pkts                = tx_handler.get_frags(seq_num)
@@ -184,8 +191,9 @@ class TestOrder(unittest.TestCase):
         handler = pkt.BlocksatPktHandler(timeout = timeout)
 
         # Distribute data into packets
+        chan_num = 1
         seq_num = 1
-        handler.split(data, seq_num)
+        handler.split(data, seq_num, chan_num)
 
         # Try to clean
         handler.clean()
@@ -203,3 +211,26 @@ class TestOrder(unittest.TestCase):
         assert(seq_num not in handler.frag_map)
         assert(handler.frag_map == {})
 
+    def test_chan_number_backwards_compatibility(self):
+        """Unpack the new header format using the previous unpacking format"""
+        chan_num   = pkt.ApiChannel.USER.value
+        seq_num    = 1
+        frag_num   = 10
+        more_frags = True
+        payload    = "Hello".encode()
+
+        # Packetize using the new implementation (new header format)
+        tx_packet = pkt.BlocksatPkt(seq_num, frag_num, chan_num, more_frags,
+                                    payload)
+        tx_serial_data = tx_packet.pack()
+
+        # Unpack using the previous header format
+        rx_header = tx_serial_data[:pkt.HEADER_LEN]
+        rx_payload = tx_serial_data[pkt.HEADER_LEN:]
+        octet_0, rx_frag_num, rx_seq_num = struct.unpack('!cxHI', rx_header)
+        rx_more_frags = bool(ord(octet_0) & ord(b'\x80'))
+
+        self.assertEqual(seq_num, rx_seq_num)
+        self.assertEqual(frag_num, rx_frag_num)
+        self.assertEqual(more_frags, rx_more_frags)
+        self.assertEqual(payload, rx_payload)

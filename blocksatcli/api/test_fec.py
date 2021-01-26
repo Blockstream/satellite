@@ -96,9 +96,10 @@ class TestFec(unittest.TestCase):
         n_pkts        = len(encoded_data) // fec.PKT_SIZE
 
         # Distribute the FEC-encoded data into BlocksatPkts
+        chan_num = 1
         seq_num = 1
         handler = pkt.BlocksatPktHandler()
-        handler.split(encoded_data, seq_num)
+        handler.split(encoded_data, seq_num, chan_num)
 
         # Each FEC packet should go in one BlocksatPkt (a.k.a. fragment)
         self.assertEqual(n_pkts, handler.get_n_frags(seq_num))
