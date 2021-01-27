@@ -223,6 +223,13 @@ def listen(args):
                         "historian-cli")
             raise ValueError("Could not find the historian-cli application")
 
+        if (args.stdout):
+            raise ValueError("Argument --gossip is not allowed with argument "
+                             "--stdout")
+        elif (args.no_save):
+            raise ValueError("Argument --gossip is not allowed with argument "
+                             "--no-save")
+
         if (args.plaintext):
             logger.warning("Option --gossip enables --plaintext automatically")
 
