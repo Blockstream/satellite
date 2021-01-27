@@ -20,6 +20,7 @@ server_map      = {
     'main'   : "https://api.blockstream.space",
     'test'   : "https://api.blockstream.space/testnet",
     'gossip' : "https://api.blockstream.space/gossip",
+    'btc-src' : "https://api.blockstream.space/btc-src"
 }
 
 
@@ -37,6 +38,20 @@ def _is_gpg_keyring_set(gnupghome):
     gpg = Gpg(gnupghome)
 
     return len(gpg.gpg.list_keys()) > 0
+
+
+def _warn_common_overrides(args):
+    """Warn options overridden by arguments --gossip and --btc-src"""
+    if (not (args.gossip or args.btc_src)):
+        return
+
+    opt = "--gossip" if args.gossip else "--btc-src"
+
+    if (args.channel != ApiChannel.USER.value):
+        logger.warning("Option {} overrides --channel".format(opt))
+
+    if (args.server != server_map['main'] or args.net is not None):
+        logger.warning("Option {} overrides --net and --server".format(opt))
 
 
 def config(args):
@@ -174,8 +189,10 @@ def send(args):
     res   = order.send(msg.get_data(), bid)
     print()
 
-    # The API servers (except the Gossip instance) return a Lightning invoice
-    if (server_addr != server_map['gossip']):
+    # The API servers (except the gossip and btc-src instances) should return a
+    # Lightning invoice for the transmission order
+    if (server_addr != server_map['gossip'] and
+        server_addr != server_map['btc-src']):
         payreq = res["lightning_invoice"]["payreq"]
 
         # Print QR code
@@ -208,9 +225,21 @@ def listen(args):
     """Listen to API messages received over satellite"""
     gnupghome     = os.path.join(args.cfg_dir, args.gnupghome)
     download_dir  = os.path.join(args.cfg_dir, "api", "downloads")
-    server_addr   = server_map['gossip'] if args.gossip else \
-                    _get_server_addr(args.net, args.server)
-    channel       = ApiChannel.GOSSIP.value if args.gossip else args.channel
+
+    # Override some options based on the mutual exclusive --gossip and --btc-src
+    # arguments, if present
+    if (args.gossip):
+        channel = ApiChannel.GOSSIP.value
+        server_addr = server_map['gossip']
+        args.plaintext = True
+    elif (args.btc_src):
+        channel = ApiChannel.BTC_SRC.value
+        server_addr = server_map['btc-src']
+        args.plaintext = True
+    else:
+        channel = args.channel
+        server_addr = _get_server_addr(args.net, args.server)
+
     historian_cli = os.path.join(args.historian_path, 'historian-cli') \
                     if (args.historian_path) else 'historian-cli'
 
@@ -230,16 +259,7 @@ def listen(args):
             raise ValueError("Argument --gossip is not allowed with argument "
                              "--no-save")
 
-        if (args.plaintext):
-            logger.warning("Option --gossip enables --plaintext automatically")
-
-        args.plaintext = True
-
-        if (args.channel != ApiChannel.USER.value):
-            logger.warning("Option --gossip overrides --channel")
-
-        if (args.server != server_map['main'] or args.net is not None):
-            logger.warning("Option --gossip overrides --net and --server")
+    _warn_common_overrides(args)  # warn args overridden by --gossip/--btc-src
 
     if (args.exec):
         # Do not support the option in plaintext mode
@@ -277,7 +297,7 @@ def listen(args):
         if (user_info['setup']['type'] == defs.sdr_setup_type):
             interface = "lo"
         elif (user_info['setup']['type'] == defs.linux_usb_setup_type):
-            interface = "dvb0_1" if args.gossip else "dvb0_0"
+            interface = "dvb0_1" if (args.gossip or args.btc_src) else "dvb0_0"
         elif (user_info['setup']['type'] == defs.standalone_setup_type):
             interface = user_info['setup']['netdev']
         else:
@@ -481,17 +501,21 @@ def delete(args):
 
 def demo_rx(args):
     """Demo satellite receiver"""
-    server_addr = server_map['gossip'] if args.gossip else \
-                  _get_server_addr(args.net, args.server)
-    channel = ApiChannel.GOSSIP.value if args.gossip else args.channel
+
+    # Override some options based on the mutual exclusive --gossip and --btc-src
+    # arguments, if present
+    if (args.gossip):
+        server_addr = server_map['gossip']
+        channel = ApiChannel.GOSSIP.value
+    elif (args.btc_src):
+        server_addr = server_map['btc-src']
+        channel = ApiChannel.BTC_SRC.value
+    else:
+        server_addr = _get_server_addr(args.net, args.server)
+        channel = args.channel
 
     # Argument validation and special cases
-    if (args.gossip):
-        if (args.channel != ApiChannel.USER.value):
-            logger.warning("Option --gossip overrides --channel")
-
-        if (args.server != server_map['main'] or args.net is not None):
-            logger.warning("Option --gossip overrides --net and --server")
+    _warn_common_overrides(args)  # warn args overridden by --gossip/--btc-src
 
     # Open one socket for each interface:
     socks = list()
@@ -533,11 +557,12 @@ def subparser(subparsers):
     server_addr = p.add_mutually_exclusive_group()
     server_addr.add_argument(
         '--net',
-        choices=['main', 'test', 'gossip'],
+        choices=server_map.keys(),
         default=None,
-        help="Choose between the Mainnet Satellite API server (main), the \
-        Testnet Satellite API server (test), or the receive-only server used \
-        for Lightning gossip messages (gossip)"
+        help="Choose between the Mainnet API server (main), the Testnet API \
+        server (test), the receive-only server used for Lightning gossip \
+        messages (gossip), or the receive-only server used for messages \
+        carrying the Bitcoin source code (btc-src)"
     )
     server_addr.add_argument(
         '-s',
@@ -803,15 +828,26 @@ def subparser(subparsers):
         "which is considered insecure. Use at your own risk and avoid unsafe "
         "commands."
     )
-    p3.add_argument(
+    btc_src_gossip_arg_group1 = p3.add_mutually_exclusive_group()
+    btc_src_gossip_arg_group1.add_argument(
         '--gossip',
         default=False,
         action="store_true",
         help="Configure the application to receive Lightning gossip snapshots "
-        "and load them using the historian-cli application. This option "
+        "and load them using the historian-cli application. This argument "
         "overrides the following options: 1) --plaintext (enabled); 2) "
         "--channel (set to {}); and 3) --server/--net (set to {})".format(
             ApiChannel.GOSSIP.value, server_map['gossip'])
+    )
+    btc_src_gossip_arg_group1.add_argument(
+        '--btc-src',
+        default=False,
+        action="store_true",
+        help="Configure the application to receive API messages carrying the "
+        "Bitcoin Satellite and Bitcoin Core source codes. This argument "
+        "overrides the following options: 1) --plaintext (enabled); 2) "
+        "--channel (set to {}); and 3) --server/--net (set to {})".format(
+            ApiChannel.BTC_SRC.value, server_map['btc-src'])
     )
     p3.add_argument(
         '--historian-path',
@@ -960,14 +996,24 @@ def subparser(subparsers):
         default="sent",
         help='SSE event that should trigger packet transmissions'
     )
-    p6.add_argument(
+    btc_src_gossip_arg_group2 = p6.add_mutually_exclusive_group()
+    btc_src_gossip_arg_group2.add_argument(
         '--gossip',
         default=False,
         action="store_true",
         help="Configure the application to fetch and relay Lightning gossip "
-        "messages. This option overrides option --channel (set to {}) and "
+        "messages. This argument overrides option --channel (set to {}) and "
         "options --server/--net (set to {})".format(
             ApiChannel.GOSSIP.value, server_map['gossip'])
+    )
+    btc_src_gossip_arg_group2.add_argument(
+        '--btc-src',
+        default=False,
+        action="store_true",
+        help="Configure the application to fetch and relay messages carrying "
+        "the Bitcoin Satellite and Bitcoin Core source codes. This argument "
+        "overrides option --channel (set to {}) and options --server/--net "
+        "(set to {})".format(ApiChannel.BTC_SRC.value, server_map['btc-src'])
     )
     p6.set_defaults(func=demo_rx)
 
