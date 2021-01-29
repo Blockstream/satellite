@@ -50,6 +50,7 @@ repository](https://github.com/Blockstream/satellite-api).
         - [Executing Commands with Received Files](#executing-commands-with-received-files)
         - [Satellite API Channels](#satellite-api-channels)
         - [Lightning Gossip Snapshots](#lightning-gossip-snapshots)
+        - [Bitcoin Source Code Messages](#bitcoin-source-code-messages)
 
 <!-- markdown-toc end -->
 
@@ -487,7 +488,7 @@ blocksat-cli api listen --channel 4
 In most cases, however, it is not necessary to specify the channel number. The
 application configures the appropriate channel automatically based on other
 command-line arguments. For example, this is the case with the Lightning Gossip
-option described next.
+and Bitcoin source code options described next.
 
 ### Lightning Gossip Snapshots
 
@@ -508,3 +509,18 @@ automatically applies other required configurations to receive the gossip
 messages. For example, it automatically invokes the [`historian-cli`
 tool](https://github.com/lightningd/plugins/tree/master/historian) in order to
 load gossip snapshots downloaded via satellite.
+
+### Bitcoin Source Code Messages
+
+The satellite API also has a [channel](#satellite-api-channels) dedicated to
+messages carrying the [Bitcoin
+Satellite](https://github.com/Blockstream/bitcoinsatellite) and [Bitcoin
+Core](https://github.com/bitcoin/bitcoin) source codes. To receive such
+messages, run the listener application using argument `--btc-src`, as follows:
+
+```
+blocksat-cli api listen --btc-src
+```
+
+This argument configures the listener application to tune to channel 5 and
+applies other required configurations.
