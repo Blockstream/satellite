@@ -27,7 +27,7 @@ the interaction with the Satellite API. This guide clarifies these commands.
 For details regarding the RESTful API, please refer to the [Satellite API's
 repository](https://github.com/Blockstream/satellite-api).
 
-<!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-generate-toc again -->
+<!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-refresh-toc -->
 **Table of Contents**
 
 - [Satellite API](#satellite-api)
@@ -48,8 +48,11 @@ repository](https://github.com/Blockstream/satellite-api).
         - [Password-protected GPG keyring](#password-protected-gpg-keyring)
         - [Automating Lightning Payments](#automating-lightning-payments)
         - [Executing Commands with Received Files](#executing-commands-with-received-files)
+        - [Satellite API Channels](#satellite-api-channels)
+        - [Lightning Gossip Snapshots](#lightning-gossip-snapshots)
 
 <!-- markdown-toc end -->
+
 
 
 ## Encryption Keys
@@ -465,3 +468,43 @@ blocksat-cli api listen --exec 'cat {}' --insecure
 In this case, make sure to **avoid unsafe commands** and **use at your own
 risk**.
 
+### Satellite API Channels
+
+The Satellite API messages are sent over satellite through multiple
+*channels*. Each channel is identified by a corresponding number. For example,
+channel 1 is the default channel used for user transmissions. Meanwhile, there
+are other active channels for applications described in the sequel.
+
+When receiving API messages via satellite, you can tune to a specific
+channel. To do so, use argument `--channel` on the `api listen` command. For
+example, to listen to messages coming through channel 4 instead of the default
+channel 1, run the listener app as follows:
+
+```
+blocksat-cli api listen --channel 4
+```
+
+In most cases, however, it is not necessary to specify the channel number. The
+application configures the appropriate channel automatically based on other
+command-line arguments. For example, this is the case with the Lightning Gossip
+option described next.
+
+### Lightning Gossip Snapshots
+
+The satellite API has a [channel](#satellite-api-channels) dedicated to
+Lightning gossip messages, namely messages carrying snapshots of the [gossip
+synchronization mechanism available for the Lightning
+Network](https://medium.com/blockstream/keep-your-node-up-to-date-with-lnsync-e8d8ff7fadb8).
+To receive such messages, simply run the listener application using argument
+`--gossip`, as follows:
+
+```
+blocksat-cli api listen --gossip
+```
+
+When this argument is specified, the listener application tunes to the
+appropriate channel for gossip messages (channel 4). Furthermore, it
+automatically applies other required configurations to receive the gossip
+messages. For example, it automatically invokes the [`historian-cli`
+tool](https://github.com/lightningd/plugins/tree/master/historian) in order to
+load gossip snapshots downloaded via satellite.
