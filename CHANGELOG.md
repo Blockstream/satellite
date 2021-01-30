@@ -46,12 +46,10 @@
 - Option `--report` to proactively report the receiver status over HTTP to a
   specified destination server.
 - Alternative option on the SDR app to define the logical channel that the
-  receiver tunes to. The new option is named `--chanel` and is mutually
+  receiver tunes to. The new option is named `--channel` and is mutually
   exclusive with the pre-existing `--modcod` option.
 - Add option `--gossip` on the API listener and demo-rx apps to support the
   reception of Lightning gossip snapshots transported via the satellite API.
-- Add option `--btc-src` on the API listener and demo-rx apps to support the
-  reception of Bitcoin source code files sent via the satellite API.
 - Support specification of USB DVB-S2 adapter by model name on `blocksat-cli
   usb` command.
 - Support for non-interactive dvbnet interface removal.
