@@ -348,8 +348,10 @@ def listen(args):
 
         # Decode each message only once
         seq_num = pkt.seq_num
-        if (seq_num in decoded_msgs):
-            logger.debug("Message {} has already been decoded".format(seq_num))
+        chan_seq_num = "{}-{}".format(pkt.chan_num, seq_num)
+        if (chan_seq_num in decoded_msgs):
+            logger.debug("Message {} from channel {} has already been "
+                         "decoded".format(seq_num, pkt.chan_num))
             continue
 
         # Assume that the incoming message has forward error correction (FEC)
@@ -366,7 +368,11 @@ def listen(args):
             continue
 
         # API message is ready to be decoded
-        logger.info("-------- API message {:d}".format(seq_num))
+        if (channel == ApiChannel.ALL.value):
+            logger.info("-------- API message {:d} (channel {:d})".format(
+                seq_num, pkt.chan_num))
+        else:
+            logger.info("-------- API message {:d}".format(seq_num))
         logger.debug("Message source: {}:{}".format(addr[0], addr[1]))
         logger.info("Fragments: {:d}".format(pkt_handler.get_n_frags(seq_num)))
 
@@ -384,7 +390,7 @@ def listen(args):
             data = pkt_handler.concat(seq_num)
 
         # Mark as decoded
-        decoded_msgs.add(seq_num)
+        decoded_msgs.add(chan_seq_num)
 
         # Delete message from the packet handler
         del pkt_handler.frag_map[seq_num]
