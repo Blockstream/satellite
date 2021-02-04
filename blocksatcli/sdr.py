@@ -53,31 +53,14 @@ rx_stat_map = {
 }
 
 
-def _monitor_demod_info(info_pipe, args, sat_name):
-    """Monitor leandvb's demodulator information
-
-    Continuously reads the demodulator information printed by leandvb into the
-    descriptor pointed by --fd-info, which is tied to an unnamed pipe file.
+def _get_monitor(args, sat_name):
+    """Create an object of the Monitor class
 
     Args:
-        info_pipe : Pipe object pointing to the pipe file that is used as
-                    leandvb's --fd-info descriptor
         args      : SDR parser arguments
         sat_name  : Satellite name
 
     """
-    assert(isinstance(info_pipe, util.Pipe))
-
-    # "Standard" status format accepted by the Monitor class
-    status = {
-        'lock'    : (False, None),
-        'level'   : None,
-        'snr'     : None,
-        'ber'     : None
-    }
-
-    # Log Monitoring
-    #
     # If debugging leandvb, don't echo the logs to stdout, otherwise the
     # logs get mixed on the console and it becomes hard to read them.
     echo = (args.debug_dvbs2 == 0)
@@ -85,7 +68,7 @@ def _monitor_demod_info(info_pipe, args, sat_name):
     # Force scrolling logs if using a monitoring option on TSDuck
     scrolling = args.monitor_bitrate or args.monitor_ts or args.log_scrolling
 
-    monitor = monitoring.Monitor(
+    return monitoring.Monitor(
         args.cfg_dir,
         logfile = args.log_file,
         scroll = scrolling,
@@ -102,6 +85,31 @@ def _monitor_demod_info(info_pipe, args, sat_name):
             'tls_key'  : args.report_key
         }
     )
+
+
+def _monitor_demod_info(info_pipe, monitor):
+    """Monitor leandvb's demodulator information
+
+    Continuously read the demodulator information printed by leandvb into the
+    descriptor pointed by --fd-info, which is tied to an unnamed pipe
+    file. Then, feed the information into the monitor object.
+
+    Args:
+        info_pipe : Pipe object pointing to the pipe file that is used as
+                    leandvb's --fd-info descriptor
+        monitor   : Object of the Monitor class used to handle receiver
+                    monitoring and logging
+
+    """
+    assert(isinstance(info_pipe, util.Pipe))
+
+    # "Standard" status format accepted by the Monitor class
+    status = {
+        'lock': (False, None),
+        'level': None,
+        'snr': None,
+        'ber': None
+    }
 
     while True:
         line = info_pipe.readline()
@@ -393,9 +401,10 @@ def run(args):
         fd_info   = str(info_pipe.w_fd)
         ldvb_cmd.extend(["--fd-info", fd_info])
 
+        monitor = _get_monitor(args, info['sat']['alias'])
         t = threading.Thread(
             target = _monitor_demod_info,
-            args   = (info_pipe, args, info['sat']['alias']),
+            args   = (info_pipe, monitor),
             daemon = True
         )
         t.start()

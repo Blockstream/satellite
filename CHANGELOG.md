@@ -1,6 +1,17 @@
 # Changelog
 
-## [2.3.0] - 2021-01-27
+## [2.3.1]
+
+Release Date: 2021-03-16
+
+### Fixed
+- Potential unhandled crashing of the SDR app's monitoring thread due to invalid
+  monitoring options.
+
+## [2.3.0]
+
+Release Date: 2021-01-27
+
 ### Added
 - Integrate API apps into the CLI. Support API message transmission, reception,
   and the demo-rx app directly from `blocksat-cli` commands (`api send`, `api
