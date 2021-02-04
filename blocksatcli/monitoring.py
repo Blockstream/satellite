@@ -2,11 +2,23 @@
 import sys, os, time, logging, math, requests, threading, json
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from datetime import datetime
-from . import defs
+from . import defs, config
 
 
 logger = logging.getLogger(__name__)
 sats   = [ x['alias'] for x in defs.satellites]
+
+
+def get_report_opts(args):
+    """Extract the parser fields needed to construct a Reporter object"""
+    return {
+        'cfg': args.cfg,
+        'cfg_dir': args.cfg_dir,
+        'dest_addr': args.report_dest,
+        'hostname': args.report_hostname,
+        'tls_cert': args.report_cert,
+        'tls_key': args.report_key
+    }
 
 
 class Reporter():
@@ -15,31 +27,41 @@ class Reporter():
     Sends receiver metrics to a remote server.
 
     """
-    def __init__(self, addr, sat, hostname, tls_cert=None, tls_key=None):
+    def __init__(self, cfg, cfg_dir, dest_addr, hostname, tls_cert=None,
+                 tls_key=None):
         """Reporter Constructor
 
         Args:
-            addr     : Remote server address
-            sat      : Satellite name
-            hostname : Hostname used to identify the reports
+            cfg       : User configuration
+            cfg_dir   : Configuration directory
+            dest_addr : Remote server address
+            hostname  : Hostname used to identify the reports
+            tls_cert  : Optional client side certificate for TLS authentication
+            tls_key   : Key associated with the client side certificate
 
         """
-        assert(addr is not None), "Reporting destination address undefined"
-        assert(sat is not None), "Reporting satellite undefined"
-        assert(hostname is not None), "Reporting hostname undefined"
-        assert(sat in sats)
+        info = config.read_cfg_file(cfg, cfg_dir)
+        assert(info is not None)
 
-        self.dest_addr = addr
-        self.sat       = sat.replace('-', ' ')
-        self.hostname  = hostname
-        self.tls_cert  = tls_cert
-        self.tls_key   = tls_key
+        # Validate the satellite
+        satellite = info['sat']['alias']
+        assert(satellite is not None), "Reporting satellite undefined"
+        assert(satellite in sats), "Invalid satellite"
+        self.satellite = satellite
+
+        # Destination address, hostname, and client side cert
+        assert(dest_addr is not None), "Reporting destination address undefined"
+        assert(hostname is not None), "Reporting hostname undefined"
+        self.dest_addr = dest_addr
+        self.hostname = hostname
+        self.tls_cert = tls_cert
+        self.tls_key  = tls_key
 
         logger.info("Reporting Rx status to {} "
                     "(hostname: {}, satellite: {})".format(
                         self.dest_addr,
                         self.hostname,
-                        self.sat))
+                        self.satellite))
 
     def send(self, metrics):
         """Save measurement on database
@@ -49,7 +71,7 @@ class Reporter():
         """
         data = {
             "hostname"  : self.hostname,
-            "satellite" : self.sat,
+            "satellite" : self.satellite,
         }
         data.update(metrics)
 
@@ -148,11 +170,7 @@ class Monitor():
 
         # Reporter sessions
         if (report):
-            self.reporter = Reporter(report_opts['dest'],
-                                     report_opts['region'],
-                                     report_opts['hostname'],
-                                     report_opts['tls_cert'],
-                                     report_opts['tls_key'])
+            self.reporter = Reporter(**report_opts)
 
         # State
         self.t_last_print = time.time()

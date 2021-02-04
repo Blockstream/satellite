@@ -339,13 +339,7 @@ def monitor(args):
         server = args.monitoring_server,
         port = args.monitoring_port,
         report = args.report,
-        report_opts = {
-            'dest'     : args.report_dest,
-            'region'   : user_info['sat']['alias'],
-            'hostname' : args.report_hostname,
-            'tls_cert' : args.report_cert,
-            'tls_key'  : args.report_key
-        }
+        report_opts = monitoring.get_report_opts(args)
     )
 
     util._print_header("Receiver Monitoring")

@@ -53,7 +53,7 @@ rx_stat_map = {
 }
 
 
-def _get_monitor(args, sat_name):
+def _get_monitor(args):
     """Create an object of the Monitor class
 
     Args:
@@ -77,13 +77,7 @@ def _get_monitor(args, sat_name):
         server = args.monitoring_server,
         port = args.monitoring_port,
         report = args.report,
-        report_opts = {
-            'dest'     : args.report_dest,
-            'region'   : sat_name,
-            'hostname' : args.report_hostname,
-            'tls_cert' : args.report_cert,
-            'tls_key'  : args.report_key
-        }
+        report_opts = monitoring.get_report_opts(args)
     )
 
 
@@ -401,7 +395,8 @@ def run(args):
         fd_info   = str(info_pipe.w_fd)
         ldvb_cmd.extend(["--fd-info", fd_info])
 
-        monitor = _get_monitor(args, info['sat']['alias'])
+        monitor = _get_monitor(args)
+
         t = threading.Thread(
             target = _monitor_demod_info,
             args   = (info_pipe, monitor),
