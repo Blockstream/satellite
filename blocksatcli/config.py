@@ -503,6 +503,27 @@ def write_cfg_file(cfg_name, directory, user_info):
     _write_cfg_file(cfg_file, user_info)
 
 
+def get_net_if(user_info, prefer_8psk=False):
+    """Get the network interface used by the given setup
+
+    On the USB setup, let the caller decide if there is a preference for the
+    network interface associated with the high-throughput (8PSK) stream.
+
+    """
+    if (user_info is None):
+        raise ValueError("Failed to read local configuration")
+
+    if (user_info['setup']['type'] == defs.sdr_setup_type):
+        interface = "lo"
+    elif (user_info['setup']['type'] == defs.linux_usb_setup_type):
+        interface = "dvb0_1" if prefer_8psk else "dvb0_0"
+    elif (user_info['setup']['type'] == defs.standalone_setup_type):
+        interface = user_info['setup']['netdev']
+    else:
+        raise ValueError("Unknown setup type")
+    return interface
+
+
 def subparser(subparsers):
     """Argument parser of config command"""
     p = subparsers.add_parser('config', aliases=['cfg'],

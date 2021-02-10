@@ -4,6 +4,7 @@ from unittest import TestCase
 from unittest.mock import patch
 
 from . import config
+from . import defs
 
 
 class TestConfig(TestCase):
@@ -30,3 +31,22 @@ class TestConfig(TestCase):
         self.assertTrue(os.path.exists(path))
         os.remove(path)
         self.assertFalse(os.path.exists(path))
+
+    def test_net_if(self):
+        info = {}
+        info['setup'] = {
+            'type': defs.standalone_setup_type,
+            'netdev': 'en0'
+        }
+        self.assertEqual(config.get_net_if(info), 'en0')
+
+        info['setup'] = {
+            'type': defs.linux_usb_setup_type,
+        }
+        self.assertEqual(config.get_net_if(info), 'dvb0_0')
+        self.assertEqual(config.get_net_if(info, prefer_8psk=True), 'dvb0_1')
+
+        info['setup'] = {
+            'type': defs.sdr_setup_type,
+        }
+        self.assertEqual(config.get_net_if(info), 'lo')

@@ -291,18 +291,9 @@ def listen(args):
     else:
         # Infer the interface based on the user's setup
         user_info = blocksatcli_config.read_cfg_file(args.cfg, args.cfg_dir)
-        if (user_info is None):
-            return
-
-        if (user_info['setup']['type'] == defs.sdr_setup_type):
-            interface = "lo"
-        elif (user_info['setup']['type'] == defs.linux_usb_setup_type):
-            interface = "dvb0_1" if (args.gossip or args.btc_src) else "dvb0_0"
-        elif (user_info['setup']['type'] == defs.standalone_setup_type):
-            interface = user_info['setup']['netdev']
-        else:
-            raise ValueError("Unknown setup type")
-
+        interface = blocksatcli_config.get_net_if(user_info,
+                                                  prefer_8psk=(args.gossip or
+                                                               args.btc_src))
     logger.info("Listening on interface: {}".format(interface))
     logger.info("Downloads will be saved at: {}".format(download_dir))
 
