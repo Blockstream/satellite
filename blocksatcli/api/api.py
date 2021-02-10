@@ -32,12 +32,24 @@ def _get_server_addr(net, server):
 
 
 def _is_gpg_keyring_set(gnupghome):
+    """Check if the keyring is already configured
+
+    It is configured when:
+    - It has at least one private key
+    - It has at least two public keys
+    - One of the public keys is the blocksat pubkey
+
+    """
     if not os.path.exists(gnupghome):
         return False
 
     gpg = Gpg(gnupghome)
 
-    return len(gpg.gpg.list_keys()) > 0
+    has_privkey = len(gpg.gpg.list_keys(True)) >= 1
+    has_two_pubkeys = len(gpg.gpg.list_keys()) >= 2
+    has_bs_pubkey = len(gpg.gpg.list_keys(keys=blocksat_pubkey)) > 0
+
+    return has_privkey and has_two_pubkeys and has_bs_pubkey
 
 
 def _warn_common_overrides(args):
@@ -54,20 +66,26 @@ def _warn_common_overrides(args):
         logger.warning("Option {} overrides --net and --server".format(opt))
 
 
-def config(args):
-    """Generate GPG Keys"""
-    gpghome = os.path.join(args.cfg_dir, args.gnupghome)
+def config_keyring(gnupghome, verbose=False):
+    """Configure the local keyring
 
+    Create a keypair and import Blockstream's public key
+
+    Args:
+        gnupghome : GnuPG home directory
+        verbose   : Verbosity mode on GnuPG operations
+
+    """
+    if _is_gpg_keyring_set(gnupghome):
+        return
+
+    gpg = Gpg(gnupghome, verbose, interactive=True)
+
+    # Generate new keypair
     logger.info("Generating a GPG keypair to encrypt and decrypt API messages")
-
-    # Collect info for the new key
     name    = input("User name represented by the key: ")
     email   = input("E-mail address: ")
     comment = input("Comment to attach to the user ID: ")
-
-    verbose = False if ('verbose' not in args) else args.verbose
-
-    gpg = Gpg(gpghome, verbose, interactive=True)
     gpg.create_keys(name, email, comment)
 
     # Import Blockstream's public key
@@ -94,6 +112,12 @@ def config(args):
     gpg.gpg.trust_keys(blocksat_pubkey, 'TRUST_ULTIMATE')
 
 
+def config(args):
+    """API config command"""
+    gnupghome = os.path.join(args.cfg_dir, args.gnupghome)
+    config_keyring(gnupghome, args.verbose)
+
+
 def send(args):
     """Send a message over satellite"""
     gnupghome   = os.path.join(args.cfg_dir, args.gnupghome)
@@ -101,9 +125,7 @@ def send(args):
 
     # Instantiate the GPG wrapper object if running with encryption or signing
     if (not args.plaintext or args.sign):
-        if not _is_gpg_keyring_set(gnupghome):
-            config(args)
-
+        config_keyring(gnupghome)
         gpg = Gpg(gnupghome, interactive=True)
 
     # A passphrase is required if signing
@@ -278,10 +300,9 @@ def listen(args):
                 base_exec_cmd
             ))
 
-    # Make sure that the GPG keyring is set if decrypting messages
-    if ((not args.plaintext or args.sender)
-        and not _is_gpg_keyring_set(gnupghome)):
-        config(args)
+    # Make sure that the GPG keyring is set if decrypting or verifying messages
+    if ((not args.plaintext or args.sender)):
+        config_keyring(gnupghome)
 
     # Define the interface used to listen for messages
     if (args.interface):
