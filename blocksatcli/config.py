@@ -453,6 +453,12 @@ def _read_cfg_file(cfg_file):
         return info
 
 
+def _write_cfg_file(cfg_file, user_info):
+    """Write configuration file"""
+    with open(cfg_file, 'w') as fd:
+        json.dump(user_info, fd)
+
+
 def _rst_cfg_file(cfg_file):
     """Reset a previous configuration file in case it exists"""
     info = _read_cfg_file(cfg_file)
@@ -489,6 +495,12 @@ def read_cfg_file(cfg_name, directory):
         info = _read_cfg_file(cfg_file)
 
     return info
+
+
+def write_cfg_file(cfg_name, directory, user_info):
+    """Write configuration file"""
+    cfg_file = _cfg_file_name(cfg_name, directory)
+    _write_cfg_file(cfg_file, user_info)
 
 
 def subparser(subparsers):
@@ -541,9 +553,8 @@ def configure(args):
         _cfg_chan_conf(user_info, chan_file)
         user_info['setup']['channel'] = chan_file
 
-    # JSON configuration file
-    with open(cfg_file, 'w') as fd:
-        json.dump(user_info, fd)
+    # Create the JSON configuration file
+    _write_cfg_file(cfg_file, user_info)
 
     os.system('clear')
     util._print_header("JSON configuration file")
