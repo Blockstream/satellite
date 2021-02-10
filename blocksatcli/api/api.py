@@ -245,8 +245,8 @@ def send(args):
 
 def listen(args):
     """Listen to API messages received over satellite"""
-    gnupghome     = os.path.join(args.cfg_dir, args.gnupghome)
-    download_dir  = os.path.join(args.cfg_dir, "api", "downloads")
+    gnupghome    = os.path.join(args.cfg_dir, args.gnupghome)
+    download_dir = os.path.join(args.cfg_dir, "api", "downloads")
 
     # Override some options based on the mutual exclusive --gossip and --btc-src
     # arguments, if present
@@ -280,6 +280,13 @@ def listen(args):
         elif (args.no_save):
             raise ValueError("Argument --gossip is not allowed with argument "
                              "--no-save")
+
+        gossip_opts = {
+            'cli': historian_cli,
+            'dest': args.historian_destination
+        }
+    else:
+        gossip_opts = None
 
     _warn_common_overrides(args)  # warn args overridden by --gossip/--btc-src
 
@@ -319,6 +326,8 @@ def listen(args):
     # GPG wrapper object
     if (not args.plaintext or args.sender):
         gpg = Gpg(gnupghome, interactive=True)
+    else:
+        gpg = None
 
     # A passphrase is required for decryption (but not for signature
     # verification)
@@ -328,8 +337,43 @@ def listen(args):
                             'decryption: ')
         )
 
+    # Listen continuously
+    listen_loop(gpg, download_dir, args.sock_addr, interface, channel,
+                args.plaintext, args.save_raw, sender=args.sender,
+                stdout=args.stdout, no_save=args.no_save, echo=args.echo,
+                exec_cmd=args.exec, gossip_opts=gossip_opts,
+                server_addr=server_addr, tls_cert=args.tls_cert,
+                tls_key=args.tls_key, region=args.region)
+
+
+def listen_loop(gpg, download_dir, sock_addr, interface, channel, plaintext,
+                save_raw, sender=None, stdout=False, no_save=False, echo=False,
+                exec_cmd=None, gossip_opts=None, server_addr=None,
+                tls_cert=None, tls_key=None, region=None):
+    """Infinite loop for listening to API messages
+
+    Args:
+        gpg          : Gnupg object
+        download_dir : Directory where downloaded messages are saved
+        sock_addr    : Multicast socket address to listen to
+        interface    : Network interface to listen to
+        channel      : Satellite API channel to listen to
+        plaintext    : Receive messages in plaintext mode
+        save_raw     : Save the raw content of messages without decapsulation
+        sender       : Sender's GPG fingerprint for filtering of signed messages
+        stdout       : Print messages to stdout instead of saving them
+        no_save      : Don't save downloaded messages
+        echo         : Echo text messages to stdout on reception
+        exec_cmd     : Arbitrary shell command to run for each download
+        gossip_opts  : Options for reception of Lightning gossip snapshots
+        server_addr  : API server address for Rx confirmations
+        tls_cert     : TLS client cert to authenticate on Rx confirmations
+        tls_key      : TLS client key to authenticate on Rx confirmations
+        region       : Satellite region to inform on Rx confirmations
+
+    """
     # Open UDP socket
-    sock = net.UdpSock(args.sock_addr, interface)
+    sock = net.UdpSock(sock_addr, interface)
 
     # Handler to collect groups of Blocksat packets that form an API message
     pkt_handler = BlocksatPktHandler()
@@ -387,9 +431,9 @@ def listen(args):
         logger.info("Fragments: {:d}".format(pkt_handler.get_n_frags(seq_num)))
 
         # Send confirmation of reception to API server
-        order = ApiOrder(server_addr, seq_num=seq_num, tls_cert=args.tls_cert,
-                         tls_key=args.tls_key)
-        order.confirm_rx(args.region)
+        order = ApiOrder(server_addr, seq_num=seq_num, tls_cert=tls_cert,
+                         tls_key=tls_key)
+        order.confirm_rx(region)
 
         # Decode the data from the available FEC chunks or from the complete
         # collection of Blocksat Packets
@@ -412,8 +456,8 @@ def listen(args):
             logger.warning("Empty message")
             continue
 
-        if (args.plaintext):
-            if (args.save_raw):
+        if (plaintext):
+            if (save_raw):
                 # Assume that the message is not encapsulated. This mode is
                 # useful, e.g., for compatibility with transmissions triggered
                 # from the browser at: https://blockstream.com/satellite-queue/.
@@ -427,7 +471,7 @@ def listen(args):
                     continue
 
             # If filtering clearsigned messages, verify
-            if (args.sender and not msg.verify(gpg, args.sender)):
+            if (sender and not msg.verify(gpg, sender)):
                 continue
 
             logger.info("Message Size: {:d} bytes\tSaving in plaintext".format(
@@ -438,21 +482,21 @@ def listen(args):
             msg = ApiMsg(data, msg_format="encrypted")
 
             # Try to decrypt the data:
-            if (not msg.decrypt(gpg, args.sender)):
+            if (not msg.decrypt(gpg, sender)):
                 continue
 
             # Try to decapsulate the application-layer structure if assuming it
             # is present (i.e., with "save-raw=False")
-            if (not args.save_raw and not msg.decapsulate()):
+            if (not save_raw and not msg.decapsulate()):
                 continue
 
         # Finalize the processing of the decoded message
-        if (args.stdout):
+        if (stdout):
             msg.serialize()
-        elif (not args.no_save):
+        elif (not no_save):
             download_path = msg.save(download_dir)
 
-        if (args.echo):
+        if (echo):
             # Not all messages can be decoded in UTF-8 (binary files
             # cannot). Also, messages that were not sent in plaintext and raw
             # (non-encapsulated) format. Echo the results only when the UTF-8
@@ -465,18 +509,18 @@ def listen(args):
         else:
             logger.debug("Message: {}".format(msg.data['original']))
 
-        if (args.exec):
+        if (exec_cmd):
             cmd = shlex.split(
-                args.exec.replace("{}", shlex.quote(download_path))
+                exec_cmd.replace("{}", shlex.quote(download_path))
             )
             logger.debug("Exec:\n> {}".format(" ".join(cmd)))
             subprocess.run(cmd)
 
-        if (args.gossip):
-            cmd = [historian_cli, 'snapshot', 'load',
+        if (gossip_opts is not None):
+            cmd = [gossip_opts['cli'], 'snapshot', 'load',
                    shlex.quote(download_path)]
-            if (args.historian_destination is not None):
-                cmd.append(args.historian_destination)
+            if (gossip_opts['dest'] is not None):
+                cmd.append(gossip_opts['dest'])
 
             logger.debug("Exec:\n> {}".format(" ".join(cmd)))
             subprocess.run(cmd)
