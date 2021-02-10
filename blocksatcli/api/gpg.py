@@ -17,7 +17,7 @@ class Gpg():
         self.passphrase  = None
 
         # Create GPG object and fetch the list of current private keys
-        self.gpg     = gnupg.GPG(verbose = verbose, gnupghome = gpghome)
+        self.gpg = gnupg.GPG(verbose=verbose, gnupghome=gpghome)
 
     def _find_gpg_key_by_email(self, email):
         """Find GPG key with matching email address on UID"""
@@ -61,7 +61,7 @@ class Gpg():
             name_email = email,
             passphrase = passphrase
         )
-        key        = self.gpg.gen_key(key_params)
+        key = self.gpg.gen_key(key_params)
 
         # Export
         public_key  = self.gpg.export_keys(key.fingerprint)
@@ -75,22 +75,45 @@ class Gpg():
         self.passphrase = passphrase
 
     def get_default_public_key(self):
-        """Get the fingerprint of the first public key on the keyring"""
+        """Get info corresponding to the first public key on the keyring
+
+        Returns:
+            Dictionary with key information such as 'fingerprint', 'keyid', and
+            'uids'.
+
+        """
         return self.gpg.list_keys()[0]
 
     def get_default_priv_key(self):
-        """Get the fingerprint of the first private key on the keyring"""
+        """Get info corresponding to the first private key on the keyring
+
+        Returns:
+            Dictionary with key information such as 'fingerprint', 'keyid', and
+            'uids'.
+
+        """
         return self.gpg.list_keys(True)[0]
 
     def get_public_key(self, fingerprint):
-        """Find a specific public key on the keyring"""
+        """Find a specific public key on the keyring and return the info dict
+
+        Returns:
+            Dictionary with key information such as 'fingerprint', 'keyid', and
+            'uids'.
+
+        """
         key_map = self.gpg.list_keys().key_map
         assert(fingerprint in key_map), \
             "Could not find public key {}".format(fingerprint)
         return key_map[fingerprint]
 
     def get_priv_key(self, fingerprint):
-        """Find a specific private key on the keyring"""
+        """Find a specific private key on the keyring and return the info dict
+
+        Returns:
+            Dictionary with key information such as 'fingerprint', 'keyid', and
+            'uids'.
+        """
         key_map = self.gpg.list_keys(True).key_map
         assert(fingerprint in key_map), \
             "Could not find private key {}".format(fingerprint)
