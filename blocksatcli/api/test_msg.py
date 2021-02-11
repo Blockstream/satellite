@@ -395,4 +395,98 @@ class TestApi(unittest.TestCase):
         os.remove(dst_file)
         os.remove(dst_file2)
 
+    def test_msg_generator_decoder_wrappers(self):
+        """Test the message generation and decoding wrappers"""
+        data = bytes([0,1,2,3])
+        fec_overhead = 0.5
 
+        # Set up GPG keyring with two keypairs
+        gpg = self._setup_gpg()
+        gpg.create_keys("Test2", "test2@test.com", "", "test")
+        gpg.set_passphrase("test")
+        recipient = gpg.gpg.list_keys(True)[0]["fingerprint"]
+        signer    = gpg.gpg.list_keys(True)[1]["fingerprint"]
+        assert(recipient != signer)
+
+        # The generator/decoder wrappers assume a plaintext and non-encapsulated
+        # message by default
+        msg1 = msg.ApiMsg(data)
+        msg2 = msg.generate(data)
+        self.assertEqual(msg1.get_data(), msg2.get_data())
+        dec_msg = msg.decode(msg2.get_data())
+        self.assertEqual(dec_msg.data['original'], data)
+
+        # Plaintext encapsulated message
+        msg1.encapsulate()
+        msg2 = msg.generate(data, encapsulate=True)
+        self.assertEqual(msg1.get_data(), msg2.get_data())
+        dec_msg = msg.decode(msg2.get_data(), decapsulate=True)
+        self.assertEqual(dec_msg.data['original'], data)
+
+        # Plaintext encapsulated message with FEC encoding
+        msg1.fec_encode(fec_overhead)
+        msg2 = msg.generate(data, encapsulate=True, fec=True,
+                            fec_overhead=fec_overhead)
+        # NOTE: the FEC-encoded data is not necessarily repeatable. Check the
+        # length only.
+        self.assertEqual(msg1.get_length(), msg2.get_length())
+        dec_msg = msg.decode(msg2.get_data(), decapsulate=True, fec=True)
+        self.assertEqual(dec_msg.data['original'], data)
+
+        # GPG object is required if signing/verifying or encrypting/decrypting
+        with self.assertRaises(ValueError):
+            msg.generate(data, plaintext=False)
+        with self.assertRaises(ValueError):
+            msg.generate(data, sign=True)
+        with self.assertRaises(ValueError):
+            msg.decode(data, plaintext=False)
+        with self.assertRaises(ValueError):
+            msg.decode(data, sender=signer)
+
+        # Encrypted non-encapsulated message
+        tx_msg = msg.generate(data, gpg=gpg, plaintext=False)
+        rx_msg = msg.decode(tx_msg.get_data(), gpg=gpg, plaintext=False)
+        self.assertEqual(rx_msg.data['original'], data)
+
+        # Encrypted encapsulated message
+        tx_msg = msg.generate(data, gpg=gpg, plaintext=False, encapsulate=True)
+        rx_msg = msg.decode(tx_msg.get_data(), gpg=gpg, plaintext=False,
+                            decapsulate=True)
+        self.assertEqual(rx_msg.data['original'], data)
+
+        # Encrypted + encapsulated + FEC-encoded message
+        tx_msg = msg.generate(data, gpg=gpg, plaintext=False, encapsulate=True,
+                              fec=True, fec_overhead=fec_overhead)
+        rx_msg = msg.decode(tx_msg.get_data(), gpg=gpg, plaintext=False,
+                            decapsulate=True, fec=True)
+        self.assertEqual(rx_msg.data['original'], data)
+
+        # Encrypted + signed + encapsulated + FEC-encoded message
+        # NOTE: decryption should only work if the sender filter matches
+        tx_msg = msg.generate(data, gpg=gpg, plaintext=False, encapsulate=True,
+                              sign=True, sign_key=signer, fec=True,
+                              fec_overhead=fec_overhead)
+        rx_msg1 = msg.decode(tx_msg.get_data(), gpg=gpg, plaintext=False,
+                            decapsulate=True, fec=True, sender=recipient)
+        self.assertIsNone(rx_msg1)
+        rx_msg2 = msg.decode(tx_msg.get_data(), gpg=gpg, plaintext=False,
+                            decapsulate=True, fec=True, sender=signer)
+        self.assertEqual(rx_msg2.data['original'], data)
+
+        # Clearsigned message
+        tx_msg = msg.generate(data, gpg=gpg, sign=True, sign_key=signer)
+        rx_msg1 = msg.decode(tx_msg.get_data())
+        self.assertNotEqual(rx_msg1.data['original'], data)
+        rx_msg2 = msg.decode(tx_msg.get_data(), gpg=gpg, sender=signer)
+        self.assertEqual(rx_msg2.data['original'], data)
+
+        # Clearsigned + encapsulated message
+        tx_msg = msg.generate(data, encapsulate=True, gpg=gpg, sign=True,
+                              sign_key=signer)
+        rx_msg1 = msg.decode(tx_msg.get_data())
+        self.assertNotEqual(rx_msg1.data['original'], data)
+        rx_msg2 = msg.decode(tx_msg.get_data(), gpg=gpg, sender=signer)
+        self.assertIsNone(rx_msg2)  # verification fails and decode returns None
+        rx_msg3 = msg.decode(tx_msg.get_data(), decapsulate=True, gpg=gpg,
+                             sender=signer)
+        self.assertEqual(rx_msg3.data['original'], data)

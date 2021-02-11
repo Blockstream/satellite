@@ -4,18 +4,17 @@ from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter, \
     ArgumentTypeError
 import qrcode
 from shutil import which
-from .. import util, defs
+from .. import defs
 from .. import config as blocksatcli_config
 from .order import ApiOrder
-from .msg import ApiMsg
 from .pkt import BlocksatPkt, BlocksatPktHandler, calc_ota_msg_len, ApiChannel
+from . import msg as api_msg
 from .demorx import DemoRx
 from . import bidding, net
 from .gpg import Gpg
 
 
 logger          = logging.getLogger(__name__)
-blocksat_pubkey = '87D07253F69E4CD8629B0A21A94A007EC9D4458C'
 server_map      = {
     'main'   : "https://api.blockstream.space",
     'test'   : "https://api.blockstream.space/testnet",
@@ -47,7 +46,7 @@ def _is_gpg_keyring_set(gnupghome):
 
     has_privkey = len(gpg.gpg.list_keys(True)) >= 1
     has_two_pubkeys = len(gpg.gpg.list_keys()) >= 2
-    has_bs_pubkey = len(gpg.gpg.list_keys(keys=blocksat_pubkey)) > 0
+    has_bs_pubkey = len(gpg.gpg.list_keys(keys=defs.blocksat_pubkey)) > 0
 
     return has_privkey and has_two_pubkeys and has_bs_pubkey
 
@@ -94,7 +93,7 @@ def config_keyring(gnupghome, verbose=False):
     # adding the user key. With that, the user key becomes the first key on the
     # keyring, which is used by default.
     pkg_dir  = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    key_path = os.path.join(pkg_dir, 'gpg', blocksat_pubkey + ".gpg")
+    key_path = os.path.join(pkg_dir, 'gpg', defs.blocksat_pubkey + ".gpg")
 
     with open(key_path) as fd:
         key_data = fd.read()
@@ -102,14 +101,14 @@ def config_keyring(gnupghome, verbose=False):
     import_result = gpg.gpg.import_keys(key_data)
 
     if (len(import_result.fingerprints) == 0):
-        logger.warning("Failed to import key {}".format(blocksat_pubkey))
+        logger.warning("Failed to import key {}".format(defs.blocksat_pubkey))
         return
 
     logger.info("Imported key {}".format(
         import_result.fingerprints[0]
     ))
 
-    gpg.gpg.trust_keys(blocksat_pubkey, 'TRUST_ULTIMATE')
+    gpg.gpg.trust_keys(defs.blocksat_pubkey, 'TRUST_ULTIMATE')
 
 
 def config(args):
@@ -127,6 +126,8 @@ def send(args):
     if (not args.plaintext or args.sign):
         config_keyring(gnupghome)
         gpg = Gpg(gnupghome, interactive=True)
+    else:
+        gpg = None
 
     # A passphrase is required if signing
     if (args.sign and (not args.no_password)):
@@ -151,53 +152,18 @@ def send(args):
     assert(len(data) > 0), \
         "Empty {}".format("file" if args.file else "message")
 
-    msg = ApiMsg(data, filename=basename)
-
-    # If transmitting a plaintext message, it could still be clearsigned.
-    if (args.plaintext and args.sign):
-        if (args.sign_key):
-            # Make sure the key exists
-            gpg.get_priv_key(args.sign_key)
-            sign_key = args.sign_key
-        else:
-            sign_key = gpg.get_default_priv_key()["fingerprint"]
-
-        msg.clearsign(gpg, sign_key)
-
-    # Pack data into structure (header + data), if enabled
-    if (not args.send_raw):
-        msg.encapsulate()
-
-    # Encrypt, unless configured otherwise
-    if (not args.plaintext):
-        # Recipient public key. Use the first public key from keyring if
-        # recipient is not defined.
-        if (args.recipient is None):
-            recipient = gpg.get_default_public_key()["fingerprint"]
-            assert(recipient != blocksat_pubkey), \
-                "Defaul public key is not the user's public key"
-        else:
-            # Make sure the key exists
-            gpg.get_public_key(args.recipient)
-            recipient = args.recipient
-
-        # Digital signature. If configured to sign the message without a
-        # specified key, use the default key.
-        if (args.sign):
-            if (args.sign_key):
-                # Make sure the key exists
-                gpg.get_priv_key(args.sign_key)
-                sign_cfg = args.sign_key
-            else:
-                sign_cfg = gpg.get_default_priv_key()["fingerprint"]
-        else:
-            sign_cfg = False
-
-        msg.encrypt(gpg, recipient, sign_cfg, args.trust)
-
-    # Forward error correction encoding
-    if (args.fec):
-        msg.fec_encode(args.fec_overhead)
+    # Put file or text within an API message
+    msg = api_msg.generate(data,
+                           filename=basename,
+                           plaintext=args.plaintext,
+                           encapsulate=(not args.send_raw),
+                           sign=args.sign,
+                           fec=args.fec,
+                           gpg=gpg,
+                           recipient=args.recipient,
+                           trust=args.trust,
+                           sign_key=args.sign_key,
+                           fec_overhead=args.fec_overhead)
 
     # Actual number of bytes used for satellite transmission
     tx_len = calc_ota_msg_len(msg.get_length())
@@ -415,8 +381,8 @@ def listen_loop(gpg, download_dir, sock_addr, interface, channel, plaintext,
         # case. If the message is not actually FEC-encoded, it will never assert
         # the "fec_decodable" flag. In this case, proceed with the processing
         # only when all fragments are received.
-        msg = ApiMsg(pkt_handler.concat(seq_num, force=True),
-                     msg_format="fec_encoded")
+        msg = api_msg.ApiMsg(pkt_handler.concat(seq_num, force=True),
+                             msg_format="fec_encoded")
         fec_decodable = msg.is_fec_decodable()
         if (not fec_decodable and not all_frags_received):
             continue
@@ -456,39 +422,15 @@ def listen_loop(gpg, download_dir, sock_addr, interface, channel, plaintext,
             logger.warning("Empty message")
             continue
 
-        if (plaintext):
-            if (save_raw):
-                # Assume that the message is not encapsulated. This mode is
-                # useful, e.g., for compatibility with transmissions triggered
-                # from the browser at: https://blockstream.com/satellite-queue/.
-                msg = ApiMsg(data, msg_format="original")
-            else:
-                # Encapsulated format, but no encryption
-                msg = ApiMsg(data, msg_format="encapsulated")
-
-                # Try to decapsulate it
-                if (not msg.decapsulate()):
-                    continue
-
-            # If filtering clearsigned messages, verify
-            if (sender and not msg.verify(gpg, sender)):
-                continue
-
-            logger.info("Message Size: {:d} bytes\tSaving in plaintext".format(
-                msg.get_length(target='original')))
-
-        else:
-            # Cast data into ApiMsg object in encrypted form
-            msg = ApiMsg(data, msg_format="encrypted")
-
-            # Try to decrypt the data:
-            if (not msg.decrypt(gpg, sender)):
-                continue
-
-            # Try to decapsulate the application-layer structure if assuming it
-            # is present (i.e., with "save-raw=False")
-            if (not save_raw and not msg.decapsulate()):
-                continue
+        # The FEC-decoded data could be encrypted, signed, and/or
+        # encapsulated. Decode it and obtain the original data.
+        msg = api_msg.decode(data,
+                             plaintext=plaintext,
+                             decapsulate=(not save_raw),
+                             sender=sender,
+                             gpg=gpg)
+        if (msg is None):
+            continue
 
         # Finalize the processing of the decoded message
         if (stdout):

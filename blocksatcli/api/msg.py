@@ -2,6 +2,7 @@
 import sys, os, logging, time, struct, zlib, hashlib
 from math import ceil, floor
 import zfec
+from .. import defs
 from . import pkt
 from .fec import Fec
 
@@ -497,3 +498,140 @@ class ApiMsg:
         sys.stdout.buffer.write(data)
         sys.stdout.buffer.flush()
 
+
+def generate(data, filename=None, plaintext=True, encapsulate=False, sign=False,
+             fec=False, gpg=None, recipient=None, trust=False, sign_key=None,
+             fec_overhead=0.1):
+    """Generate an API message
+
+    Args:
+        data         : Message data (bytes)
+        filename     : Underlying file name if the message consists of a file.
+        plaintext    : Boolean indicating plaintext mode.
+        encapsulate  : Boolean indicating whether to encapsulate the data.
+        sign         : Boolean indicating whether the message should be signed.
+        fec          : Boolean indicating whether to enable FEC encoding.
+        gpg          : Gpg object.
+        recipient    : Public key fingerprint of the desired recipient.
+        trust        : Skip key validation on encryption (trust the recipient).
+        sign_key     : Fingerprint to use for signing.
+        fec_overhead : Target FEC overhead.
+
+    Returns:
+        Message as an ApiMsg object.
+
+    """
+    if ((not plaintext or sign) and gpg is None):
+        raise ValueError("Gpg object is required for encryption or signing")
+
+    msg = ApiMsg(data, filename=filename)
+
+    # If transmitting a plaintext message, it could still be clearsigned.
+    if (plaintext and sign):
+        if (sign_key):
+            # Make sure the key exists
+            gpg.get_priv_key(sign_key)
+            sign_key = sign_key
+        else:
+            sign_key = gpg.get_default_priv_key()["fingerprint"]
+
+        msg.clearsign(gpg, sign_key)
+
+    # Pack data into structure (header + data), if enabled
+    if (encapsulate):
+        msg.encapsulate()
+
+    # Encrypt, unless configured otherwise
+    if (not plaintext):
+        # Default to the first public key in the keyring if the recipient is not
+        # defined.
+        if (recipient is None):
+            recipient = gpg.get_default_public_key()["fingerprint"]
+            assert(recipient != defs.blocksat_pubkey), \
+                "Defaul public key is not the user's public key"
+        else:
+            # Make sure the key exists
+            gpg.get_public_key(recipient)
+            recipient = recipient
+
+        # Digital signature. If configured to sign the message without a
+        # specified key, use the default key.
+        if (sign):
+            if (sign_key):
+                # Make sure the key exists
+                gpg.get_priv_key(sign_key)
+                sign_cfg = sign_key
+            else:
+                sign_cfg = gpg.get_default_priv_key()["fingerprint"]
+        else:
+            sign_cfg = False
+
+        msg.encrypt(gpg, recipient, sign_cfg, trust)
+
+    # Forward error correction encoding
+    if (fec):
+        msg.fec_encode(fec_overhead)
+
+    return msg
+
+
+def decode(data, plaintext=True, decapsulate=False, fec=False, sender=None,
+           gpg=None):
+    """Decode an incoming API message
+
+    Args:
+        data        : Message data (bytes)
+        plaintext   : Boolean indicating plaintext mode.
+        decapsulate : Boolean indicating whether to encapsulate the data.
+        fec         : Boolean indicating whether to try FEC decoding first.
+        sender      : Fingerprint of a sender who must have signed the message.
+        gpg         : Gpg object.
+
+    Returns:
+        ApiMsg if the message is succesfully decoded, None otherwise.
+
+    """
+    if ((not plaintext or sender) and gpg is None):
+        raise ValueError("Gpg object is required for decryption/verification")
+
+    if (fec):
+        msg = ApiMsg(data, msg_format="fec_encoded")
+        msg.fec_decode()
+        data = msg.data['original']
+        del msg  # after extracting the data, re-create a new ApiMsg below
+
+    if (plaintext):
+        if (decapsulate):
+            # Encapsulated format, but no encryption
+            msg = ApiMsg(data, msg_format="encapsulated")
+
+            # Try to decapsulate it
+            if (not msg.decapsulate()):
+                return
+        else:
+            # Assume that the message is not encapsulated. This mode is
+            # useful, e.g., for compatibility with transmissions triggered
+            # from the browser at: https://blockstream.com/satellite-queue/.
+            msg = ApiMsg(data, msg_format="original")
+
+        # If filtering clearsigned messages, verify
+        if (sender and not msg.verify(gpg, sender)):
+            return
+
+        logger.info("Message Size: {:d} bytes\tSaving in plaintext".format(
+            msg.get_length(target='original')))
+
+    else:
+        # Cast data into ApiMsg object in encrypted form
+        msg = ApiMsg(data, msg_format="encrypted")
+
+        # Try to decrypt the data:
+        if (not msg.decrypt(gpg, sender)):
+            return
+
+        # Try to decapsulate the application-layer structure if assuming it
+        # is present (i.e., with "save-raw=False")
+        if (decapsulate and not msg.decapsulate()):
+            return
+
+    return msg
