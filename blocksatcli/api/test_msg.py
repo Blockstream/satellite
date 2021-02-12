@@ -140,17 +140,6 @@ class TestApi(unittest.TestCase):
         assert(rx_msg.data["encapsulated"] is None)
         assert(rx_msg.data["encrypted"] is not None)
 
-        # The gpg module needs the passphrase for decryption (to access the
-        # private key). If the passphrase is not provided, and if in
-        # non-interactive mode, it should raise RuntimeError. In interactive
-        # mode, it would prompt the user for the passphrase.
-        with self.assertRaises(RuntimeError):
-            rx_msg.decrypt(gpg)
-
-        # Define the passphrase
-        passphrase = "test"
-        gpg.set_passphrase(passphrase)
-
         # Decrypt
         self.assertTrue(rx_msg.decrypt(gpg))
 
@@ -178,10 +167,6 @@ class TestApi(unittest.TestCase):
         # which is actually the non-encrypted data)
         rx_msg = msg.ApiMsg(data, msg_format="encrypted")
 
-        # Define the passphrase
-        passphrase = "test"
-        gpg.set_passphrase(passphrase)
-
         # Decrypt should fail
         self.assertFalse(rx_msg.decrypt(gpg))
 
@@ -194,10 +179,6 @@ class TestApi(unittest.TestCase):
 
         # Create a second keypair
         gpg.create_keys("Test2", "test2@test.com", "", "test")
-
-        # Define the passphrase for decryption
-        passphrase = "test"
-        gpg.set_passphrase(passphrase)
 
         # Define the signer and recipient as two distinct keys
         recipient = gpg.gpg.list_keys(True)[0]["fingerprint"]
@@ -253,10 +234,6 @@ class TestApi(unittest.TestCase):
         # ApiMsg on the Rx end (starting from the encrypted data)
         rx_msg = msg.ApiMsg(tx_msg.get_data(), msg_format="encrypted")
 
-        # Define the passphrase
-        passphrase = "test"
-        gpg.set_passphrase(passphrase)
-
         # Decrypt and decapsulate
         self.assertTrue(rx_msg.decrypt(gpg))
         self.assertTrue(rx_msg.decapsulate())
@@ -278,10 +255,6 @@ class TestApi(unittest.TestCase):
 
         # Create a second keypair
         gpg.create_keys("Test2", "test2@test.com", "", "test")
-
-        # Define the passphrase for signing
-        passphrase = "test"
-        gpg.set_passphrase(passphrase)
 
         # Define the signer and recipient as two distinct keys
         recipient = gpg.gpg.list_keys(True)[0]["fingerprint"]
@@ -403,7 +376,6 @@ class TestApi(unittest.TestCase):
         # Set up GPG keyring with two keypairs
         gpg = self._setup_gpg()
         gpg.create_keys("Test2", "test2@test.com", "", "test")
-        gpg.set_passphrase("test")
         recipient = gpg.gpg.list_keys(True)[0]["fingerprint"]
         signer    = gpg.gpg.list_keys(True)[1]["fingerprint"]
         assert(recipient != signer)

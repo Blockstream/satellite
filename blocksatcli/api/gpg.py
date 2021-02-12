@@ -49,8 +49,10 @@ class Gpg():
 
         # Password
         if (passphrase is None):
-            passphrase = getpass.getpass(prompt='Please enter the passphrase '
-                                         'to protect your new key: ')
+            self.prompt_passphrase('Please enter a passphrase to protect '
+                                   'your key: ')
+        else:
+            self.set_passphrase(passphrase)
 
         # Generate key
         key_params = self.gpg.gen_key_input(
@@ -59,14 +61,24 @@ class Gpg():
             name_real = name,
             name_comment = comment,
             name_email = email,
-            passphrase = passphrase
+            passphrase = self.passphrase
         )
         key = self.gpg.gen_key(key_params)
 
         logger.info("Keys succesfully generated at {}".format(
             os.path.abspath(self.gpghome)))
 
+    def prompt_passphrase(self, prompt=None):
+        if (self.passphrase is not None):
+            return
+        if (prompt is None):
+            prompt = 'Please enter a passphrase: '
+        self.set_passphrase(getpass.getpass(prompt=prompt))
+
     def set_passphrase(self, passphrase):
+        if (self.passphrase is not None):
+            logger.warning("GPG passphrase already set. Ignoring.")
+            return
         self.passphrase = passphrase
 
     def get_default_public_key(self):

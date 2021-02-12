@@ -1,5 +1,5 @@
 """Blocksat API"""
-import os, getpass, textwrap, logging, subprocess, shlex
+import os, textwrap, logging, subprocess, shlex
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter, \
     ArgumentTypeError
 import qrcode
@@ -66,20 +66,19 @@ def _warn_common_overrides(args):
         logger.warning("Option {} overrides --net and --server".format(opt))
 
 
-def config_keyring(gnupghome, verbose=False):
+def config_keyring(gpg):
     """Configure the local keyring
 
     Create a keypair and import Blockstream's public key
 
     Args:
-        gnupghome : GnuPG home directory
-        verbose   : Verbosity mode on GnuPG operations
+        gpg : Gpg object
 
     """
-    if _is_gpg_keyring_set(gnupghome):
+    assert(isinstance(gpg, Gpg))
+    if _is_gpg_keyring_set(gpg.gpghome):
+        logger.info("Keyring already configured")
         return
-
-    gpg = Gpg(gnupghome, verbose, interactive=True)
 
     # Generate new keypair
     logger.info("Generating a GPG keypair to encrypt and decrypt API messages")
@@ -111,11 +110,15 @@ def config_keyring(gnupghome, verbose=False):
 
     gpg.gpg.trust_keys(defs.blocksat_pubkey, 'TRUST_ULTIMATE')
 
+    if (not _is_gpg_keyring_set(gpg.gpghome)):
+        raise RuntimeError("GPG keyring configuration failed")
+
 
 def config(args):
     """API config command"""
     gnupghome = os.path.join(args.cfg_dir, args.gnupghome)
-    config_keyring(gnupghome, args.verbose)
+    gpg = Gpg(gnupghome, verbose=args.verbose, interactive=True)
+    config_keyring(gpg)
 
 
 def send(args):
@@ -125,17 +128,15 @@ def send(args):
 
     # Instantiate the GPG wrapper object if running with encryption or signing
     if (not args.plaintext or args.sign):
-        config_keyring(gnupghome)
         gpg = Gpg(gnupghome, interactive=True)
+        config_keyring(gpg)
     else:
         gpg = None
 
     # A passphrase is required if signing
     if (args.sign and (not args.no_password)):
-        gpg.set_passphrase(
-            getpass.getpass(prompt='Password to private key '
-                            'used for message signing: ')
-        )
+        gpg.prompt_passphrase('Password to private key used for message '
+                              'signing: ')
 
     # File or text message to send over satellite
     if (args.file is None):
@@ -274,9 +275,12 @@ def listen(args):
                 base_exec_cmd
             ))
 
-    # Make sure that the GPG keyring is set if decrypting or verifying messages
-    if ((not args.plaintext or args.sender)):
-        config_keyring(gnupghome)
+    # GPG wrapper object
+    if (not args.plaintext or args.sender):
+        gpg = Gpg(gnupghome, interactive=True)
+        config_keyring(gpg)
+    else:
+        gpg = None
 
     # Define the interface used to listen for messages
     if (args.interface):
@@ -290,19 +294,10 @@ def listen(args):
     logger.info("Listening on interface: {}".format(interface))
     logger.info("Downloads will be saved at: {}".format(download_dir))
 
-    # GPG wrapper object
-    if (not args.plaintext or args.sender):
-        gpg = Gpg(gnupghome, interactive=True)
-    else:
-        gpg = None
-
     # A passphrase is required for decryption (but not for signature
     # verification)
     if (not args.plaintext and not args.no_password):
-        gpg.set_passphrase(
-            getpass.getpass(prompt='GPG keyring password for '
-                            'decryption: ')
-        )
+        gpg.prompt_passphrase('GPG keyring password for decryption: ')
 
     # Listen continuously
     listen_loop = ApiListener()

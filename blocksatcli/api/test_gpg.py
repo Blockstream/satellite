@@ -29,6 +29,9 @@ class TestGpg(unittest.TestCase):
         created_uid  = gpg.get_default_priv_key()['uids'][0]
         self.assertEqual(created_uid, expected_uid)
 
+        # The passphrase should be saved internally
+        self.assertIsNotNone(gpg.passphrase)
+
     def test_duplicate_key(self):
         """Test creation of duplicate GPG keys"""
         name       = "Test"
@@ -64,7 +67,8 @@ class TestGpg(unittest.TestCase):
         recipient = gpg.get_default_public_key()['fingerprint']
         enc_data  = gpg.encrypt(data, recipient).data
 
-        # Decryption requires the passphrase, otherwise it throws exception
+        # Decryption requires the passphrase, otherwise it throws an exception
+        gpg.passphrase = None  # delete the passphrase set on key creation
         with self.assertRaises(RuntimeError):
             gpg.decrypt(enc_data)
 
