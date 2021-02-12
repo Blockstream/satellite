@@ -35,6 +35,18 @@ def typed_input(msg, hint=None, in_type=int, default=None):
     return res
 
 
+def string_input(msg, default=None):
+    """Ask for a non-null string input with an optional default value"""
+    res = ""
+    while (len(res) == 0):
+        if (default is not None):
+            assert(isinstance(default, str))
+            res = input(msg + ": [{}] ".format(default)) or default
+        else:
+            res = input(msg + ": ")
+    return res
+
+
 def _ask_yes_or_no(msg, default="y", help_msg = None):
     """Yes or no question
 

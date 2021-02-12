@@ -14,4 +14,5 @@
   - [Satellite API](api.md)
   - [Running on Docker](docker.md)
   - [Frequency Bands](frequency.md)
+  - [Monitoring Server](monitoring.md)
   - [Quick Reference](quick-reference.md)

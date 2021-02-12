@@ -1,5 +1,5 @@
 ---
-nav_order: 11
+nav_order: 12
 ---
 
 # Quick Reference Guide
@@ -85,6 +85,11 @@ Configure the receiver and the host by running:
 
 ```
 sudo blocksat-cli standalone cfg
+```
+
+Monitor the S400 receiver:
+```
+blocksat-cli standalone monitor
 ```
 
 ### TBS5927 USB receiver

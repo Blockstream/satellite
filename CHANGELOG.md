@@ -4,6 +4,10 @@
 
 Release Date: TBD
 
+### Added
+- Support for the new Satellite Monitoring API, through which users can opt-in
+  to report their receiver performance metrics using option `--report`.
+
 ### Fixed
 - Permissions of the GPG home directory created via the `api config` command and
   other unnecessary warnings during the keyring creation process.

@@ -2,11 +2,11 @@
 import sys, os, time, logging, math, requests, threading, json
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from datetime import datetime
-from . import defs, config
+from . import defs, config, monitoring_api
 
 
 logger = logging.getLogger(__name__)
-sats   = [ x['alias'] for x in defs.satellites]
+sats = [x['alias'] for x in defs.satellites]
 
 
 def get_report_opts(args):
@@ -17,7 +17,8 @@ def get_report_opts(args):
         'dest_addr': args.report_dest,
         'hostname': args.report_hostname,
         'tls_cert': args.report_cert,
-        'tls_key': args.report_key
+        'tls_key': args.report_key,
+        'gnupghome': args.report_gnupghome
     }
 
 
@@ -27,8 +28,8 @@ class Reporter():
     Sends receiver metrics to a remote server.
 
     """
-    def __init__(self, cfg, cfg_dir, dest_addr, hostname, tls_cert=None,
-                 tls_key=None):
+    def __init__(self, cfg, cfg_dir, dest_addr, hostname=None, tls_cert=None,
+                 tls_key=None, gnupghome=None):
         """Reporter Constructor
 
         Args:
@@ -38,6 +39,8 @@ class Reporter():
             hostname  : Hostname used to identify the reports
             tls_cert  : Optional client side certificate for TLS authentication
             tls_key   : Key associated with the client side certificate
+            gnupghome : GnuPG home directory used when reporting to
+                        Blockstream's monitoring API
 
         """
         info = config.read_cfg_file(cfg, cfg_dir)
@@ -50,18 +53,21 @@ class Reporter():
         self.satellite = satellite
 
         # Destination address, hostname, and client side cert
-        assert(dest_addr is not None), "Reporting destination address undefined"
-        assert(hostname is not None), "Reporting hostname undefined"
         self.dest_addr = dest_addr
         self.hostname = hostname
         self.tls_cert = tls_cert
         self.tls_key  = tls_key
 
-        logger.info("Reporting Rx status to {} "
-                    "(hostname: {}, satellite: {})".format(
-                        self.dest_addr,
-                        self.hostname,
-                        self.satellite))
+        # If the report destination address corresponds to Blockstream's
+        # Monitoring API (the default), create the object to handle the
+        # interaction with this API (e.g., registration).
+        if (dest_addr == monitoring_api.metric_endpoint):
+            self.bs_monitoring = monitoring_api.BsMonitoring(cfg, cfg_dir,
+                                                             gnupghome)
+        else:
+            self.bs_monitoring = None
+
+        logger.info("Reporting Rx status to {} ".format(self.dest_addr))
 
     def send(self, metrics):
         """Save measurement on database
@@ -69,11 +75,44 @@ class Reporter():
         Args:
             metrics : Dictionary with receiver metrics to send over the report
         """
-        data = {
-            "hostname"  : self.hostname,
-            "satellite" : self.satellite,
-        }
+        # When the receiver is not registered with the monitoring API, the
+        # sign-up procedure runs. However, this procedure can only work if the
+        # receiver is locked, given that it requires reception of a validation
+        # code sent exclusively over satellite. Hence, the registration routine
+        # (running on a thread) waits until a threading event is set below to
+        # indicate the Rx lock:
+        if (self.bs_monitoring and not self.bs_monitoring.registered):
+            if ('lock' in metrics and metrics['lock']):
+                self.bs_monitoring.rx_lock_event.set()
+
+            # If the registration procedure has already stopped and failed, do
+            # not proceed. Reporting would otherwise fail anyway, given that
+            # the monitoring server does not accept reports from non-registered
+            # receivers. Just warn the user and stop right here.
+            if (self.bs_monitoring.registration_failure):
+                print()
+                logger.error("Report failed: registration incomplete "
+                             "(relaunch receiver and try again)")
+
+            # Don't send reports to the monitoring API until the receiver is
+            # properly registered and verified
+            return
+
+        data = {}
         data.update(metrics)
+
+        # When reporting to Blockstream's Monitoring API, sign every set of
+        # reported data using the local GPG key and don't send the satellite nor
+        # the hostname on the requests. This information is already associated
+        # with the account registered with the Monitoring API. In contrast, when
+        # reporting to a general-purpose server, do include the satellite and
+        # hostname information if defined.
+        if (self.bs_monitoring is None):
+            data["satellite"] = self.satellite,
+            if (self.hostname):
+                data['hostname'] = self.hostname
+        else:
+            self.bs_monitoring.sign_report(data)
 
         logger.debug("Report {} to {}".format(
             data, self.dest_addr
@@ -83,9 +122,11 @@ class Reporter():
             r = requests.post(self.dest_addr, json=data,
                               cert = (self.tls_cert, self.tls_key))
             if (r.status_code != requests.codes.ok):
-                print(r.text)
+                print()
+                logger.error("Report failed: " + r.text)
         except requests.exceptions.ConnectionError as e:
-            print(e)
+            print()
+            logger.error("Report failed: " + str(e))
 
 
 class Server(BaseHTTPRequestHandler):
@@ -277,13 +318,6 @@ class Monitor():
 
         self.t_last_print = t_now
 
-        # Print to console
-        if (self.echo):
-            print_end = '\n' if self.scroll else '\r'
-            if (not self.scroll):
-                sys.stdout.write("\033[K")
-            print(str(self), end=print_end)
-
         # Append metrics to log file
         if (self.logfile):
             with open(self.logfile, 'a') as fd:
@@ -292,6 +326,32 @@ class Monitor():
         # Report over HTTP to a remote address
         if (self.report):
             self.reporter.send(self.get_stats())
+            # If the reporter object is configured to report to the Monitoring
+            # API but, at this point, it is still waiting for registration to
+            # complete, don't log the status to the console yet. Otherwise, the
+            # user would likely miss the logs indicating completion of the
+            # registration procedure. On the other hand, if a log file is
+            # enabled, it is OK to log into it throughout the registration.
+            #
+            # Besides, if the reporter is configured to report to the Monitoring
+            # API and the registration is not complete yet, the above call does
+            # not really send the report yet. Nevertheless, it is still
+            # required. Refer to the implementation.
+            #
+            # As soon as the registration procedure ends (as indicated by the
+            # "registration_running" flag), console logs are reactivated, even
+            # if the registration fails.
+            if (self.reporter.bs_monitoring is not None and not
+                self.reporter.bs_monitoring.registered and
+                self.reporter.bs_monitoring.registration_running):
+                return
+
+        # Print to console
+        if (self.echo):
+            print_end = '\n' if self.scroll else '\r'
+            if (not self.scroll):
+                sys.stdout.write("\033[K")
+            print(str(self), end=print_end)
 
 
 def add_to_parser(parser):
@@ -340,7 +400,9 @@ def add_to_parser(parser):
     )
     r_p.add_argument(
         '--report-dest',
-        help='Destination address in http://ip:port format'
+        default=monitoring_api.metric_endpoint,
+        help='Destination address in http://ip:port format. By default, '
+        'report to Blockstream\'s Satellite Monitoring API'
     )
     r_p.add_argument(
         '--report-hostname',
@@ -356,5 +418,12 @@ def add_to_parser(parser):
         default=None,
         help="Private key for client-side authentication with the destination"
     )
-
-
+    r_p.add_argument(
+        '--report-gnupghome',
+        default=".gnupg",
+        help="GnuPG home directory, by default created inside the config "
+        "directory specified via --cfg-dir option. This option is used when "
+        "reporting to Blockstream's Satellite Monitoring API only, where it "
+        "determines the name of the directory (inside --cfg-dir) that holds "
+        "the key for authentication with the API"
+    )

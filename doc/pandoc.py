@@ -116,7 +116,7 @@ def main():
         "../index.md", "hardware.md", "software.md", "s400.md", "tbs.md",
         "sat-ip.md", "sdr.md", "antenna-pointing.md", "bitcoin.md",
         "dual-satellite.md", "api.md", "docker.md", "frequency.md",
-        "quick-reference.md"
+        "monitoring.md", "quick-reference.md"
     ]
 
     title_map = {}

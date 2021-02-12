@@ -31,7 +31,7 @@ class ApiListener():
         self.recv_queue = recv_queue
 
     def stop(self):
-        logger.info("Stopping API listener")
+        logger.debug("Stopping API listener")
         self.enabled = False
 
     def run(self,
@@ -74,6 +74,8 @@ class ApiListener():
             region       : Satellite region to inform on Rx confirmations
 
         """
+        logger.debug("Starting API listener")
+
         # Open UDP socket
         sock = net.UdpSock(sock_addr, interface)
 

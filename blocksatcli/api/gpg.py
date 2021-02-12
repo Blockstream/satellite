@@ -148,12 +148,20 @@ class Gpg():
 
         return self.gpg.decrypt(data, passphrase = self.passphrase)
 
-    def sign(self, data, keyid, clearsign=True):
+    def sign(self, data, keyid, clearsign=True, detach=False):
         """Sign a given data array"""
+        assert(not (clearsign and detach)), \
+            "clearsign and detach options are mutually exclusive"
+
+        if (not self.interactive and self.passphrase is None):
+            raise RuntimeError(
+                "Passphrase must be defined in non-interactive mode")
+
         return self.gpg.sign(
             data,
             keyid = keyid,
             clearsign = clearsign,
+            detach = detach,
             passphrase = self.passphrase
         )
 
