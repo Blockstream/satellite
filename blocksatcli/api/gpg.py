@@ -1,5 +1,6 @@
 import logging, os, getpass
 import gnupg
+from .. import defs
 from .. import util
 
 
@@ -154,3 +155,72 @@ class Gpg():
         )
 
 
+def _is_gpg_keyring_set(gnupghome):
+    """Check if the keyring is already configured
+
+    It is configured when:
+    - It has at least one private key
+    - It has at least two public keys
+    - One of the public keys is the blocksat pubkey
+
+    """
+    if not os.path.exists(gnupghome):
+        return False
+
+    gpg = Gpg(gnupghome)
+
+    has_privkey = len(gpg.gpg.list_keys(True)) >= 1
+    has_two_pubkeys = len(gpg.gpg.list_keys()) >= 2
+    has_bs_pubkey = len(gpg.gpg.list_keys(keys=defs.blocksat_pubkey)) > 0
+
+    return has_privkey and has_two_pubkeys and has_bs_pubkey
+
+
+def config_keyring(gpg, log_if_configured=False):
+    """Configure the local keyring
+
+    Create a keypair and import Blockstream's public key
+
+    Args:
+        gpg : Gpg object
+        log_if_configured : Print log message if keyring is already configured
+
+    """
+    assert(isinstance(gpg, Gpg))
+    if _is_gpg_keyring_set(gpg.gpghome):
+        if (log_if_configured):
+            logger.info("Keyring already configured")
+        return
+
+    # Generate new keypair
+    logger.info("Generating a GPG keypair to encrypt and decrypt API messages")
+    name    = input("User name represented by the key: ")
+    email   = input("E-mail address: ")
+    comment = input("Comment to attach to the user ID: ")
+    gpg.create_keys(name, email, comment)
+
+    # Import Blockstream's public key
+    #
+    # NOTE: the order is important here. Add Blockstream's public key only after
+    # adding the user key. With that, the user key becomes the first key on the
+    # keyring, which is used by default.
+    pkg_dir  = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    key_path = os.path.join(pkg_dir, 'gpg', defs.blocksat_pubkey + ".gpg")
+
+    with open(key_path) as fd:
+        key_data = fd.read()
+
+    import_result = gpg.gpg.import_keys(key_data)
+
+    if (len(import_result.fingerprints) == 0):
+        logger.warning("Failed to import key {}".format(defs.blocksat_pubkey))
+        return
+
+    logger.info("Imported key {}".format(
+        import_result.fingerprints[0]
+    ))
+
+    gpg.gpg.trust_keys(defs.blocksat_pubkey, 'TRUST_ULTIMATE')
+
+    if (not _is_gpg_keyring_set(gpg.gpghome)):
+        raise RuntimeError("GPG keyring configuration failed")
