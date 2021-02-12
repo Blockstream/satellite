@@ -1,10 +1,10 @@
-import unittest, os, shutil, gnupg
+import unittest, os, shutil, time, uuid
 from .gpg import Gpg
 
 
 class TestGpg(unittest.TestCase):
     def setUp(self):
-        self.gpghome = "/tmp/.gnupg-test"
+        self.gpghome = "/tmp/.gnupg-" + str(uuid.uuid4())
 
     def tearDown(self):
         shutil.rmtree(self.gpghome, ignore_errors=True)
@@ -14,11 +14,10 @@ class TestGpg(unittest.TestCase):
         name       = "Test"
         email      = "test@test.com"
         comment    = "comment"
-        gpghome    = "/tmp/.gnupg-test"
         passphrase = "test"
-        gpg = Gpg(gpghome)
+        gpg = Gpg(self.gpghome)
         gpg.create_keys(name, email, comment, passphrase)
-        assert(os.path.exists(gpghome))
+        assert(os.path.exists(self.gpghome))
 
         # Check public key
         expected_uid = name + " (" + comment + ") <" + email + ">"
@@ -35,13 +34,12 @@ class TestGpg(unittest.TestCase):
         name       = "Test"
         email      = "test@test.com"
         comment    = "comment"
-        gpghome    = "/tmp/.gnupg-test"
         passphrase = "test"
-        gpg = Gpg(gpghome)
+        gpg = Gpg(self.gpghome)
 
         # Create keys for the first time
         gpg.create_keys(name, email, comment, passphrase)
-        assert(os.path.exists(gpghome))
+        assert(os.path.exists(self.gpghome))
 
         # Try to create again
         gpg.create_keys(name, email, comment, passphrase)
@@ -52,13 +50,12 @@ class TestGpg(unittest.TestCase):
         name       = "Test"
         email      = "test@test.com"
         comment    = "comment"
-        gpghome    = "/tmp/.gnupg-test"
         passphrase = "test"
-        gpg = Gpg(gpghome)
+        gpg = Gpg(self.gpghome)
 
         # Create keys for the first time
         gpg.create_keys(name, email, comment, passphrase)
-        assert(os.path.exists(gpghome))
+        assert(os.path.exists(self.gpghome))
 
         # Original message
         data  = bytes([0,1,2,3])
