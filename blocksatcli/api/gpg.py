@@ -49,8 +49,8 @@ class Gpg():
 
         # Password
         if (passphrase is None):
-            passphrase = getpass.getpass(prompt='Please enter the passphrase to '
-                                         'protect your new key: ')
+            passphrase = getpass.getpass(prompt='Please enter the passphrase '
+                                         'to protect your new key: ')
 
         # Generate key
         key_params = self.gpg.gen_key_input(
@@ -62,11 +62,6 @@ class Gpg():
             passphrase = passphrase
         )
         key = self.gpg.gen_key(key_params)
-
-        # Export
-        public_key  = self.gpg.export_keys(key.fingerprint)
-        private_key = self.gpg.export_keys(key.fingerprint, True,
-                                           passphrase = passphrase)
 
         logger.info("Keys succesfully generated at {}".format(
             os.path.abspath(self.gpghome)))
