@@ -1,4 +1,4 @@
-import logging, os, getpass
+import logging, os, getpass, stat
 import gnupg
 from .. import defs
 from .. import util
@@ -12,6 +12,9 @@ class Gpg():
         """Create GnuPG instance"""
         if (not os.path.exists(gpghome)):
             os.mkdir(gpghome)
+            # Make sure only the owner has permissions to read, write, and
+            # execute the GPG home directory
+            os.chmod(gpghome, stat.S_IRWXU)
 
         self.interactive = interactive
         self.gpghome     = gpghome

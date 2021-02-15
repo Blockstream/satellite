@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.3.3]
+
+Release Date: TBD
+
+### Fixed
+- Permissions of the GPG home directory created via `blocksat-cli api config`.
+
 ## [2.3.2]
 
 Release Date: 2021-04-28
