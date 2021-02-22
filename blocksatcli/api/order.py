@@ -157,7 +157,8 @@ class ApiOrder:
         """Get data content sent over an API order"""
         logger.debug("Fetch message #%s from API" %(self.seq_num))
 
-        r = requests.get(self.server + '/message/' + str(self.seq_num))
+        r = requests.get(self.server + '/message/' + str(self.seq_num),
+                         cert = (self.tls_cert, self.tls_key))
 
         r.raise_for_status()
 

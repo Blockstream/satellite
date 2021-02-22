@@ -160,7 +160,8 @@ class DemoRx():
             try:
                 # Server-sent Events (SSE) Client
                 r = requests.get(self.server + "/subscribe/transmissions",
-                                 stream=True)
+                                 stream=True,
+                                 cert=(self.tls_cert, self.tls_key))
                 r.raise_for_status()
                 client = sseclient.SSEClient(r)
                 logger.info("Connected. Waiting for events...\n")
