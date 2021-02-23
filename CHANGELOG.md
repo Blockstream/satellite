@@ -5,7 +5,8 @@
 Release Date: TBD
 
 ### Fixed
-- Permissions of the GPG home directory created via `blocksat-cli api config`.
+- Permissions of the GPG home directory created via the `api config` command and
+  other unnecessary warnings during the keyring creation process.
 
 ## [2.3.2]
 

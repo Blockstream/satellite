@@ -172,11 +172,16 @@ def _is_gpg_keyring_set(gnupghome):
 
     gpg = Gpg(gnupghome)
 
-    has_privkey = len(gpg.gpg.list_keys(True)) >= 1
-    has_two_pubkeys = len(gpg.gpg.list_keys()) >= 2
-    has_bs_pubkey = len(gpg.gpg.list_keys(keys=defs.blocksat_pubkey)) > 0
+    if (len(gpg.gpg.list_keys(True)) == 0): # no private key
+        return False
 
-    return has_privkey and has_two_pubkeys and has_bs_pubkey
+    if (len(gpg.gpg.list_keys()) < 2): # no two public keys
+        return False
+
+    if (len(gpg.gpg.list_keys(keys=defs.blocksat_pubkey)) == 0): # blocksat key
+        return False
+
+    return True
 
 
 def config_keyring(gpg, log_if_configured=False):
