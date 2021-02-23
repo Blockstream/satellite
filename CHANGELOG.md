@@ -7,6 +7,8 @@ Release Date: 2021-03-16
 ### Fixed
 - Potential unhandled crashing of the SDR app's monitoring thread due to invalid
   monitoring options.
+- Network interface name used on the `api listen` command for USB receivers. Use
+  the DVB-S2 adapter number cached the local JSON configuration file.
 
 ## [2.3.0]
 

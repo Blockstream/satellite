@@ -6,6 +6,8 @@ from . import util, defs, instructions
 import textwrap
 from decimal import Decimal, getcontext
 
+logger = logging.getLogger(__name__)
+
 
 def _cfg_satellite():
     """Configure satellite covering the user"""
@@ -503,6 +505,12 @@ def write_cfg_file(cfg_name, directory, user_info):
     _write_cfg_file(cfg_file, user_info)
 
 
+def get_rx_model(user_info):
+    """Return string with the receiver vendor and model"""
+    return (user_info['setup']['vendor'] + " " + \
+        user_info['setup']['model']).strip()
+
+
 def get_net_if(user_info, prefer_8psk=False):
     """Get the network interface used by the given setup
 
@@ -516,7 +524,16 @@ def get_net_if(user_info, prefer_8psk=False):
     if (user_info['setup']['type'] == defs.sdr_setup_type):
         interface = "lo"
     elif (user_info['setup']['type'] == defs.linux_usb_setup_type):
-        interface = "dvb0_1" if prefer_8psk else "dvb0_0"
+        if ('adapter' not in user_info['setup']):
+            interface = "dvb0_1" if prefer_8psk else "dvb0_0"
+            logger.warning("Could not find the dvbnet interface name. "
+                           "Is the {} receiver running?".format(
+                               get_rx_model(user_info)
+                           ))
+        else:
+            adapter = user_info['setup']['adapter']
+            interface = "dvb{}_1".format(adapter) if prefer_8psk else \
+                "dvb{}_0".format(adapter)
     elif (user_info['setup']['type'] == defs.standalone_setup_type):
         interface = user_info['setup']['netdev']
     else:

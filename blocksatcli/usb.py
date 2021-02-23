@@ -555,6 +555,12 @@ def _common(args):
             # Assume argument --adapter has the target model
             adapter, frontend = _find_adapter(target_model=args.adapter)
 
+    # Cache the adapter number on the local config file so that other modules
+    # can read the adapter number directly. Rewrite the info every time, as the
+    # adapter number could change between boots.
+    user_info['setup']['adapter'] = adapter
+    config.write_cfg_file(args.cfg, args.cfg_dir, user_info)
+
     return user_info, adapter, frontend
 
 

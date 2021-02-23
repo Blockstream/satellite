@@ -34,19 +34,35 @@ class TestConfig(TestCase):
 
     def test_net_if(self):
         info = {}
-        info['setup'] = {
-            'type': defs.standalone_setup_type,
-            'netdev': 'en0'
-        }
+
+        # Standalone
+        info['setup'] = defs.demods[0]
+        info['setup']['netdev'] = 'en0'
         self.assertEqual(config.get_net_if(info), 'en0')
 
-        info['setup'] = {
-            'type': defs.linux_usb_setup_type,
-        }
+        # USB type but adapter number not cached
+        info['setup'] = defs.demods[1]
         self.assertEqual(config.get_net_if(info), 'dvb0_0')
         self.assertEqual(config.get_net_if(info, prefer_8psk=True), 'dvb0_1')
 
-        info['setup'] = {
-            'type': defs.sdr_setup_type,
-        }
+        # USB type with adapter number cached
+        info['setup']['adapter'] = 2
+        self.assertEqual(config.get_net_if(info), 'dvb2_0')
+        self.assertEqual(config.get_net_if(info, prefer_8psk=True), 'dvb2_1')
+
+        # SDR
+        info['setup'] = defs.demods[2]
         self.assertEqual(config.get_net_if(info), 'lo')
+
+    def test_rx_model(self):
+        info = {}
+
+        info['setup'] = defs.demods[0]
+        self.assertEqual(config.get_rx_model(info), 'Novra S400')
+
+        info['setup'] = defs.demods[1]
+        self.assertEqual(config.get_rx_model(info), 'TBS 5927')
+
+        info['setup'] = defs.demods[2]
+        self.assertEqual(config.get_rx_model(info), 'RTL-SDR')
+
