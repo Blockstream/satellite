@@ -67,7 +67,7 @@ def _cfg_rx_setup():
 
     # Antenna
     question = "Please, inform the type of your satellite dish (antenna):"
-    size = util._ask_multiple_choice(
+    antenna = util._ask_multiple_choice(
         defs.antennas, question, "Size",
         lambda x : 'Satellite Dish ({})'.format(x['label'])
         if x['type'] == 'dish'
@@ -75,13 +75,13 @@ def _cfg_rx_setup():
         none_option = True,
         none_str = "Other")
 
-    if (size is None):
-        resp = util.typed_input("Enter size in cm",
+    if (antenna is None):
+        size = util.typed_input("Enter size in cm",
                                 "Please enter an integer number in cm",
                                 in_type=int)
-        size = { 'label' : "custom", 'size' : resp }
+        antenna = { 'label' : "custom", 'type': 'dish', 'size' : size }
 
-    setup['antenna'] = size
+    setup['antenna'] = antenna
 
     return setup
 
@@ -509,6 +509,39 @@ def get_rx_model(user_info):
     """Return string with the receiver vendor and model"""
     return (user_info['setup']['vendor'] + " " + \
         user_info['setup']['model']).strip()
+
+
+def get_antenna_model(user_info):
+    """Return string with the antenna model"""
+    antenna_info = user_info['setup']['antenna']
+    antenna_type = antenna_info.get('type')
+
+    if (antenna_type == 'dish' or antenna_info['label'] == 'custom'):
+        dish_size = antenna_info['size']
+        if (dish_size >= 100):
+            antenna = "{:g}m dish".format(dish_size / 100)
+        else:
+            antenna = "{:g}cm dish".format(dish_size)
+    elif (antenna_type == 'flat'):
+        antenna = "Selfsat H50D"
+    else:
+        raise ValueError("Unknown antenna type {}".format(antenna_type))
+
+    return antenna
+
+
+def get_lnb_model(user_info):
+    """Return string with the LNB model"""
+    lnb_info = user_info['lnb']
+    if (lnb_info['vendor'] == "" and lnb_info['model'] == ""):
+        if (lnb_info['universal']):
+            lnb = "Custom Universal LNB"
+        else:
+            lnb = "Custom {}-band LNB".format(
+                lnb_info['band'])
+    else:
+        lnb = "{} {}".format(lnb_info['vendor'], lnb_info['model'])
+    return lnb
 
 
 def get_net_if(user_info, prefer_8psk=False):

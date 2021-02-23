@@ -66,3 +66,37 @@ class TestConfig(TestCase):
         info['setup'] = defs.demods[2]
         self.assertEqual(config.get_rx_model(info), 'RTL-SDR')
 
+    def test_antenna_model(self):
+        # Dish antennas on cm and m range
+        info = {'setup': {'antenna': defs.antennas[0]}}
+        self.assertEqual(config.get_antenna_model(info), '45cm dish')
+        info['setup']['antenna']['size'] = 100
+        self.assertEqual(config.get_antenna_model(info), '1m dish')
+        info['setup']['antenna']['size'] = 120
+        self.assertEqual(config.get_antenna_model(info), '1.2m dish')
+
+        # Backwards compatibility with "custom" antenna lacking a type field
+        info = {'setup': {'antenna': {'label': 'custom', 'size': 282.5}}}
+        self.assertEqual(config.get_antenna_model(info), '2.825m dish')
+
+        # Flat-panel
+        info = {'setup': {'antenna': defs.antennas[-1]}}
+        self.assertEqual(config.get_antenna_model(info), 'Selfsat H50D')
+
+    def test_lnb_model(self):
+        info = {}
+        info['lnb'] = defs.lnbs[0]
+        self.assertEqual(config.get_lnb_model(info), 'GEOSATpro UL1PLL')
+
+        # Custom LNBs
+        info['lnb'] = {
+            'vendor': "",
+            'model': "",
+            'universal': True,
+            'band': "Ku"
+        }
+        self.assertEqual(config.get_lnb_model(info), 'Custom Universal LNB')
+        info['lnb']['universal'] = False
+        self.assertEqual(config.get_lnb_model(info), 'Custom Ku-band LNB')
+        info['lnb']['band'] = "C"
+        self.assertEqual(config.get_lnb_model(info), 'Custom C-band LNB')
