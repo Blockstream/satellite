@@ -77,7 +77,8 @@ def _get_monitor(args):
         server = args.monitoring_server,
         port = args.monitoring_port,
         report = args.report,
-        report_opts = monitoring.get_report_opts(args)
+        report_opts = monitoring.get_report_opts(args),
+        utc = args.utc
     )
 
 

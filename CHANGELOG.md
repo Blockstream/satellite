@@ -9,6 +9,8 @@ Release Date: 2021-03-16
   monitoring options.
 - Network interface name used on the `api listen` command for USB receivers. Use
   the DVB-S2 adapter number cached the local JSON configuration file.
+- Timestamps produced by the monitoring handler always based on UTC time despite
+  the absence of option `--utc`.
 
 ## [2.3.0]
 

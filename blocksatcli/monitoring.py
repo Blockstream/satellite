@@ -115,7 +115,7 @@ class Monitor():
     """
     def __init__(self, cfg_dir, logfile=False, scroll=False, echo=True,
                  min_interval=1.0, server=False, port=defs.monitor_port,
-                 report=False, report_opts={}):
+                 report=False, report_opts={}, utc=True):
         """Monitor Constructor
 
         Args:
@@ -132,6 +132,7 @@ class Monitor():
             report       : Whether to report the receiver status over HTTP to
                            a remote address.
             report_opts  : Reporter options.
+            utc          : Whether to print logs in UTC time.
 
         """
         self.cfg_dir      = cfg_dir
@@ -140,6 +141,7 @@ class Monitor():
         self.echo         = echo
         self.min_interval = min_interval
         self.report       = report
+        self.utc          = utc
         if (logfile):
             self._setup_logfile()
 
@@ -193,7 +195,12 @@ class Monitor():
 
     def __str__(self):
         """Return string containing the receiver stats"""
-        t_now  = time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime())
+        if (self.utc):
+            timestamp = time.gmtime()
+        else:
+            timestamp = time.localtime()
+        t_now = time.strftime("%Y-%m-%d %H:%M:%S", timestamp)
+
         string = "{} ".format(t_now)
 
         for key in self._metrics.keys():
