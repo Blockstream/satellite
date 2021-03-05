@@ -1,7 +1,7 @@
 """Manage software dependencies"""
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 from . import config, defs, util
-import sys, os, subprocess, logging, glob, json
+import sys, os, subprocess, logging, glob, json, textwrap, tempfile
 from shutil import which
 from pprint import pformat
 import platform, distro, requests
@@ -15,6 +15,7 @@ target_map = {
     "standalone": defs.standalone_setup_type,
     "sat-ip": defs.sat_ip_setup_type
 }
+supported_distros = ["ubuntu", "debian", "raspbian", "fedora", "centos"]
 
 def _download_file(url, destdir, dry_run):
     filename   = url.split('/')[-1]
@@ -37,25 +38,44 @@ def _download_file(url, destdir, dry_run):
     return local_path
 
 
-def _check_distro(supported_distros, setup_type):
+def _check_distro(setup_type):
     """Check if distribution is supported"""
+    if (distro.id() in supported_distros):
+        return
+
     base_url = defs.user_guide_url + "doc/"
     instructions_url = {
-        defs.sdr_setup_type : "sdr.html",
-        defs.linux_usb_setup_type : "tbs.html",
-        defs.sat_ip_setup_type : "sat-ip.html"
+        defs.sdr_setup_type: "sdr.md",
+        defs.linux_usb_setup_type: "tbs.md",
+        defs.standalone_setup_type: "s400.md",
+        defs.sat_ip_setup_type: "sat-ip.md"
     }
     full_url = base_url + instructions_url[setup_type]
-    if (distro.id() not in supported_distros):
-        print("{} is not a supported Linux distribution for "
-              "the {} setup".format(distro.name(), setup_type))
-        util.fill_print("Please, refer to {} receiver setup instructions at "
-                        "{}".format(setup_type, full_url))
-        raise ValueError("Unsupported Linux distribution")
+    logger.error("{} is not a supported Linux distribution".format(
+        distro.name()))
+    logger.info(
+        textwrap.fill("Please, refer to the {} receiver setup "
+                      "instructions at {}".format(setup_type, full_url)))
+    raise ValueError("Unsupported Linux distribution")
 
 
-def _check_pkg_repo():
+def _get_apt_repo(distro_id):
+    """Find the APT package repository for the given distro"""
+    if distro_id == "ubuntu":
+        apt_repo = "ppa:blockstream/satellite"
+    elif distro_id in ["debian", "raspbian"]:
+        apt_repo = ("https://aptly.blockstream.com/"
+                    "satellite/{}/").format(distro_id)
+    else:
+        raise ValueError("Unsupported distribution {}".format(distro_id))
+    return apt_repo
+
+
+def _check_pkg_repo(distro_id):
     """Check if Blockstream Satellite's binary package repository is enabled
+
+    Args:
+        distro_id: Linux distribution ID
 
     Returns:
         (bool) True if the repository is already enabled
@@ -63,9 +83,11 @@ def _check_pkg_repo():
     """
     found = False
     if (which("apt")):
+        apt_repo = _get_apt_repo(distro_id)
+        grep_str = apt_repo.replace("ppa:", "")
         apt_sources = glob.glob("/etc/apt/sources.list.d/*")
         apt_sources.append("/etc/apt/sources.list")
-        cmd = ["grep", "blockstream/satellite"]
+        cmd = ["grep", grep_str]
         cmd.extend(apt_sources)
         res = util.run_and_log(cmd, stdout=subprocess.DEVNULL, nocheck=True,
                                logger=logger)
@@ -93,14 +115,54 @@ def _check_pkg_repo():
     return found
 
 
-def _enable_pkg_repo(interactive, dry):
-    """Enable Blockstream Satellite's binary package repository"""
+def _enable_pkg_repo(distro_id, interactive, dry):
+    """Enable Blockstream Satellite's binary package repository
+
+    Args:
+        distro_id: Linux distribution ID
+        interactive: Interactive mode
+        dry: Dry run
+
+    """
     cmds = list()
     if (which("apt")):
-        cmd = ["add-apt-repository", "ppa:blockstream/satellite"]
-        if (not interactive):
-            cmd.append("-y")
+        apt_repo = _get_apt_repo(distro_id)
+
+        # On debian, add the apt repository through "add-apt-repository". On
+        # raspbian, where "add-apt-repository" does not work, manually add a
+        # file into /etc/apt/sources.list.d/.
+        if distro_id == "raspbian":
+            release_codename = distro.codename()
+            apt_list_filename = "blockstream-satellite-{}-{}.list".format(
+                distro_id, release_codename)
+            apt_list_file = os.path.join("/etc/apt/sources.list.d/",
+                                         apt_list_filename)
+            apt_component = "main"
+            apt_file_content = "deb {0} {1} {2}\n# deb-src {0} {1} {2}".format(
+                apt_repo, release_codename, apt_component)
+            # In execution mode, create a temporary file and move it to
+            # /etc/apt/sources.list.d/. With that, only the move command needs
+            # root permissions, whereas the temporary file does not. In dry-run
+            # mode, print an equivalent echo command.
+            if (dry):
+                cmd = ["echo", "-e", repr(apt_file_content), ">>",
+                       apt_list_file]
+            else:
+                tmp_file = tempfile.NamedTemporaryFile(mode="w", delete=False)
+                with tmp_file as fd:
+                    fd.write(apt_file_content)
+                cmd = ["mv", tmp_file.name, apt_list_file]
+        else:
+            cmd = ["add-apt-repository", apt_repo]
+            if (not interactive):
+                cmd.append("-y")
+
         cmds.append(cmd)
+
+        if distro_id in ["debian", "raspbian"]:
+            cmd = ["apt-key", "adv", "--keyserver", "keyserver.ubuntu.com",
+                   "--recv-keys", defs.blocksat_pubkey]
+            cmds.append(cmd)
 
         cmd = ["apt", "update"]
         if (not interactive):
@@ -205,7 +267,17 @@ def _install_common(interactive=True, update=False, dry=False, btc=False):
     dnf_pkg_list = ["dnf-plugins-core"]
     yum_pkg_list = ["yum-plugin-copr"]
 
-    if distro.id() == "centos":
+    # "gnupg" is installed as a dependency of "software-properties-common" on
+    # Ubuntu. In contrast, it is not a dependency on Debian. Hence, add it
+    # explicitly to the list. Add also "dirmngr", which may not be
+    # automatically installed with gnupg (it is only automatically installed
+    # from buster onwards). Lastly, add "apt-transport-https" to fetch debian
+    # and raspbian packages from Aptly using HTTPS.
+    distro_id = distro.id()
+    if distro_id in ["debian", "raspbian"]:
+        apt_pkg_list.extend(["gnupg", "dirmngr", "apt-transport-https"])
+
+    if distro_id == "centos":
         dnf_pkg_list.append("epel-release")
         yum_pkg_list.append("epel-release")
 
@@ -213,8 +285,8 @@ def _install_common(interactive=True, update=False, dry=False, btc=False):
                       update, dry)
 
     # Enable our binary package repository
-    if dry or (not _check_pkg_repo()):
-        _enable_pkg_repo(interactive, dry)
+    if dry or (not _check_pkg_repo(distro_id)):
+        _enable_pkg_repo(distro_id, interactive, dry)
 
     # Install bitcoin-satellite
     if (btc):
@@ -355,9 +427,11 @@ def run(args):
             return
         target = info['setup']['type']
 
+    _check_distro(target)
+
     if (os.geteuid() != 0 and not args.dry_run):
-        util.fill_print("Some commands require root access and will prompt "
-                        "for password")
+        util.fill_print("Some commands require root access and may prompt "
+                        "for a password")
 
     if (args.dry_run):
         util._print_header("Dry Run Mode")
@@ -379,8 +453,8 @@ def drivers(args):
     interactive = (not args.yes)
 
     if (os.geteuid() != 0 and not args.dry_run):
-        util.fill_print("Some commands require root access and will prompt "
-                        "for password")
+        util.fill_print("Some commands require root access and may prompt "
+                        "for a password")
 
     if (args.dry_run):
         util._print_header("Dry Run Mode")

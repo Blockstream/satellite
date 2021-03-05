@@ -57,8 +57,8 @@ blocksat-cli deps install
 ```
 
 > Note: this command supports the two most recent releases of Ubuntu LTS,
-> Fedora, and CentOS. In case you are using another Linux distribution or
-> version, please refer to the [compilation
+> Fedora, CentOS, Debian, and Raspbian. In case you are using another Linux
+> distribution or version, please refer to the [compilation
 > instructions](#compilation-from-source).
 
 ## Running

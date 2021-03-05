@@ -60,9 +60,9 @@ blocksat-cli deps install
 ```
 
 > Note: this command supports the two most recent releases of Ubuntu LTS,
-> Fedora, and CentOS. In case you are using another Linux distribution or
-> version, please refer to the [manual compilation and installation
-> instructions](#manual-compilation-of-sdr-software).
+> Fedora, CentOS, Debian, and Raspbian. In case you are using another Linux
+> distribution or version, please refer to the [manual compilation and
+> installation instructions](#manual-compilation-of-sdr-software).
 
 If you prefer to install all software components manually, please refer to the
 [manual installation section](#manual-installation-of-sdr-software).

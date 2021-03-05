@@ -4,7 +4,7 @@ nav_order: 6
 
 # Bitcoin Satellite
 
-<!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-generate-toc again -->
+<!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-refresh-toc -->
 **Table of Contents**
 
 - [Bitcoin Satellite](#bitcoin-satellite)
@@ -15,7 +15,7 @@ nav_order: 6
     - [Further Information](#further-information)
         - [UDP Multicast Reception Option](#udp-multicast-reception-option)
         - [Installation from Binary Packages](#installation-from-binary-packages)
-        - [Installation from Source](#installation-from-source)
+        - [Compilation from Source](#compilation-from-source)
 
 <!-- markdown-toc end -->
 
@@ -40,7 +40,7 @@ blocksat-cli deps install --btc
 > NOTE:
 >
 > - This command supports the two most recent releases of Ubuntu LTS, Fedora,
-> and CentOS.
+>   CentOS, Debian, and Raspbian.
 >
 > - bitcoin-satellite is a fork of bitcoin core. As such, it installs
 > applications with the same name (i.e., `bitcoind`, `bitcoin-cli`,
@@ -49,7 +49,7 @@ blocksat-cli deps install --btc
 
 Alternatively, you can install bitcoin-satellite manually [from binary
 packages](#installation-from-binary-packages) or [from
-source](#installation-from-source).
+source](#compilation-from-source).
 
 ## Configuration
 
@@ -159,7 +159,8 @@ file for you.
 ### Installation from Binary Packages
 
 You can install `bitcoin-satellite` directly from binary packages that are
-available for the two most recent Ubuntu LTS, Fedora, and CentOS releases.
+available for the two most recent Ubuntu LTS, Fedora, CentOS, Debian, and
+Raspbian releases.
 
 Ubuntu:
 
@@ -171,6 +172,32 @@ apt-get install bitcoin-satellite
 
 > If command `add-apt-repository` is not available, install
 > `software-properties-common`.
+
+Debian:
+
+```
+add-apt-repository https://aptly.blockstream.com/satellite/debian/
+apt-key adv --keyserver keyserver.ubuntu.com \
+    --recv-keys 87D07253F69E4CD8629B0A21A94A007EC9D4458C
+apt-get update
+apt-get install bitcoin-satellite
+```
+
+> Install `gnupg`, `apt-transport-https`, and `software-properties-common`, if
+> necessary.
+
+Raspbian:
+
+```
+add-apt-repository https://aptly.blockstream.com/satellite/raspbian/
+apt-key adv --keyserver keyserver.ubuntu.com \
+    --recv-keys 87D07253F69E4CD8629B0A21A94A007EC9D4458C
+apt-get update
+apt-get install bitcoin-satellite
+```
+
+> Install `gnupg`, `apt-transport-https`, and `software-properties-common`, if
+> necessary.
 
 Fedora:
 
@@ -190,7 +217,7 @@ yum install bitcoin-satellite
 
 > If command `yum copr enable` is not available, install `yum-plugin-copr`.
 
-### Installation from Source
+### Compilation from Source
 
 To build Bitcoin Satellite from source, first clone the repository:
 

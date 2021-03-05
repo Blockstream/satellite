@@ -7,6 +7,7 @@ Release Date: TBD
 ### Added
 - Support for the new Satellite Monitoring API, through which users can opt-in
   to report their receiver performance metrics using option `--report`.
+- Support for the installation of software dependencies on Debian and Raspbian.
 
 ### Fixed
 - Permissions of the GPG home directory created via the `api config` command and

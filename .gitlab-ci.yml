@@ -15,7 +15,7 @@ test-make-install-apt:
     - make && make install
   parallel:
     matrix:
-      - IMAGE: ["ubuntu:bionic", "ubuntu:focal"]
+      - IMAGE: ["ubuntu:bionic", "ubuntu:focal", "debian:stretch", "debian:buster"]
 
 test-make-install-dnf:
   image: $IMAGE
@@ -59,7 +59,7 @@ test-deb-dependencies:
     - make && make install
   parallel:
     matrix:
-      - IMAGE: ["ubuntu:bionic", "ubuntu:focal"]
+      - IMAGE: ["ubuntu:bionic", "ubuntu:focal", "debian:stretch", "debian:buster"]
 
 test-rpm-dependencies:
   image: $IMAGE
