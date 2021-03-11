@@ -17,9 +17,6 @@ sym_rate = {
     'T18V Ku'  : 1000000
 }
 
-low_rate_modcod  = "0x0010"
-high_rate_modcod = "0x2000"
-
 satellites  = [
     {
         'name'    : "Galaxy 18",
@@ -277,5 +274,36 @@ v4l_lnbs = [
         ]
     }
 ]
+
+modcods = {
+    'qpsk1/4': 1,
+    'qpsk1/3': 2,
+    'qpsk2/5': 3,
+    'qpsk1/2': 4,
+    'qpsk3/5': 5,
+    'qpsk2/3': 6,
+    'qpsk3/4': 7,
+    'qpsk4/5': 8,
+    'qpsk5/6': 9,
+    'qpsk8/9': 10,
+    'qpsk9/10': 11,
+    '8psk3/5': 12,
+    '8psk2/3': 13,
+    '8psk3/4': 14,
+    '8psk5/6': 15,
+    '8psk8/9': 16,
+    '8psk9/10': 17,
+    '16apsk2/3': 18,
+    '16apsk3/4': 19,
+    '16apsk4/5': 20,
+    '16apsk5/6': 21,
+    '16apsk8/9': 22,
+    '16apsk9/10': 23,
+    '32apsk3/4': 24,
+    '32apsk4/5': 25,
+    '32apsk5/6': 26,
+    '32apsk8/9': 27,
+    '32apsk9/10': 28
+}
 
 lnb_options = [x['alias'] for x in v4l_lnbs]

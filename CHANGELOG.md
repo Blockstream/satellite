@@ -4,6 +4,13 @@
 
 Release Date: 2021-03-16
 
+### Changed
+- Option `-m/--modcod` on the SDR application, now defined explicitly (e.g., as
+  *qpsk3/5*) instead of through the former "low/high" aliases.
+
+### Removed
+- Option `-c/--channel` from the SDR application.
+
 ### Fixed
 - Potential unhandled crashing of the SDR app's monitoring thread due to invalid
   monitoring options.
