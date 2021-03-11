@@ -404,7 +404,8 @@ def _cfg_chan_conf(info, chan_file):
         f.write('[blocksat-ch]\n')
         f.write('\tDELIVERY_SYSTEM = DVBS2\n')
         f.write('\tFREQUENCY = %u\n' %(int(info['sat']['dl_freq']*1000)))
-        if (info['lnb']['pol'].lower() == "dual" and info['lnb']['v1_pointed']):
+        if (info['lnb']['pol'].lower() == "dual" and 'v1_pointed' in info['lnb']
+            and info['lnb']['v1_pointed']):
             # If a dual-polarization LNB is already pointed for Blocksat v1,
             # then we must use the polarization that the LNB was pointed to
             # originally, regardless of the satellite signal's polarization. In
@@ -427,12 +428,24 @@ def _cfg_chan_conf(info, chan_file):
             defs.sym_rate[info['sat']['alias']]))
         f.write('\tINVERSION = AUTO\n')
         f.write('\tMODULATION = QPSK\n')
-        f.write('\tVIDEO_PID = 32+33\n')
+        pids = "+".join([str(x) for x in defs.pids])
+        f.write('\tVIDEO_PID = {}\n'.format(pids))
 
     print("File \"%s\" saved." %(chan_file))
 
     with open(chan_file, 'r') as f:
         logging.debug(f.read())
+
+
+def _parse_chan_conf(chan_file):
+    """Convert channel.conf file contents to dictionary"""
+    chan_conf = {}
+    with open(chan_file, 'r') as f:
+        lines = f.read().splitlines()
+        for line in lines[1:]:
+            key, val = line.split('=')
+            chan_conf[key.strip()] = val.strip()
+    return chan_conf
 
 
 def _cfg_file_name(cfg_name, directory):

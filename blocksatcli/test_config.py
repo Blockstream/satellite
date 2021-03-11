@@ -1,5 +1,6 @@
 import os
 import uuid
+import shutil
 from unittest import TestCase
 from unittest.mock import patch
 
@@ -7,31 +8,74 @@ from . import config
 from . import defs
 
 
-class TestConfig(TestCase):
+class TestConfigDir(TestCase):
+    def setUp(self):
+        self.cfg_name = str(uuid.uuid4())
+        self.cfg_dir = "/tmp/test-blocksat-cli-config"
+
+        if not os.path.exists(self.cfg_dir):
+            os.makedirs(self.cfg_dir)
+
+    def tearDown(self):
+        shutil.rmtree(self.cfg_dir, ignore_errors=True)
+
     @patch('blocksatcli.util._ask_yes_or_no')
     def test_read_write(self, mock_yes_or_no):
         mock_yes_or_no.return_value = False
-        cfg_name = str(uuid.uuid4())
-        cfg_dir = "/tmp"
 
         # At first, a config file does not exist
-        user_info = config.read_cfg_file(cfg_name, cfg_dir)
+        user_info = config.read_cfg_file(self.cfg_name, self.cfg_dir)
         self.assertIsNone(user_info)
 
         # Create the config file
         test_info = {'test': 123}
-        config.write_cfg_file(cfg_name, cfg_dir, test_info)
+        config.write_cfg_file(self.cfg_name, self.cfg_dir, test_info)
 
         # Check creation
-        user_info = config.read_cfg_file(cfg_name, cfg_dir)
+        user_info = config.read_cfg_file(self.cfg_name, self.cfg_dir)
         self.assertEqual(user_info, test_info)
 
-        # Remove file
-        path = config._cfg_file_name(cfg_name, cfg_dir)
-        self.assertTrue(os.path.exists(path))
-        os.remove(path)
-        self.assertFalse(os.path.exists(path))
+    @patch('blocksatcli.util._ask_yes_or_no')
+    @patch('blocksatcli.defs.pids', defs.pids)
+    def test_chan_conf(self, mock_yes_or_no):
+        mock_yes_or_no.return_value = True
+        defs.pids = [32]
+        info = {'sat': defs.satellites[0], 'lnb': defs.lnbs[0]}
+        chan_file = os.path.join(self.cfg_dir, self.cfg_name + "-channel.conf")
 
+        # First conf file
+        config._cfg_chan_conf(info, chan_file)
+        conf = config._parse_chan_conf(chan_file)
+        self.assertEqual(int(conf['FREQUENCY']), info['sat']['dl_freq'] * 1e3)
+        self.assertEqual(conf['POLARIZATION'], 'HORIZONTAL')
+        self.assertEqual(conf['VIDEO_PID'], '32')
+
+        # Change PID definitions and try generating the conf file again
+        defs.pids = [60, 61]
+
+        # Generate a conf file but refuse to overwrite the pre-existing one
+        mock_yes_or_no.return_value = False
+        config._cfg_chan_conf(info, chan_file)
+        conf = config._parse_chan_conf(chan_file)
+        # Nothing should be changed
+        self.assertEqual(conf['VIDEO_PID'], '32')
+
+        # Overwrite the pre-existing conf file
+        mock_yes_or_no.return_value = True
+        config._cfg_chan_conf(info, chan_file)
+        conf = config._parse_chan_conf(chan_file)
+        # Now the new PID settings should be in the file
+        self.assertEqual(conf['VIDEO_PID'], '60+61')
+
+        # Add the v1-pointed flag to change the polarization
+        info['lnb']['v1_pointed'] = True
+        info['lnb']['v1_psu_voltage'] = 13
+        config._cfg_chan_conf(info, chan_file)
+        conf = config._parse_chan_conf(chan_file)
+        self.assertEqual(conf['POLARIZATION'], 'VERTICAL')
+
+
+class TestConfigHelpers(TestCase):
     def test_net_if(self):
         info = {}
 
