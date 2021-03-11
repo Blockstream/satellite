@@ -236,10 +236,10 @@ def _print_sdr_instructions(info):
 
     _print(
         """
-        NOTE: This command supports Ubuntu (18.04, 19.10, and 20.04), Fedora
-        (30, 31, and 32), and CentOS 7. In case you are using another
-        Linux distribution or version, please refer to the manual compilation
-        and installation instructions at \"doc/sdr.md\" or:""")
+        NOTE: This command supports the two most recent Ubuntu LTS, Fedora, and
+        CentOS releases. In case you are using another Linux distribution or
+        version, please refer to the manual compilation and installation
+        instructions at \"doc/sdr.md\" or:""")
     print("https://github.com/Blockstream/satellite/blob/master/doc/sdr.md")
 
     util.prompt_for_enter()
@@ -342,18 +342,15 @@ def _print_next_steps():
     print("\n    blocksat-cli btc\n")
 
 
-    print("Next, you can install bitcoin-satellite by running:")
+    _print("Next, if you are running Ubuntu, Fedora, or CentOS, you can "
+           "install bitcoin-satellite by running:")
     print("\n    blocksat-cli deps install --btc\n")
 
-    print("Note that:")
-    _item("The installation works in Ubuntu (18.04, 19.10, and 20.04), Fedora "
-          "(30, 31, and 32), and CentOS (7 and 8).")
-
-    _item("bitcoin-satellite is a fork of bitcoin core, and, as such, it "
-          "installs applications with the same name (i.e., bitcoind, "
-          "bitcoin-cli, bitcoin-qt, and bitcoin-tx). Hence, the installation "
-          "of bitcoin-satellite will fail if you already have bitcoin core "
-          "installed.")
+    _print("Note that bitcoin-satellite is a fork of bitcoin core, and, "
+           "as such, it installs applications with the same name (bitcoind, "
+           "bitcoin-cli, bitcoin-qt, and bitcoin-tx). Hence, the installation "
+           "of bitcoin-satellite will fail if you already have bitcoin core "
+           "installed.")
 
     print("For further information, refer to \"doc/bitcoin.md\" or:\n")
     print("https://github.com/Blockstream/satellite/blob/master/doc/bitcoin.md\n")

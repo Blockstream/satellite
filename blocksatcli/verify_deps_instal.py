@@ -1,11 +1,14 @@
-import unittest, argparse
+import argparse
+import logging
+import unittest
 from . import dependencies
 
 
 class TestDependencies(unittest.TestCase):
     def gen_args(self, target, btc=False):
         """Mock command-line argument"""
-        parser     = argparse.ArgumentParser()
+        logging.basicConfig(level=logging.DEBUG)
+        parser = argparse.ArgumentParser()
         subparsers = parser.add_subparsers()
         dependencies.subparser(subparsers)
         args = ["deps", "-y", "install", "--target", target]
@@ -17,7 +20,9 @@ class TestDependencies(unittest.TestCase):
         """Test the installation of USB receiver dependencies"""
         args = self.gen_args("usb")
         dependencies.run(args)
-        expected_apps = ["dvbnet", "dvb-fe-tool", "dvbv5-zap", "ip", "iptables"]
+        expected_apps = [
+            "dvbnet", "dvb-fe-tool", "dvbv5-zap", "ip", "iptables"
+        ]
         self.assertTrue(dependencies.check_apps(expected_apps))
 
     def test_sdr_deps(self):
@@ -40,4 +45,3 @@ class TestDependencies(unittest.TestCase):
         dependencies.run(args)
         expected_apps = ["bitcoind", "bitcoin-cli", "bitcoin-tx", "bitcoin-qt"]
         self.assertTrue(dependencies.check_apps(expected_apps))
-

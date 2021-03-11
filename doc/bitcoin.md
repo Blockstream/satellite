@@ -35,8 +35,8 @@ blocksat-cli deps install --btc
 
 > NOTE:
 >
-> - This command supports Ubuntu (18.04, 19.10, and 20.04), Fedora (30,
-> 31, and 32), and CentOS 7.
+> - This command supports the two most recent releases of Ubuntu LTS, Fedora,
+> and CentOS.
 >
 > - bitcoin-satellite is a fork of bitcoin core. As such, it installs
 > applications with the same name (i.e., `bitcoind`, `bitcoin-cli`,
@@ -155,11 +155,7 @@ file for you.
 ### Installation from Binary Packages
 
 You can install `bitcoin-satellite` directly from binary packages that are
-available for the following distribution/releases:
-
-- Ubuntu Bionic (18.04), Eoan (19.10), and Focal (20.04)
-- Fedora 30, 31, and 32
-- CentOS 7 and 8
+available for the two most recent Ubuntu LTS, Fedora, and CentOS releases.
 
 Ubuntu:
 
