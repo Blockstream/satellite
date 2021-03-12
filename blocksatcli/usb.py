@@ -385,7 +385,8 @@ def zap(adapter, frontend, ch_conf_file, user_info, lnb="UNIVERSAL",
     cmd = ["dvbv5-zap", "-c", ch_conf_file, "-a", str(adapter), "-f",
            str(frontend), "-l", lnb, "-v"]
 
-    if (output is not None):
+    rec_mode = output is not None
+    if (rec_mode):
         cmd = cmd + ["-o", output]
 
         if (os.path.exists(output)):
@@ -413,8 +414,6 @@ def zap(adapter, frontend, ch_conf_file, user_info, lnb="UNIVERSAL",
         cmd = cmd + ["-t", timeout]
 
     if (monitor):
-        assert(not scrolling), \
-            "Monitor mode does not work with scrolling (line-by-line) logs"
         assert(output is None), \
             "Monitor mode does not work if recording (i.e. w/ -r flag)"
         cmd.append("-m")
@@ -423,8 +422,12 @@ def zap(adapter, frontend, ch_conf_file, user_info, lnb="UNIVERSAL",
 
     logger.debug("> " + " ".join(cmd))
 
-    return subprocess.Popen(cmd, stdout=subprocess.PIPE,
-                            stderr=subprocess.PIPE, universal_newlines=True)
+    if (monitor or rec_mode):
+        ps = subprocess.Popen(cmd)
+    else:
+        ps = subprocess.Popen(cmd, stdout=subprocess.PIPE,
+                              stderr=subprocess.PIPE, universal_newlines=True)
+    return ps
 
 
 def subparser(subparsers):
@@ -451,26 +454,28 @@ def subparser(subparsers):
     # Launch
     p1 = subsubparsers.add_parser('launch',
                                   description="Launch a USB DVB-S2 receiver",
-                                  help='Launch a Linux USB DVB-S2 receiver')
+                                  help='Launch a Linux USB DVB-S2 receiver',
+                                  formatter_class=ArgumentDefaultsHelpFormatter)
 
     p1.add_argument('-l', '--lnb',
                     choices=defs.lnb_options,
                     default=None,
-                    help="LNB from v4l-utils to be used. "
-                    "If None, i.e. not specified, it will be set "
-                    "automatically")
+                    metavar='',
+                    help="LNB being used. If not specified, it will be defined "
+                    "automatically. Choose from the following LNBs supported "
+                    "by v4l-utils: " + ", ".join(defs.lnb_options))
 
     p1.add_argument('-r', '--record-file', default=None,
-                    help='Record MPEG-TS traffic into target file')
+                    help='Record MPEG-TS traffic into a target file')
 
     p1.add_argument('-t', '--timeout', default=None,
-                    help='Stop zapping after timeout - useful to \
+                    help='Stop zapping after a timeout in seconds - useful to \
                     control recording time')
 
     p1.add_argument('-m', '--monitor', default=False,
                     action='store_true',
-                    help='Launch dvbv5-zap in monitor mode - useful \
-                    to debug packet and bit rates')
+                    help='Launch dvbv5-zap in monitor mode to debug MPEG TS '
+                    'packet and bit rates')
 
     monitoring.add_to_parser(p1)
 
@@ -480,7 +485,8 @@ def subparser(subparsers):
     p2 = subsubparsers.add_parser('config', aliases=['cfg'],
                                   description='Initial configurations',
                                   help='Configure DVB-S2 interface(s) and\
-                                  the host')
+                                  the host',
+                                  formatter_class=ArgumentDefaultsHelpFormatter)
     p2.add_argument('-U', '--ule', default=False,
                     action='store_true',
                     help='Use ULE encapsulation instead of MPE')
@@ -698,6 +704,12 @@ def launch(args):
     if (not dependencies.check_apps(["dvbv5-zap"])):
         return
 
+    # Check conflicting logging options
+    if ((args.monitor or args.record_file) and
+        (args.log_scrolling or args.log_file)):
+        raise ValueError("Logging options are disabled when running with "
+                         "-m/--monitor or -r/--record-file")
+
     # Log Monitoring
     monitor = monitoring.Monitor(
         args.cfg_dir,
@@ -732,15 +744,16 @@ def launch(args):
     print()
 
     # Listen to dvbv5-zap indefinitely
-    while (zap_ps.poll() is None):
-        line    = zap_ps.stderr.readline()
-        metrics = _parse_log(line)
-
-        if (metrics is None):
-            continue
-
-        monitor.update(metrics)
-
+    if (args.monitor or args.record_file):
+        zap_ps.wait()
+    else:
+        while (zap_ps.poll() is None):
+            line    = zap_ps.stderr.readline()
+            metrics = _parse_log(line)
+            if (metrics is None):
+                continue
+            monitor.update(metrics)
+    print()
     sys.exit(zap_ps.poll())
 
 

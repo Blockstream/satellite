@@ -24,6 +24,8 @@ Release Date: 2021-03-16
   the DVB-S2 adapter number cached the local JSON configuration file.
 - Timestamps produced by the monitoring handler always based on UTC time despite
   the absence of option `--utc`.
+- USB receiver's dvbv5-zap monitoring mode that was not displaying results
+  correctly.
 
 ## [2.3.0]
 
