@@ -22,7 +22,7 @@ of [FIBRE (Fast Internet Bitcoin Relay Engine)](https://bitcoinfibre.org) and,
 consequently, also a fork of [Bitcoin Core](https://bitcoincore.org). It
 features a version of the bitcoind application with support for the reception of
 blocks sent over satellite in UDP datagrams with multicast addressing. You can
-find detailed information regarding how Bitcoin satellite works on the project's
+find detailed information regarding how Bitcoin Satellite works on the project's
 [Wiki page](https://github.com/Blockstream/bitcoinsatellite/wiki).
 
 ## Installation
@@ -38,7 +38,7 @@ blocksat-cli deps install --btc
 > - This command supports Ubuntu (18.04, 19.10, and 20.04), Fedora (30,
 > 31, and 32), and CentOS 7.
 >
-> - bitcoin-satellite is a fork of bitcoin core, and, as such, it installs
+> - bitcoin-satellite is a fork of bitcoin core. As such, it installs
 > applications with the same name (i.e., `bitcoind`, `bitcoin-cli`,
 > `bitcoin-qt`, and `bitcoin-tx`). Hence, the installation of
 > `bitcoin-satellite` will fail if you already have bitcoin core installed.
@@ -73,12 +73,12 @@ Next, run `bitcoind` as usual, like so:
 bitcoind
 ```
 
-Note that Bitcoin Satellite is a fork of Bitcoin Core Version 0.19, hence other
-[Bitcoin Core configuration options](https://wiki.bitcoin.com/w/Running_Bitcoin)
-are supported and can be added to the generated `bitcoin.conf` configuration
-file as needed, or directly as arguments to the above command. For example, you
-can run the node based on satellite links only (unplugged from the internet),
-using option `connect=0` on `bitcoin.conf` or by using command:
+Note that other [Bitcoin Core
+options](https://wiki.bitcoin.com/w/Running_Bitcoin) are supported and can be
+added to the generated `bitcoin.conf` file as needed, or directly as arguments
+to the above command. For example, you can run the node based on satellite links
+only (unplugged from the internet) using option `connect=0` on `bitcoin.conf` or
+by running:
 
 ```
 bitcoind -connect=0
@@ -90,17 +90,17 @@ Also, you can run `bitcoind` in daemon mode:
 bitcoind -daemon
 ```
 
-Once `bitcoind` is running, observe the logs at `~/.bitcoin/debug.log` (or at
-your alternative `datadir`). For example, you will see logs such as the ones
-below, which indicate the bit rate of the traffic received from satellite via
-the TBS5927 device:
+Once `bitcoind` is running, you can check the satellite interface is receiving
+data by running the following command:
 
 ```
-2020-07-02T18:15:33Z UDP multicast group 0: Average bit rate    0.09 Mbit/sec (blocksat-tbs-lowspeed)
-2020-07-02T18:15:37Z UDP multicast group 1: Average bit rate    1.54 Mbit/sec (blocksat-tbs-highspeed)
+bitcoin-cli getudpmulticastinfo
 ```
 
-At any time, you can check the number of blocks being received concurrently over
+If the receiver is correctly locked to the satellite signal, you should see a
+bitrate around 1.09 Mbps.
+
+Furthermore, you can check the number of blocks being received concurrently over
 satellite with the following command:
 
 ```
@@ -112,14 +112,14 @@ bitcoin-cli getchunkstats
 ### UDP Multicast Reception Option
 
 In a Blockstream Satellite receiver setup, the satellite receiver will decode
-and output a UDP/IPv4 stream, which in turn Bitcoin Satellite can listen to. In
-order for Bitcoin Satellite to listen to such stream, option `udpmulticast` must
-be added to bitcoin's configuration file (i.e. the `bitcoin.conf` file).
+and output a UDP/IPv4 stream. Bitcoin Satellite, in turn, listens to such a
+stream when configured with option `udpmulticast` (added to the `bitcoin.conf`
+file).
 
 There are several possibilities regarding the configuration of option
-`udpmulticast`. It depends on your hardware setup and, more specifically, your
-[receiver type](hardware.md#receiver-options), as well on the satellite that you
-are receiving from. The option is described as follows:
+`udpmulticast`. It depends on your hardware setup (for instance, your [receiver
+type](hardware.md#receiver-options)) and the satellite that you are receiving
+from. The option is described as follows:
 
 ```
  -udpmulticast=<if>,<dst_ip>:<port>,<src_ip>,<trusted>[,<label>]
@@ -141,15 +141,15 @@ In this case, we have that:
   receiver.
 - `239.0.0.2:4434` is the destination IP address and port of the packets that
   are sent over satellite.
-- `172.16.235.9` is the IP address of one of our Tx nodes that broadcasts data
-  over the Blockstream Satellite network. You should use the address of the
-  satellite that covers your region.
+- `172.16.235.9` is the IP address of the Blockstream ground station node
+  broadcasting data over the satellite network (each satellite has a unique
+  source IP address).
 - `1` configures this stream as coming from a *trusted* source, which is helpful
-  to speed up block reception.
+  to speed-up block reception.
 - `blocksat` is a label used simply to facilitate inspection of logs.
 
-To simplify this process, command `blocksat-cli btc` generates the
-`bitcoin.conf` file for you.
+To simplify the process, command `blocksat-cli btc` generates the `bitcoin.conf`
+file for you.
 
 
 ### Installation from Binary Packages
@@ -220,3 +220,7 @@ make install
 
 Detailed build instructions can be found within [the project's documentation
 ](https://github.com/Blockstream/bitcoinsatellite/tree/master/doc#building).
+
+---
+
+Prev: [Novra S400 Setup](s400.md) | [TBS5927 Setup](tbs.md) | [SDR Setup](sdr.md)

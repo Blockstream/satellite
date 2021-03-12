@@ -4,7 +4,7 @@ Aligning a satellite antenna is a precise procedure. Remember that the
 satellites are over 35,000 km (22,000 mi) away. A tenth of a degree of error
 will miss the satellite by more than 3500 km. Hence, this is likely the most
 time-consuming step of the process. This page provides a step-by-step guide for
-the antenna alignment.
+antenna alignment.
 
 <!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-generate-toc again -->
 **Table of Contents**
@@ -30,7 +30,7 @@ Tool**](https://blockstream.com/satellite/#satellite-resources).
 After entering your address or latitude/longitude, the tool will give you the
 following parameters:
 
-- **Azimuth**: the side to side angle of your antenna. 0 degrees refers to
+- **Azimuth**: the side-to-side angle of your antenna. 0 degrees refers to
   North, 90 degrees to East, 180 degrees to South, and 270 degrees to West.
 
 - **Elevation**: the up and down adjustment of your antenna. The antenna aiming
@@ -38,9 +38,9 @@ following parameters:
   must point. 0 degrees represents pointing at the horizon, and 90 degrees is
   pointing straight up.
 
-- **Polarity**: determines the rotation of the LNB rather than the dish. It is
-  the angle of the LNB within the LNB mounting bracket (or holder). Often this
-  is referred to also as the LNB *rotational angle* or *LNB skew*.
+- **Polarity**: determines the rotation of the LNB. It is the angle of the LNB
+  within the LNB mounting bracket (or holder). Often this is referred to also as
+  the LNB *rotational angle* or *LNB skew*.
 
 The three angles are illustrated below:
 
@@ -60,7 +60,7 @@ that area of the sky.
 the app to display **true north** instead of the **magnetic north**. The azimuth
 angle provided by our dish alignment tool refers to true north. Also, if using
 an ordinary compass or a compass-based satellite finder, make sure to convert
-the true azimuth obtained from the dish alignment tool into magnetic
+the true azimuth obtained from the dish alignment tool into the magnetic
 azimuth. You can get both the true and magnetic azimuth angles using a tool such
 as the [Dish Pointer](https://www.dishpointer.com).
 
@@ -68,7 +68,7 @@ Next, install the satellite antenna according to the directions accompanying it,
 or have it done professionally. If you install it yourself, proceed with the
 following steps:
 
-1. Certify that the pole on which the dish is mounted is completely level.
+1. Certify that the pole on which the dish is mounted is entirely level.
 2. Set the elevation of the antenna to the parameter provided by the antenna
    aiming tool (above). Many antennas will have an elevation scale on the back
    of the dish that you can use to set the approximate elevation.
@@ -77,7 +77,18 @@ following steps:
    rotation scale on the LNB or the LNB mounting bracket.
 4. Set the azimuth angle to the value obtained from the aiming tool.
 
-Initially, you can leave the screws that control the azimuth angle slightly
+
+> Note: if using an [offset dish
+> antenna](https://en.wikipedia.org/wiki/Offset_dish_antenna) (the most common
+> dish type in Ku band), make sure to subtract the dish offset angle from the
+> nominal elevation. You can check the offset angle in the dish
+> specifications. For example, if the nominal elevation angle at your location
+> is 20°, and your offset reflector has an offset angle of 25°, the resulting
+> elevation becomes -5°. In this case, it will appear that the reflector is
+> pointing down to the ground. In reality, however, the dish will be tilted
+> correctly to receive the low-elevation signal at the offset focal point.
+
+At this stage, you can leave the screws that control the azimuth angle slightly
 loose so that you can adjust the azimuth for pointing. You can do the same for
 elevation and polarization. Nevertheless, the azimuth is typically easier to
 sweep as an initial pointing attempt.
@@ -86,7 +97,7 @@ sweep as an initial pointing attempt.
 
 Assuming that the receiver is configured correctly and connected, your next step
 is to find the satellite. You will adjust the antenna pointing until the
-receiver can lock to Blockstream Satellite's signal. Please note that this is
+receiver can lock to the Blockstream Satellite signal. Please note that this is
 likely the most time-consuming part of the setup process, especially when doing
 it for the first time. As mentioned earlier, a single degree shifted on the dish
 represents a change of thousands of kilometers over the geosynchronous orbit.
@@ -140,7 +151,7 @@ optimal position. Hence, at this point, you should experiment with gentle
 adjustments to the pointing angles until you can maximize the SNR. The next
 section discusses the target SNR levels.
 
-Furthermore, you can check that the signal level is within the acceptable
+Furthermore, you can check that the signal level is within acceptable
 limits. The LNB amplifies the signal received over satellite and feeds a
 reasonably high signal level into the receiver. However, the signal experiences
 attenuation over the coaxial cable, connectors, and adapters. The expected
@@ -169,28 +180,31 @@ instructions](#novra-s400s-user-interface).
 Alternatively, you can try to point the antenna using a satellite finder. This
 approach is generally more useful for the TBS5927 and S400 receivers. In
 contrast, for SDR-based receivers, the [SDR signal visualization
-tools](#pointing-with-an-sdr-based-receiver) are generally sufficient for
+tools](#pointing-with-an-sdr-based-receiver) are usually sufficient for
 pointing. Refer to the instructions in the [satellite finder
 section](#pointing-with-a-satellite-finder).
 
 ## Optimize the SNR
 
 After the initial antenna pointing, we recommend experimenting with the pointing
-until you achieve your maximum SNR. If your receiver is already locked, try
-gentle adjustments around the current position and observe the SNR on the
-console. Stop once you find the pointing that achieves the best SNR.
+until you achieve your maximum SNR. The SNR level should be at least 2.23
+dB. However, we recommend trying to reach an SNR of 8 dB or higher in clear sky
+conditions.
 
-This pointing optimization is beneficial for margin. For example, if your
-receiver operates at 8.2 dB, it has a 6 dB margin relative to the minimum SNR of
-approximately 2.2 dB. This link margin means that your receiver can tolerate up
-to 6 dB signal attenuation in case of bad weather.
+The SNR exceeding the minimum level determines the so-called link margin. For
+example, if your receiver operates at 8.2 dB, it has a 6 dB margin relative to
+the minimum SNR of roughly 2.2 dB. This margin means that your receiver can
+tolerate up to 6 dB signal attenuation in case of bad weather (such as rain).
+
+If your receiver is already locked, try gentle adjustments around the current
+position and observe the SNR on the console. Stop once you find the pointing
+that achieves the best SNR.
 
 ## Next Steps
 
-Well done. Your receiver is properly set-up! Now, you are ready to run the
-Bitcoin Satellite application receiving data via the Blockstream Satellite
-Network. Please refer to the [Bitcoin Satellite guide](bitcoin.md) for further
-instructions.
+Well done! You are now ready to run the Bitcoin Satellite application receiving
+data via the Blockstream Satellite Network. Please refer to the [Bitcoin
+Satellite guide](bitcoin.md) for further instructions.
 
 ## Further Information
 
@@ -201,7 +215,7 @@ The Novra S400 receiver features a [web-based user interface
 metrics.
 
 At the top, the web UI has an *LNB* indicator, which indicates whether the S400
-is supplying power to the LNB. Furthermore it shows whether the S400 is
+is supplying power to the LNB. Furthermore, it shows whether the S400 is
 locked. Assuming you have connected the LNB to input RF1, then the **RF1 Lock**
 indicator will be green when the unit is locked.
 
@@ -221,8 +235,8 @@ under *RF1 Detailed Status*. For example:
 ![S400 RF Status](img/s400_rf_status.png?raw=true "S400 RF Status")
 
 Note that the carrier-to-noise ratio (C/N) parameter relates to the SNR
- parameter that should be [optimized during the antenna
- pointing](#optimize-the-snr).
+parameter that should be [optimized during the antenna
+pointing](#optimize-the-snr).
 
 ### Pointing with an SDR-based Receiver
 
@@ -252,7 +266,7 @@ MHz band well centered, like so:
 
 ![Signal centered on Gqrx](img/gqrx-centered.png?raw=true "Signal centered on Gqrx")
 
-If you can't see the signal on gqrx, you should try to make adjustments to the
+If you cannot see the signal on gqrx, you should try to make adjustments to the
 antenna pointing, as [described
 earlier](#find-the-satellite-and-lock-the-signal).
 
@@ -276,13 +290,13 @@ start it with:
 blocksat-cli sdr
 ```
 
-For pointing, however, it is useful to run it in GUI mode, as follows:
+For pointing, however, it is helpful to run it in GUI mode, as follows:
 
 ```
 blocksat-cli sdr --gui
 ```
 
-At this point, before proceeding, it is helpful to inspect whether the gain is
+At this point, before proceeding, we recommend inspecting whether the gain is
 well configured. Check the preprocessed (iq) plot. If it looks like the one
 below, with strongly scattered points around the two dimensions, the gain is
 likely too high. In this case, you can run with a lower gain specified using
@@ -331,11 +345,11 @@ the "PLS cstln" plot showing four visible clouds:
 
 ![PLS symbols](img/leandvb-pls-syms.png?raw=true "PLS symbols")
 
-This plot indicates that the receiver application is locked to Blockstream
-Satellite's signal. Note that the more compact the four clouds of points are in
+This plot indicates that the receiver application is locked to the Blockstream
+Satellite signal. Note that the more compact the four clouds of points are in
 this plot (around the white `+` marker), the better the signal quality.
 
-If you cannot see the the "PLS cstln" plot, it means you are not locked to the
+If you cannot see the "PLS cstln" plot, it means you are not locked to the
 signal yet. You can troubleshoot further in debug mode by running like so (with
 argument `-d`):
 
@@ -359,7 +373,7 @@ LOCKED
 
 After that, you should start seeing several underscores `_` printed
 consecutively as indicators of successful data reception. The reception
-indicator can be one of the three indicators below:
+indicator can be one of the three below:
 
 - `_`: indicates a DVB-S2 frame received without errors.
 - `.`: indicates an error-corrected DVB-S2 frame.
@@ -370,9 +384,35 @@ antenna. Assuming you have identified the signal on gqrx before, you can infer
 that the pointing is already very close. Therefore, only subtle adjustments are
 required at this point.
 
-Finally, once the receiver locks to the signal, you can still try to improve the
-SNR. Observe the SNR values printed to the console and see if you can get better
-values after subtle adjustments to the pointing.
+Furthermore, if you cannot find the signal on gqrx, you can search for satellite
+beacons instead. While the Blockstream Satellite signal is seen as a flat level
+spanning approximately 1 MHz, a
+[beacon](https://en.wikipedia.org/wiki/Radio_beacon#Space_and_satellite_radio_beacons)
+is a very narrow signal seen as a narrow pulse (or peak) on gqrx. All you need
+to do is change the frequency on gqrx to one of the beacon frequencies below:
+
+| Satellite    | Beacons                                                                                                |
+|--------------|--------------------------------------------------------------------------------------------------------|
+| Galaxy 18    | 11701 MHz (Horizontal), 12195 MHz (Vertical)                                                           |
+| Eutelsat 113 | 11701.5 MHz (Vertical), 12199 MHz (Horizontal)                                                         |
+| Telstar 11N  | 11199.25 MHz (Vertical), 11699.50 MHz (Vertical), 11198.25 MHz (Horizontal), 11698.50 MHz (Horizontal) |
+| Telstar 18V  | 3623 MHz (Vertical), 3625 MHz (Vertical), 4199 (Horizontal)                                            |
+
+Make sure to select a beacon whose polarization matches your target signal
+polarization, which you can check by running:
+
+```
+blocksat-cli cfg show
+```
+
+Once you find the beacon signal, make gentle adjustments to the pointing until
+you can maximize the observed signal level. Then, change the frequency on gqrx
+back to the original downlink frequency of interest (also printed by the above
+command). You should be able to visualize the Blockstream Satellite signal now.
+
+Ultimately, once the SDR receiver locks to the signal, you can still try to
+improve the SNR. Observe the SNR values printed to the console and see if you
+can get better values after subtle adjustments to the pointing.
 
 In the end, once you are satisfied with the SNR (see the [target
 levels](#optimize-the-snr)), you can monitor several aspects of your SDR
@@ -434,3 +474,7 @@ can maximize these levels.
 Once you lock to the signal using the finder, check that your receiver can lock
 too by following the [instructions presented
 earlier](#find-the-satellite-and-lock-the-signal).
+
+---
+
+Prev: [Novra S400 Setup](s400.md) | [TBS5927 Setup](tbs.md) | [SDR Setup](sdr.md)

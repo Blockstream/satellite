@@ -43,7 +43,7 @@ def _print_s400_instructions(info):
     util._print_sub_header("S400's web user interface (UI)")
     print("Next, you need to access the web UI of the S400:\n")
     _item(
-        "Configure you host's network interface to the same subnet as the S400."
+        "Configure your host's network interface to the same subnet as the S400."
     )
     print()
     _print("By default, the S400 is configured with IP address 192.168.1.2 on "
@@ -51,7 +51,7 @@ def _print_s400_instructions(info):
         "make sure your host's network interface has IP address 192.168.1.x, "
         "where \"x\" could be any number higher than 2. For example, you could "
         "configure your host's network interface with IP address 192.168.1.3.")
-    _item("From your browser, access 192.168.1.2 (or 192.168.2.2 if "
+    _item("From the browser, access 192.168.1.2 (or 192.168.2.2 if "
           "connected to LAN 2).")
     _item("The web management console should open.")
     print()
@@ -60,7 +60,7 @@ def _print_s400_instructions(info):
 
     util._print_sub_header("S400 FW Version")
     print("In the web UI, go to System > About:")
-    print("Confirm that the version of the Configuration Agent is 1.6.1 or higher.")
+    print("Confirm that Configuration Agent version is 1.6.1 or higher.")
     print()
 
     util.prompt_for_enter()
@@ -70,7 +70,7 @@ def _print_s400_instructions(info):
     _print("Next, you need to configure the S400 to receive the Blockstream "
            "Satellite signal.")
 
-    print("1. First you need to log in as admin, on the top right of the page.")
+    print("1. First, you need to log in as admin on the top right of the page.")
     _item("Password: \"password\"")
     print()
 
@@ -287,8 +287,8 @@ def _print_usb_rx_instructions(info):
     """)
 
     _print("""Furthermore, note that this configuration is not persistent across
-    reboots. If you reboot you computer, you need to run `sudo blocksat-cli usb
-    config` again.""")
+    reboots. After a reboot, you need to run `sudo blocksat-cli usb config`
+    again.""")
 
     util.prompt_for_enter()
 

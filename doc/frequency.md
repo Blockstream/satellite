@@ -42,8 +42,8 @@ signals that we broadcast in each coverage region:
 
 ## L-band Frequencies
 
-Next, the table that follows summarizes the L-band frequencies to be used in
-each region based on the typical local oscillator (LO) frequencies:
+Next, the following table summarizes the L-band frequencies to be used in each
+region based on the typical LNB local oscillator (LO) frequencies:
 
 | LO Frequency        | 5150 MHz    | 9750 MHz    | 10600 MHz    | 10750 MHz    |
 |---------------------|-------------|-------------|--------------|--------------|
@@ -54,4 +54,6 @@ each region based on the typical local oscillator (LO) frequencies:
 | Telstar 18V Ku Band |             | 1756.75 MHz |              |              |
 | Telstar 18V C Band  | 1096.17 MHz |             |              |              |
 
+---
 
+Prev: [Table of Contents](README.md) - Next: [Hardware Guide](hardware.md)

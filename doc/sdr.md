@@ -54,7 +54,7 @@ To install them all at once, run:
 blocksat-cli deps install
 ```
 
-> NOTE: This command supports Ubuntu (18.04, 19.10, and 20.04), Fedora (30, 31,
+> Note: this command supports Ubuntu (18.04, 19.10, and 20.04), Fedora (30, 31,
 > and 32), and CentOS 7. In case you are using another Linux distribution or
 > version, please refer to the [manual compilation and installation
 > instructions](#manual-compilation-of-sdr-software).
@@ -71,7 +71,7 @@ by running:
 blocksat-cli gqrx-conf
 ```
 
-> NOTE: this assumes you are going to use gqrx with an RTL-SDR dongle.
+> Note: this command assumes you are using an RTL-SDR dongle.
 
 ## Running
 
@@ -96,7 +96,7 @@ values.
 
 At this point, if your antenna is already correctly pointed, you should be able
 to start receiving data on Bitcoin Satellite. Please follow the [instructions
-for Bitcoin Satellite configuration](bitcoin.md). If your antenna is not pointed
+for Bitcoin Satellite configuration](bitcoin.md). If your antenna is not aligned
 yet, refer to the [antenna alignment guide](antenna-pointing.md).
 
 ## Further Information
@@ -111,9 +111,8 @@ blocksat-cli deps update
 
 ### Docker
 
-There is a Docker image available in this repository for running the SDR host on
-a container. Please refer to instructions in the [Docker
-guide](../docker/README.md).
+A Docker image is available for running the SDR host on a container. Please
+refer to the instructions in the [Docker guide](../docker/README.md).
 
 ### Manual Installation of SDR Software
 
@@ -193,3 +192,7 @@ build/install-prerequisites.sh
 make NOTELETEXT=1 NOSRT=1 NOPCSC=1 NOCURL=1 NODTAPI=1
 sudo make NOTELETEXT=1 NOSRT=1 NOPCSC=1 NOCURL=1 NODTAPI=1 install
 ```
+
+---
+
+Prev: [Receiver Setup](receiver.md) - Next: [Bitcoin Satellite](bitcoin.md) or [Antenna Pointing](antenna-pointing.md)

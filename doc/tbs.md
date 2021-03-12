@@ -1,9 +1,9 @@
 # TBS5927 Professional DVB-S2 TV Tuner USB
 
-The TBS 5927 is a USB receiver, which will receive data from satellite and will
-output data to the host over USB. The host, in turn, is responsible for
-configuring the receiver using specific DVB-S2 tools. Hence, next, you need to
-prepare the host for driving the TBS 5927.
+The TBS 5927 is a USB receiver, which receives a satellite signal and outputs
+data to the host over USB. The host, in turn, is responsible for configuring the
+receiver using specific DVB-S2 tools. Hence, next, you need to prepare the host
+for driving the TBS 5927.
 
 <!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-generate-toc again -->
 **Table of Contents**
@@ -36,12 +36,11 @@ The TBS 5927 should be connected as follows:
 
 ## TBS 5927 Drivers
 
-Before anything else, note that specific device drivers are required in order to
-use the TBS5927. Please, do note that driver installation can cause corruptions
-and, therefore, it is safer and **strongly recommended** to use a virtual
-machine for running the TBS5927. If you do so, please note that all commands
-recommended in the remainder of this page are supposed to be executed in the
-virtual machine.
+Before anything else, note that specific device drivers are required to use the
+TBS5927. Please, note that, due to the driver installation process, it is safer
+and **strongly recommended** to use a virtual machine for running the
+TBS5927. If you do so, please note that all commands recommended in the
+remainder of this page shall be executed in the virtual machine.
 
 Next, install the drivers for the TBS 5927 by running:
 
@@ -49,7 +48,7 @@ Next, install the drivers for the TBS 5927 by running:
 blocksat-cli deps tbs-drivers
 ```
 
-> NOTE: this command requires CLI version 0.2.5 or higher. Please [upgrade
+> Note: this command requires CLI version 0.2.5 or higher. Please [upgrade
 > blocksat-cli](quick-reference.md#1-cli-installation-and-upgrade) if necessary.
 
 Once the script completes the installation, reboot the virtual machine.
@@ -73,15 +72,15 @@ Now, install all software pre-requisites (in the virtual machine) by running:
 blocksat-cli deps install
 ```
 
-> NOTE: this command supports the `apt`, `dnf` and `yum` package managers. For
+> Note: this command supports the `apt`, `dnf` and `yum` package managers. For
 > other package managers, refer to the instructions [by the end of this
 > guide](#install-binary-packages-manually) and adapt package names accordingly.
 
 ## Configure the Host
 
-Next, you need to create and configure the network interfaces that will output
-the IP traffic received via the TBS5927. You can apply all configurations by
-running the following command:
+Next, you need to create and configure a network interface to output the IP
+traffic received via the TBS5927. You can apply all configurations by running
+the following command:
 
 ```
 sudo blocksat-cli usb config
@@ -94,12 +93,12 @@ first run the command as a non-root user:
 blocksat-cli usb config
 ```
 
-Note this command will define arbitrary IP addresses to the interfaces. If you
-need (or want) to define specific IP addresses instead, for example to avoid IP
-address conflicts, use command-line argument `--ip`.
+Note this command will define an arbitrary IP address to the interface. If you
+would like to define a specific IP address instead, for example, to avoid
+address conflicts, use the command-line argument `--ip`.
 
-Furthermore, note that this configuration is not persistent across reboots. If
-you reboot you computer, you need to run `sudo blocksat-cli usb config` again.
+Furthermore, note that this configuration is not persistent across
+reboots. After a reboot, you need to run `sudo blocksat-cli usb config` again.
 
 ## Launch
 
@@ -114,7 +113,7 @@ blocksat-cli usb launch
 
 At this point, if your dish is already correctly pointed, you should be able to
 start receiving data on Bitcoin Satellite. Please follow the [instructions for
-Bitcoin Satellite configuration](bitcoin.md). If your antenna is not pointed
+Bitcoin Satellite configuration](bitcoin.md). If your antenna is not aligned
 yet, please follow the [antenna alignment guide](antenna-pointing.md).
 
 ## Next Steps
@@ -122,14 +121,14 @@ yet, please follow the [antenna alignment guide](antenna-pointing.md).
 At this point, if your antenna is already correctly pointed, you should be able
 to start receiving data on Bitcoin Satellite. Please follow the [instructions
 for Bitcoin Satellite configuration](bitcoin.md). If your antenna is not pointed
-yet, refer to the [antenna alignment guide](antenna-pointing.md).a
+yet, refer to the [antenna alignment guide](antenna-pointing.md).
 
 ## Further Information
 
 ### Docker
 
-There is a Docker image available in this repository for running the Linux USB
-receiver host on a container. Please refer to instructions in the [Docker
+A Docker image is available for running the Linux USB receiver host on a
+container. Please refer to the instructions in the [Docker
 guide](../docker/README.md).
 
 ### Useful Resources
@@ -157,9 +156,8 @@ sudo dnf update
 sudo dnf install python3 iproute iptables dvb-apps v4l-utils
 ```
 
-Specifically on Fedora 31 and 32, package `dvb-apps` is not available via the
-main dnf repository. In this case, you can install it from our repository, by
-running:
+On Fedora, package `dvb-apps` is not available via the main dnf repository. In
+this case, you can install it from our repository by running:
 
 ```
 sudo dnf copr enable blockstream/satellite
@@ -185,3 +183,6 @@ make
 sudo make install
 ```
 
+---
+
+Prev: [Receiver Setup](receiver.md) - Next: [Bitcoin Satellite](bitcoin.md) or [Antenna Pointing](antenna-pointing.md)

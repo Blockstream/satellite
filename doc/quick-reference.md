@@ -195,6 +195,16 @@ Broadcast a message using the satellite API:
 blocksat-cli api send
 ```
 
+Bump the bid of an API transmission order:
+```
+blocksat-cli api bump
+```
+
+Delete an API transmission order:
+```
+blocksat-cli api del
+```
+
 Listen for API messages acquired by the satellite receiver:
 ```
 blocksat-cli api listen
@@ -209,14 +219,3 @@ Listen for API messages coming from the demo receiver:
 ```
 blocksat-cli api listen -d
 ```
-
-Bump the bid of an API transmission order:
-```
-blocksat-cli api bump
-```
-
-Delete an API transmissions order:
-```
-blocksat-cli api del
-```
-
