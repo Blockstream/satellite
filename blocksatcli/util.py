@@ -1,5 +1,5 @@
 """Utility functions"""
-import os, textwrap, subprocess
+import copy, os, textwrap, subprocess
 
 
 def fill_print(text):
@@ -126,7 +126,9 @@ def _ask_multiple_choice(vec, msg, label, to_str, help_msg = None,
             choice = None
             print(none_str)
         else:
-            choice = vec[resp]
+            choice = copy.deepcopy(vec[resp])
+            # NOTE: deep copy to prevent the caller from changing the original
+            # element.
             print(to_str(choice))
         print()
 
