@@ -598,6 +598,15 @@ def subparser(subparsers):
                    default="channels.conf",
                    help='Channel configurations file')
     p.set_defaults(func=configure)
+
+    subsubparsers = p.add_subparsers(title='subcommands',
+                                     help='Target sub-command')
+    p2 = subsubparsers.add_parser(
+        'show',
+        description="Display the local configuration",
+        help='Display the local configuration',
+        formatter_class=ArgumentDefaultsHelpFormatter)
+    p2.set_defaults(func=show)
     return p
 
 
@@ -653,3 +662,33 @@ def configure(args):
     """)
 
 
+def show(args):
+    """Print the local configuration"""
+    info = read_cfg_file(args.cfg, args.cfg_dir)
+    if (info is None):
+        return
+    print("| {:30s} | {:25s} |".format("Receiver", get_rx_model(info)))
+    print("| {:30s} | {:25s} |".format("LNB", get_lnb_model(info)))
+    print("| {:30s} | {:25s} |".format("Antenna", get_antenna_model(info)))
+    pr_cfgs = {
+        'freqs': {
+            'dl': ("Downlink frequency", "MHz", None),
+            'lo': ("LNB LO frequency", "MHz", None),
+            'l_band': ("Receiver L-band frequency", "MHz", None)
+        },
+        'sat': {
+            'name': ("Satellite name", "", None),
+            'band': ("Signal band", "", None),
+            'pol': ("Signal polarization", "",
+                    lambda x : "Horizontal" if x == "H" else "vertical"),
+        }
+    }
+    for category in pr_cfgs:
+        for key, pr_cfg in pr_cfgs[category].items():
+            label = pr_cfg[0]
+            unit = pr_cfg[1]
+            val = info[category][key]
+            # Transform the value if a callback is defined
+            if (pr_cfg[2] is not None):
+                val = pr_cfg[2](val)
+            print("| {:30s} | {:25s} |".format(label, str(val) + " " + unit))

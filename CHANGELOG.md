@@ -4,6 +4,9 @@
 
 Release Date: 2021-03-16
 
+### Added
+- Command `blocksat-cli cfg show` to show the local configuration.
+
 ### Changed
 - Option `-m/--modcod` on the SDR application, now defined explicitly (e.g., as
   *qpsk3/5*) instead of through the former "low/high" aliases.
