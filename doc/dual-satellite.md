@@ -24,8 +24,8 @@ Map](https://blockstream.com/satellite/#satellite_network-coverage).
 
 To connect to two satellites simultaneously, you need separate antennas pointed
 to each satellite. Correspondingly, you need two LNBs (one per dish), double the
-number of cables, connectors, etc. The only exception refers to the receiver
-device, in case you have one that supports dual satellite connectivity.
+number of cables, connectors, etc. The only exception is the receiver device, in
+case you have one that supports dual satellite connectivity.
 
 If you have the Novra S400 receiver of the [Pro Ethernet
 Kit](https://store.blockstream.com/product/blockstream-satellite-pro-kit/), you
@@ -34,17 +34,16 @@ with a USB or SDR-based receiver (or combinations of them), you need two
 receivers, each connected to a different antenna.
 
 To run multiple receivers, you need to set up different sets of configurations
-on the command-line interface (CLI). Recall that your first step with the CLI
-regardless of the type of receiver is to run the configuration helper, as
+on the command-line interface (CLI). Recall that your first step with the CLI,
+regardless of the type of receiver, is to run the configuration helper, as
 follows:
 
 ```
 blocksat-cli cfg
 ```
 
-To configure a second receiver, you need to set option `--cfg name`, where
-argument `name` should be the name of the second configuration. For example, you
-can set up a configuration named `rx2`, as follows:
+To configure a second receiver, you need to set option `--cfg name`. For
+example, you can set up a second configuration named `rx2`, as follows:
 
 ```
 blocksat-cli --cfg rx2 cfg
@@ -57,23 +56,25 @@ provided next.
 
 ## Novra S400 Standalone Receiver
 
-On the Novra S400, you need to configure the two RF interfaces on the same
-unit. Each interface will be connected to a different antenna and receiving from
-a different satellite. As explained on the [S400 guide](s400.md), all
-configurations are provided by the command:
+With the Novra S400, you need to configure the two RF interfaces
+separately. Each interface will be connected to a different antenna and
+receiving from a different satellite. As explained on the [S400
+guide](s400.md#receiver-and-host-configuration), the first RF interface (RF1) is
+configured by the following command:
 
 ```
-blocksat-cli instructions
+sudo blocksat-cli standalone cfg
 ```
 
-Use these instructions to configure interface RF1. Then, get the instructions
-for the other interface by running:
+To configure the second RF interface, run:
 
 ```
-blocksat-cli --cfg rx2 instructions
+sudo blocksat-cli --cfg rx2 standalone --demod 2 cfg --rx-only
 ```
 
-Use these instructions to configure interface RF2.
+Next, access the S400 web management console [as instructed in the S400
+guide](s400.md#s400-configuration-via-the-web-ui). Go to `Interfaces > RF2` and
+enable the RF2 interface.
 
 Lastly, you need to configure [Bitcoin Satellite](bitcoin.md) to receive the
 second satellite stream. You can do so by running:

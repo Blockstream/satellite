@@ -302,8 +302,7 @@ def configure(net_ifs, ports, src_ip, igmp=False, prompt=True):
 
     """
     assert(isinstance(net_ifs, list))
-    print("\n------------------------------- Firewall Rules " +
-          "---------------------------------")
+    util._print_header("Firewall Rules")
 
     if (os.geteuid() != 0):
         util.fill_print("Please run blocksat-cli as root or run the following \

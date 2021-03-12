@@ -21,6 +21,7 @@ class SnmpClient():
         self.address = address
         self.port    = port
         self.mib     = mib
+        self.engine  = SnmpEngine()
         self._dump_mib()
 
     def _dump_mib(self):
@@ -30,7 +31,7 @@ class SnmpClient():
         home      = os.path.expanduser("~" + user)
 
         # Check if the compiled MIB (.py file) already exists
-        mib_dir = os.path.join(home, ".pysnmp/mibs/")
+        self.mib_dir = mib_dir = os.path.join(home, ".pysnmp/mibs/")
         if (os.path.exists(os.path.join(mib_dir, self.mib + ".py"))):
             return
 
@@ -54,13 +55,15 @@ class SnmpClient():
         obj_types = []
         for var in variables:
             if isinstance(var, tuple):
-                obj = ObjectType(ObjectIdentity(self.mib, var[0], var[1]))
+                obj = ObjectType(ObjectIdentity(
+                    self.mib, var[0], var[1]).addMibSource(self.mib_dir))
             else:
-                obj = ObjectType(ObjectIdentity(self.mib, var, 0))
+                obj = ObjectType(ObjectIdentity(
+                    self.mib, var, 0).addMibSource(self.mib_dir))
             obj_types.append(obj)
 
         errorIndication, errorStatus, errorIndex, varBinds = next(
-            getCmd(SnmpEngine(),
+            getCmd(self.engine,
                    CommunityData('public'),
                    UdpTransportTarget((self.address, self.port)),
                    ContextData(),
@@ -82,7 +85,7 @@ class SnmpClient():
                 res.append(tuple([x.prettyPrint() for x in varBind]))
             return res
 
-    def _set(self, variable, value):
+    def _set(self, *key_vals):
         """Set variable via SNMP
 
         Args:
@@ -90,12 +93,22 @@ class SnmpClient():
             value    : value to set on the given variable.
 
         """
+        obj_types = []
+        for key, val in key_vals:
+            if isinstance(key, tuple):
+                obj = ObjectType(ObjectIdentity(
+                    self.mib, key[0], key[1]).addMibSource(self.mib_dir), val)
+            else:
+                obj = ObjectType(ObjectIdentity(
+                    self.mib, key, 0).addMibSource(self.mib_dir), val)
+            obj_types.append(obj)
+
         errorIndication, errorStatus, errorIndex, varBinds = next(
-            setCmd(SnmpEngine(),
-                   CommunityData('public'),
-                   UdpTransportTarget((self.address, self.port)),
+            setCmd(self.engine,
+                   CommunityData('private'),
+                   UdpTransportTarget((self.address, self.port), timeout=10.0),
                    ContextData(),
-                   ObjectType(ObjectIdentity(self.mib, variable, 1), value)
+                   *obj_types
             )
         )
 
@@ -111,10 +124,46 @@ class SnmpClient():
                 logger.debug(' = '.join([x.prettyPrint() for x in varBind]))
 
 
+    def _walk(self):
+        """SNMP Walk
+
+        Returns:
+            Dictionary with configurations fetched via SNMP.
+
+        """
+        iterator = nextCmd(
+            self.engine,
+            CommunityData('public'),
+            UdpTransportTarget((self.address, self.port)),
+            ContextData(),
+            ObjectType(ObjectIdentity(
+                self.mib, '', 0).addMibSource(self.mib_dir))
+        )
+        res = {}
+        for errorIndication, errorStatus, errorIndex, varBinds in iterator:
+            if errorIndication:
+                logger.error(errorIndication)
+            elif errorStatus:
+                logger.error('%s at %s' % (
+                    errorStatus.prettyPrint(),
+                    errorIndex and varBinds[int(errorIndex) - 1][0] or '?')
+                )
+            else:
+                for varBind in varBinds:
+                    logger.debug(varBind)
+                    varBindList = [x.prettyPrint() for x in varBind]
+                    key = varBindList[0].replace(self.mib + "::", "")
+                    if (len(varBindList) > 2):
+                        res[key] = tuple(varBindList[1:])
+                    else:
+                        res[key] = varBindList[1]
+        return res
+
+
 class S400Client(SnmpClient):
     """Novra S400 SNMP Client"""
-    def __init__(self, demod, address, port, mib):
-        super().__init__(address, port, mib)
+    def __init__(self, demod, address, port):
+        super().__init__(address, port, mib='NOVRA-s400-MIB')
         self.demod = demod
 
     def get_stats(self):
@@ -215,10 +264,8 @@ class S400Client(SnmpClient):
             'LongLineCompensation.0' : "Long Line Compensation"
         }
         mpe_label_map = {
-            'MpePid1Pid.0'       : "MPE PID 1",
-            'MpePid1Pid.1'       : "MPE PID 2",
-            'MpePid1RowStatus.0' : "MPE PID 1 Status",
-            'MpePid1RowStatus.1' : "MPE PID 2 Status"
+            'MpePid1Pid.0'       : "MPE PID",
+            'MpePid1RowStatus.0' : "MPE PID Status"
         }
         label_map = {
             "Demodulator" : demod_label_map,
@@ -240,6 +287,66 @@ class S400Client(SnmpClient):
                         val = cfg[key]
                     print("- {}: {}".format(label, val))
         return True
+
+    def configure(self, info):
+        """Configure the S400"""
+        logger.info("Configuring the S400 receiver at {} via SNMP".format(
+            self.address))
+
+        # Local parameters
+        l_band_freq = int(info['freqs']['l_band'] * 1e6)
+        lo_freq = int(info['freqs']['lo'] * 1e6)
+        sym_rate = defs.sym_rate[info['sat']['alias']]
+        if (info['lnb']['pol'].lower() == "dual" and 'v1_pointed' in info['lnb'] and
+            info['lnb']['v1_pointed']):
+            pol = "horizontal" if (info['lnb']["v1_psu_voltage"] >= 16) else \
+                "vertical"
+        else:
+            pol = "horizontal" if (info['sat']['pol'] == "H") else "vertical"
+        if (info['lnb']['universal'] and info['freqs']['dl'] > defs.ku_band_thresh):
+            tone = 'enable'
+        else:
+            tone = 'disable'
+
+        # Fetch and delete the current MPE PIDs
+        logger.info("Resetting MPE PIDs")
+        current_cfg = self._walk()
+        mpe_prefix = 's400MpePid' + self.demod
+        for key in current_cfg:
+            mpe_row_status = mpe_prefix + "RowStatus"
+            if mpe_row_status in key:
+                self._set((tuple(key.split(".")), 'destroy'))
+
+        # Configure via SNMP
+        logger.info("Configuring interface RF{}".format(self.demod))
+        self._set(('s400ModulationStandard' + self.demod, 'dvbs2'))
+        self._set(('s400LBandFrequency' + self.demod, l_band_freq))
+        self._set(('s400SymbolRate' + self.demod, sym_rate))
+        self._set(('s400SymbolRateAuto' + self.demod, 'disable'))
+
+        logger.info("Setting LNB parameters".format(self.demod))
+        self._set(('s400LOFrequency', lo_freq))
+        self._set(('s400Polarization', pol))
+        self._set(('s400LongLineCompensation', 'disable'))
+
+        logger.info("Configuring the RF{} service".format(self.demod))
+        self._set(('s400Modcod' + self.demod, 'auto'))
+        self._set(('s400ForwardEntireStream' + self.demod, 'disable'))
+
+        # Set the target PIDs
+        for i_pid, pid in enumerate(defs.pids):
+            logger.info("Adding MPE PID {}".format(pid))
+            self._set((('s400MpePid' + self.demod + 'RowStatus', i_pid), 'createAndWait'))
+            self._set((('s400MpePid' + self.demod + 'Pid', i_pid), pid))
+            self._set((('s400MpePid' + self.demod + 'RowStatus', i_pid), 'active'))
+
+        logger.info("Turning on the LNB power")
+        self._set(('s400LNBSupply', 'enabled'))
+        if (tone == 'enable'):
+            logger.info("Enabling the LNB 22kHz tone")
+        self._set(('s400Enable22KHzTone', tone))
+
+        logger.info("Receiver configured successfully")
 
 
 def subparser(subparsers):
@@ -264,16 +371,22 @@ def subparser(subparsers):
                                      help='Target sub-command')
 
     # Configuration
-    p1 = subsubparsers.add_parser('config', aliases=['cfg'],
-                                  description='Initial configurations',
-                                  help='Configure the host to receive data \
-                                  from the standalone receiver')
+    p1 = subsubparsers.add_parser(
+        'config', aliases=['cfg'],
+        description='Initial configurations',
+        help='Configure the standalone receiver and the host')
     p1.add_argument('-i', '--interface',
                     default=None,
                     help='Network interface connected to the standalone \
                     receiver')
     p1.add_argument('-y', '--yes', default=False, action='store_true',
                     help="Default to answering Yes to configuration prompts")
+    p1.add_argument('--host-only', default=False, action='store_true',
+                    help="Configure the host only and skip the receiver "
+                    "configuration")
+    p1.add_argument('--rx-only', default=False, action='store_true',
+                    help="Configure the receiver only and skip the host "
+                    "configuration")
     p1.set_defaults(func=cfg_standalone)
 
     # Monitoring
@@ -289,29 +402,39 @@ def subparser(subparsers):
 
 
 def cfg_standalone(args):
-    """Configure the host to communicate with the the standalone DVB-S2 receiver
+    """Configure the standalone receiver and the host
+
+    Set all parameters required on the standalone receiver: signal, LNB, and MPE
+    parameters. Then, configure the host to communicate with the the standalone
+    DVB-S2 receiver by setting reverse-path filters and firewall configurations.
+
     """
-    # User info
     user_info = config.read_cfg_file(args.cfg, args.cfg_dir)
 
     if (user_info is None):
         return
 
-    if 'netdev' not in user_info['setup']:
-        assert(args.interface is not None), \
-            ("Please specify the network interface through option "
-             "\"-i/--interface\"")
+    if (not args.rx_only):
+        if 'netdev' not in user_info['setup']:
+            assert(args.interface is not None), \
+                ("Please specify the network interface through option "
+                 "\"-i/--interface\"")
 
-    interface = args.interface if (args.interface is not None) else \
-                user_info['setup']['netdev']
+        interface = args.interface if (args.interface is not None) else \
+            user_info['setup']['netdev']
 
-    # Check if all dependencies are installed
-    if (not dependencies.check_apps(["iptables"])):
-        return
+        # Check if all dependencies are installed
+        if (not dependencies.check_apps(["iptables"])):
+            return
 
-    rp.set_filters([interface], prompt=(not args.yes))
-    firewall.configure([interface], defs.src_ports, user_info['sat']['ip'],
-                       igmp=True, prompt=(not args.yes))
+        rp.set_filters([interface], prompt=(not args.yes))
+        firewall.configure([interface], defs.src_ports, user_info['sat']['ip'],
+                           igmp=True, prompt=(not args.yes))
+
+    if (not args.host_only):
+        util._print_header("Receiver Configuration")
+        s400 = S400Client(args.demod, args.address, args.port)
+        s400.configure(user_info)
 
 
 def monitor(args):
@@ -321,7 +444,7 @@ def monitor(args):
     user_info = config.read_cfg_file(args.cfg, args.cfg_dir)
 
     # Client to the S400's SNMP agent
-    s400 = S400Client(args.demod, args.address, args.port, mib='NOVRA-s400-MIB')
+    s400 = S400Client(args.demod, args.address, args.port)
 
     util._print_header("Novra S400 Receiver")
 

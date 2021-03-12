@@ -126,8 +126,7 @@ def set_filters(dvb_ifs, prompt=True):
     """
     assert(isinstance(dvb_ifs, list))
 
-    print("\n----------------------------- Reverse Path Filters " +
-          "-----------------------------")
+    util._print_header("Reverse Path Filters")
 
     # Check if RP filters are already configured properly
     if (os.geteuid() == 0):

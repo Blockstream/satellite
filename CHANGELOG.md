@@ -6,10 +6,12 @@ Release Date: 2021-03-16
 
 ### Added
 - Command `blocksat-cli cfg show` to show the local configuration.
+- Configuration of the Novra S400 (pro kit receiver) via SNMP through command
+  `blocksat-cli standalone cfg`.
 
 ### Changed
-- Configuration and instructions to use the DVB-S2 CCM mode with the QPSK 3/5
-  default modcod instead of VCM mode with QPSK 1/2 and 8PSK 2/3 MODCODs.
+- CLI configuration and instructions to use DVB-S2 in CCM mode with the QPSK 3/5
+  MODCOD instead of VCM mode with the QPSK 1/2 and 8PSK 2/3 MODCODs.
 - Set of MPEG TS PIDs to 32 only instead of using two PIDs (32 and 33) for VCM.
 - Option `-m/--modcod` on the SDR application, now defined explicitly (e.g., as
   *qpsk3/5*) instead of through the former "low/high" aliases.

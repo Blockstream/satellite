@@ -40,162 +40,55 @@ def _print_s400_instructions(info):
 
     util.prompt_for_enter()
 
-    util._print_sub_header("S400's web user interface (UI)")
-    print("Next, you need to access the web UI of the S400:\n")
-    _item(
-        "Configure your host's network interface to the same subnet as the S400."
-    )
-    print()
-    _print("By default, the S400 is configured with IP address 192.168.1.2 on "
-        "LAN1 and 192.168.2.2 on LAN2. So, if you are connecting to LAN1, "
-        "make sure your host's network interface has IP address 192.168.1.x, "
-        "where \"x\" could be any number higher than 2. For example, you could "
-        "configure your host's network interface with IP address 192.168.1.3.")
-    _item("From the browser, access 192.168.1.2 (or 192.168.2.2 if "
-          "connected to LAN 2).")
-    _item("The web management console should open.")
-    print()
+    util._print_sub_header("Network Connection")
 
-    util.prompt_for_enter()
+    _print("Next, make sure the S400 receiver is reachable by the host.")
 
-    util._print_sub_header("S400 FW Version")
-    print("In the web UI, go to System > About:")
-    print("Confirm that Configuration Agent version is 1.6.1 or higher.")
+    _print("First, configure your host's network interface to the same subnet "
+           "as the S400. By default, the S400 is configured with IP address "
+           "192.168.1.2 on LAN1 and 192.168.2.2 on LAN2. Hence, if you "
+           "connect to LAN1, make sure your host's network interface has IP "
+           "address 192.168.1.x, where \"x\" could be any number higher than "
+           "2. For example, you could configure your host's network interface "
+           "with IP address 192.168.1.3.")
+
+    _print("After that, open the browser and access 192.168.1.2 (or "
+           "192.168.2.2 if connected to LAN 2). The web management console "
+           "should open up successfully.")
+
     print()
 
     util.prompt_for_enter()
 
-    util._print_sub_header("S400 Configurations")
+    util._print_sub_header("Software Requirements")
 
-    _print("Next, you need to configure the S400 to receive the Blockstream "
-           "Satellite signal.")
+    _print("Next, install all software pre-requisites on your host. Run:")
 
-    print("1. First, you need to log in as admin on the top right of the page.")
-    _item("Password: \"password\"")
-    print()
-
-    print("2. Go to Interfaces > RF1 and configure as follows:\n")
-    _item("DVB Mode: \"DVB-S2\"")
-    _item("LBand: {:.1f} MHz".format(info['freqs']['l_band']))
-    _item("Symbol Rate: {} MBaud".format(
-        defs.sym_rate[info['sat']['alias']]/1e6))
-    _item("MODCOD: AUTO")
-    _item("Gold Code: 0")
-    _item("Input Stream ID: 0")
-    _item("LNB Power On: Enable")
-    _item("L.O. Frequencies: {:.1f} MHz".format(info['freqs']['lo']))
-
-    if (info['lnb']['pol'].lower() == "dual" and info['lnb']['v1_pointed']):
-        # If a dual-polarization LNB is already pointed for Blocksat v1,
-        # then we must use the polarization that the LNB was pointed to
-        # originally, regardless of the satellite signal's polarization. In
-        # v1, what mattered the most was the power supply voltage, which
-        # determined the polarization of the dual polarization LNBs. If the
-        # power supply provides voltage >= 18 (often the case), then the LNB
-        # necessarily operates currently with horizontal polarization. Thus,
-        # the same polarization must be configured in the S400.
-        if (info['lnb']["v1_psu_voltage"] >= 16): # 16VDC is a common threshold
-            pol = "H"
-        else:
-            pol = "V"
-    else:
-        if (info['sat']['pol'] == "H"):
-            pol = "H"
-        else:
-            pol = "V"
-
-    pol_label = "Horiz./L" if pol == "H" else "Vert./R"
-
-    _item("Polarization: {}".format(pol_label))
-
-    if (info['lnb']['universal'] and info['freqs']['dl'] > defs.ku_band_thresh):
-        _item("Band (Tone): \"High/On\"")
-    else:
-        _item("Band (Tone): \"Low/Off\"")
-    _item("Long Line Compensation: Disabled")
-    _item("Apply")
-    print()
-
-    print("3. Verify that the S400 is locked to Blockstream Satellite's signal")
-    _item("Check the \"RF 1 Lock\" indicator at the top of the page or the "
-          "status LED in the S400's front panel. It should be green (locked) "
-          "if your antenna is already pointed correctly. If not, you can work "
-          "on the antenna pointing afterwards.")
-    print()
-
-    print("4. Go to Services > RF1:\n")
-    print("Scroll to \"Manage MPE/ULE PIDs\"")
-    for pid in defs.pids:
-        print("- Enter %d on \"New PID\" and click \"Add\"." %(pid))
-    _item("Apply")
-    print()
-
-    print("** Optional configurations:")
-    _item("If you prefer to use another IP address on LAN1 or LAN2, go to "
-          "Interfaces > Data (LAN1) or Interfaces > M&C (LAN2) and "
-          "configure the IP addresses. Note LAN 1 is the interface that "
-          "will deliver the data packets received over satellite, whereas "
-          "LAN2 is optional and exclusively for management.")
-    _item("""If you are configuring the second RF interface on the S400 for a
-    dual-satellite setup, on step 2, go to \"Interfaces > RF2\" instead of
-    \"RF1\". Correspondingly, on step 3, check the \"RF 2 Lock\" indicator,
-    and on step 4, go to \"Services > RF2\".""")
-    print()
-
-    util.prompt_for_enter()
-
-    if (info['lnb']['pol'].lower() == "dual" and info['lnb']['v1_pointed'] and
-        (pol != info['sat']['pol'])):
-        util._print_sub_header("Notes")
-
-        _item("The polarization that was suggested above assumes that you "
-              "are going to use an LNB that is already pointed to {}, on a "
-              "pre-existing SDR-based setup used for reception of the "
-              "previous version of Blockstream Satellite (prior to the "
-              "update to DVB-S2). It also assumes that you "
-              "are not going to change the skew (polarization angle) of the "
-              "LNB. The suggested polarization is exactly the same on which "
-              "your LNB has been operating so far, i.e. {} polarization. "
-              "However, note that your satellite signal has {} polarization. "
-              "If you plan on re-pointing the LNB, please re-run the "
-              "configuration helper (\"blocksat-cli cfg\") and "
-              "answer that you are not reusing an already pointed LNB.".format(
-                  info['sat']['name'],
-                  "horizontal" if pol == "H" else "vertical",
-                  "horizontal" if info['sat']['pol'] == "H" else "vertical"
-              ))
-
-        util.prompt_for_enter()
-
-    util._print_sub_header("Host Requirements")
-
-    _print("Next, make sure that you have all software pre-requisites "
-           "available in your host. Run:")
-
-    print("""
-    blocksat-cli deps install
-    """)
+    print("    blocksat-cli deps install\n")
 
     _print("""
     NOTE: this command supports the apt, dnf, and yum package managers.""")
 
     util.prompt_for_enter()
 
-    util._print_sub_header("Host Configuration")
+    util._print_sub_header("Receiver and Host Configuration")
 
-    _print("""
-    In order to receive the traffic from the S400, you will need some networking
-    configurations on your host. Such configurations are indicated and executed
-    by running:
-    """)
+    print("Now, configure the S400 receiver and the host by running:")
 
-    print("\n    sudo blocksat-cli standalone cfg\n\n")
+    print("\n    sudo blocksat-cli standalone cfg\n")
 
-    _print("""If you would like to review the changes that will be made before
-    applying them, first run the command as a non-root user:
-    """)
+    _print("""If you would like to review the changes that will be made to the
+    host before applying them, first run the command as a non-root user:""")
 
-    print("\n    blocksat-cli standalone cfg\n\n")
+    print("    blocksat-cli standalone cfg\n\n")
+
+    util.prompt_for_enter()
+
+    util._print_sub_header("Monitoring")
+
+    print("Finally, you can monitor your receiver by running:")
+
+    print("\n    blocksat-cli standalone monitor\n\n")
 
     util.prompt_for_enter()
 
