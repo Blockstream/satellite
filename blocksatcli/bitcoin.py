@@ -58,7 +58,7 @@ def _udpmulticast(dev, src_addr, dst_addr=defs.btc_dst_addr, trusted="1",
     return dev + "," + dst_addr + "," + src_addr + "," + trusted + "," + label
 
 
-def _gen_cfgs(info):
+def _gen_cfgs(info, interface):
     """Generate configurations"""
     cfg = Cfg()
     cfg.add_opt("debug", "udpnet")
@@ -66,31 +66,19 @@ def _gen_cfgs(info):
     cfg.add_opt("udpmulticastloginterval", "60")
 
     if (info['setup']['type'] == defs.sdr_setup_type):
-        cfg.add_opt("udpmulticast",
-            _udpmulticast(dev="lo",
-                          src_addr="127.0.0.1",
-                          label="blocksat-sdr")
-        )
+        src_addr = "127.0.0.1"
+        label = "blocksat-sdr"
     elif (info['setup']['type'] == defs.linux_usb_setup_type):
-        cfg.add_opt("udpmulticast",
-            _udpmulticast(dev="dvb0_0",
-                          src_addr=info['sat']['ip'],
-                          label="blocksat-tbs-lowspeed")
-        )
-
-        cfg.add_opt("udpmulticast",
-            _udpmulticast(dev="dvb0_1",
-                          src_addr=info['sat']['ip'],
-                          label="blocksat-tbs-highspeed")
-        )
+        src_addr = info['sat']['ip']
+        label = "blocksat-tbs"
     elif (info['setup']['type'] == defs.standalone_setup_type):
-        cfg.add_opt("udpmulticast",
-            _udpmulticast(dev=info['setup']['netdev'],
-                          src_addr=info['sat']['ip'],
-                          label="blocksat-s400")
-        )
+        src_addr = info['sat']['ip']
+        label = "blocksat-s400"
     else:
         raise ValueError("Unknown setup type")
+
+    cfg.add_opt("udpmulticast", _udpmulticast(
+        dev=interface, src_addr=src_addr, label=label))
 
     return cfg
 
@@ -132,8 +120,11 @@ def configure(args):
     conf_file = "bitcoin.conf"
     abs_path  = os.path.join(path, conf_file)
 
+    # Network interface
+    ifname = config.get_net_if(info)
+
     # Generate configuration object
-    cfg = _gen_cfgs(info)
+    cfg = _gen_cfgs(info, ifname)
 
     # Load and concatenate pre-existing configurations
     if args.concat and os.path.exists(abs_path):
@@ -170,16 +161,18 @@ def configure(args):
     print("Saved")
 
     if (info['setup']['type'] == defs.linux_usb_setup_type):
-        print("\n" + textwrap.fill(
-            ("NOTE: {} was configured assuming the DVB-S2 net interfaces will "
-             "be named dvb0_0 and dvb0_1. You can check if this is the case "
-             "after launching the system by running \"ls /dev/dvb*\". If the "
-             "dvb interfaces are numbered differently, please update {} "
-             "accordingly.").format(conf_file, conf_file)))
+        print()
+        util.fill_print(
+            "NOTE: {} was configured assuming the dvbnet interface is "
+            "named {}. You can check if this is the case after launching the "
+            "receiver by running:".format(conf_file, ifname))
+        print("    ip link show | grep dvb\n")
+        util.fill_print("If the dvb interfaces are numbered differently, "
+                        "please update {} accordingly.".format(conf_file))
     elif (info['setup']['type'] == defs.standalone_setup_type):
-        print("\n" + textwrap.fill(
-            ("NOTE: {} was configured assuming the Novra S400 receiver will be "
-             "connected to interface {}. If this is not the case anymore, "
-             "please update {} accordingly.").format(
-                 conf_file, info['setup']['netdev'], conf_file)))
+        print("\n" + textwrap.fill((
+            "NOTE: {0} was configured assuming the Novra S400 receiver will be "
+            "connected to interface {1}. If this is not the case anymore, "
+            "please update {0} accordingly.").format(
+                conf_file, ifname)))
 

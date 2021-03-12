@@ -557,13 +557,8 @@ def get_lnb_model(user_info):
     return lnb
 
 
-def get_net_if(user_info, prefer_8psk=False):
-    """Get the network interface used by the given setup
-
-    On the USB setup, let the caller decide if there is a preference for the
-    network interface associated with the high-throughput (8PSK) stream.
-
-    """
+def get_net_if(user_info):
+    """Get the network interface used by the given setup"""
     if (user_info is None):
         raise ValueError("Failed to read local configuration")
 
@@ -571,15 +566,15 @@ def get_net_if(user_info, prefer_8psk=False):
         interface = "lo"
     elif (user_info['setup']['type'] == defs.linux_usb_setup_type):
         if ('adapter' not in user_info['setup']):
-            interface = "dvb0_1" if prefer_8psk else "dvb0_0"
+            interface = "dvb0_0"
             logger.warning("Could not find the dvbnet interface name. "
                            "Is the {} receiver running?".format(
                                get_rx_model(user_info)
                            ))
+            logger.warning("Assuming interface name {}.".format(interface))
         else:
             adapter = user_info['setup']['adapter']
-            interface = "dvb{}_1".format(adapter) if prefer_8psk else \
-                "dvb{}_0".format(adapter)
+            interface = "dvb{}_0".format(adapter)
     elif (user_info['setup']['type'] == defs.standalone_setup_type):
         interface = user_info['setup']['netdev']
     else:

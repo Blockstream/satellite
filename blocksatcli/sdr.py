@@ -178,7 +178,7 @@ def subparser(subparsers):
     ldvb_p.add_argument('--rrc-rej', default=30, type=int,
                         help='leandvb RRC rej parameter')
     ldvb_p.add_argument('-m', '--modcod', choices=defs.modcods.keys(),
-                        default='qpsk1/2', metavar='',
+                        default='qpsk3/5', metavar='',
                         help="DVB-S2 modulation and coding (MODCOD) scheme. "
                         "Choose from: " + ", ".join(defs.modcods.keys()))
     ldvb_p.add_argument('--ldpc-dec', default="ext", choices=["int", "ext"],

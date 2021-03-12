@@ -310,8 +310,8 @@ def compute_rx_ips(sat_ip, n_ips, subnet="/29"):
     assert(len(sat_ip_split) == 4)
     base_ip     = ".".join(sat_ip_split[0:3])
     sat_ip_term = int(sat_ip[-1])
-    base_offset = 3 # 3 reserved IPs for Tx host and modulator
-
+    base_offset = 3  # 3 reserved IPs for Tx host and modulator
+    assert(n_ips < 5)  # 5 IPs remaining for user equipment
     ips = list()
     for i in range(0, n_ips):
         rx_ip_term = sat_ip_term + base_offset + i

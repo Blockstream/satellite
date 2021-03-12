@@ -87,12 +87,10 @@ class TestConfigHelpers(TestCase):
         # USB type but adapter number not cached
         info['setup'] = defs.demods[1]
         self.assertEqual(config.get_net_if(info), 'dvb0_0')
-        self.assertEqual(config.get_net_if(info, prefer_8psk=True), 'dvb0_1')
 
         # USB type with adapter number cached
         info['setup']['adapter'] = 2
         self.assertEqual(config.get_net_if(info), 'dvb2_0')
-        self.assertEqual(config.get_net_if(info, prefer_8psk=True), 'dvb2_1')
 
         # SDR
         info['setup'] = defs.demods[2]

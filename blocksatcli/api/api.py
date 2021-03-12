@@ -291,9 +291,7 @@ def listen(args):
     else:
         # Infer the interface based on the user's setup
         user_info = blocksatcli_config.read_cfg_file(args.cfg, args.cfg_dir)
-        interface = blocksatcli_config.get_net_if(user_info,
-                                                  prefer_8psk=(args.gossip or
-                                                               args.btc_src))
+        interface = blocksatcli_config.get_net_if(user_info)
     logger.info("Listening on interface: {}".format(interface))
     logger.info("Downloads will be saved at: {}".format(download_dir))
 

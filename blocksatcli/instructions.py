@@ -79,7 +79,7 @@ def _print_s400_instructions(info):
     _item("LBand: {:.1f} MHz".format(info['freqs']['l_band']))
     _item("Symbol Rate: {} MBaud".format(
         defs.sym_rate[info['sat']['alias']]/1e6))
-    _item("MODCOD: VCM")
+    _item("MODCOD: AUTO")
     _item("Gold Code: 0")
     _item("Input Stream ID: 0")
     _item("LNB Power On: Enable")

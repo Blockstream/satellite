@@ -18,7 +18,7 @@
 ## Overview
 
 [Bitcoin Satellite](https://github.com/Blockstream/bitcoinsatellite) is a fork
-from [FIBRE (Fast Internet Bitcoin Relay Engine)](https://bitcoinfibre.org) and,
+of [FIBRE (Fast Internet Bitcoin Relay Engine)](https://bitcoinfibre.org) and,
 consequently, also a fork of [Bitcoin Core](https://bitcoincore.org). It
 features a version of the bitcoind application with support for the reception of
 blocks sent over satellite in UDP datagrams with multicast addressing. You can

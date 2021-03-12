@@ -175,40 +175,15 @@ section](#pointing-with-a-satellite-finder).
 
 ## Optimize the SNR
 
-Blockstream Satellite's signal is composed of two multiplexed channels, one of
-which requires higher signal quality to be decoded. The two channels are
-summarized next:
+After the initial antenna pointing, we recommend experimenting with the pointing
+until you achieve your maximum SNR. If your receiver is already locked, try
+gentle adjustments around the current position and observe the SNR on the
+console. Stop once you find the pointing that achieves the best SNR.
 
-| Channel             | Throughput | Minimum SNR | Recommended SNR | Purpose                                                                              |
-|---------------------|------------|-------------|-----------------|--------------------------------------------------------------------------------------|
-| 1 (Low-throughput)  | ~96 kbps   | 1 dB        | 4 dB            | Repeats the past 24h of blocks and keeps receiver nodes in sync                      |
-| 2 (High-throughput) | ~1.55 Mbps | 6.62 dB     | 9 dB            | Broadcasts the entire blockchain and keeps receiver nodes in sync with lower latency |
-
-
-After the initial antenna pointing, your receiver may have locked to Channel 1
-but not Channel 2. Hence, we recommend experimenting with the pointing until you
-achieve your maximum SNR. If your receiver is already locked, try gentle
-adjustments around the current position and observe the SNR on the console. Stop
-once you find the pointing that achieves the best SNR.
-
-The optimization of the pointing is beneficial not only to receive both channels
-but also for margin. For example, if your receiver operates at 8 dB, it has a 7
-dB margin relative to the minimum SNR to receive Channel 1. This margin means
-that your receiver can tolerate up to 7 dB signal attenuation in case of bad
-weather.
-
-If you have peaked the SNR and it still does not meet the requirements for
-Channel 2, your antenna size may not be sufficient. As explained in the
-[hardware guide](hardware.md#satellite-dish), we recommend using a 90 cm or
-larger dish to receive the high-throughput channel (Channel 2).
-
-Nevertheless, regardless of the SNR, the USB (TBS 5927) and standalone (Novra
-S400) receivers will continuously try to receive both channels. For example, if
-you begin with insufficient SNR for Channel 2 due to weather conditions, and,
-later on, the SNR improves, the receiver will start to get the Channel 2 packets
-automatically. In contrast, this is **not currently possible** with the SDR
-receiver. In the SDR setup, you will need to specify the channel you want to
-tune to, as explained in the [SDR Guide](sdr.md#running).
+This pointing optimization is beneficial for margin. For example, if your
+receiver operates at 8.2 dB, it has a 6 dB margin relative to the minimum SNR of
+approximately 2.2 dB. This link margin means that your receiver can tolerate up
+to 6 dB signal attenuation in case of bad weather.
 
 ## Next Steps
 
@@ -409,12 +384,12 @@ receiver. For example:
 
 ### Pointing with a Satellite Finder
 
-In some cases, it is useful to try pointing with a satellite finder instead of
+In some cases, it is helpful to try pointing with a satellite finder instead of
 using the satellite receiver directly.
 
 A satellite finder usually has two connections: one to the LNB (typically
-labeled as *satellite*) and one to the receiver. The receiver connection is used
-to provide power to the finder. However, some finders come with an alternative
+labeled *satellite*) and one to the receiver. The receiver connection is used to
+provide power to the finder. However, some finders come with an alternative
 power supply, in which case the connection to the receiver is unnecessary.
 
 Some finders only measure the signal level, whereas other models can demodulate
@@ -426,79 +401,36 @@ measure signal level. In this case, connect the finder inline between the
 receiver (TBS5927 or S400) and the LNB. Run the receiver normally so that the
 receiver can power up the finder. Then, try to point the antenna until you get
 adequate signal levels on the finder. Once you achieve good signal strength on
-the finder, check if the receiver is locked too ([see the previous
+the finder, check if the receiver is locked ([see the previous
 instructions](#find-the-satellite-and-lock-the-signal)).
 
-Next, if you are using a satellite finder that supports DVB-S2 demodulation, you
-can configure it to lock to a free-to-air (FTA) TV signal. The rationale is that
-the Blockstream Satellite signal runs in a DVB-S2 mode (called VCM - *variable
-coding and modulation*) that is not supported by most satellite finders that can
-demodulate DVB-S2. In contrast, FTA TV signals often run on a supported
-(simpler) mode called CCM (*constant coding and modulation*). Thus, you can use
-an FTA TV signal in the same satellite as a reference to make sure that your
-antenna is pointed to the correct satellite.
+Alternatively, if you are using a satellite finder that supports DVB-S2
+demodulation, you can configure it to lock to the signal. To do so, you
+typically need to configure the following signal parameters:
 
-For such models of satellite finders (with DVB-S2 demodulation), we recommend
-running the finder standalone rather than inline with the receiver, given that
-typically both of them will try to power the LNB. In this case, you can connect
-the finder's `satellite` port directly to the LNB, provided that the finder is
-adequately powered.
+- Downlink frequency
+- LNB local oscillator (LO) frequency
+- Signal polarization
 
-Next, define the parameters of the reference FTA TV signal. There are lists of
-signals available on the web. For example, refer to the following lists for the
-satellites used by the Blockstream Satellite network:
-- [Galaxy 18](https://www.lyngsat.com/Galaxy-18.html)
-- [Eutelsat 113](https://www.lyngsat.com/Eutelsat-113-West-A.html)
-- [Telstar 18N](https://www.lyngsat.com/Telstar-11N.html)
-- [Telstar 18V](https://www.lyngsat.com/Telstar-18-Vantage.html)
+You can check the appropriate values by running:
 
-After choosing a TV signal, you need to configure the finder with the signal
-parameters. Typically, you will need to set the following:
+```
+blocksat-cli cfg show
+```
 
-- LO Frequency: the frequency of your LNB. If you are unsure, run the CLI
-  command below:
+Additionally, you will need to define:
 
-  ```
-  blocksat-cli instructions
-  ```
-
-  The LO frequency will be displayed on the first page.
-
-- Downlink Frequency: the downlink frequency of the FTA TV signal of choice.
-- Symbol rate: the symbol rate of the FTA TV signal of choice. This is often
-  abbreviated as `SR`. So, for example, on [this
-  list](https://www.lyngsat.com/Eutelsat-113-West-A.html), you see a column
-  labeled `SR-FEC`, which stands for the *symbol rate* and *FEC*.
-- Polarity: whether the signal is horizontal or vertically polarized. This is
-  usually informed next to the downlink frequency with the letter `V` (for
-  vertical) or `H` (for horizontal).
-- 22 kHz: this refers to a 22 kHz signal that changes the LO frequency of a
-  Universal LNB. See [the notes regarding Universal
-  LNBs](hardware.md#universal-lnb). You only need to enable this option if you
-  are using a Universal LNB and if the FTA TV signal you selected is in [Ku high
-  band](frequency.md). Otherwise, leave it disabled.
-
-For example, the following table provides information regarding an FTA TV
-signal:
-
-| Frequency | SR-FEC   |
-|-----------|----------|
-|  	11974 V | 3330-2/3 |
-
-In this case, the signal has the following properties:
-- The downlink frequency is 11974 MHz.
-- The symbol rate is 3330 ksymbols/second (or kbaud).
-- The downlink signal is vertically polarized (see the `V` next to the downlink
-  frequency).
+- Symbol rate: set it to "1000 kbaud" (or "1000000 baud", or "1 Mbaud",
+  depending on the units adopted by your finder).
+- 22 kHz: enable only when using a Universal LNB and pointing to Galaxy 18 or
+  Eutelsat 113 (i.e., when receiving in [Ku high
+  band](frequency.md)). Otherwise, leave it disabled. See [the notes regarding
+  Universal LNBs](hardware.md#universal-lnb).
 
 After you configure the satellite finder, you will typically be presented with
 signal strength and (or) quality indicators. Try to point your antenna until you
 can maximize these levels.
 
-Once you lock to the FTA TV signal on the satellite finder, you can infer that
-the antenna is directed to the correct satellite. At this point, you can
-disconnect the satellite finder and connect the LNB/antenna back to your
-receiver. Your next step is to verify that your receiver can lock to the
-Blockstream Satellite signal. Thus, follow the [instructions presented
+Once you lock to the signal using the finder, check that your receiver can lock
+too by following the [instructions presented
 earlier](#find-the-satellite-and-lock-the-signal).
-

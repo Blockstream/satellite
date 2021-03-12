@@ -6,7 +6,7 @@ monitor_port    = 4435
 api_dst_addr    = mcast_ip + ":" + str(api_port)
 btc_dst_addr    = mcast_ip + ":" + str(btc_port)
 src_ports       = [str(api_port), str(btc_port)]
-pids            = [32, 33]
+pids            = [32]
 rolloff         = 0.2
 sym_rate = {
     'G18'      : 1000000,
