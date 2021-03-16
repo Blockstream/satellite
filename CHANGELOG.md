@@ -5,9 +5,11 @@
 Release Date: 2021-03-16
 
 ### Added
-- Command `blocksat-cli cfg show` to show the local configuration.
 - Configuration of the Novra S400 (pro kit receiver) via SNMP through command
   `blocksat-cli standalone cfg`.
+- Command `blocksat-cli cfg show` to show the local configuration.
+- Command `blocksat-cli cfg channel` to regenerate the channels configuration
+  file used by Linux USB receivers.
 
 ### Changed
 - CLI configuration and instructions to use DVB-S2 in CCM mode with the QPSK 3/5

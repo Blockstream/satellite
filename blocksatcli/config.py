@@ -403,7 +403,7 @@ def _cfg_frequencies(sat, lnb, setup):
 def _cfg_chan_conf(info, chan_file):
     """Generate the channels.conf file"""
 
-    util._print_header("Channel Configurations for Linux USB Rx")
+    util._print_header("Channel Configuration")
 
     print(textwrap.fill("This step will generate the channel configuration "
                         "file that is required when launching the USB "
@@ -617,6 +617,13 @@ def subparser(subparsers):
         help='Display the local configuration',
         formatter_class=ArgumentDefaultsHelpFormatter)
     p2.set_defaults(func=show)
+
+    p3 = subsubparsers.add_parser(
+        'channel',
+        description="Configure the channels file used by the USB receiver",
+        help='Configure the channels file used by the USB receiver',
+        formatter_class=ArgumentDefaultsHelpFormatter)
+    p3.set_defaults(func=channel)
     return p
 
 
@@ -702,3 +709,23 @@ def show(args):
             if (pr_cfg[2] is not None):
                 val = pr_cfg[2](val)
             print("| {:30s} | {:25s} |".format(label, str(val) + " " + unit))
+
+
+def channel(args):
+    """Configure the channels.conf file directly"""
+    user_info = read_cfg_file(args.cfg, args.cfg_dir)
+    if (user_info is None):
+        return
+
+    # Channel configuration file
+    if (user_info['setup']['type'] != defs.linux_usb_setup_type):
+        raise TypeError("Invalid command for {} receivers".format(
+            user_info['setup']['type']))
+
+    chan_file = os.path.join(args.cfg_dir, args.cfg + "-channel.conf")
+    _cfg_chan_conf(user_info, chan_file)
+
+    # Overwrite the channels.conf path in case it is changing from a previous
+    # version of the CLI when the conf file name was not bound to the cfg name
+    user_info['setup']['channel'] = chan_file
+    write_cfg_file(args.cfg, args.cfg_dir, user_info)
