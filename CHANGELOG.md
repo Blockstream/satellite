@@ -28,6 +28,7 @@ Release Date: 2021-03-16
   the absence of option `--utc`.
 - USB receiver's dvbv5-zap monitoring mode that was not displaying results
   correctly.
+- Unused `--chan-conf` option on the command `blocksat-cli cfg`.
 
 ## [2.3.0]
 

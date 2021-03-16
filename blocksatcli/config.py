@@ -589,9 +589,6 @@ def subparser(subparsers):
                               help='Define receiver and Bitcoin Satellite \
                               configurations',
                               formatter_class=ArgumentDefaultsHelpFormatter)
-    p.add_argument('-c', '--chan-conf',
-                   default="channels.conf",
-                   help='Channel configurations file')
     p.set_defaults(func=configure)
 
     subsubparsers = p.add_subparsers(title='subcommands',
