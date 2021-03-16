@@ -17,7 +17,7 @@ def _cfg_satellite():
     help_msg = "Not sure? Check the coverage map at:\n" \
                "https://blockstream.com/satellite/#satellite_network-coverage"
 
-    question = "Please, inform which satellite below covers your location:"
+    question = "Which satellite below covers your location?"
     sat = util._ask_multiple_choice(defs.satellites,
                                     question,
                                     "Satellite",
@@ -35,14 +35,14 @@ def _get_rx_name(rx):
 def _cfg_rx_setup():
     """Configure Rx setup - which receiver user is using """
     os.system('clear')
-    util._print_header("Receiver Setup")
+    util._print_header("Receiver")
 
     # Receiver
-    question = "Please, inform your DVB-S2 receiver setup from the list below:"
+    question = "Select your DVB-S2 receiver:"
     setup = util._ask_multiple_choice(
         defs.demods,
         question,
-        "Setup",
+        "Receiver",
         lambda x : '{} ({} receiver)'.format(_get_rx_name(x), x['type']))
 
     # Network interface connected to the standalone receiver
@@ -66,7 +66,10 @@ def _cfg_rx_setup():
         setup['netdev'] = netdev.strip()
 
     # Antenna
-    question = "Please, inform the type of your satellite dish (antenna):"
+    os.system('clear')
+    util._print_header("Antenna")
+
+    question = "What kind of antenna are you using?"
     antenna = util._ask_multiple_choice(
         defs.antennas, question, "Size",
         lambda x : 'Satellite Dish ({})'.format(x['label'])
@@ -161,7 +164,7 @@ def _cfg_custom_lnb(sat):
 
     """
 
-    print("\nPlease inform the specifications of your LNB:")
+    print("\nPlease, inform the specifications of your LNB:")
 
     bands           = ["C", "Ku"]
     question        = "Frequency band:"
@@ -265,8 +268,26 @@ def _ask_lnb(sat):
     return lnb
 
 
+def _ask_psu_voltage(question):
+    """Prompt for the power inserter model or voltage"""
+    psu = util._ask_multiple_choice(
+        defs.psus, question, "Power inserter",
+        lambda x : "{}".format(x['model']),
+        none_option = True,
+        none_str = "No - another model")
+    if (psu is None):
+        voltage = util.typed_input("What is the voltage supplied to the "
+                                   "LNB by your power inserter?")
+    else:
+        voltage = psu["voltage"]
+
+    return voltage
+
+
 def _cfg_lnb(sat, setup):
     """Configure LNB - either from preset or from custom specs
+
+    Configure also the LNB power supply, if applicable.
 
     Args:
         sat   : user's satellite info
@@ -299,37 +320,34 @@ def _cfg_lnb(sat, setup):
                                                             sat['alias']))
         sys.exit(1)
 
-    # For dual polarization LNBs, we must know whether it was pointed before for
-    # blocksat v1 in order to define the polarization on channels.conf
-    if (lnb['pol'].lower() == "dual"):
-        print()
-        prev_setup = util._ask_yes_or_no(
+    # When configuring a non-SDR receiver with a dual polarization LNB, we must
+    # know whether the LNB was pointed before on an SDR setup in order to define
+    # the polarization on channels.conf. When configuring an SDR receiver,
+    # collect the power inserter voltage too for future use.
+    if ((lnb['pol'].lower() == "dual" and setup['type'] != defs.sdr_setup_type)
+        or setup['type'] == defs.sdr_setup_type):
+        os.system('clear')
+        util._print_header("Power Supply")
+
+    if (lnb['pol'].lower() == "dual" and setup['type'] != defs.sdr_setup_type):
+        prev_sdr_setup = util._ask_yes_or_no(
             "Are you reusing an LNB that is already pointed and that was used "
-            "for the previous version of Blockstream Satellite (before the "
-            "upgrade to DVB-S2)?",
+            "before by an SDR receiver?",
             default='n',
             help_msg="NOTE: this information is helpful to determine the "
             "polarization required for the LNB."
         )
 
-        if (prev_setup):
-            question = ("In this setup, did you use one of the LNB power "
-                        "inserters below?")
-            psu = util._ask_multiple_choice(
-                defs.psus, question, "Power inserter",
-                lambda x : "{}".format(x['model']),
-                none_option = True,
-                none_str = "No - another model")
-            if (psu is None):
-                voltage = util.typed_input("What is the voltage supplied to the "
-                                           "LNB by your power inserter?")
-            else:
-                voltage = psu["voltage"]
+        lnb["v1_pointed"] = prev_sdr_setup
 
-            lnb["v1_pointed"]     = True
-            lnb["v1_psu_voltage"] = voltage
-        else:
-            lnb["v1_pointed"] = False
+        if (prev_sdr_setup):
+            print()
+            question = ("In the pre-existing SDR setup, did you use one of the "
+                        "LNB power inserters below?")
+            lnb["v1_psu_voltage"] = _ask_psu_voltage(question)
+    elif (setup['type'] == defs.sdr_setup_type):
+        question = ("Are you using one of the LNB power inserters below?")
+        lnb["psu_voltage"] = _ask_psu_voltage(question)
 
     return lnb
 

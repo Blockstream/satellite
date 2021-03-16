@@ -36,8 +36,9 @@ def _find_v4l_lnb(info):
 
         if (info['lnb']['pol'].lower() == "dual" and # user has dual-pol LNB
             (info['sat']['pol'] == "H" or # and satellite requires H pol
-             (info['lnb']['v1_pointed'] and # or LNB already operates with H pol
-              info['lnb']['v1_psu_voltage'] >= 16)
+             ('v1_pointed' in info['lnb'] and
+              info['lnb']['v1_pointed'] and
+              info['lnb']['v1_psu_voltage'] >= 16) # or LNB already operates with H pol
             ) and "rangeswitch" not in lnb): # but LNB candidate is single-pol
             continue # not a validate candidate, skip
 
