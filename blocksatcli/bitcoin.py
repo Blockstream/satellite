@@ -63,7 +63,7 @@ def _gen_cfgs(info, interface):
     cfg = Cfg()
     cfg.add_opt("debug", "udpnet")
     cfg.add_opt("debug", "udpmulticast")
-    cfg.add_opt("udpmulticastloginterval", "60")
+    cfg.add_opt("udpmulticastloginterval", "600")
 
     if (info['setup']['type'] == defs.sdr_setup_type):
         src_addr = "127.0.0.1"
