@@ -39,6 +39,13 @@ class TestDependencies(unittest.TestCase):
         expected_apps = ["ip", "iptables"]
         self.assertTrue(dependencies.check_apps(expected_apps))
 
+    def test_sat_ip_deps(self):
+        """Test the installation of sat-ip receiver dependencies"""
+        args = self.gen_args("sat-ip")
+        dependencies.run(args)
+        expected_apps = ["tsp"]
+        self.assertTrue(dependencies.check_apps(expected_apps))
+
     def test_bitcoin_satellite(self):
         """Test the installation of bitcoin-satellite"""
         args = self.gen_args("standalone", btc=True)

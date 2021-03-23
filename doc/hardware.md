@@ -1,29 +1,41 @@
 # Hardware Guide
 
-This page explains all hardware components required for assembling a Blockstream
+This page explains the hardware components required to assemble a Blockstream
 Satellite receiver setup.
+
+There are three alternatives to collect the required hardware. The first and
+quickest option is to purchase a ready-to-use [Satellite
+Kit](#satellite-kits). Alternatively, you can buy the [Satellite Kit
+Components](#satellite-kit-components) on your own. Lastly, you can opt for a
+completely DIY setup, where you pick a combination of compatible parts on your
+own. To do so, you will need to understand the [hardware
+requirements](#diy-hardware-requirements). This page covers the three
+approaches.
 
 <!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-refresh-toc -->
 **Table of Contents**
 
 - [Hardware Guide](#hardware-guide)
     - [Satellite Kits](#satellite-kits)
+        - [Satellite Kit Comparison](#satellite-kit-comparison)
+    - [Satellite Kit Components](#satellite-kit-components)
         - [Blockstream Satellite Basic Kit](#blockstream-satellite-basic-kit)
         - [Blockstream Satellite Pro Kit](#blockstream-satellite-pro-kit)
-    - [Satellite Kit Comparison](#satellite-kit-comparison)
-- [Hardware Requirements](#hardware-requirements)
-    - [Receiver Options](#receiver-options)
-    - [Common Components](#common-components)
-        - [Satellite Dish](#satellite-dish)
-        - [LNB](#lnb)
-        - [LNB Mounting Bracket](#lnb-mounting-bracket)
-        - [Coaxial Cables](#coaxial-cables)
-    - [Setup-Specific Components](#setup-specific-components)
-        - [Components for a Software-defined Radio (SDR) Setup](#components-for-a-software-defined-radio-sdr-setup)
-        - [Components for a Linux USB Receiver Setup](#components-for-a-linux-usb-receiver-setup)
-        - [Components for a Standalone Receiver Setup](#components-for-a-standalone-receiver-setup)
+        - [Blockstream Satellite Base Station](#blockstream-satellite-base-station)
+    - [DIY Hardware Requirements](#diy-hardware-requirements)
+        - [Supported Receiver Options](#supported-receiver-options)
+        - [Common Required Components](#common-required-components)
+            - [Satellite Antenna](#satellite-antenna)
+            - [LNB](#lnb)
+            - [LNB Mounting Bracket](#lnb-mounting-bracket)
+            - [Coaxial Cables](#coaxial-cables)
+        - [Setup-Specific Components](#setup-specific-components)
+            - [Software-defined Radio (SDR) Setup](#software-defined-radio-sdr-setup)
+            - [Linux USB Receiver Setup](#linux-usb-receiver-setup)
+            - [Standalone Receiver Setup](#standalone-receiver-setup)
+            - [Sat-IP Receiver Setup](#sat-ip-receiver-setup)
     - [Further Notes](#further-notes)
-        - [“Universal” LNB:](#universal-lnb)
+        - [Universal LNB:](#universal-lnb)
         - [LNB vs. LNBF:](#lnb-vs-lnbf)
 
 <!-- markdown-toc end -->
@@ -31,208 +43,274 @@ Satellite receiver setup.
 
 ## Satellite Kits
 
+As mentioned earlier, the quickest alternative to gather the required parts for
+a Blockstream Satellite setup is by purchasing a satellite kit. Check the kits
+available on [Blockstream
+Store](https://store.blockstream.com/product-category/satellite_kits/).
+
 There are three main *satellite kits*:
 
-1. SDR Kit (w/ SDR-based Receiver)
-2. [Basic USB Kit](https://store.blockstream.com/product/blockstream-satellite-basic-kit/). (w/ Linux USB Receiver)
-3. [Pro Ethernet Kit](https://store.blockstream.com/product/blockstream-satellite-pro-kit/). (w/ Standalone Receiver)
+1. [Basic USB Kit](https://store.blockstream.com/product/blockstream-satellite-basic-kit/) (w/ Linux USB Receiver).
+2. [Pro Ethernet Kit](https://store.blockstream.com/product/blockstream-satellite-pro-kit/) (w/ Standalone Receiver).
+3. [Satellite Base Station](https://store.blockstream.com/product-category/satellite_kits/) (w/ Sat-IP Receiver).
 
-Kits #2 and #3 are available at the [Blockstream
-Store](https://store.blockstream.com/product-category/satellite_kits/), whereas
-Kit 1 is DIY.
+These kits cover three of the four supported receiver options.  Meanwhile, they
+do not include the software-defined radio (SDR) receiver option, which is DIY
+only. Please refer to the [DIY hardware
+requirements](#diy-hardware-requirements) to assemble an SDR setup.
 
-Users can also purchase the individual components of the kits, which are
-detailed next.
+Furthermore, note the Satellite Base Station is the only option that is not
+compatible with the C band. That is, it does not work with the Telstar 18V C
+band satellite covering the Asia-Pacific region. If you are in a C band
+location, pick one of the two other options (the Basic or Pro Kits).
+
+If you have decided to go with a satellite kit and selected the Basic or Pro Kit
+receivers, note you still need a satellite antenna (not included) and coaxial
+cables. Please refer to the requirements for [antennas](#satellite-antenna) and
+[coaxial cables](#coaxial-cables). After that, you can proceed to the next
+section, which explains the [receiver setup](receiver.md).
+
+If you selected the Blockstream Satellite Base Station (again, compatible with
+Ku band only), you are all set. Proceed to the [next section](receiver.md).
+
+### Satellite Kit Comparison
+
+The following table summarizes the different features offered by each of the
+satellite receiver options:
+
+|                                       | SDR                | [Basic USB Kit](https://store.blockstream.com/product/blockstream-satellite-basic-kit/)      | [Pro Ethernet Kit](https://store.blockstream.com/product/blockstream-satellite-pro-kit/)   | [Satellite Base Station](https://store.blockstream.com/product-category/satellite_kits/) |
+|---------------------------------------|:------------------:|:------------------:|:------------------:|:------------------:|
+| Blockstream Kit Available             |                    | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
+| USB Interface                         | :heavy_check_mark: | :heavy_check_mark: |                    |                    |
+| Ethernet Interface                    |                    |                    | :heavy_check_mark: | :heavy_check_mark: |
+| External LNB Power Supply Required    | :heavy_check_mark: |                    |                    |                    |
+| Support for Universal LNB<sup>1</sup> |                    | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
+| Dual-Satellite Capable<sup>2</sup>    |                    |                    | :heavy_check_mark: |                    |
+| CPU Utilization                       | High               | Low                | None               | None               |
+| Multiple Host Connections<sup>3</sup> |                    |                    | :heavy_check_mark: | :heavy_check_mark: |
+| Optional Rack Mountable               |                    |                    | :heavy_check_mark: |                    |
+| Compatible with C-band (Telstar 18V)  | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |                    |
+
+<sup>1</sup> Support means that the interface provides a 22 kHz signal for
+switching the Universal LNB between Ku low and Ku high bands. This feature is
+required to use Universal LNBs when receiving from the Galaxy 18 or Eutelsat 113
+satellites.
+
+<sup>2</sup> The device can receive from two satellites simultaneously in areas
+with overlapping coverage. This feature enables greater redundancy, higher
+bitrate, and faster blockchain sync times.
+
+<sup>3</sup> The receiver can feed the data stream received over satellite to
+multiple hosts simultaneously over the local network.
+
+## Satellite Kit Components
+
+Instead of purchasing a satellite kit, you can buy the individual components on
+your own. The elements of each kit are summarized in this section.
+
+As mentioned earlier, note the Basic and Pro Kits do not include the antenna nor
+the required coaxial cables.  Please refer to the requirements for
+[antennas](#satellite-antenna) and [coaxial cables](#coaxial-cables).
+
+If you have decided to buy the satellite kit components on your own, you can
+proceed to the [receiver setup](receiver.md) once you collect them. Otherwise,
+if you would still like to learn more about hardware requirements or search for
+alternative compatible parts, including the affordable SDR receiver option,
+refer to the [DIY hardware requirements](#diy-hardware-requirements).
 
 ### Blockstream Satellite Basic Kit
 
-Available at the [Blockstream Store](https://store.blockstream.com/product/blockstream-satellite-basic-kit/).
+Available on [Blockstream Store](https://store.blockstream.com/product/blockstream-satellite-basic-kit/).
 
 Components:
 
 - TBS 5927 DVB-S2 Tuner
-- Universal Ku Band PLL LNB
-    - Universal 9750/10600 LO.
+- GEOSATpro UL1PLL Universal Ku Band PLL LNB
     - Phase-locked loop design.
     - Single Output Ku LNBF.
-    - Frequency: 10.7-12.75 GHz.
+    - Input frequency range: 10.7 - 12.75 GHz.
+    - LO frequency: 9.75/10.6 GHz.
     - 0.5 dB Noise Figure.
     - 60 dB conversion gain.
-    - +/- 300 kHz Stability.
-- Universal C Band PLL LNB
-    - Low-band filtering to provide exceptional performance.
-    - Frequency: 3.7 GHz - 4.2 GHz range.
+    - LO stability: +/- 300 kHz.
+    - F/D Ratio: 0.5 - 0.6.
+- Titanium C1-PLL C Band PLL LNB
     - Phase-locked loop design.
-    - 15°K noise figure.
+    - Input frequency range:  3.7 - 4.2 GHz.
+    - 15°K noise temperature.
     - 65 dB conversion gain.
-    - +/- 50 Khz Stability.
+    - LO stability: +/- 50 kHz.
+    - F/D Ratio: 0.32 - 0.44 with the flat scalar; 0.5 - 0.8 with the conical
+      scalar.
+- Titanium CS1 Conical Scalar Kit
+    - Provides optimal illumination for [offset
+      dishes](https://en.wikipedia.org/wiki/Offset_dish_antenna).
 - Ku Band LNB Mounting Bracket
     - Bracket to support the Universal Ku Band PLL LNB.
     - Compatible with any 18" DTV dish, Dishnetwork Dish, Super Dish, and 33",
       36", or 39" FTA Dishes.
-    - Has molded in LNB rotation and vertical height adjust scale.
-- C Band LNB Scalar ring
-    - Provides optimal offset dish illumination.
+    - Includes rotation and vertical height adjustment scales.
 - C Band LNB Mounting Bracket
     - Universal poly 50 - 68mm feed horn clamp for mounting on many
       brands/models of offset dishes. Options for bottom or side mounting holes
       are provided for attachment to the many varied feed support arm designs.
-- 32cm flat coax jumper
+- 32 cm flat coax jumper
     - Flat, bendable flat coaxial TV extension cable used to pass through window
       and door frames.
 
+> Note: the kit includes two LNBs so that it works in C and Ku band. You can
+> purchase only the LNB that you need in your location. If you are in a C band
+> location (Telstar 18V C Asia-Pacific region), you will need the Titanium
+> C1-PLL LNB or similar, as well as the optional CS1 Conical Scalar Kit or
+> similar if using an offset dish. Otherwise (in all other regions), you can
+> purchase the GEOSATpro UL1PLL Universal LNB or similar.
+
 ### Blockstream Satellite Pro Kit
 
-Available at the [Blockstream Store](https://store.blockstream.com/product/blockstream-satellite-pro-kit/).
+Available on [Blockstream Store](https://store.blockstream.com/product/blockstream-satellite-pro-kit/).
 
 Components:
 
 - Novra S400 Professional DVB-S2 Receiver
     - Dual-satellite capable.
-    - Input Signal Level: -65 dBm to -25 dBm.
-    - Receiving Frequency: 950 to 2150 MHz.
-    - Connectivity:
-        - 2 L-band input connectors (F-type and 75 ohms).
-        - 1 Ethernet GbE RJ-45 LAN interface for data output.
-        - 1 Ethernet 100Base-T interface for monitor/control.
-        - Micro SD Slot.
-- Universal Ku Band PLL LNB
-    - Universal 9750/10600 LO.
+    - 2 L-band input connectors (F-type and 75 ohms).
+    - 1 Ethernet GbE RJ-45 LAN interface for data output.
+    - 1 Ethernet 100Base-T interface for monitor/control.
+- GEOSATpro UL1PLL Universal Ku Band PLL LNB
     - Phase-locked loop design.
     - Single Output Ku LNBF.
-    - Frequency: 10.7-12.75 GHz.
-    - 0.5dB Noise Figure.
+    - Input frequency range: 10.7 - 12.75 GHz.
+    - LO frequency: 9.75/10.6 GHz.
+    - 0.5 dB Noise Figure.
     - 60 dB conversion gain.
-    - 300 kHz Stability.
-- Universal C Band PLL LNB
-    - Low-band filtering to provide exceptional performance.
-    - Frequency: 3.7 GHz - 4.2 GHz range.
+    - LO stability: +/- 300 kHz.
+    - F/D Ratio: 0.5 - 0.6.
+- Titanium C1-PLL C Band PLL LNB
     - Phase-locked loop design.
-    - 15°K noise figure.
+    - Input frequency range:  3.7 - 4.2 GHz.
+    - 15°K noise temperature.
     - 65 dB conversion gain.
-    - +/- 50 khz Stability.
+    - LO stability: +/- 50 kHz.
+    - F/D Ratio: 0.32 - 0.44 with the flat scalar; 0.5 - 0.8 with the conical
+      scalar.
+- Titanium CS1 Conical Scalar Kit
+    - Provides optimal illumination for [offset
+      dishes](https://en.wikipedia.org/wiki/Offset_dish_antenna).
 - Ku Band LNB Mounting Bracket
-    - Bracket to support the Universal Ku Band LNB.
+    - Bracket to support the Universal Ku Band PLL LNB.
     - Compatible with any 18" DTV dish, Dishnetwork Dish, Super Dish, and 33",
       36", or 39" FTA Dishes.
-    - Has molded in LNB rotation and vertical height adjust scale.
-- C Band LNB Scalar ring
-    - Provides optimal offset dish illumination.
+    - Includes rotation and vertical height adjustment scales.
 - C Band LNB Mounting Bracket
     - Universal poly 50 - 68mm feed horn clamp for mounting on many
       brands/models of offset dishes. Options for bottom or side mounting holes
       are provided for attachment to the many varied feed support arm designs.
-      -32cm flat coax jumper Flat, bendable flat coaxial TV extension cable used
-      to pass through window and door frames.
-- 32cm flat coax jumper
+- 32 cm flat coax jumper
     - Flat, bendable flat coaxial TV extension cable used to pass through window
       and door frames.
 
-## Satellite Kit Comparison
+> Note: the kit includes two LNBs so that it works in C and Ku band. You can
+> purchase only the LNB that you need in your location. If you are in a C band
+> location (Telstar 18V C Asia-Pacific region), you will need the Titanium
+> C1-PLL LNB or similar, as well as the optional CS1 Conical Scalar Kit or
+> similar if using an offset dish. Otherwise (in all other regions), you can
+> purchase the GEOSATpro UL1PLL Universal LNB or similar.
 
-The following table summarizes the different features offered by each of them:
+### Blockstream Satellite Base Station
 
-|                                       | SDR                | [Basic USB Kit](https://store.blockstream.com/product/blockstream-satellite-basic-kit/)      | [Pro Ethernet Kit](https://store.blockstream.com/product/blockstream-satellite-pro-kit/)   |
-|---------------------------------------|:------------------:|:------------------:|:------------------:|
-| Blockstream Kit Available             | DIY                | :heavy_check_mark: | :heavy_check_mark: |
-| USB Interface                         | :heavy_check_mark: | :heavy_check_mark: |                    |
-| Ethernet Interface                    |                    |                    | :heavy_check_mark: |
-| LNB Power Supplied by Interface       |                    | :heavy_check_mark: | :heavy_check_mark: |
-| Support for Universal LNB<sup>1</sup> |                    | :heavy_check_mark: | :heavy_check_mark: |
-| Dual-Satellite Capable<sup>2</sup>    |                    |                    | :heavy_check_mark: |
-| CPU Utilization                       | High               | Low                | None               |
-| Multiple Host Connections<sup>3</sup> |                    |                    | :heavy_check_mark: |
-| Optional Rack Mountable               |                    |                    | :heavy_check_mark: |
-| Compatible with the [Flat Panel](https://store.blockstream.com/product/flat-panel-antenna/) | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
+Available on [Blockstream
+Store](https://store.blockstream.com/product-category/satellite_kits/).
 
-<sup>1</sup> Support means that the interface provides a 22 kHz signal for
-switching the band of a Universal LNB between Ku low and Ku high bands. This
-feature is required to use Universal LNBs when receiving from the Galaxy 18 or
-Eutelsat 113 satellites.
+Components:
 
-<sup>2</sup> Ability to receive from two satellites simultaneously in areas with
-overlapping coverage from satellites. This feature enables greater redundancy,
-higher bitrate, and faster sync times.
+- Selfsat>IP22 all-in-one Sat-IP flat-panel antenna.
+- Power over Ethernet injector.
+- Ethernet Cat5e cable.
 
-<sup>3</sup> The receiver can feed the data stream received over satellite to
-multiple hosts at the same time. The receiver decodes multicast-addressed
-packets sent over DVB-S2 and relays the multicast packets to multiple hosts
-listening to them in the network.
+## DIY Hardware Requirements
 
-All features and specifications mentioned thus far are thoroughly explained in
-the remainder of this page.
+This section explains the requirements to assemble a satellite receiver setup
+entirely on your own, including the DIY-only SDR receiver option. Nevertheless,
+note this process can be time-consuming. If you prefer a faster solution, check
+out the [Satellite Kits](#satellite-kits).
 
-# Hardware Requirements
-
-## Receiver Options
+### Supported Receiver Options
 
 The receiver is the device or software application that processes the incoming
-satellite signal and decodes the data stream from it. There are three supported
+satellite signal and decodes the data stream from it. There are four supported
 types of receivers. For each of them, specific hardware components are required.
 
-The three receiver options are summarized below:
+The receiver options are summarized below:
 
 - **Software-defined Radio (SDR)**: this receiver is entirely implemented in
   software. You will need an SDR interface connected to your PC (typically via
   USB). The SDR interface collects and feeds signal samples to the receiver
-  application/software running in your PC, which then decodes and outputs the
-  data stream to be fed into [Bitcoin
+  application/software running on your PC. The application, in turn, decodes and
+  outputs the data stream to be fed into [Bitcoin
   Satellite](https://github.com/Blockstream/bitcoinsatellite). This is the most
   affordable option among the three, as it works with inexpensive RTL-SDR USB
-  dongles. However, it is also the option that is expected to present the most
-  limited performance and reliability among the three. Moreover, this option is
+  dongles. However, it is also the option expected to present the most limited
+  performance and reliability among the three. Moreover, this option is
   CPU-intensive since the receiver application will run in the CPU.
 
 - **Linux USB Receiver**: in this setup, the demodulation is entirely carried
   out in hardware, in the external receiver device connected to your host via
-  USB. In this option, you will need to install specific drivers and Linux
-  DVB-S2 apps that will allow the host to configure the external receiver and
-  get the data from it. This option is expected to perform greatly and with a
-  negligible CPU usage of the host.
+  USB. Hence, unlike the SDR receiver, the Linux USB receiver is not
+  CPU-intensive. With this option, you will need to install specific drivers and
+  Linux DVB-S2 apps on the host to configure the external receiver and get the
+  data from it. Overall, this option is expected to perform exceptionally and
+  with negligible CPU usage. On the other hand, it can require a time-consuming
+  initial setup due to the driver installation. You can try the [driver
+  installation](tbs.md#tbs-5927-drivers) on your intended host before committing
+  to this receiver option.
 
 - **Standalone Receiver**: this is also a hardware-based setup, with the
   difference that it is entirely independent of the host PC. It connects to the
   PC through the network and can potentially feed multiple PCs
   concurrently. This is also expected to be a great option in terms of
-  performance.
+  performance. Besides, this is the only option capable of [dual-satellite
+  reception](dual-satellite.md) using a single receiver device.
 
-## Common Components
+- **Sat-IP Receiver**: this is another hardware-based and standalone receiver
+  option. The difference is that it is based on an all-in-one antenna with a
+  built-in DVB-S2 receiver and integrated LNB (see the [Satellite Base
+  Station](https://store.blockstream.com/product-category/satellite_kits/)). It
+  is referred to as a Sat-IP receiver because it runs a [Sat-IP
+  server](https://en.wikipedia.org/wiki/Sat-IP), to which your host will connect
+  as a client. Overall, this option offers the easiest configuration and the
+  most minimalist setup, given that it requires a single component (the
+  all-in-one antenna). However, note it does not work with the Telstar 18V C
+  band satellite covering the Asia-Pacific region.
 
-These are the hardware components that are required in all setups, regardless of
-the receiver choice.
+For further insights, refer to the [satellite receiver
+comparison](#satellite-kit-comparison) table presented earlier.
 
-### Satellite Dish
+### Common Required Components
 
-Blockstream Satellite is designed to work with small antennas. In [Ku
+In addition to the DVB-S2 receiver, you will need an antenna and a low-noise
+block downconverter (LNB) to receive the satellite signal. Furthermore, you will
+need cables to connect them to each other.
+
+The antenna and LNB components are required in all setups other than the
+all-in-one [Satellite Base
+Station](https://store.blockstream.com/product-category/satellite_kits/). The
+latter, in contrast, consists of an antenna with an integrated receiver and LNB,
+all in one device.
+
+Refer to the following requirements to select the appropriate antenna, LNB, and
+cables.
+
+#### Satellite Antenna
+
+The most widely available antenna option is the regular satellite TV dish with a
+conventional parabolic reflector.
+
+Blockstream Satellite is designed to work with small dishes. In [Ku
 band](frequency.md#signal-bands), it is expected to work with antennas of only
-45cm in diameter, while in the C band, it is expected to work with 60cm or
+45 cm in diameter, while in the C band, it is designed to work with 60 cm or
 higher. However, a larger antenna is always better. When possible, we recommend
 installing an antenna larger than the referred minimum if one is readily
-available. Antennas of 60cm, 90cm, and 1.2m are readily available.
-
-An alternative to conventional satellite dishes is a flat panel antenna, which
-is generally more compact and stylish. A recommended flat panel model is
-[available at our
-store](https://store.blockstream.com/product/flat-panel-antenna/). This antenna
-includes the LNB internally, and so there is no need to purchase an LNB (nor an
-LNB bracket) when using a flat panel. However, note that this model has limited
-compatibility. The flat-panel is an excellent option for:
-
-1. **Linux USB** and **Standalone Receivers** in any Ku band region.
-2. **SDR** receivers in Ku low band regions (Telstar 11N Africa, Telstar 11N
-Europe, and Telstar 18V Ku).
-
-In contrast, the flat-panel is **not** compatible with receivers (of any type)
-in the Telstar 18V C (C Band) region. This is because it only works in [Ku
-band](frequency.md#signal-bands).
-
-The flat-panel requires an extra 22 kHz generator to work with **SDR** receivers
-in Ku high band regions (Galaxy 18 and Eutelsat 113). This antenna includes a
-built-in [Universal LNB](#universal-lnb), which, as explained [later](#lnb),
-requires a 22 kHz tone generated by the receiver specifically for the reception
-in Ku high band (i.e., the band used by G18 and E113). Refer to further
-information and a solution for 22 kHz generation on an SDR setup in [the
-Universal LNB section](#universal-lnb).
+available. Antennas of 60 cm, 90 cm, and 1.2 m are readily available.
 
 Other than size, the only additional requirement is that the antenna will work
 with the frequency band that suits your coverage region. You can always use
@@ -243,7 +321,31 @@ work in Ku band, as it is designed for lower frequencies. For further
 information regarding frequency bands, please refer to [the frequency
 guide](frequency.md).
 
-### LNB
+An alternative to conventional satellite dishes is a flat panel antenna, which
+is generally more compact and stylish. A recommended flat panel model is
+[available at our
+store](https://store.blockstream.com/product/flat-panel-antenna/). This antenna
+includes the LNB internally, and so there is no need to purchase an LNB (nor an
+LNB bracket) when using it. However, note that this model has limited
+compatibility. It is an excellent option for:
+
+1. **Linux USB** and **Standalone Receivers** in any Ku band region.
+2. **SDR** receivers in Ku low band regions (Telstar 11N Africa, Telstar 11N
+Europe, and Telstar 18V Ku).
+
+In contrast, the flat-panel is **not** compatible with receivers (of any type)
+in the Telstar 18V C (C Band) region. It only works in [Ku
+band](frequency.md#signal-bands).
+
+The flat panel requires an extra 22 kHz generator to work with **SDR** receivers
+in Ku high band regions (Galaxy 18 and Eutelsat 113). This antenna includes a
+built-in [Universal LNB](#universal-lnb), which, as explained [later](#lnb),
+requires a 22 kHz tone generated by the receiver specifically for the reception
+in Ku high band (i.e., the band used by G18 and E113). Refer to further
+information and a solution for 22 kHz generation on an SDR setup in [the
+Universal LNB section](#universal-lnb).
+
+#### LNB
 
 When choosing a low-noise block downconverter (LNB), the most relevant
 parameters are the following:
@@ -278,7 +380,7 @@ with Blockstream Satellite.
 Regarding **LO Stability**, a stability specification of `<= +/- 250 kHz` is
 preferable for better performance. Most LNBs will have a local oscillator (LO)
 stability parameter referred to as “LO stability,” or metrics such as "LO
-accuracy" and "LO drift". These are usually specified in +/- XX Hz, kHz, or
+accuracy" and "LO drift." These are usually specified in +/- XX Hz, kHz, or
 MHz. An LNB that relies on a phase-locked loop (PLL) frequency reference is
 typically more accurate and stable. Hence, we advise looking for a PLL LNB
 instead of a traditional dielectric oscillator (DRO) LNB.
@@ -293,32 +395,44 @@ LNB**. However, please note that if you are using an SDR-based setup, a
 regarding Universal LNBs](#universal-lnb). This limitation **does not** apply
 when using the Linux USB or Standalone receiver options.
 
+Besides, another parameter of interest is the so-called F/D ratio. This
+parameter refers to the ratio between the parabolic reflector's focal length and
+its diameter. As such, it is a parameter of the dish, not the LNB. Nevertheless,
+the LNB should be designed for an F/D ratio compatible with the reflector.
+
+For example, an [offset dish](https://en.wikipedia.org/wiki/Offset_dish_antenna)
+(the most common dish type for Ku band) typically has an F/D ratio from 0.5 to
+0.7. In contrast, a regular "front-fed" parabolic dish typically has an F/D in
+the 0.3 to 0.4 range. In any case, check the F/D specifications of your dish and
+make sure to use a compatible LNB. If necessary, attach a flat or conical scalar
+ring to change the F/D characteristics of the LNB.
+
 Lastly, to avoid confusion, please note that *LNBF* and *LNB* often refer to the
-same thing. You can find further information [later on this
+same thing. You can find further information [later in this
 guide](#lnb-vs-lnbf).
 
-### LNB Mounting Bracket
+#### LNB Mounting Bracket
 
 The antenna dish likely comes with a mounting bracket, but you will need one
 designed to accept a generic LNB. Also, it is good to have a flexible bracket to
 facilitate the LNB rotation and control of its polarization angle. Although all
 mounting brackets do allow rotation, some can be limited in the rotation range.
 
-Such mounting brackets attach to the feed arm of the antenna and have a circular
-ring that will accept a generic LNB.
+Such mounting brackets attach to the antenna's feed arm and have a circular ring
+that will accept a generic LNB.
 
-### Coaxial Cables
+#### Coaxial Cables
 
 You will need a coaxial cable to connect the LNB to the receiver or, in the case
 of the SDR-based setup, to connect the LNB to the power supply. The most popular
-and recommended type of coaxial cable is an RG6.
+and recommended type of coaxial cable is the RG6 cable.
 
-## Setup-Specific Components
+### Setup-Specific Components
 
 This section summarizes the additional components required for each type of
 setup, according to the receiver choice.
 
-### Components for a Software-defined Radio (SDR) Setup
+#### Software-defined Radio (SDR) Setup
 
 | Component        | Requirement                            |
 |------------------|----------------------------------------|
@@ -337,8 +451,8 @@ There are two specifications to observe when purchasing an RTL-SDR:
 
 We recommend using an RTL-SDR with a temperature-controlled crystal oscillator
 (TCXO), as the TCXO has better frequency stability than a conventional crystal
-oscillator (XO). There are a few models in the market featuring TCXO with
-frequency accuracy within 0.5 ppm to 1.0 ppm, which are good choices.
+oscillator (XO). A few models in the market feature a TCXO with frequency
+accuracy within 0.5 ppm to 1.0 ppm, which are good choices.
 
 Regarding the tuner, the choice depends on the satellite covering your
 location. The two recommended tuners are the R820T2 and the E4000. The table
@@ -372,7 +486,7 @@ can provide power to the LNB, so there is no need for an external power
 supply. In contrast, this is not possible with an SDR-based setup using the SDR
 interface alone. Hence, an external supply is required.
 
-The type of power supply that is easy to find in the market is known as "Single
+The type of power supply that is easy to find in the market is named "Single
 Wire Multiswitch" (SWM) power supply. You can look for an SWM power inserter and
 use it as illustrated below. The **non-powered** port of an SWM power supply is
 labeled "Signal to IRD," which means signal to integrated receiver/decoder. This
@@ -390,18 +504,17 @@ your power supply matches. It should be noted that some LNBs known as
 **dual-polarization LNBs** accept two DC voltage levels. Such LNBs use the
 supplied voltage to switch between vertical and horizontal polarization. A
 supplied DC voltage of +18 VDC sets the LNB to horizontal polarization, whereas
-a voltage of +13 VDC sets the LNB to vertical polarization. Please keep this in
-mind when rotating the LNB for a specific polarization angle during the antenna
-pointing stage.
++13 VDC sets the LNB to vertical polarization. Please keep this in mind when
+rotating the LNB for a specific polarization angle during the antenna pointing
+stage.
 
 **Further notes**:
 
 - **Alternative SDR interfaces**: the RTL-SDR is the supported SDR interface and
 the most popular among Blockstream Satellite users. Nevertheless, other SDR
-boards/interfaces can be used with minor tweaks, such as USRPs. The requirement
-for the SDR interface is that it is able to receive L-band frequencies within
-the 1 GHz to 2 GHz range and that it supports sampling rates of 2 Msps (mega
-samples per second) or higher.
+boards/interfaces can be used with minor tweaks, such as USRPs. The SDR
+interface must support L-band frequencies within the 1 GHz to 2 GHz range and
+sampling rates of 2 Msps (mega samples per second) or higher.
 
 - **Connectors**: not every RTL-SDR has the same interface connector. Some use
 the SMA connector, while some others use MCX. Be sure to order the correct cable
@@ -411,66 +524,79 @@ connectors. In this case, you need an SMA male-to-male cable and an SMA female
 to F male adapter to connect the RTL-SDR to the **non-powered** port (“Signal to
 IRD”) of the SWM power supply.
 
-### Components for a Linux USB Receiver Setup
+#### Linux USB Receiver Setup
 
 The only specific component in this setup is the external USB-based DVB-S2
 receiver. The supported receiver is the [TBS5927 Professional DVB-S2 TV Tuner
-USB](https://www.tbsdtv.com/products/tbs5927-dvb-s2-tv-tuner-usb.html). It
-connects to the Linux PC via a USB2.0 connection, and the package includes both
-the USB cable and a power supply for the receiver. The LNB, in turn, connects
-directly to interval *LNB IN* interface of the TBS5927.
+USB](https://www.tbsdtv.com/products/tbs5927-dvb-s2-tv-tuner-usb.html), which
+connects to the Linux PC via a USB2.0 connection. The LNB, in turn, connects
+directly to the *LNB IN* interface of the TBS5927. The TBS5927 package includes
+both the USB cable and a power supply for the receiver.
 
 ![USB Connections](img/usb_connections.png?raw=true "USB Connections")
 
-> NOTE: although the TBS5927 receiver offers Windows support, we do not
-> support Windows as operating system for a Blockstream Satellite setup.
+> NOTE: although the TBS5927 receiver offers Windows support, we currently do
+> not support Windows as an operating system for a Blockstream Satellite setup.
 
-### Components for a Standalone Receiver Setup
+#### Standalone Receiver Setup
 
 In this setup, a standalone DVB-S2 receiver connects to the host PC (or to the
-network) through an Ethernet cable. The supported standalone receiver is the
-[Novra S400 PRO DVB satellite
+network) through an Ethernet cable. The standalone receiver that is currently
+supported is the [Novra S400 PRO DVB satellite
 Receiver](https://novra.com/product/s400-pro-dvb-satellite-receiver). Other than
-the receiver, you only need an Ethernet Cable.
+this receiver, you only need an Ethernet Cable.
 
 ![Standalone Connections](img/standalone_connections.png?raw=true "Standalone Connections")
 
+#### Sat-IP Receiver Setup
+
+The Sat-IP receiver that is currently supported is the all-in-one Selfsat>IP22
+Sat-IP flat-panel antenna. It requires an Ethernet cable (Cat5e or superior) to
+connect to a switch/router or directly to your host. Furthermore, it requires
+Power over Ethernet (PoE). Hence, you will need a PoE injector if the
+switch/router or network adapter connecting to the Sat-IP antenna does not
+support PoE.
+
 ## Further Notes
 
-### “Universal” LNB:
+### Universal LNB:
 
 A Universal LNB, also known as Universal Ku band LNB, is an LNB that supports
-both Ku low and Ku high bands. In SDR-based setups, we recommend using this type
-of LNB only within [Ku low band region](frequency.md#signal-frequencies), namely
-to receive from Telstar 11N Africa, Telstar 11N Europe, or Telstar 18V Ku.
+both [Ku low and Ku high bands](frequency.md#signal-bands). With such an LNB,
+the receiver becomes responsible for switching the Ku sub-band as needed. More
+specifically, the receiver sends a 22 kHz tone to the LNB when tuning to a Ku
+high band carrier. Otherwise, when tuning to a Ku low band carrier, the receiver
+simply does not send any tone. The absence of a 22 kHz tone configures the LNB
+to its default sub-band, the Ku low sub-band.
 
-The rationale is that a 22 kHz tone must be sent to the Universal LNB in order
-to switch its sub-band. However, the SDR setup described in this guide is
-receiver-only, so it cannot generate the 22 kHz tone by itself. Yet, since the
-default Ku sub-band of Universal LNBs is typically the low band, it is often
-acceptable to use such LNBs within Ku low band region without a 22 kHz tone
-generator.
+An important limitation applies to the SDR setup when using a Universal LNB.
+Note the SDR setup described in this guide is receiver-only. Hence, it cannot
+generate a 22 kHz tone to configure the Universal LNB. Consequently, a Universal
+LNB connected to an SDR receiver operates in Ku low band only. Thus, we
+recommend using this type of LNB only within [Ku low band
+regions](frequency.md#signal-frequencies), i.e., within the areas covered by
+Telstar 11N Africa, Telstar 11N Europe, or Telstar 18V Ku.
 
-Note that, in contrast to an SDR setup, both Linux USB and Standalone [receiver
-options](#receiver-options) support the generation of 22 kHz. Hence, with these
-receivers, it is acceptable to use a Universal LNB in any Ku band region.
+Meanwhile, in contrast to an SDR setup, both Linux USB and Standalone [receiver
+options](#receiver-options) support the generation of 22 kHz. Hence, it is
+perfectly acceptable to use a Universal LNB in any Ku band region when using one
+of these receivers.
 
-In case you do want to switch the sub-band of a Universal LNB with an SDR setup,
-you will need to place a 22 kHz tone generator inline between the LNB and the
-power inserter. This is because the tone generator uses power from the inserter
-while delivering the tone directly to the LNB.
-
-Such tone generators can be found in the market as pure
-generators. Alternatively, you can get a satellite finder device containing the
-22 kHz generation functionality.
+Besides, there are workarounds to switch the sub-band of a Universal LNB even
+with an SDR setup. For instance, you can place a 22 kHz tone generator inline
+between the LNB and the power inserter. In this case, the tone generator will
+use power from the inserter while delivering the tone directly to the LNB. Such
+tone generators can be found in the market as pure generators. Alternatively,
+you can get a satellite finder device containing the 22 kHz generation
+functionality.
 
 If choosing a satellite finder, it is essential to note that the finder must be
-one that can be used inline between the power supply and the LNB. That is, it
-must be one with two connectors, one for signal input (from the LNB) and the
-other for output (towards the power inserter). Some finders contain a single
-connector, as they are not intended to be used inline. Furthermore, be aware
-that most finders do not contain a 22 kHz generator. You must pick a satellite
-finder that supports the generation of a 22 kHz tone.
+one that can be used inline between the power supply and the LNB. In other
+words, it must be one with two connectors, one for signal input (from the LNB)
+and the other for output (towards the power inserter). Some finders contain a
+single connector, as they are not intended to be used inline. Furthermore, be
+aware that most finders do not include a 22 kHz generator. You must pick a
+satellite finder that supports the generation of a 22 kHz tone.
 
 ### LNB vs. LNBF:
 

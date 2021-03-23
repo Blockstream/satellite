@@ -1,5 +1,5 @@
 import unittest
-from . import bitcoin, defs
+from . import bitcoin, defs, config
 
 
 class TestBitcoinConfGen(unittest.TestCase):
@@ -69,4 +69,33 @@ class TestBitcoinConfGen(unittest.TestCase):
         text += "udpmulticast=eth0,239.0.0.2:4434,172.16.235.9,1,blocksat-s400\n"
         # Check if exported text includes the new option
         self.assertEqual(text, cfg.text())
+
+    def test_cfg_gen(self):
+        """Test udpmulticast config generator"""
+        info = {}
+        info['sat'] = defs.satellites[0]
+
+        # Standalone Rx
+        info['setup'] = defs.demods[0]
+        info['setup']['netdev'] = 'en0'
+        ifname = config.get_net_if(info)
+        cfg = bitcoin._gen_cfgs(info, ifname)
+        opt = cfg.cfg['udpmulticast']
+        self.assertTrue('en0,239.0.0.2:4434,172.16.235.1,' in opt)
+
+        # USB Rx
+        info['setup'] = defs.demods[1]
+        ifname = config.get_net_if(info)
+        cfg = bitcoin._gen_cfgs(info, ifname)
+        opt = cfg.cfg['udpmulticast']
+        self.assertTrue('dvb0_0,239.0.0.2:4434,172.16.235.1,' in opt)
+
+        # SDR and Sat-IP Rx (both use the loopback interface and the 127.0.0.1
+        # source address)
+        for demod in defs.demods[2:4]:
+            info['setup'] = demod
+            ifname = config.get_net_if(info)
+            cfg = bitcoin._gen_cfgs(info, ifname)
+            opt = cfg.cfg['udpmulticast']
+            self.assertTrue('lo,239.0.0.2:4434,127.0.0.1,' in opt)
 

@@ -73,6 +73,9 @@ def _gen_cfgs(info, interface):
     elif (info['setup']['type'] == defs.standalone_setup_type):
         src_addr = info['sat']['ip']
         label = "blocksat-s400"
+    elif (info['setup']['type'] == defs.sat_ip_setup_type):
+        src_addr = "127.0.0.1"
+        label = "blocksat-sat-ip"
     else:
         raise ValueError("Unknown setup type")
 
@@ -92,7 +95,8 @@ def subparser(subparsers):
                    help='Path to the data directory where the generated '
                    'bitcoin.conf will be saved')
     p.add_argument('--stdout', action='store_true', default=False,
-                   help='Print bitcoin.conf configurations and don\'t save')
+                   help='Print the generated bitcoin.conf file to the '
+                   'standard output instead of saving the file')
     p.add_argument('--concat', action='store_true', default=False,
                    help='Concatenate configurations to pre-existing '
                    'bitcoin.conf file')
@@ -108,7 +112,8 @@ def configure(args):
     if (info is None):
         return
 
-    util._print_header("Bitcoin Conf Generator")
+    if (not args.stdout):
+        util._print_header("Bitcoin Conf Generator")
 
     if args.datadir is None:
         home = os.path.expanduser("~")

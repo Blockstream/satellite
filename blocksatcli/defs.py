@@ -8,6 +8,7 @@ btc_dst_addr    = mcast_ip + ":" + str(btc_port)
 src_ports       = [str(api_port), str(btc_port)]
 pids            = [32]
 rolloff         = 0.2
+pilots          = True
 sym_rate = {
     'G18'      : 1000000,
     'E113'     : 1000000,
@@ -71,6 +72,7 @@ satellites  = [
 linux_usb_setup_type  = "Linux USB"
 sdr_setup_type        = "Software-defined"
 standalone_setup_type = "Standalone"
+sat_ip_setup_type     = "Sat-IP"
 
 demods = [
     {
@@ -90,6 +92,12 @@ demods = [
         'model'     : "RTL-SDR",
         'type'      : sdr_setup_type,
         'tun_range' : (24.0, 1766.0) # assuming R820T2
+    },
+    {
+        'vendor'    : "Selfsat",
+        'model'     : "IP22",
+        'type'      : sat_ip_setup_type,
+        'tun_range' : (950, 2150)
     }
 ]
 
@@ -102,7 +110,8 @@ antennas = [
     { 'label' : "1.5m / 5ft",   'type': 'dish', 'size' : 150  },
     { 'label' : "1.8m / 6ft",   'type': 'dish', 'size' : 180  },
     { 'label' : "2.4m / 8ft",   'type': 'dish', 'size' : 240  },
-    { 'label' : 'Blockstream',  'type': 'flat', 'size' : None },
+    { 'label' : 'Selfsat-H50D', 'type': 'flat', 'size' : None },
+    { 'label' : 'Selfsat>IP22', 'type': 'sat-ip', 'size' : None }
 ]
 
 ku_band_thresh = 11700.0
@@ -128,7 +137,7 @@ lnbs = [
     },
     {
         'vendor'    : "Selfsat",
-        'model'     : "H50D",
+        'model'     : "Integrated LNB",
         'in_range'  : [10700.0, 12750.0],
         'lo_freq'   : [9750.0, 10600.0],
         'universal' : True,

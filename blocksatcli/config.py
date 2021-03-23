@@ -27,9 +27,52 @@ def _cfg_satellite():
     return sat
 
 
-def _get_rx_name(rx):
-    """Concatenate vendor/model to form the receiver name"""
-    return (rx['vendor'] + " " + rx['model']).strip()
+def _get_rx_marketing_name(rx):
+    """Get the marketed receiver name (including satellite kit name)"""
+    model = (rx['vendor'] + " " + rx['model']).strip()
+    if model == "Novra S400":
+        model += " (pro kit)"  # append
+    elif model == "TBS 5927":
+        model += " (basic kit)"  # append
+    elif model == "Selfsat IP22":
+        model = "Blockstream Base Station"  # overwrite
+    elif model == "RTL-SDR":
+        model += " software-defined"
+    return model
+
+
+def _get_antenna_name(x):
+    """Get antenna name for the configuration menu"""
+    if x['type'] == 'dish':
+        s = 'Satellite Dish ({})'.format(x['label'])
+    elif x['type'] == 'sat-ip':
+        s = 'Blockstream Base Station (Legacy Output)'
+    else:
+        s = 'Blockstream Flat-Panel Antenna'
+    return s
+
+
+def _ask_antenna():
+    """Configure antenna"""
+    os.system('clear')
+    util._print_header("Antenna")
+
+    question = "What kind of antenna are you using?"
+    antenna = util._ask_multiple_choice(
+        defs.antennas,
+        question,
+        "Antenna",
+        _get_antenna_name,
+        none_option=True,
+        none_str="Other")
+
+    if (antenna is None):
+        size = util.typed_input("Enter size in cm",
+                                "Please enter an integer number in cm",
+                                in_type=int)
+        antenna = {'label': "custom", 'type': 'dish', 'size': size}
+
+    return antenna
 
 
 def _cfg_rx_setup():
@@ -43,7 +86,8 @@ def _cfg_rx_setup():
         defs.demods,
         question,
         "Receiver",
-        lambda x : '{} ({} receiver)'.format(_get_rx_name(x), x['type']))
+        lambda x : '{} receiver'.format(_get_rx_marketing_name(x),
+                                        x['type']))
 
     # Network interface connected to the standalone receiver
     if (setup['type'] == defs.standalone_setup_type):
@@ -53,8 +97,7 @@ def _cfg_rx_setup():
             devices = None
             pass
 
-        question = "Which network interface is connected to the {}?".format(
-            _get_rx_name(setup))
+        question = "Which network interface is connected to the receiver?"
         if (devices is not None):
             netdev = util._ask_multiple_choice(devices,
                                                question,
@@ -65,26 +108,21 @@ def _cfg_rx_setup():
 
         setup['netdev'] = netdev.strip()
 
+    # Define the Sat-IP antenna directly without asking the user
+    if (setup['type'] == defs.sat_ip_setup_type):
+        # NOTE: this works as long as there is a single Sat-IP antenna in the
+        # list. In the future, if other Sat-IP antennas are included, change to
+        # a multiple-choice prompt.
+        for antenna in defs.antennas:
+            if antenna['type'] == 'sat-ip':
+                setup['antenna'] = antenna
+                return setup
+        # We should have returned in the preceding line.
+        raise RuntimeError("Failed to find antenna of {} receiver".format(
+            defs.sat_ip_setup_type))
+
     # Antenna
-    os.system('clear')
-    util._print_header("Antenna")
-
-    question = "What kind of antenna are you using?"
-    antenna = util._ask_multiple_choice(
-        defs.antennas, question, "Size",
-        lambda x : 'Satellite Dish ({})'.format(x['label'])
-        if x['type'] == 'dish'
-        else '{} Flat-Panel Antenna'.format(x['label']),
-        none_option = True,
-        none_str = "Other")
-
-    if (antenna is None):
-        size = util.typed_input("Enter size in cm",
-                                "Please enter an integer number in cm",
-                                in_type=int)
-        antenna = { 'label' : "custom", 'type': 'dish', 'size' : size }
-
-    setup['antenna'] = antenna
+    setup['antenna'] = _ask_antenna()
 
     return setup
 
@@ -295,7 +333,8 @@ def _cfg_lnb(sat, setup):
 
     """
 
-    if (setup['antenna']['type'] == 'flat'):
+    # For flat-panel and Sat-IP antennas, the LNB is the integrated one
+    if (setup['antenna']['type'] in ['flat', 'sat-ip']):
         for lnb in defs.lnbs:
             if lnb['vendor'] == 'Selfsat':
                 lnb["v1_pointed"] = False
@@ -390,7 +429,7 @@ def _cfg_frequencies(sat, lnb, setup):
     if (if_freq < setup['tun_range'][0] or if_freq > setup['tun_range'][1]):
         logging.error("Your LNB yields an L-band frequency that is out of "
                       "the tuning range of the {} receiver.".format(
-                          _get_rx_name(setup)))
+                          _get_rx_marketing_name(setup)))
         sys.exit(1)
 
     return {
@@ -537,7 +576,13 @@ def write_cfg_file(cfg_name, directory, user_info):
 
 
 def get_rx_model(user_info):
-    """Return string with the receiver vendor and model"""
+    """Return string with the receiver vendor and model
+
+    Note: this function differs from _get_rx_marketing_name(). The latter
+    includes the satellite kit name. In contrast, this function returns the raw
+    vendeor-model string.
+
+    """
     return (user_info['setup']['vendor'] + " " + \
         user_info['setup']['model']).strip()
 
@@ -553,10 +598,8 @@ def get_antenna_model(user_info):
             antenna = "{:g}m dish".format(dish_size / 100)
         else:
             antenna = "{:g}cm dish".format(dish_size)
-    elif (antenna_type == 'flat'):
-        antenna = "Selfsat H50D"
     else:
-        raise ValueError("Unknown antenna type {}".format(antenna_type))
+        return antenna_info['label']
 
     return antenna
 
@@ -580,9 +623,11 @@ def get_net_if(user_info):
     if (user_info is None):
         raise ValueError("Failed to read local configuration")
 
-    if (user_info['setup']['type'] == defs.sdr_setup_type):
+    setup_type = user_info['setup']['type']
+
+    if (setup_type in [defs.sdr_setup_type, defs.sat_ip_setup_type]):
         interface = "lo"
-    elif (user_info['setup']['type'] == defs.linux_usb_setup_type):
+    elif (setup_type == defs.linux_usb_setup_type):
         if ('adapter' not in user_info['setup']):
             interface = "dvb0_0"
             logger.warning("Could not find the dvbnet interface name. "
@@ -593,7 +638,7 @@ def get_net_if(user_info):
         else:
             adapter = user_info['setup']['adapter']
             interface = "dvb{}_0".format(adapter)
-    elif (user_info['setup']['type'] == defs.standalone_setup_type):
+    elif (setup_type == defs.standalone_setup_type):
         interface = user_info['setup']['netdev']
     else:
         raise ValueError("Unknown setup type")
@@ -684,7 +729,8 @@ def show(args):
     info = read_cfg_file(args.cfg, args.cfg_dir)
     if (info is None):
         return
-    print("| {:30s} | {:25s} |".format("Receiver", get_rx_model(info)))
+    print("| {:30s} | {:25s} |".format("Receiver",
+                                       _get_rx_marketing_name(info['setup'])))
     print("| {:30s} | {:25s} |".format("LNB", get_lnb_model(info)))
     print("| {:30s} | {:25s} |".format("Antenna", get_antenna_model(info)))
     pr_cfgs = {

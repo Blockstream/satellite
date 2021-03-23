@@ -96,17 +96,32 @@ class TestConfigHelpers(TestCase):
         info['setup'] = defs.demods[2]
         self.assertEqual(config.get_net_if(info), 'lo')
 
-    def test_rx_model(self):
+        # Sat-IP
+        info['setup'] = defs.demods[3]
+        self.assertEqual(config.get_net_if(info), 'lo')
+
+    def test_rx_model_and_marketing_name(self):
         info = {}
 
         info['setup'] = defs.demods[0]
         self.assertEqual(config.get_rx_model(info), 'Novra S400')
+        self.assertEqual(config._get_rx_marketing_name(info['setup']),
+                         'Novra S400 (pro kit)')
 
         info['setup'] = defs.demods[1]
         self.assertEqual(config.get_rx_model(info), 'TBS 5927')
+        self.assertEqual(config._get_rx_marketing_name(info['setup']),
+                         'TBS 5927 (basic kit)')
 
         info['setup'] = defs.demods[2]
         self.assertEqual(config.get_rx_model(info), 'RTL-SDR')
+        self.assertEqual(config._get_rx_marketing_name(info['setup']),
+                         'RTL-SDR software-defined')
+
+        info['setup'] = defs.demods[3]
+        self.assertEqual(config.get_rx_model(info), 'Selfsat IP22')
+        self.assertEqual(config._get_rx_marketing_name(info['setup']),
+                         'Blockstream Base Station')
 
     def test_antenna_model(self):
         # Dish antennas on cm and m range
@@ -122,8 +137,12 @@ class TestConfigHelpers(TestCase):
         self.assertEqual(config.get_antenna_model(info), '2.825m dish')
 
         # Flat-panel
+        info = {'setup': {'antenna': defs.antennas[-2]}}
+        self.assertEqual(config.get_antenna_model(info), 'Selfsat-H50D')
+
+        # Sat-IP
         info = {'setup': {'antenna': defs.antennas[-1]}}
-        self.assertEqual(config.get_antenna_model(info), 'Selfsat H50D')
+        self.assertEqual(config.get_antenna_model(info), 'Selfsat>IP22')
 
     def test_lnb_model(self):
         info = {}

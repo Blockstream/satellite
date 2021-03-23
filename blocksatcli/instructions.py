@@ -269,6 +269,60 @@ def _print_sdr_instructions(info):
     util.prompt_for_enter()
 
 
+def _print_sat_ip_instructions(info):
+
+    util._print_header("Sat-IP Setup")
+
+    _print("""The Sat-IP setup relies on the Blockstream Satellite Base
+    Station (available on Blockstream Store), an all-in-one flat-panel antenna
+    with an integrated receiver and LNB. This device receives the satellite
+    signal and outputs IP packets to one or more Sat-IP clients listening to
+    it in the local network.""")
+
+    _print("The following steps explain how you can connect to the base "
+           "station device to receive the Blockstream Satellite traffic.")
+
+    util.prompt_for_enter()
+
+    util._print_sub_header("Connections")
+
+    _item("Connect the Ethernet cable from your switch or computer's network "
+          "adapter directly to the antenna's Sat>IP port.")
+
+    _item("If your switch/adapter does not support Power over Ethernet (PoE), "
+          "insert a PoE injector in-line between the switch/adapter and the "
+          "antenna's Sat-IP port. Connect the injector's PoE-enabled port to "
+          "the Sat-IP antenna and the non-powered (non-PoE) port to the "
+          "switch/adapter.")
+
+    print()
+    _print("IMPORTANT: If using a PoE injector, make sure you are connecting "
+           "the correct ports. Permanent damage may occur to your switch or "
+           "network adapter otherwise.")
+
+    util.prompt_for_enter()
+
+    util._print_sub_header("Software Requirements")
+
+    _print("Next, install all software pre-requisites on your host. Run:")
+
+    print("    blocksat-cli deps install\n")
+
+    _print("""
+    NOTE: this command supports the apt, dnf, and yum package managers.""")
+
+    util.prompt_for_enter()
+
+    util._print_sub_header("Running")
+
+    _print("You should now be ready to launch the Sat-IP client. You can run "
+           "it by executing:")
+
+    print("    blocksat-cli sat-ip\n")
+
+    util.prompt_for_enter()
+
+
 def _print_freq_info(info):
     """Print summary of frequencies of interest"""
     sat     = info['sat']
@@ -385,5 +439,7 @@ def show(args):
         _print_sdr_instructions(info)
     elif (info['setup']['type'] == defs.linux_usb_setup_type):
         _print_usb_rx_instructions(info)
+    elif (info['setup']['type'] == defs.sat_ip_setup_type):
+        _print_sat_ip_instructions(info)
 
     _print_next_steps()

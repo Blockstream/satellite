@@ -219,4 +219,4 @@ Detailed build instructions can be found within [the project's documentation
 
 ---
 
-Prev: [Novra S400 Setup](s400.md) | [TBS5927 Setup](tbs.md) | [SDR Setup](sdr.md)
+Prev: [Novra S400 Setup](s400.md) | [TBS5927 Setup](tbs.md) | [SDR Setup](sdr.md) | [Sat-IP Setup](sat-ip.md)

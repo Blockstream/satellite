@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 
 
-__version__ = "0.3.1"
+__version__ = "0.3.2"
 
 
 import logging, os, time
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 from . import defs, config, util, instructions, gqrx, bitcoin, sdr, rp, \
-    firewall, standalone, usb, dependencies, update
+    firewall, standalone, usb, satip, dependencies, update
 from .api import api
 from os import environ
 import platform
@@ -53,6 +53,7 @@ def main():
     bitcoin.subparser(subparsers)
     sdr.subparser(subparsers)
     api.subparser(subparsers)
+    satip.subparser(subparsers)
 
     args = parser.parse_args()
 

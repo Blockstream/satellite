@@ -9,6 +9,13 @@ from distutils.version import LooseVersion
 logger = logging.getLogger(__name__)
 
 
+target_map = {
+    "sdr": defs.sdr_setup_type,
+    "usb": defs.linux_usb_setup_type,
+    "standalone": defs.standalone_setup_type,
+    "sat-ip": defs.sat_ip_setup_type
+}
+
 def _download_file(url, destdir, dry_run):
     filename   = url.split('/')[-1]
     local_path = os.path.join(destdir, url.split('/')[-1])
@@ -35,7 +42,8 @@ def _check_distro(supported_distros, setup_type):
     base_url = "https://github.com/Blockstream/satellite/blob/master/doc/"
     instructions_url = {
         defs.sdr_setup_type : "sdr.md",
-        defs.linux_usb_setup_type : "tbs.md"
+        defs.linux_usb_setup_type : "tbs.md",
+        defs.sat_ip_setup_type : "sat-ip.md"
     }
     full_url = base_url + instructions_url[setup_type]
     if (distro.id() not in supported_distros):
@@ -230,38 +238,43 @@ def _install_common(interactive=True, update=False, dry=False, btc=False):
 
 
 
-def _install_sdr(interactive=True, update=False, dry=False):
-    """Install SDR dependencies"""
-    util._print_header("Installing SDR Dependencies")
-    apt_pkg_list = ["gqrx-sdr", "rtl-sdr", "leandvb", "tsduck"]
-    dnf_pkg_list = ["gqrx", "rtl-sdr", "leandvb", "tsduck"]
-    yum_pkg_list = ["rtl-sdr", "leandvb", "tsduck"]
-    # NOTE: leandvb and tsduck come from our repository. Also, note gqrx is not
-    # available on CentOS (hence not included on the yum list).
-    _install_packages(apt_pkg_list, dnf_pkg_list, yum_pkg_list, interactive,
-                      update, dry)
+def _install_specific(target, interactive=True, update=False, dry=False):
+    """Install setup-specific dependencies"""
+    key = next(key for key, val in target_map.items() if val == target)
+    pkg_map = {
+        'sdr': {
+            'apt': ["gqrx-sdr", "rtl-sdr", "leandvb", "tsduck"],
+            'dnf': ["gqrx", "rtl-sdr", "leandvb", "tsduck"],
+            'yum': ["rtl-sdr", "leandvb", "tsduck"]
+        },
+        'usb': {
+            'apt': ["iproute2", "iptables", "dvb-apps", "dvb-tools"],
+            'dnf': ["iproute", "iptables", "dvb-apps", "v4l-utils"],
+            'yum': ["iproute", "iptables", "dvb-apps", "v4l-utils"]
+        },
+        'standalone': {
+            'apt': ["iproute2", "iptables"],
+            'dnf': ["iproute", "iptables"],
+            'yum': ["iproute", "iptables"]
+        },
+        'sat-ip': {
+            'apt': ["tsduck"],
+            'dnf': ["tsduck"],
+            'yum': ["tsduck"]
+        }
+    }
+    # NOTE:
+    # - leandvb and tsduck come from our repository. Also, note gqrx is not
+    #   available on CentOS (hence not included on the yum list).
+    # - In the USB setup, the only package from our repository is dvb-apps in
+    #   the specific case of dnf (RPM) installation, given that dvb-apps is not
+    #   available on the latest mainstream fedora repositories.
 
-
-def _install_usb(interactive=True, update=False, dry=False):
-    """Install USB receiver dependencies"""
-    util._print_header("Installing USB Receiver Dependencies")
-    apt_pkg_list = ["iproute2", "iptables", "dvb-apps", "dvb-tools"]
-    dnf_pkg_list = ["iproute", "iptables", "dvb-apps", "v4l-utils"]
-    yum_pkg_list = ["iproute", "iptables", "dvb-apps", "v4l-utils"]
-    # NOTE: the only package from our repository is dvb-apps in the specific
-    # case of dnf (RPM) installation, because dvb-apps is not available on the
-    # mainstream fc31/32 repository
-    _install_packages(apt_pkg_list, dnf_pkg_list, yum_pkg_list, interactive,
-                      update, dry)
-
-
-def _install_standalone(interactive=True, update=False, dry=False):
-    """Install standalone receiver dependencies"""
-    util._print_header("Installing Standalone Receiver Dependencies")
-    apt_pkg_list = ["iproute2", "iptables"]
-    dnf_pkg_list = ["iproute", "iptables"]
-    yum_pkg_list = ["iproute", "iptables"]
-    _install_packages(apt_pkg_list, dnf_pkg_list, yum_pkg_list, interactive,
+    util._print_header("Installing {} Receiver Dependencies".format(target))
+    _install_packages(pkg_map[key]['apt'],
+                      pkg_map[key]['dnf'],
+                      pkg_map[key]['yum'],
+                      interactive,
                       update, dry)
 
 
@@ -298,7 +311,7 @@ def subparser(subparsers):
                             description="Install software dependencies",
                             help='Install software dependencies')
     p1.add_argument("--target",
-                    choices=["sdr", "usb", "standalone"],
+                    choices=list(target_map.keys()),
                     default=None,
                     help="Target setup type for installation of dependencies")
     p1.add_argument("--btc",
@@ -311,7 +324,7 @@ def subparser(subparsers):
                             description="Update software dependencies",
                             help='Update software dependencies')
     p2.add_argument("--target",
-                    choices=["sdr", "usb", "standalone"],
+                    choices=list(target_map.keys()),
                     default=None,
                     help="Target setup type for the update of dependencies")
     p2.add_argument("--btc",
@@ -335,11 +348,6 @@ def run(args):
     interactive = (not args.yes)
 
     if (args.target is not None):
-        target_map = {
-            "sdr"        : defs.sdr_setup_type,
-            "usb"        : defs.linux_usb_setup_type,
-            "standalone" : defs.standalone_setup_type
-        }
         target = target_map[args.target]
     else:
         info = config.read_cfg_file(args.cfg, args.cfg_dir)
@@ -361,20 +369,9 @@ def run(args):
     _install_common(interactive=interactive, update=args.update,
                     dry=args.dry_run, btc=args.btc)
 
-    if (target == defs.sdr_setup_type):
-        # The SDR packages are only available to the distributions below:
-        _check_distro(["ubuntu", "fedora", "centos"],
-                      defs.sdr_setup_type)
-        _install_sdr(interactive=interactive, update=args.update,
-                     dry=args.dry_run)
-    elif (target == defs.linux_usb_setup_type):
-        _install_usb(interactive=interactive, update=args.update,
-                     dry=args.dry_run)
-    elif (target == defs.standalone_setup_type):
-        _install_standalone(interactive=interactive, update=args.update,
-                            dry=args.dry_run)
-    else:
-        raise ValueError("Unexpected receiver target")
+    # Install setup-specific dependencies
+    _install_specific(target, interactive=interactive, update=args.update,
+                      dry=args.dry_run)
 
 
 def drivers(args):

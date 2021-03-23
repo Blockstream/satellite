@@ -23,3 +23,5 @@ RUN blocksat-cli --debug deps -y install --target sdr --btc
 # Install USB software dependencies via the CLI
 RUN blocksat-cli --debug deps -y install --target usb
 
+# Install Sat-IP software dependencies via the CLI
+RUN blocksat-cli --debug deps -y install --target sat-ip

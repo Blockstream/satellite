@@ -163,6 +163,10 @@ class Monitor():
                 'label'      : 'BER',
                 'format_str' : '.2e'
             },
+            'quality' : {
+                'label'      : 'Signal Quality',
+                'format_str' : '.1f'
+            },
             'pkt_err' : {
                 'label'      : 'Packet Errors',
                 'format_str' : 'd'

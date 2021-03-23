@@ -2,7 +2,7 @@
 import subprocess, logging, textwrap, os, threading, time
 from argparse import ArgumentDefaultsHelpFormatter
 from shutil import which
-from . import config, defs, util, dependencies, monitoring
+from . import config, defs, util, dependencies, monitoring, tsp
 logger = logging.getLogger(__name__)
 
 
@@ -65,8 +65,8 @@ def _get_monitor(args):
     # logs get mixed on the console and it becomes hard to read them.
     echo = (args.debug_dvbs2 == 0)
 
-    # Force scrolling logs if using a monitoring option on TSDuck
-    scrolling = args.monitor_bitrate or args.monitor_ts or args.log_scrolling
+    # Force scrolling logs if tsp is configured to print to stdout
+    scrolling = tsp.prints_to_stdout(args) or args.log_scrolling
 
     return monitoring.Monitor(
         args.cfg_dir,
@@ -198,32 +198,9 @@ def subparser(subparsers):
                         help='Size in Mbytes of the input pipe file read by \
                         leandvb')
 
-    tsp_p = p.add_argument_group('tsduck options')
-    tsp_p.add_argument('--buffer-size-mb', default=1.0, type=float,
-                       help='Input buffer size in MB')
-    tsp_p.add_argument('--max-flushed-packets', default=10, type=int,
-                       help='Maximum number of packets processed by a tsp '
-                       'processor')
-    tsp_p.add_argument('--max-input-packets', default=10, type=int,
-                       help='Maximum number of packets received at a time from '
-                       'the tsp input plugin ')
-    tsp_p.add_argument('-p', '--bitrate-period', default=1, type=int,
-                       help='Period of bitrate reports in seconds')
-    tsp_p.add_argument('-l', '--local-address', default="127.0.0.1",
-                       help='IP address of the local interface on which to '
-                       'listen for UDP datagrams')
-    tsp_p.add_argument('-a', '--analyze', default=False, action='store_true',
-                       help='Analyze transport stream and save report on '
-                       'program termination')
-    tsp_p.add_argument('--analyze-file', default="ts-analysis.txt",
-                       action='store_true',
-                       help='File on which to save the MPEG-TS analysis.')
-    tsp_p.add_argument('--monitor-bitrate', default=False,
-                       action='store_true',
-                       help='Monitor the MPEG TS bitrate')
-    tsp_p.add_argument('--monitor-ts', default=False,
-                       action='store_true',
-                       help='Monitor MPEG TS sequence discontinuities')
+    # TSDuck Options
+    tsp.add_to_parser(p)
+
     p.set_defaults(func=run,
                    record=False)
 
@@ -324,31 +301,6 @@ def run(args):
 
     ldvb_stderr = None if (args.debug_dvbs2 > 0) else subprocess.DEVNULL
 
-    # Input
-    tsp_cmd  = ["tsp", "--realtime", "--buffer-size-mb",
-                str(args.buffer_size_mb), "--max-flushed-packets",
-                str(args.max_flushed_packets), "--max-input-packets",
-                str(args.max_input_packets)]
-    # MPEG-TS Analyzer
-    if (args.analyze):
-        logger.info("MPEG-TS analysis will be saved on file {}".format(
-            args.analyze_file))
-        if (not util._ask_yes_or_no("Proceed?", default="y")):
-            return
-        tsp_cmd.extend(["-P", "analyze", "-o", args.analyze_file])
-    if (args.monitor_bitrate):
-        tsp_cmd.extend(["-P", "bitrate_monitor", "-p",
-                        str(args.bitrate_period), "--min", "0"])
-    if (args.monitor_ts):
-        tsp_cmd.extend(["-P", "continuity"])
-
-    # MPE plugin
-    tsp_cmd.extend(["-P", "mpe", "--pid",
-                    "-".join([str(pid) for pid in defs.pids]), "--udp-forward",
-                    "--local-address", args.local_address])
-    # Output
-    tsp_cmd.extend(["-O", "drop"])
-
     logger.debug("Run:")
 
     # If recording IQ samples, run the rtl_sdr only
@@ -376,6 +328,11 @@ def run(args):
         )
         t.start()
 
+    # Prepare and validate the tsp command
+    tsp_handler = tsp.Tsp()
+    if (not tsp_handler.gen_cmd(args)):
+        return
+
     if (args.iq_file is None):
         full_cmd  = "> " + " ".join(rtl_cmd) + " | \\\n" + \
                     " ".join(ldvb_cmd)
@@ -398,13 +355,13 @@ def run(args):
         )
 
     if (not args.no_tsp):
-        full_cmd += " | \\\n" + " ".join(tsp_cmd)
+        full_cmd += " | \\\n" + " ".join(tsp_handler.cmd)
         logger.debug(full_cmd)
-        p3 = subprocess.Popen(tsp_cmd, stdin=p2.stdout)
+        tsp_handler.run(stdin=p2.stdout)
         try:
-            p3.communicate()
+            tsp_handler.proc.communicate()
         except KeyboardInterrupt:
-            p3.kill()
+            tsp_handler.proc.kill()
             p2.kill()
             p1.kill()
     else:
@@ -415,4 +372,4 @@ def run(args):
             p2.kill()
             p1.kill()
 
-
+    print()

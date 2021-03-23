@@ -111,12 +111,16 @@ receiver, this step involves one of the following commands:
 
 - For the TBS 5927 USB ([Basic
 Kit](https://store.blockstream.com/product/blockstream-satellite-basic-kit/))
-Receiver: `blocksat-cli usb launch`.
+receiver: `blocksat-cli usb launch`.
 
 - For the Novra S400 Standalone ([Pro
 Kit](https://store.blockstream.com/product/blockstream-satellite-pro-kit/))
-Receiver: `blocksat-cli standalone monitor` (see the [S400's
+receiver: `blocksat-cli standalone monitor` (see the [S400's
 instructions](s400.md#monitoring)).
+
+- For the Sat-IP receiver ([Satellite Base
+  Station](https://store.blockstream.com/product-category/satellite_kits/)):
+  `blocksat-cli sat-ip`.
 
 - For the SDR receiver: `blocksat-cli sdr`.
 
@@ -135,8 +139,8 @@ change the elevation. Every time you adjust an angle, wait a few seconds and
 check if the receiver has found the signal in this position. If not, try another
 adjustment and so on.
 
-Once the receiver finds the signal, it will lock and print a line like the
-following:
+Once the receiver finds the signal, it will lock and print a line with `Lock =
+True` like the following:
 
 ```
 2020-10-23 14:32:25  Lock = True; Level = -47.98dBm; SNR = 11.30dB; BER = 0.00e+00;
@@ -150,6 +154,9 @@ is already locked, you can infer that the antenna pointing is close to the
 optimal position. Hence, at this point, you should experiment with gentle
 adjustments to the pointing angles until you can maximize the SNR. The next
 section discusses the target SNR levels.
+
+> Note: the Sat-IP receiver will print a `Signal Quality` metric instead of the
+> SNR. Again, higher is better.
 
 Furthermore, you can check that the signal level is within acceptable
 limits. The LNB amplifies the signal received over satellite and feeds a
@@ -178,10 +185,10 @@ instructions](#novra-s400s-user-interface).
   instructions](#pointing-with-an-sdr-based-receiver).
 
 Alternatively, you can try to point the antenna using a satellite finder. This
-approach is generally more useful for the TBS5927 and S400 receivers. In
-contrast, for SDR-based receivers, the [SDR signal visualization
-tools](#pointing-with-an-sdr-based-receiver) are usually sufficient for
-pointing. Refer to the instructions in the [satellite finder
+approach is generally more useful for the Linux USB (TBS 5927), standalone
+(Novra S400), and Sat-IP receivers. In contrast, for SDR-based receivers, the
+[SDR signal visualization tools](#pointing-with-an-sdr-based-receiver) are
+usually better for pointing. Refer to the instructions in the [satellite finder
 section](#pointing-with-a-satellite-finder).
 
 ## Optimize the SNR
@@ -199,6 +206,10 @@ tolerate up to 6 dB signal attenuation in case of bad weather (such as rain).
 If your receiver is already locked, try gentle adjustments around the current
 position and observe the SNR on the console. Stop once you find the pointing
 that achieves the best SNR.
+
+If you are using a Sat-IP receiver, which does not print the SNR metric, you can
+optimize the Signal Quality metric instead. Try to achieve 100% quality or as
+close as possible.
 
 ## Next Steps
 
@@ -418,8 +429,9 @@ In the end, once you are satisfied with the SNR (see the [target
 levels](#optimize-the-snr)), you can monitor several aspects of your SDR
 receiver. For example:
 
-- To monitor the bitrate, run with option `--monitor-bitrate`.
-- To monitor MPEG TS packet decoding errors, run with option `--monitor-ts`.
+- To monitor the bitrate, run with option `--ts-monitor-bitrate`.
+- To monitor the integrity of the MPEG TS packet sequence, run with option
+  `--ts-monitor-sequence`.
 - For low-level debugging information, run with option `-dd`.
 
 ### Pointing with a Satellite Finder
@@ -477,4 +489,4 @@ earlier](#find-the-satellite-and-lock-the-signal).
 
 ---
 
-Prev: [Novra S400 Setup](s400.md) | [TBS5927 Setup](tbs.md) | [SDR Setup](sdr.md)
+Prev: [Novra S400 Setup](s400.md) | [TBS5927 Setup](tbs.md) | [SDR Setup](sdr.md) | [Sat-IP Setup](sat-ip.md)

@@ -4,22 +4,25 @@ This page contains a quick reference guide for the Blockstream Satellite
 receiver setup and its general usage. Please refer to the [main
 guide](README.md) for detailed explanations on all steps.
 
-<!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-generate-toc again -->
+<!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-refresh-toc -->
 
 - [1. CLI Installation and Upgrade](#1-cli-installation-and-upgrade)
 - [2. Common Steps](#2-common-steps)
 - [3. Receiver-specific Configuration Steps](#3-receiver-specific-configuration-steps)
     - [Novra S400 standalone receiver](#novra-s400-standalone-receiver)
     - [TBS5927 USB receiver](#tbs5927-usb-receiver)
-    - [SDR-based receiver](#sdr-based-receiver)
+    - [Sat-IP receiver](#sat-ip-receiver)
+    - [SDR receiver](#sdr-receiver)
 - [4. Receiver-specific Antenna Alignment Steps](#4-receiver-specific-antenna-alignment-steps)
-    - [Novra S400 standalone receiver](#novra-s400-standalone-receiver)
-    - [TBS5927 USB receiver](#tbs5927-usb-receiver)
-    - [SDR-based receiver](#sdr-based-receiver)
+    - [Novra S400 standalone receiver](#novra-s400-standalone-receiver-1)
+    - [TBS5927 USB receiver](#tbs5927-usb-receiver-1)
+    - [Sat-IP receiver](#sat-ip-receiver-1)
+    - [SDR receiver](#sdr-receiver-1)
 - [5. Bitcoin-satellite Setup](#5-bitcoin-satellite-setup)
 - [6. Satellite API](#6-satellite-api)
 
 <!-- markdown-toc end -->
+
 
 ## 1. CLI Installation and Upgrade
 
@@ -74,12 +77,8 @@ blocksat-cli instructions
 
 ### Novra S400 standalone receiver
 
-Set all configurations on the S400 by following the instructions from:
-```
-blocksat-cli instructions
-```
+Configure the receiver and the host by running:
 
-Configure the host to communicate with the S400:
 ```
 sudo blocksat-cli standalone cfg
 ```
@@ -101,7 +100,14 @@ Start the USB receiver:
 blocksat-cli usb launch
 ```
 
-### SDR-based receiver
+### Sat-IP receiver
+
+Launch the Sat-IP client:
+```
+blocksat-cli sat-ip
+```
+
+### SDR receiver
 
 Configure Gqrx:
 ```
@@ -124,8 +130,14 @@ your receiver.
 
 ### Novra S400 standalone receiver
 
-While pointing the antenna, check the lock indicator on the S400's web UI until
-it becomes green (locked).
+Monitor the S400 receiver by running:
+```
+blocksat-cli standalone monitor
+```
+
+While pointing the antenna, check the logs on the terminal until the receiver
+logs a `Lock`. Alternatively, check the lock indicator on the S400's web UI or
+front panel until it becomes green (locked).
 
 ### TBS5927 USB receiver
 
@@ -134,10 +146,20 @@ Make sure that the USB receiver is running with:
 blocksat-cli usb launch
 ```
 
-While pointing the antenna, check the receiver logs on the terminal until the
-receiver logs a `Lock`.
+While pointing the antenna, check the logs on the terminal until the receiver
+logs a `Lock`.
 
-### SDR-based receiver
+### Sat-IP receiver
+
+Launch the Sat-IP client:
+```
+blocksat-cli sat-ip
+```
+
+While pointing the antenna, check the logs on the terminal until the receiver
+logs a `Lock`.
+
+### SDR receiver
 
 Run gqrx:
 ```
@@ -215,7 +237,7 @@ Run the [demo receiver](api.md#demo-receiver):
 blocksat-cli api demo-rx
 ```
 
-Listen for API messages coming from the demo receiver:
+Listen to the API messages coming from the demo receiver:
 ```
 blocksat-cli api listen -d
 ```

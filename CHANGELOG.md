@@ -1,5 +1,29 @@
 # Changelog
 
+## [2.3.2]
+
+Release Date: TBD
+
+### Added
+- Support for the Blockstream Satellite Base Station device and Sat-IP receivers
+  in general.
+- Option `--ts-file` to record MPEG TS file via the `sdr` or `sat-ip`
+  applications.
+- Option `--ts-dump` to dump the contents of MPEG TS packets received via the
+  `sdr` or `sat-ip` applications.
+
+### Changed
+- Command-line options related to MPEG TS and the `tsp` application:
+    - Options `--buffer-size-mb`, `--max-flushed-packets`, and
+      `--max-input-packets` were prefixed with `--tsp`.
+    - Option `--monitor-bitrate` was renamed to `--ts-monitor-bitrate`.
+	- Option `--bitrate-period` was replaced by an optional argument of option
+      `--ts-monitor-bitrate`.
+	- Option `-a/--analyze` was renamed to `--ts-analysis`.
+	- Option `--analyze-file` was replaced by an optional argument of option
+      `--ts-analysis`.
+	- Option `--monitor-ts` was renamed to `--ts-monitor-sequence`.
+
 ## [2.3.1]
 
 Release Date: 2021-03-16

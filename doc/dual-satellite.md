@@ -1,12 +1,13 @@
 # Dual-Satellite Connection
 
-<!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-generate-toc again -->
+<!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-refresh-toc -->
 **Table of Contents**
 
 - [Dual-Satellite Connection](#dual-satellite-connection)
     - [Novra S400 Standalone Receiver](#novra-s400-standalone-receiver)
     - [TBS5927 USB Receiver](#tbs5927-usb-receiver)
-    - [SDR-based Receiver](#sdr-based-receiver)
+    - [Blockstream Base Station Sat-IP Receiver](#blockstream-base-station-sat-ip-receiver)
+    - [SDR Receiver](#sdr-receiver)
 
 <!-- markdown-toc end -->
 
@@ -49,10 +50,9 @@ example, you can set up a second configuration named `rx2`, as follows:
 blocksat-cli --cfg rx2 cfg
 ```
 
-On this second configuration, you select the other satellite and provide the
-information regarding the parts of your second receiver setup. Subsequently, you
-can run all CLI commands using option `--cfg rx2`. Specific instructions are
-provided next.
+Then, select the other satellite of interest and inform the parts composing your
+second receiver setup. Subsequently, you can run all CLI commands using option
+`--cfg rx2`. Specific instructions are provided next.
 
 ## Novra S400 Standalone Receiver
 
@@ -128,7 +128,27 @@ the second TBS5927 device. You can do so by running:
 blocksat-cli --cfg rx2 btc --concat
 ```
 
-## SDR-based Receiver
+## Blockstream Base Station Sat-IP Receiver
+
+With the [Satellite Base
+Station](https://store.blockstream.com/product-category/satellite_kits/) Sat-IP
+receiver, you need two base station devices for a dual-satellite setup. Also,
+when launching the Sat-IP client, you need to select the correct receiver by IP
+address.
+
+
+Run the first Sat-IP client and select the correct receiver when prompted:
+```
+blocksat-cli sat-ip
+```
+
+Next, launch the second Sat-IP client and, again, select the appropriate
+receiver:
+```
+blocksat-cli --cfg rx2 sat-ip
+```
+
+## SDR Receiver
 
 To set up an SDR-based receiver, you would ordinarily run the following sequence
 of commands:
