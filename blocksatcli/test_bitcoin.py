@@ -1,4 +1,4 @@
-import unittest, argparse
+import unittest
 from . import bitcoin, defs
 
 

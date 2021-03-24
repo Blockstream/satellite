@@ -3,12 +3,11 @@ import os
 from argparse import ArgumentDefaultsHelpFormatter
 from . import config, defs, util
 import textwrap
-import argparse
 
 
-class Cfg():
-    def __init__(self, cfg={}):
-        self.cfg  = cfg
+class Cfg:
+    def __init__(self, cfg=None):
+        self.cfg = {} if cfg is None else cfg
 
     def add_opt(self, key, val):
         """Add key-value pair to configuration dictionary"""
