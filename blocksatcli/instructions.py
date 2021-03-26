@@ -193,6 +193,7 @@ def _print_usb_rx_instructions(info):
 
     util.prompt_for_enter()
 
+
 def _print_sdr_instructions(info):
     """Print instruction for configuration of an SDR setup
     """
@@ -277,7 +278,6 @@ def _print_freq_info(info):
     lo_freq = info['freqs']['lo']
     l_freq  = info['freqs']['l_band']
 
-    os.system('clear')
     util._print_header("Frequencies")
 
     print("For your information, your setup relies on the following frequencies:\n")
@@ -377,7 +377,7 @@ def show(args):
     if (info is None):
         return
 
-    _print_freq_info(info)
+    os.system('clear')
     _print_lnb_info(info)
 
     if (info['setup']['type'] == defs.standalone_setup_type):
