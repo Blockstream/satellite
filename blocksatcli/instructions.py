@@ -154,7 +154,7 @@ def _print_usb_rx_instructions(info):
 
     _print("""
     NOTE: this command supports the apt, dnf, and yum package managers. For
-    other package managers, refer to the instructions at \"doc/tbs.md\" or:""")
+    other package managers, refer to the instructions at:""")
     print("https://github.com/Blockstream/satellite/blob/master/doc/tbs.md")
 
     util.prompt_for_enter()
@@ -240,7 +240,7 @@ def _print_sdr_instructions(info):
         NOTE: This command supports the two most recent Ubuntu LTS, Fedora, and
         CentOS releases. In case you are using another Linux distribution or
         version, please refer to the manual compilation and installation
-        instructions at \"doc/sdr.md\" or:""")
+        instructions at:""")
     print("https://github.com/Blockstream/satellite/blob/master/doc/sdr.md")
 
     util.prompt_for_enter()
@@ -263,8 +263,7 @@ def _print_sdr_instructions(info):
     print("Or, in GUI mode:\n")
     print("    blocksat-cli sdr --gui\n")
 
-    _print("For further options, please refer to the SDR Guide "
-           "at \"doc/sdr.md\" or:")
+    _print("For further options, please refer to the SDR Guide at:")
     print("https://github.com/Blockstream/satellite/blob/master/doc/sdr.md")
 
     util.prompt_for_enter()
@@ -344,19 +343,19 @@ def _print_next_steps():
 
     _print("Next, if you are running Ubuntu, Fedora, or CentOS, you can "
            "install bitcoin-satellite by running:")
-    print("\n    blocksat-cli deps install --btc\n")
+    print("    blocksat-cli deps install --btc\n")
 
     _print("Note that bitcoin-satellite is a fork of bitcoin core, and, "
            "as such, it installs applications with the same name (bitcoind, "
-           "bitcoin-cli, bitcoin-qt, and bitcoin-tx). Hence, the installation "
-           "of bitcoin-satellite will fail if you already have bitcoin core "
-           "installed.")
+           "bitcoin-cli, bitcoin-qt, and bitcoin-tx). Hence, the "
+           "bitcoin-satellite installation will fail if you already have "
+           "bitcoin core installed.")
 
-    print("For further information, refer to \"doc/bitcoin.md\" or:\n")
+    print("For further information, refer to:\n")
     print("https://github.com/Blockstream/satellite/blob/master/doc/bitcoin.md\n")
 
     _print("""If your antenna is not pointed yet, please follow the
-    antenna alignment guide available at \"doc/antenna-pointing.md\" or:""")
+    antenna alignment guide at:""")
     print("https://github.com/Blockstream/satellite/blob/master/doc/antenna-pointing.md\n")
 
 
