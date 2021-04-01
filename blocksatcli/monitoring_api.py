@@ -11,6 +11,7 @@ import requests
 from . import util
 from . import defs
 from . import config
+from .cache import Cache
 from .api import api
 from .api.pkt import ApiChannel
 from .api.gpg import Gpg
@@ -190,7 +191,18 @@ class BsMonitoring():
         """
         self.registration_running = True
         self.registration_failure = False
-        _register_explainer()
+
+        # Save some state on the local cache
+        cache = Cache(self.cfg_dir)
+
+        # Show the explainer when running the registration for the first time
+        # for this configuration
+        if (cache.get(self.cfg + '.monitoring.explainer') is None):
+            _register_explainer()
+
+        # Cache flag indicating that the explainer has been shown already
+        cache.set(self.cfg + '.monitoring.explainer', True)
+        cache.save()
 
         # Create a GPG keyring and a keypair if necessary
         api.config_keyring(self.gpg)

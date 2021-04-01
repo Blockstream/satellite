@@ -2,11 +2,11 @@ import os, logging, subprocess, json, threading
 from datetime import datetime, timedelta
 from distutils.version import StrictVersion
 from shutil import which
-from . import util
+from .cache import Cache
 logger = logging.getLogger(__name__)
 
 
-class UpdateCache():
+class UpdateCache(Cache):
     """Update cache handler
 
     Creates a cache file containing update information. This file is verified
@@ -20,17 +20,7 @@ class UpdateCache():
             cfg_dir : Directory where the .update is located/created
 
         """
-        self.path = os.path.join(cfg_dir, ".update")
-        self.data = {}
-        self._load()
-
-    def _load(self):
-        """Load the update information from the cache file"""
-        if (not os.path.exists(self.path)):
-            return
-
-        with open(self.path, 'r') as fd:
-            self.data = json.load(fd)
+        super().__init__(cfg_dir, filename=".update")
 
     def last_check(self):
         """Return the datetime corresponding to the last update verification"""
@@ -47,8 +37,7 @@ class UpdateCache():
         """
         self.data['last_check'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')
         self.data['cli_update'] = cli_update
-        with open(self.path, 'w') as fd:
-            json.dump(self.data, fd)
+        super().save()
 
     def has_update(self):
         """Returns whether there is an update available for the CLI"""
