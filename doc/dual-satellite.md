@@ -131,10 +131,10 @@ blocksat-cli --cfg rx2 btc --concat
 ## Blockstream Base Station Sat-IP Receiver
 
 With the [Satellite Base
-Station](https://store.blockstream.com/product-category/satellite_kits/) Sat-IP
-receiver, you need two base station devices for a dual-satellite setup. Also,
-when launching the Sat-IP client, you need to select the correct receiver by IP
-address.
+Station](https://store.blockstream.com/product/blockstream-satellite-base-station/)
+Sat-IP receiver, you need two base station devices for a dual-satellite
+setup. Also, when launching the Sat-IP client, you need to select the correct
+receiver by IP address.
 
 
 Run the first Sat-IP client and select the correct receiver when prompted:

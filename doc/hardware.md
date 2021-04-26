@@ -45,40 +45,54 @@ approaches.
 
 As mentioned earlier, the quickest alternative to gather the required parts for
 a Blockstream Satellite setup is by purchasing a satellite kit. Check the kits
-available on [Blockstream
+available on the [Blockstream
 Store](https://store.blockstream.com/product-category/satellite_kits/).
 
-There are three main *satellite kits*:
+There are two main *satellite kits*:
 
-1. [Basic USB Kit](https://store.blockstream.com/product/blockstream-satellite-basic-kit/) (w/ Linux USB Receiver).
-2. [Pro Ethernet Kit](https://store.blockstream.com/product/blockstream-satellite-pro-kit/) (w/ Standalone Receiver).
-3. [Satellite Base Station](https://store.blockstream.com/product-category/satellite_kits/) (w/ Sat-IP Receiver).
+1. [Pro Kit](https://store.blockstream.com/product/blockstream-satellite-pro-kit/) (Standalone Receiver).
+2. [Satellite Base Station](https://store.blockstream.com/product/blockstream-satellite-base-station/) (Sat-IP Receiver).
 
-These kits cover three of the four supported receiver options.  Meanwhile, they
-do not include the software-defined radio (SDR) receiver option, which is DIY
-only. Please refer to the [DIY hardware
-requirements](#diy-hardware-requirements) to assemble an SDR setup.
+The Base Station is our go-to receiver choice. Its minimalist design, simplified
+setup, and high performance will fit most Bitcoin users' needs.
 
-Furthermore, note the Satellite Base Station is the only option that is not
-compatible with the C band. That is, it does not work with the Telstar 18V C
-band satellite covering the Asia-Pacific region. If you are in a C band
-location, pick one of the two other options (the Basic or Pro Kits).
+The Blockstream Satellite Pro Kit is available for:
 
-If you have decided to go with a satellite kit and selected the Basic or Pro Kit
-receivers, note you still need a satellite antenna (not included) and coaxial
-cables. Please refer to the requirements for [antennas](#satellite-antenna) and
-[coaxial cables](#coaxial-cables). After that, you can proceed to the next
+- Users in some areas of the Asia-Pacific region covered only by the Telstar 18V
+  C band satellite (and not covered by the Telstar 18V Ku band beam).
+- Users who want to use their own dish antennas.
+- Users who wish to use larger dish antennas.
+
+Note the Satellite Base Station is not compatible with the C band. That is, it
+does not work with the Telstar 18V C band satellite covering the Asia-Pacific
+region. If you are in a C band location, you will need a Pro Kit or a DIY
+receiver option.
+
+If you have decided to go with a satellite kit and selected the Pro Kit
+receiver, note you still need a satellite antenna and coaxial cables (not
+included). Please refer to the requirements for [antennas](#satellite-antenna)
+and [coaxial cables](#coaxial-cables). After that, you can proceed to the next
 section, which explains the [receiver setup](receiver.md).
 
 If you selected the Blockstream Satellite Base Station (again, compatible with
 Ku band only), you are all set. Proceed to the [next section](receiver.md).
+
+Otherwise, you can proceed to assemble a satellite receiver on your own. Aside
+from the Pro Kit and Satellite Base Station options, you can gather the required
+components for the Basic Kit (formerly sold on [Blockstream
+Store](https://store.blockstream.com/product/blockstream-satellite-basic-kit/))
+based on a Linux USB Receiver. Refer to the list of [Basic Kit
+components](#blockstream-satellite-basic-kit). Alternatively, you can find
+detailed information in this guide to put together an affordable SDR receiver
+with just under $100.
 
 ### Satellite Kit Comparison
 
 The following table summarizes the different features offered by each of the
 satellite receiver options:
 
-|                                       | SDR                | [Basic USB Kit](https://store.blockstream.com/product/blockstream-satellite-basic-kit/)      | [Pro Ethernet Kit](https://store.blockstream.com/product/blockstream-satellite-pro-kit/)   | [Satellite Base Station](https://store.blockstream.com/product-category/satellite_kits/) |
+
+|                                       | SDR                | Basic Kit          | [Pro Kit](https://store.blockstream.com/product/blockstream-satellite-pro-kit/) | [Base Station](https://store.blockstream.com/product/blockstream-satellite-base-station/) |
 |---------------------------------------|:------------------:|:------------------:|:------------------:|:------------------:|
 | Blockstream Kit Available             |                    | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
 | USB Interface                         | :heavy_check_mark: | :heavy_check_mark: |                    |                    |
@@ -108,10 +122,6 @@ multiple hosts simultaneously over the local network.
 Instead of purchasing a satellite kit, you can buy the individual components on
 your own. The elements of each kit are summarized in this section.
 
-As mentioned earlier, note the Basic and Pro Kits do not include the antenna nor
-the required coaxial cables.  Please refer to the requirements for
-[antennas](#satellite-antenna) and [coaxial cables](#coaxial-cables).
-
 If you have decided to buy the satellite kit components on your own, you can
 proceed to the [receiver setup](receiver.md) once you collect them. Otherwise,
 if you would still like to learn more about hardware requirements or search for
@@ -120,7 +130,8 @@ refer to the [DIY hardware requirements](#diy-hardware-requirements).
 
 ### Blockstream Satellite Basic Kit
 
-Available on [Blockstream Store](https://store.blockstream.com/product/blockstream-satellite-basic-kit/).
+This kit is no longer available on the Blockstream Store. It has been replaced
+by the [Satellite Base Station](#blockstream-satellite-base-station).
 
 Components:
 
@@ -164,6 +175,10 @@ Components:
 > C1-PLL LNB or similar, as well as the optional CS1 Conical Scalar Kit or
 > similar if using an offset dish. Otherwise (in all other regions), you can
 > purchase the GEOSATpro UL1PLL Universal LNB or similar.
+
+The above list does not include the antenna nor the required coaxial cables.
+Please refer to the requirements for [antennas](#satellite-antenna) and [coaxial
+cables](#coaxial-cables).
 
 ### Blockstream Satellite Pro Kit
 
@@ -216,10 +231,14 @@ Components:
 > similar if using an offset dish. Otherwise (in all other regions), you can
 > purchase the GEOSATpro UL1PLL Universal LNB or similar.
 
+Note the kit does not include the antenna nor the required coaxial cables.
+Please refer to the requirements for [antennas](#satellite-antenna) and [coaxial
+cables](#coaxial-cables).
+
 ### Blockstream Satellite Base Station
 
 Available on [Blockstream
-Store](https://store.blockstream.com/product-category/satellite_kits/).
+Store](https://store.blockstream.com/product/blockstream-satellite-base-station/).
 
 Components:
 
@@ -230,9 +249,9 @@ Components:
 ## DIY Hardware Requirements
 
 This section explains the requirements to assemble a satellite receiver setup
-entirely on your own, including the DIY-only SDR receiver option. Nevertheless,
-note this process can be time-consuming. If you prefer a faster solution, check
-out the [Satellite Kits](#satellite-kits).
+entirely on your own. Nevertheless, note this process can be time-consuming. If
+you prefer a faster solution, check out the available [Satellite
+Kits](#satellite-kits).
 
 ### Supported Receiver Options
 
@@ -274,7 +293,7 @@ The receiver options are summarized below:
 - **Sat-IP Receiver**: this is another hardware-based and standalone receiver
   option. The difference is that it is based on an all-in-one antenna with a
   built-in DVB-S2 receiver and integrated LNB (see the [Satellite Base
-  Station](https://store.blockstream.com/product-category/satellite_kits/)). It
+  Station](https://store.blockstream.com/product/blockstream-satellite-base-station/)). It
   is referred to as a Sat-IP receiver because it runs a [Sat-IP
   server](https://en.wikipedia.org/wiki/Sat-IP), to which your host will connect
   as a client. Overall, this option offers the easiest configuration and the
@@ -285,6 +304,12 @@ The receiver options are summarized below:
 For further insights, refer to the [satellite receiver
 comparison](#satellite-kit-comparison) table presented earlier.
 
+Once you pick your preferred receiver option, you should gather all of its
+required components. The following section explains the [common
+elements](#common-required-components) required for all types of
+receivers. Then, the subsequent section covers the [specific
+parts](#setup-specific-components) for each receiver option.
+
 ### Common Required Components
 
 In addition to the DVB-S2 receiver, you will need an antenna and a low-noise
@@ -293,7 +318,7 @@ need cables to connect them to each other.
 
 The antenna and LNB components are required in all setups other than the
 all-in-one [Satellite Base
-Station](https://store.blockstream.com/product-category/satellite_kits/). The
+Station](https://store.blockstream.com/product/blockstream-satellite-base-station/). The
 latter, in contrast, consists of an antenna with an integrated receiver and LNB,
 all in one device.
 

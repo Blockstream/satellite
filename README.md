@@ -40,16 +40,18 @@ below:
 | **Setup**                        | Kit Available                                                                             | Budget          | Performance/Reliability | CPU Usage  | Form Factor | Dual Satellite*          | C-band Compatible | 
 |----------------------------------|-------------------------------------------------------------------------------------------|-----------------|-------------------------|------------|-------------|--------------------------|------------------------|
 | **Software-defined Radio (SDR)** | :heavy_multiplication_x:                                                                  | Most Affordable | Limited                 | High       | USB Dongle  | :heavy_multiplication_x: | :heavy_check_mark:                    |
-| **Linux USB Receiver**           | [Basic Kit](https://store.blockstream.com/product/blockstream-satellite-basic-kit/)       | Moderate        | Excellent               | Low        | USB Device  | :heavy_multiplication_x: | :heavy_check_mark:                    |
+| **Linux USB Receiver**           | :heavy_multiplication_x:                                                                  | Moderate        | Excellent               | Low        | USB Device  | :heavy_multiplication_x: | :heavy_check_mark:                    |
 | **Standalone Receiver**          | [Pro Kit](https://store.blockstream.com/product/blockstream-satellite-pro-kit/)           | Higher          | Excellent               | None       | Standalone  | :heavy_check_mark:       | :heavy_check_mark:                    |
-| **Sat-IP Receiver**              | [Satellite Base Station](https://store.blockstream.com/product-category/satellite_kits/)  | Moderate        | Excellent               | None       | All-in-one  | :heavy_multiplication_x: | :heavy_multiplication_x:                     |
+| **Sat-IP Receiver**              | [Satellite Base Station](https://store.blockstream.com/product/blockstream-satellite-base-station/)  | Moderate        | Excellent               | None       | All-in-one  | :heavy_multiplication_x: | :heavy_multiplication_x:                     |
 
 <sup>*</sup> Specific to locations with overlapping coverage from two satellites.
 
 The [Satellite Base
-Station](https://store.blockstream.com/product-category/satellite_kits/) is the
-only all-in-one hardware option (an antenna with an integrated receiver and
-LNB). However, note it only works in [Ku
+Station](https://store.blockstream.com/product/blockstream-satellite-base-station/) Sat-IP
+receiver is the only all-in-one hardware option (an antenna with an integrated
+receiver and LNB). Hence, it is our go-to receiver choice, with a minimalist
+design, simplified setup, and sufficient performance for most Bitcoin users'
+needs. However, note it only works in [Ku
 band](doc/frequency.md#signal-bands). That is, it does not work with the Telstar
 18V C band satellite covering the Asia-Pacific region.
 
@@ -90,6 +92,7 @@ sudo pip3 install blocksat-cli
 ```
 
 > NOTE:
+>
 > 1. The CLI requires Python 3.
 > 2. Some blocksat-cli commands require root access, so it is preferable to run
 > the installation command using `sudo`.

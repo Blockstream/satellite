@@ -2,11 +2,11 @@
 
 The [Sat-IP](https://en.wikipedia.org/wiki/Sat-IP) setup relies on the
 [Blockstream Satellite Base
-Station](https://store.blockstream.com/product-category/satellite_kits/), an
-all-in-one flat-panel antenna with an integrated DVB-S2 receiver and LNB. This
-device receives the satellite signal and outputs IP packets to one or more
-[Sat-IP clients](https://en.wikipedia.org/wiki/Sat-IP) listening to it in the
-local network. This guide explains how you can connect to the base station
+Station](https://store.blockstream.com/product/blockstream-satellite-base-station/),
+an all-in-one flat-panel antenna with an integrated DVB-S2 receiver and
+LNB. This device receives the satellite signal and outputs IP packets to one or
+more [Sat-IP clients](https://en.wikipedia.org/wiki/Sat-IP) listening to it in
+the local network. This guide explains how you can connect to the base station
 device to receive the Blockstream Satellite traffic.
 
 <!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-refresh-toc -->

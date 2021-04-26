@@ -109,9 +109,7 @@ the antenna and one to monitor the computer.
 To start, make sure that your receiver is running. Depending on your type of
 receiver, this step involves one of the following commands:
 
-- For the TBS 5927 USB ([Basic
-Kit](https://store.blockstream.com/product/blockstream-satellite-basic-kit/))
-receiver: `blocksat-cli usb launch`.
+- For the TBS 5927 USB receiver: `blocksat-cli usb launch`.
 
 - For the Novra S400 Standalone ([Pro
 Kit](https://store.blockstream.com/product/blockstream-satellite-pro-kit/))
@@ -119,7 +117,7 @@ receiver: `blocksat-cli standalone monitor` (see the [S400's
 instructions](s400.md#monitoring)).
 
 - For the Sat-IP receiver ([Satellite Base
-  Station](https://store.blockstream.com/product-category/satellite_kits/)):
+  Station](https://store.blockstream.com/product/blockstream-satellite-base-station/)):
   `blocksat-cli sat-ip`.
 
 - For the SDR receiver: `blocksat-cli sdr`.
