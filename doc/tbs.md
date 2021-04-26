@@ -128,8 +128,7 @@ yet, refer to the [antenna alignment guide](antenna-pointing.md).
 ### Docker
 
 A Docker image is available for running the Linux USB receiver host on a
-container. Please refer to the instructions in the [Docker
-guide](../docker/README.md).
+container. Please refer to the instructions in the [Docker guide](docker.md).
 
 ### Useful Resources
 

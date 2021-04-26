@@ -139,7 +139,7 @@ following the detailed user guide below.
   - [Quick Reference](doc/quick-reference.md)
   - [Dual-Satellite Reception](doc/dual-satellite.md)
   - [Satellite API](doc/api.md)
-  - [Running on Docker](docker/README.md)
+  - [Running on Docker](doc/docker.md)
 
 ## Support
 

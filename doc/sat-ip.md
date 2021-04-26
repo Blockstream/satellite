@@ -86,7 +86,7 @@ blocksat-cli deps update
 ### Docker
 
 A Docker image is available for running the Sat-IP client on a container. Please
-refer to the instructions on the [Docker guide](../docker/README.md).
+refer to the instructions on the [Docker guide](docker.md).
 
 ### Compilation from Source
 

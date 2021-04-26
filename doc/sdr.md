@@ -112,7 +112,7 @@ blocksat-cli deps update
 ### Docker
 
 A Docker image is available for running the SDR host on a container. Please
-refer to the instructions in the [Docker guide](../docker/README.md).
+refer to the instructions in the [Docker guide](docker.md).
 
 ### Manual Installation of SDR Software
 
