@@ -123,11 +123,12 @@ from. The option is described as follows:
 
 ```
  -udpmulticast=<if>,<dst_ip>:<port>,<src_ip>,<trusted>[,<label>]
-       Listen to multicast-addressed UDP messages sent by <src_ip> towards
-       <dst_ip>:<port> using interface <if>. Set <trusted> to 1 if
-       sender is a trusted node. An optional <label> may be defined for
-       the multicast group in order to facilitate inspection of logs.
 ```
+
+> Listen to multicast-addressed UDP messages sent by <src_ip> towards
+> <dst_ip>:<port> using interface <if>. Set <trusted> to 1 if sender is a
+> trusted node. An optional <label> may be defined for the multicast group in
+> order to facilitate inspection of logs.
 
 Here is an example:
 

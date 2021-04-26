@@ -37,7 +37,7 @@ There are four supported setup options with varying combinations of budget,
 performance, CPU usage, form factor, and compatibility. They are summarized
 below:
 
-| **Setup**                        | Kit Available                                                                             | Budget          | Performance/Reliability | CPU Usage  | Form Factor | Dual Satellite*          | C-band Compatible | 
+| **Setup**                        | Kit Available                                                                             | Budget          | Performance/Reliability | CPU Usage  | Form Factor | Dual Satellite<sup>*</sup> | C-band Compatible |
 |----------------------------------|-------------------------------------------------------------------------------------------|-----------------|-------------------------|------------|-------------|--------------------------|------------------------|
 | **Software-defined Radio (SDR)** | :heavy_multiplication_x:                                                                  | Most Affordable | Limited                 | High       | USB Dongle  | :heavy_multiplication_x: | :heavy_check_mark:                    |
 | **Linux USB Receiver**           | :heavy_multiplication_x:                                                                  | Moderate        | Excellent               | Low        | USB Device  | :heavy_multiplication_x: | :heavy_check_mark:                    |

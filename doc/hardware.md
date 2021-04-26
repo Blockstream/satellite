@@ -91,19 +91,18 @@ with just under $100.
 The following table summarizes the different features offered by each of the
 satellite receiver options:
 
-
 |                                       | SDR                | Basic Kit          | [Pro Kit](https://store.blockstream.com/product/blockstream-satellite-pro-kit/) | [Base Station](https://store.blockstream.com/product/blockstream-satellite-base-station/) |
 |---------------------------------------|:------------------:|:------------------:|:------------------:|:------------------:|
 | Blockstream Kit Available             |                    | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
 | USB Interface                         | :heavy_check_mark: | :heavy_check_mark: |                    |                    |
 | Ethernet Interface                    |                    |                    | :heavy_check_mark: | :heavy_check_mark: |
-| External LNB Power Supply Required    | :heavy_check_mark: |                    |                    |                    |
+| Requires LNB Power Supply             | :heavy_check_mark: |                    |                    |                    |
 | Support for Universal LNB<sup>1</sup> |                    | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
 | Dual-Satellite Capable<sup>2</sup>    |                    |                    | :heavy_check_mark: |                    |
 | CPU Utilization                       | High               | Low                | None               | None               |
 | Multiple Host Connections<sup>3</sup> |                    |                    | :heavy_check_mark: | :heavy_check_mark: |
 | Optional Rack Mountable               |                    |                    | :heavy_check_mark: |                    |
-| Compatible with C-band (Telstar 18V)  | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |                    |
+| Compatible with C-band                | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |                    |
 
 <sup>1</sup> Support means that the interface provides a 22 kHz signal for
 switching the Universal LNB between Ku low and Ku high bands. This feature is

@@ -416,7 +416,8 @@ command with the invoice number. For example, you can use the
 to pay the invoice automatically as follows:
 
 ```
-blocksat-cli api send -f [file] --bid [bid] --invoice-exec "lightning-cli pay {}"
+blocksat-cli api send -f [file] --bid [bid] \
+    --invoice-exec "lightning-cli pay {}"
 ```
 
 This command will send the transmission order to the server directly with the
