@@ -134,39 +134,14 @@ by the [Satellite Base Station](#blockstream-satellite-base-station).
 
 Components:
 
-- TBS 5927 DVB-S2 Tuner
-- GEOSATpro UL1PLL Universal Ku Band PLL LNB
-    - Phase-locked loop design.
-    - Single Output Ku LNBF.
-    - Input frequency range: 10.7 - 12.75 GHz.
-    - LO frequency: 9.75/10.6 GHz.
-    - 0.5 dB Noise Figure.
-    - 60 dB conversion gain.
-    - LO stability: +/- 300 kHz.
-    - F/D Ratio: 0.5 - 0.6.
-- Titanium C1-PLL C Band PLL LNB
-    - Phase-locked loop design.
-    - Input frequency range:  3.7 - 4.2 GHz.
-    - 15°K noise temperature.
-    - 65 dB conversion gain.
-    - LO stability: +/- 50 kHz.
-    - F/D Ratio: 0.32 - 0.44 with the flat scalar; 0.5 - 0.8 with the conical
-      scalar.
-- Titanium CS1 Conical Scalar Kit
-    - Provides optimal illumination for [offset
-      dishes](https://en.wikipedia.org/wiki/Offset_dish_antenna).
-- Ku Band LNB Mounting Bracket
-    - Bracket to support the Universal Ku Band PLL LNB.
-    - Compatible with any 18" DTV dish, Dishnetwork Dish, Super Dish, and 33",
-      36", or 39" FTA Dishes.
-    - Includes rotation and vertical height adjustment scales.
-- C Band LNB Mounting Bracket
-    - Universal poly 50 - 68mm feed horn clamp for mounting on many
-      brands/models of offset dishes. Options for bottom or side mounting holes
-      are provided for attachment to the many varied feed support arm designs.
-- 32 cm flat coax jumper
-    - Flat, bendable flat coaxial TV extension cable used to pass through window
-      and door frames.
+- TBS 5927 DVB-S2 Tuner.
+- GEOSATpro UL1PLL Universal Ku Band PLL LNB.
+- Titanium C1-PLL C Band PLL LNB.
+- Titanium CS1 Conical Scalar Kit.
+- Ku Band LNB mounting bracket.
+- C Band LNB mounting bracket.
+- 32 cm flat, bendable flat coaxial TV extension cable used to pass through
+  window and door frames.
 
 > Note: the kit includes two LNBs so that it works in C and Ku band. You can
 > purchase only the LNB that you need in your location. If you are in a C band
@@ -185,43 +160,14 @@ Available on [Blockstream Store](https://store.blockstream.com/product/blockstre
 
 Components:
 
-- Novra S400 Professional DVB-S2 Receiver
-    - Dual-satellite capable.
-    - 2 L-band input connectors (F-type and 75 ohms).
-    - 1 Ethernet GbE RJ-45 LAN interface for data output.
-    - 1 Ethernet 100Base-T interface for monitor/control.
-- GEOSATpro UL1PLL Universal Ku Band PLL LNB
-    - Phase-locked loop design.
-    - Single Output Ku LNBF.
-    - Input frequency range: 10.7 - 12.75 GHz.
-    - LO frequency: 9.75/10.6 GHz.
-    - 0.5 dB Noise Figure.
-    - 60 dB conversion gain.
-    - LO stability: +/- 300 kHz.
-    - F/D Ratio: 0.5 - 0.6.
-- Titanium C1-PLL C Band PLL LNB
-    - Phase-locked loop design.
-    - Input frequency range:  3.7 - 4.2 GHz.
-    - 15°K noise temperature.
-    - 65 dB conversion gain.
-    - LO stability: +/- 50 kHz.
-    - F/D Ratio: 0.32 - 0.44 with the flat scalar; 0.5 - 0.8 with the conical
-      scalar.
-- Titanium CS1 Conical Scalar Kit
-    - Provides optimal illumination for [offset
-      dishes](https://en.wikipedia.org/wiki/Offset_dish_antenna).
-- Ku Band LNB Mounting Bracket
-    - Bracket to support the Universal Ku Band PLL LNB.
-    - Compatible with any 18" DTV dish, Dishnetwork Dish, Super Dish, and 33",
-      36", or 39" FTA Dishes.
-    - Includes rotation and vertical height adjustment scales.
-- C Band LNB Mounting Bracket
-    - Universal poly 50 - 68mm feed horn clamp for mounting on many
-      brands/models of offset dishes. Options for bottom or side mounting holes
-      are provided for attachment to the many varied feed support arm designs.
-- 32 cm flat coax jumper
-    - Flat, bendable flat coaxial TV extension cable used to pass through window
-      and door frames.
+- Novra S400 Professional DVB-S2 Receiver.
+- GEOSATpro UL1PLL Universal Ku Band PLL LNB.
+- Titanium C1-PLL C Band PLL LNB.
+- Titanium CS1 Conical Scalar Kit.
+- Ku Band LNB mounting bracket.
+- C Band LNB mounting bracket.
+- 32 cm flat, bendable flat coaxial TV extension cable used to pass through
+  window and door frames.
 
 > Note: the kit includes two LNBs so that it works in C and Ku band. You can
 > purchase only the LNB that you need in your location. If you are in a C band
