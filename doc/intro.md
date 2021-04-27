@@ -3,11 +3,11 @@
 The Blockstream Satellite network broadcasts the Bitcoin blockchain using the
 [second-generation Digital Video Broadcasting Satellite (DVB-S2)
 standard](https://en.wikipedia.org/wiki/DVB-S2). To receive this signal, you
-will need a DVB-S2 receiver, for which there are a couple of options. The
-receiver output will be a data stream that you will feed to a host running the
-[Bitcoin Satellite](https://github.com/Blockstream/bitcoinsatellite/)
-application. This application, in turn, will decode the blocks received over
-satellite and keep the blockchain in sync.
+need a DVB-S2 receiver, for which there are a couple of options. The receiver
+outputs a data stream that can be fed to a host running the [Bitcoin
+Satellite](https://github.com/Blockstream/bitcoinsatellite/) application. This
+application, in turn, decodes the blocks received over satellite and keeps the
+blockchain in sync.
 
 Find out if your location has coverage by looking at our [Coverage
    Map](https://blockstream.com/satellite/#satellite_network-coverage).
