@@ -1,4 +1,4 @@
-# TBS5927 Professional DVB-S2 TV Tuner USB
+# TBS5927 Receiver
 
 The TBS 5927 is a USB receiver, which receives a satellite signal and outputs
 data to the host over USB. The host, in turn, is responsible for configuring the

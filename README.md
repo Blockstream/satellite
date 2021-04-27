@@ -131,8 +131,8 @@ following the detailed user guide below.
 - Receiver Setup:
     - [Novra S400 Standalone Receiver](doc/s400.md)
     - [TBS 5927 Linux USB Receiver](doc/tbs.md)
-    - [SDR Receiver](doc/sdr.md)
-    - [Blockstream Base Station Sat-IP Receiver](doc/sat-ip.md)
+    - [Satellite Base Station Sat-IP Receiver](doc/sat-ip.md)
+	- [SDR Receiver](doc/sdr.md)
 - [Antenna Pointing](doc/antenna-pointing.md)
 - [Bitcoin Satellite](doc/bitcoin.md)
 - Further Information

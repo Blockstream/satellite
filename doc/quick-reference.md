@@ -1,4 +1,4 @@
-# Quick Reference
+# Quick Reference Guide
 
 This page contains a quick reference guide for the Blockstream Satellite
 receiver setup and its general usage. Please refer to the [main
