@@ -58,6 +58,54 @@ def convert_footnotes(text, doc):
     return "\n".join(lines)
 
 
+def fix_links(concat_text, docs, absent_docs):
+    """Change document links to anchor links on the concatenated text
+
+    The original Markdown docs are linked to each other based on file
+    names. However, once they are concatenated, the original file links do not
+    work anymore. This function fixes the problem by changing the file links
+    into the corresponding in-document anchor links.
+
+    The other problem is that not all markdown docs are included on the
+    compiled pdf version. This function removes links to the docs are not
+    present in the concatenated text.
+
+    """
+    # Find out the title heading of each document
+    title_map = {}
+    for doc in docs:
+        with open(doc) as fd:
+            text = fd.read()
+
+        first_line = text.splitlines()[0]
+
+        assert (first_line[:2] == "# ")
+
+        # Convert to the corresponding markdown anchor link
+        title_map[doc] = first_line[2:].lower().replace(" ", "-")
+
+    # Replace all document links with the corresponding anchor link
+    for doc in docs:
+        # Replace direct links
+        original_link = "({})".format(doc)
+        new_link = "(#{})".format(title_map[doc])
+        concat_text = concat_text.replace(original_link, new_link)
+
+        # Fix links pointing to a particular subsection
+        concat_text = concat_text.replace("({}#".format(doc), "(#")
+
+    # Replace links to absent docs
+    lines = concat_text.splitlines()
+    for doc in absent_docs:
+        original_link = "({})".format(doc)
+        for i, line in enumerate(lines):
+            if original_link in line:
+                match = re.search(r"\[(.*?)\]\(" + doc + r"\)", line)
+                lines[i] = line.replace(match.group(0), match.group(1))
+
+    return "\n".join(lines)
+
+
 def main():
     docs = [
         "intro.md", "frequency.md", "hardware.md", "s400.md", "tbs.md",
@@ -84,7 +132,8 @@ def main():
         text = convert_footnotes(text, doc)
 
         # Make sure there are line breaks between documents so that they are
-        # translated into LaTeX sections
+        # translated into LaTeX sections. Also, add some anchor links to force
+        # links between documents once they are concatenated.
         concat += "\n" + text + "\n"
 
     # Fix some strings
@@ -92,6 +141,16 @@ def main():
     concat = concat.replace(":heavy_multiplication_x:", "No")
     concat = concat.replace("This page", "This section")
     concat = concat.replace("this page", "this section")
+    concat = concat.replace("antenna alignment guide",
+                            "antenna alignment section")
+    concat = concat.replace("Docker guide", "Docker section")
+    concat = concat.replace(
+        "this repository",
+        "[the repository](http://github.com/Blockstream/satellite)")
+
+    # Fix markdown links
+    absent_docs = ["receiver.md"]
+    concat = fix_links(concat, docs, absent_docs)
 
     today = datetime.datetime.now()
     with tempfile.NamedTemporaryFile() as fp:
