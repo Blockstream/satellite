@@ -49,7 +49,7 @@ blocksat-cli deps tbs-drivers
 ```
 
 > Note: this command requires CLI version 0.2.5 or higher. Please [upgrade
-> blocksat-cli](quick-reference.md#1-cli-installation-and-upgrade) if necessary.
+> blocksat-cli](quick-reference.md#cli-installation-and-upgrade) if necessary.
 
 Once the script completes the installation, reboot the virtual machine.
 

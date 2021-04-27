@@ -6,25 +6,25 @@ guide](README.md) for detailed explanations on all steps.
 
 <!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-refresh-toc -->
 
-- [1. CLI Installation and Upgrade](#1-cli-installation-and-upgrade)
-- [2. Common Steps](#2-common-steps)
-- [3. Receiver-specific Configuration Steps](#3-receiver-specific-configuration-steps)
+- [CLI Installation and Upgrade](#cli-installation-and-upgrade)
+- [Common Steps](#common-steps)
+- [Receiver-specific Configuration Steps](#receiver-specific-configuration-steps)
     - [Novra S400 standalone receiver](#novra-s400-standalone-receiver)
     - [TBS5927 USB receiver](#tbs5927-usb-receiver)
     - [Sat-IP receiver](#sat-ip-receiver)
     - [SDR receiver](#sdr-receiver)
-- [4. Receiver-specific Antenna Alignment Steps](#4-receiver-specific-antenna-alignment-steps)
+- [Receiver-specific Antenna Alignment Steps](#receiver-specific-antenna-alignment-steps)
     - [Novra S400 standalone receiver](#novra-s400-standalone-receiver-1)
     - [TBS5927 USB receiver](#tbs5927-usb-receiver-1)
     - [Sat-IP receiver](#sat-ip-receiver-1)
     - [SDR receiver](#sdr-receiver-1)
-- [5. Bitcoin-satellite Setup](#5-bitcoin-satellite-setup)
-- [6. Satellite API](#6-satellite-api)
+- [Bitcoin-satellite Setup](#bitcoin-satellite-setup)
+- [Satellite API](#satellite-api)
 
 <!-- markdown-toc end -->
 
 
-## 1. CLI Installation and Upgrade
+## CLI Installation and Upgrade
 
 Install the command-line interface (CLI):
 
@@ -44,7 +44,7 @@ To check your current version, run:
 blocksat-cli -v
 ```
 
-## 2. Common Steps
+## Common Steps
 
 These are the commands that are applicable to all the supported types of
 receivers.
@@ -73,7 +73,7 @@ Get instructions:
 blocksat-cli instructions
 ```
 
-## 3. Receiver-specific Configuration Steps
+## Receiver-specific Configuration Steps
 
 ### Novra S400 standalone receiver
 
@@ -119,7 +119,7 @@ Run the SDR receiver:
 blocksat-cli sdr
 ```
 
-## 4. Receiver-specific Antenna Alignment Steps
+## Receiver-specific Antenna Alignment Steps
 
 This is the most time-consuming part of the process and has detailed guidance on
 the [antenna alignment
@@ -182,7 +182,7 @@ step.
 On the plots that open up, confirm the presence of the signal. Then, wait until
 the receiver prints `LOCKED` on the terminal.
 
-## 5. Bitcoin-satellite Setup
+## Bitcoin-satellite Setup
 
 Install bitcoin-satellite:
 ```
@@ -205,7 +205,7 @@ Run bitcoin-satellite:
 bitcoind
 ```
 
-## 6. Satellite API
+## Satellite API
 
 Configure encryption keys:
 ```

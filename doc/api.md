@@ -18,11 +18,11 @@ The `blocksat-cli` command-line interface (CLI) provides a range of commands for
 the interaction with the Satellite API. This guide clarifies these commands.
 
 > To install the CLI, please refer to [the installation
-> instructions](quick-reference.md#1-cli-installation-and-upgrade).
+> instructions](quick-reference.md#cli-installation-and-upgrade).
 
 > The API support on the CLI is available starting from version `0.3.0`. Please
 > refer to instructions regarding [how to check and upgrade your CLI
-> version](quick-reference.md#1-cli-installation-and-upgrade).
+> version](quick-reference.md#cli-installation-and-upgrade).
 
 For details regarding the RESTful API, please refer to the [Satellite API's
 repository](https://github.com/Blockstream/satellite-api).
