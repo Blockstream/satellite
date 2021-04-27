@@ -228,7 +228,8 @@ is supplying power to the LNB. Furthermore, it shows whether the S400 is
 locked. Assuming you have connected the LNB to input RF1, then the **RF1 Lock**
 indicator will be green when the unit is locked.
 
-![S400 Searching](img/s400_searching.png?raw=true "S400 Searching")
+![Novra S400 receiver searching signal](img/s400_searching.png?raw=true "Novra
+S400 receiver searching signal")
 
 If the S400 is **not** locked yet, as depicted above (RF1 Lock indicator off),
 you should [adjust the antenna
@@ -236,12 +237,14 @@ pointing](#find-the-satellite-and-lock-the-signal).
 
 Once the S400 finally locks, the *RF1 Lock* indicator looks as follows:
 
-![S400 Locked](img/s400_locked.png?raw=true "S400 Locked")
+![Novra S400 receiver locked](img/s400_locked.png?raw=true "Novra S400 receiver
+locked")
 
 You can also find signal quality and status metrics on page `Interfaces > RF1`,
 under *RF1 Detailed Status*. For example:
 
-![S400 RF Status](img/s400_rf_status.png?raw=true "S400 RF Status")
+![Novra S400 receiver's RF status](img/s400_rf_status.png?raw=true "Novra S400
+receiver's RF status")
 
 Note that the carrier-to-noise ratio (C/N) parameter relates to the SNR
 parameter that should be [optimized during the antenna
@@ -262,7 +265,8 @@ Processing") and see if you can recognize the Blockstream Satellite
 signal. Ideally, you would see a flat level spanning a frequency band (in the
 horizontal axis) of approximately 1 MHz. Here is an example:
 
-![Signal visible on Gqrx](img/gqrx-offset.png?raw=true "Signal visible on Gqrx")
+![Blockstream Satellite signal visible on Gqrx](img/gqrx-offset.png?raw=true
+"Blockstream Satellite signal visible on Gqrx")
 
 With the [recommended gqrx configuration](sdr.md#configuration), gqrx should be
 configured to the center frequency of the signal band (in this example, of
@@ -273,7 +277,8 @@ a frequency offset of -300 kHz (to the left relative to the nominal center). If
 gqrx's center frequency is re-configured to 12066.6 MHz, then we can see the 1
 MHz band well centered, like so:
 
-![Signal centered on Gqrx](img/gqrx-centered.png?raw=true "Signal centered on Gqrx")
+![Blockstream Satellite signal centered on Gqrx](img/gqrx-centered.png?raw=true
+"Blockstream Satellite signal centered on Gqrx")
 
 If you cannot see the signal on gqrx, you should try to make adjustments to the
 antenna pointing, as [described
@@ -315,13 +320,16 @@ option `-g`, like so:
 blocksat-cli sdr -g [gain]
 ```
 
-![Pre-processed IQ](img/leandvb-pre-processed-iq.png?raw=true "Pre-processed IQ")
+![Pre-processed IQ samples](img/leandvb-pre-processed-iq.png?raw=true
+"Pre-processed IQ samples")
 
 The default gain is 40, and you can then experiment with lower values.
 
 The IQ points should form a more compact cloud of points, such as the one below:
 
-![Pre-processed IQ w/ lower Rx gain](img/leandvb-pre-processed-iq2.png?raw=true "Pre-processed IQ w/ lower Rx gain")
+![Pre-processed IQ with lower Rx
+gain](img/leandvb-pre-processed-iq2.png?raw=true "Pre-processed IQ samples with
+lower Rx gain")
 
 More information is available in [Section 9.2 of the leandvb application's
 user guide](http://www.pabr.org/radio/leandvb/leandvb.en.html).
@@ -331,7 +339,9 @@ central band in red lines. In the example that follows, the signal presents the
 frequency offset of roughly -300 kHz that we already knew about from our
 observation on gqrx:
 
-![Leandvb spectrum w/ offset signal](img/leandvb-spectrum-offset.png?raw=true "Leandvb spectrum w/ offset signal")
+![Leandvb's spectrum plot showing offset
+signal](img/leandvb-spectrum-offset.png?raw=true "Leandvb's spectrum plot
+showing offset signal")
 
 > NOTE: each LNB introduces a unique frequency offset, which also varies over
 > time. The above value of -300 kHz was specific to the example setup. Your
@@ -347,12 +357,15 @@ where `freq_offset` represents the offset in kHz that you want to correct.
 
 With that, the preprocessed spectrum plot should be centered, as follows:
 
-![Leandvb spectrum w/ centered signal](img/leandvb-spectrum-centered.png?raw=true "Leandvb spectrum w/ centered signal")
+![Leandvb's spectrum plot showing centered
+signal](img/leandvb-spectrum-centered.png?raw=true "Leandvb's spectrum plot
+showing centered signal")
 
 At this point, if the antenna pointing is already reasonably good, you might see
 the "PLS cstln" plot showing four visible clouds:
 
-![PLS symbols](img/leandvb-pls-syms.png?raw=true "PLS symbols")
+![Physical layer signaling (PLS) symbols](img/leandvb-pls-syms.png?raw=true
+"Physical layer signaling (PLS) symbols")
 
 This plot indicates that the receiver application is locked to the Blockstream
 Satellite signal. Note that the more compact the four clouds of points are in

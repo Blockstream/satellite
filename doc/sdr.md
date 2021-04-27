@@ -23,7 +23,7 @@
 
 The SDR setup is connected as follows:
 
-![SDR Connections](img/sdr_connections.png?raw=true "SDR Connections")
+![SDR connections](img/sdr_connections.png?raw=true "SDR connections")
 
 - Connect the RTL-SDR USB dongle to your host PC.
 - Connect the **non-powered** port of the power supply (labeled as “Signal to

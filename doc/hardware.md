@@ -518,7 +518,8 @@ is the port that should be connected to the SDR interface. The **powered** port,
 in turn, is labeled "Signal to SWM." This is the port that should be connected
 to the LNB.
 
-![SDR Connections](img/sdr_connections.png?raw=true "SDR Connections")
+![SDR receiver connections](img/sdr_connections.png?raw=true "SDR receiver
+connections")
 
 **IMPORTANT**: Do **NOT** connect the powered port of the LNB power supply to
 the SDR interface. Permanent damage may occur to your SDR and/or your computer.
@@ -557,7 +558,8 @@ connects to the Linux PC via a USB2.0 connection. The LNB, in turn, connects
 directly to the *LNB IN* interface of the TBS5927. The TBS5927 package includes
 both the USB cable and a power supply for the receiver.
 
-![USB Connections](img/usb_connections.png?raw=true "USB Connections")
+![Linux USB receiver connections](img/usb_connections.png?raw=true "Linux USB
+receiver connections")
 
 > NOTE: although the TBS5927 receiver offers Windows support, we currently do
 > not support Windows as an operating system for a Blockstream Satellite setup.
@@ -570,7 +572,8 @@ supported is the [Novra S400 PRO DVB satellite
 Receiver](https://novra.com/product/s400-pro-dvb-satellite-receiver). Other than
 this receiver, you only need an Ethernet Cable.
 
-![Standalone Connections](img/standalone_connections.png?raw=true "Standalone Connections")
+![Standalone receiver connections](img/standalone_connections.png?raw=true
+"Standalone receiver connections")
 
 #### Sat-IP Receiver Setup
 

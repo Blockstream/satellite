@@ -12,7 +12,7 @@ Lightning](https://github.com/ElementsProject/lightning), the API server sends
 the message to the Blockstream Satellite Teleport (ground station). From there,
 the message is broadcast globally through the Blockstream Satellite network.
 
-![Blockstream Satellite API Architecture](../doc/img/api_architecture.png?raw=true "Blockstream Satellite API Architecture")
+![Blockstream Satellite API architecture](../doc/img/api_architecture.png?raw=true "Blockstream Satellite API architecture")
 
 The `blocksat-cli` command-line interface (CLI) provides a range of commands for
 the interaction with the Satellite API. This guide clarifies these commands.

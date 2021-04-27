@@ -28,7 +28,7 @@ for driving the TBS 5927.
 
 The TBS 5927 should be connected as follows:
 
-![TBS5927 Connections](img/usb_connections.png?raw=true "TBS5927 Connections")
+![TBS5927 connections](img/usb_connections.png?raw=true "TBS5927 connections")
 
 - Connect the LNB directly to "LNB IN" of the TBS 5927 using a coaxial cable (an
   RG6 cable is recommended).
