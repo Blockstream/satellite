@@ -118,8 +118,8 @@ file).
 
 There are several possibilities regarding the configuration of option
 `udpmulticast`. It depends on your hardware setup (for instance, your [receiver
-type](hardware.md#receiver-options)) and the satellite that you are receiving
-from. The option is described as follows:
+type](hardware.md#supported-receiver-options)) and the satellite that you are
+receiving from. The option is described as follows:
 
 ```
  -udpmulticast=<if>,<dst_ip>:<port>,<src_ip>,<trusted>[,<label>]

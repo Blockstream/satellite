@@ -7,10 +7,10 @@ messages globally using the Blockstream Satellite network.
 As illustrated in the diagram below, the process starts with a sender
 application, which requests the transmission of a particular file or text
 message. This transmission order gets queued up in the API server. Once the
-order is paid with [Bitcoin
-Lightning](https://github.com/ElementsProject/lightning), the API server sends
-the message to the Blockstream Satellite Teleport (ground station). From there,
-the message is broadcast globally through the Blockstream Satellite network.
+order is paid over the [Bitcoin Lightning
+Network](https://github.com/ElementsProject/lightning), the API server sends the
+message to the Blockstream Satellite Teleport (ground station). From there, the
+message is broadcast globally through the Blockstream Satellite network.
 
 ![Blockstream Satellite API architecture](../doc/img/api_architecture.png?raw=true "Blockstream Satellite API architecture")
 

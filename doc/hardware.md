@@ -380,7 +380,7 @@ ring to change the F/D characteristics of the LNB.
 
 Lastly, to avoid confusion, please note that *LNBF* and *LNB* often refer to the
 same thing. You can find further information [later in this
-guide](#lnb-vs-lnbf).
+guide](#lnb-vs.-lnbf).
 
 #### LNB Mounting Bracket
 
@@ -552,9 +552,9 @@ regions](frequency.md#signal-frequencies), i.e., within the areas covered by
 Telstar 11N Africa, Telstar 11N Europe, or Telstar 18V Ku.
 
 Meanwhile, in contrast to an SDR setup, both Linux USB and Standalone [receiver
-options](#receiver-options) support the generation of 22 kHz. Hence, it is
-perfectly acceptable to use a Universal LNB in any Ku band region when using one
-of these receivers.
+options](#supported-receiver-options) support the generation of 22 kHz. Hence,
+it is perfectly acceptable to use a Universal LNB in any Ku band region when
+using one of these receivers.
 
 Besides, there are workarounds to switch the sub-band of a Universal LNB even
 with an SDR setup. For instance, you can place a 22 kHz tone generator inline

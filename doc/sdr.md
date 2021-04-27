@@ -81,9 +81,9 @@ You should now be ready to launch the SDR receiver. You can run it by executing:
 blocksat-cli sdr
 ```
 
-More specifically, as thoroughly explained in the [Antenna Pointing
-Guide](antenna-pointing.md#sdr-based), you might want to run with specific gain
-and de-rotation parameters that are suitable to your setup, like so:
+More specifically, as thoroughly explained in the [antenna alignment
+section](antenna-pointing.md#sdr-based), you might want to run with specific
+gain and de-rotation parameters that are suitable to your setup, like so:
 
 ```
 blocksat-cli sdr -g [gain] --derotate [freq_offset]

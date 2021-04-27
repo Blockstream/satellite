@@ -24,8 +24,8 @@ antenna alignment.
 ## Mount the Antenna
 
 First of all, you should obtain the pointing angles required for your specific
-location using our [**Dish Alignment
-Tool**](https://blockstream.com/satellite/#satellite-resources).
+location using our [dish alignment
+tool](https://blockstream.com/satellite/#satellite_network-coverage).
 
 After entering your address or latitude/longitude, the tool will give you the
 following parameters:
@@ -62,7 +62,7 @@ angle provided by our dish alignment tool refers to true north. Also, if using
 an ordinary compass or a compass-based satellite finder, make sure to convert
 the true azimuth obtained from the dish alignment tool into the magnetic
 azimuth. You can get both the true and magnetic azimuth angles using a tool such
-as the [Dish Pointer](https://www.dishpointer.com).
+as the [Dish Pointer app](https://www.dishpointer.com).
 
 Next, install the satellite antenna according to the directions accompanying it,
 or have it done professionally. If you install it yourself, proceed with the
@@ -153,7 +153,7 @@ optimal position. Hence, at this point, you should experiment with gentle
 adjustments to the pointing angles until you can maximize the SNR. The next
 section discusses the target SNR levels.
 
-> Note: the Sat-IP receiver will print a `Signal Quality` metric instead of the
+> Note: the Sat-IP receiver will print a *Signal Quality* metric instead of the
 > SNR. Again, higher is better.
 
 Furthermore, you can check that the signal level is within acceptable

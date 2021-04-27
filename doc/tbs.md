@@ -73,8 +73,9 @@ blocksat-cli deps install
 ```
 
 > Note: this command supports the `apt`, `dnf` and `yum` package managers. For
-> other package managers, refer to the instructions [by the end of this
-> guide](#install-binary-packages-manually) and adapt package names accordingly.
+> other package managers, refer to the [manual installation
+> instructions](#install-binary-packages-manually) and adapt package names
+> accordingly.
 
 ## Configure the Host
 
@@ -166,14 +167,11 @@ sudo dnf install dvb-apps
 > If command `dnf copr enable` is not available in your system, install package
 > `dnf-plugins-core`.
 
-Alternatively, you can build `dvb-apps` from source. Refer to the [instructions
-presented further below.](#building-dvb-apps-from-source)
-
 
 ### Building dvb-apps from source
 
-If instead of installing `dvb-apps` from a binary package you desire to build it
-from source, here are the instructions:
+Alternatively, you can build `dvb-apps` from source by running the following
+commands:
 
 ```
 git clone https://github.com/Blockstream/dvb-apps

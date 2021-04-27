@@ -39,7 +39,7 @@ below:
 | SDR        | No            | Low    | Limited     | High | USB Dongle  | No        | C/Ku |
 | Linux USB  | No            | Medium | Excellent   | Low  | USB Device  | No        | C/Ku |
 | Standalone | [Yes](https://store.blockstream.com/product/blockstream-satellite-pro-kit/)      | High   | Excellent   | None | Standalone  | Yes       | C/Ku |
-| Sat-IP     | [Yes](https://store.blockstream.com/product/blockstream-satellite-base-station/) | Medium | Excellent   | None | All-in-one  | No        | C    |
+| Sat-IP     | [Yes](https://store.blockstream.com/product/blockstream-satellite-base-station/) | Medium | Excellent   | None | All-in-one  | No        | Ku   |
 
 <sup>*</sup> Specific to locations with overlapping coverage from two
 satellites.
@@ -67,8 +67,8 @@ Note that both the satellite dish and the LNB are **region-specific**. That is,
 they must attend to the frequency band of the signal covering your region.
 
 Additionally, each of the above three setups has specific complementary
-components.  Please refer to the comprehensive [hardware
-section](doc/hardware.md) to pick the appropriate components or visit [our
+components.  Please refer to the comprehensive [hardware section](hardware.md)
+to pick the appropriate components or visit [our
 store](https://store.blockstream.com/product-category/satellite_kits/).
 
 ## Software and Setup Configuration
@@ -107,13 +107,13 @@ blocksat-cli deps install
 ```
 
 After following the instructions, the next steps include the receiver/host
-configuration, the [Bitcoin Satellite](doc/bitcoin.md) installation, and the
-[antenna pointing](doc/antenna-pointing.md). Please follow the instructions in
-this guide.
+configuration, the [Bitcoin Satellite](bitcoin.md) installation, and the
+[antenna pointing](antenna-pointing.md). Please follow the instructions in this
+guide.
 
-A [quick reference guide](doc/quick-reference.md) is available if you are
-familiar with the commands and steps of the process. Otherwise, we recommend
-following this detailed user guide.
+A [quick reference guide](quick-reference.md) is available if you are familiar
+with the commands and steps of the process. Otherwise, we recommend following
+this detailed user guide.
 
 ## Support
 

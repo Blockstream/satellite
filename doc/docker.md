@@ -132,9 +132,9 @@ docker run --rm -it \
 > running inside the container will use the host's `~/.bitcoin/` directory as
 > its Bitcoin [data directory](https://en.bitcoin.it/wiki/Data_directory).
 
-Then, inside the container, run `bitcoind` [as usual](bitcoin.md#running).
+Then, inside the container, run `bitcoind` as usual.
 
-Also, if you have not [generated your `bitcoin.conf` configuration
+Also, if you have not [generated your bitcoin.conf configuration
 file](bitcoin.md#configuration) yet, you can run the following inside the
 container:
 
@@ -145,8 +145,7 @@ blocksat-cli btc
 ## Build the Docker Image Locally
 
 You can also build the Docker image locally, rather than pulling it from Docker
-Hub. To build the image, run the following from the root directory of this
-repository:
+Hub. To do so, run the following from the root directory of this repository:
 
 ```
 make docker
