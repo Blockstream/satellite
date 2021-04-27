@@ -282,29 +282,30 @@ higher. However, a larger antenna is always better. When possible, we recommend
 installing an antenna larger than the referred minimum if one is readily
 available. Antennas of 60 cm, 90 cm, and 1.2 m are readily available.
 
-Other than size, the only additional requirement is that the antenna will work
-with the frequency band that suits your coverage region. You can always use
-antennas designed for higher frequencies. For example, an antenna designed for
-Ka band will work for Ku and C bands, as it is designed for higher frequencies
-than those used by Blockstream Satellite. However, a C band antenna will not
-work in Ku band, as it is designed for lower frequencies. For further
-information regarding frequency bands, please refer to [the frequency
-guide](frequency.md).
+Other than size, the only additional requirement is that the antenna works with
+the frequency band that suits your coverage region. You can always use antennas
+designed for higher frequencies. For example, an antenna designed for Ka band
+will work for Ku and C bands, as it is designed for higher frequencies than
+those used by Blockstream Satellite. However, a C band antenna will not work in
+Ku band, as it is designed for lower frequencies. For further information
+regarding frequency bands, please refer to [the frequency guide](frequency.md).
 
 An alternative to conventional satellite dishes is a flat panel antenna, which
-is generally more compact and stylish. A recommended flat panel model is
-[available at our
-store](https://store.blockstream.com/product/flat-panel-antenna/). This antenna
-includes the LNB internally, and so there is no need to purchase an LNB (nor an
-LNB bracket) when using it. However, note that this model has limited
-compatibility. It is an excellent option for:
+is generally more compact and stylish. A recommended flat panel model is the
+Selfsat H50D, which was previously [available at our
+store](https://store.blockstream.com/product/flat-panel-antenna/) before being
+replaced by the all-in-one [Satellite Base
+Station](https://store.blockstream.com/product/blockstream-satellite-base-station/).
+The Selfsat H50D includes the LNB internally, and so there is no need to
+purchase an LNB (nor an LNB bracket) when using it. However, note that this
+model has limited compatibility. It is an excellent option for:
 
 1. **Linux USB** and **Standalone Receivers** in any Ku band region.
 2. **SDR** receivers in Ku low band regions (Telstar 11N Africa, Telstar 11N
 Europe, and Telstar 18V Ku).
 
-In contrast, the flat-panel is **not** compatible with receivers (of any type)
-in the Telstar 18V C (C Band) region. It only works in [Ku
+In contrast, the Selfsat H50D flat panel is **not** compatible with receivers
+(of any type) in the Telstar 18V C (C Band) region. It only works in [Ku
 band](frequency.md#signal-bands).
 
 The flat panel requires an extra 22 kHz generator to work with **SDR** receivers
