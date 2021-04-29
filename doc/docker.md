@@ -31,8 +31,8 @@ from a container. You can launch the `blocksat-host` image as follows:
 
 ```
 docker run --rm -it \
-	-v blocksat-cfg:/root/.blocksat/ \
-	blockstream/blocksat-host
+    -v blocksat-cfg:/root/.blocksat/ \
+    blockstream/blocksat-host
 ```
 
 Note the `blocksat-cfg` named volume is meant to provide persistent storage for
@@ -56,13 +56,13 @@ command below accordingly:
 
 ```
 docker run --rm -it \
-	--device=/dev/dvb0_0 \
-	--device=/dev/dvb0_1 \
-	--network=host \
-	--cap-add=NET_ADMIN \
-	--cap-add=SYS_ADMIN \
-	-v blocksat-cfg:/root/.blocksat/ \
-	blockstream/blocksat-host
+    --device=/dev/dvb0_0 \
+    --device=/dev/dvb0_1 \
+    --network=host \
+    --cap-add=NET_ADMIN \
+    --cap-add=SYS_ADMIN \
+    -v blocksat-cfg:/root/.blocksat/ \
+    blockstream/blocksat-host
 ```
 
 After running, configure the reverse path filters by running the following on
@@ -81,10 +81,10 @@ container. To do so, run the container as follows:
 
 ```
 docker run --rm -it \
-	--privileged \
-	-v /dev/bus/usb:/dev/bus/usb \
-	-v blocksat-cfg:/root/.blocksat/ \
-	blockstream/blocksat-host
+    --privileged \
+    -v /dev/bus/usb:/dev/bus/usb \
+    -v blocksat-cfg:/root/.blocksat/ \
+    blockstream/blocksat-host
 ```
 
 Note **privileged mode** is used to grant access to the RTL-SDR USB
@@ -110,8 +110,8 @@ launch the container using option `--network=host`, as follows:
 ```
 docker run --rm -it \
     --network=host \
-	-v blocksat-cfg:/root/.blocksat/ \
-	blockstream/blocksat-host
+    -v blocksat-cfg:/root/.blocksat/ \
+    blockstream/blocksat-host
 ```
 
 Alternatively, if you know the IP address of the Sat-IP receiver, you can
@@ -127,9 +127,9 @@ example, you can run the following:
 
 ```
 docker run --rm -it \
-	-v ~/.bitcoin/:/root/.bitcoin/ \
-	-v blocksat-cfg:/root/.blocksat/ \
-	blockstream/blocksat-host
+    -v ~/.bitcoin/:/root/.bitcoin/ \
+    -v blocksat-cfg:/root/.blocksat/ \
+    blockstream/blocksat-host
 ```
 
 > NOTE: with option `-v ~/.bitcoin/:/root/.bitcoin/`, the `bitcoind` application
