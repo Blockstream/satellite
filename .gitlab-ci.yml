@@ -106,14 +106,9 @@ pandoc:
       - web
   before_script:
     - apk add python3
-    - tlmgr update --self
-    - tlmgr install adjustbox babel-german background bidi collectbox csquotes everypage filehook footmisc footnotebackref framed fvextra letltxmacro ly1 mdframed mweights needspace pagecolor sourcecodepro sourcesanspro titling ucharcat ulem unicode-math upquote xecjk xurl zref
-    - wget https://github.com/Wandmalfarbe/pandoc-latex-template/releases/download/v2.0.0/Eisvogel-2.0.0.tar.gz
-    - mkdir -p /root/.local/share/pandoc/templates
-    - mv Eisvogel-2.0.0.tar.gz /root/.local/share/pandoc/templates/
-    - cd /root/.local/share/pandoc/templates/ && tar -xzf Eisvogel-2.0.0.tar.gz && cd -
+    - cd doc && ./pandoc_setup.sh
   script:
-    - cd doc/ && python3 pandoc.py
+    - python3 pandoc.py
   artifacts:
     paths:
       - doc/blocksat_manual.pdf
