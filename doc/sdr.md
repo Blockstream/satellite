@@ -86,9 +86,10 @@ You should now be ready to launch the SDR receiver. You can run it by executing:
 blocksat-cli sdr
 ```
 
-More specifically, as thoroughly explained in the [antenna alignment
-section](antenna-pointing.md#sdr-based), you might want to run with specific
-gain and de-rotation parameters that are suitable to your setup, like so:
+More specifically, as thoroughly explained in the
+[antenna alignment section](antenna-pointing.md#sdr-based), you might want to
+run with specific gain and de-rotation parameters that are suitable to your
+setup, like so:
 
 ```
 blocksat-cli sdr -g [gain] --derotate [freq_offset]
@@ -100,8 +101,8 @@ values.
 ## Next Steps
 
 At this point, if your antenna is already correctly pointed, you should be able
-to start receiving data on Bitcoin Satellite. Please follow the [instructions
-for Bitcoin Satellite configuration](bitcoin.md). If your antenna is not aligned
+to start receiving data on Bitcoin Satellite. Please follow the instructions for
+[Bitcoin Satellite configuration](bitcoin.md). If your antenna is not aligned
 yet, refer to the [antenna alignment guide](antenna-pointing.md).
 
 ## Further Information

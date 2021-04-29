@@ -38,9 +38,9 @@ from scratch using the satellite connection only.
 You can also send your own encrypted messages worldwide through the satellite
 network using our [Satellite API](doc/api.md) while paying for each transmission
 through the Lightning Network. If you run a Lightning node, you can also sync it
-faster through [Lightning gossip
-snapshots](doc/api.md#lightning-gossip-snapshots) sent over satellite. You can
-even [download the Bitcoin source code](doc/api.md#bitcoin-source-code-messages)
+faster through [Lightning gossip snapshots](doc/api.md#lightning-gossip-snapshots)
+sent over satellite. You can even
+[download the Bitcoin source code](doc/api.md#bitcoin-source-code-messages)
 over satellite and bootstrap the node without ever touching the internet.
 
 The remainder of this guide covers the essential steps to get you started. In
@@ -99,8 +99,8 @@ addition to the receiver:
 Note that both the satellite dish and the LNB are **region-specific**. That is,
 they must attend to the frequency band of the signal covering your
 region. Furthermore, note that other specific complementary components may be
-required, such as connectors, power supply, etc. Please refer to the [hardware
-section](doc/hardware.md) to pick the right parts or visit [our
+required, such as connectors, power supply, etc. Please refer to the
+[hardware section](doc/hardware.md) to pick the right parts or visit [our
 store](https://store.blockstream.com/product-category/satellite_kits/).
 
 ## Software and Setup Configuration

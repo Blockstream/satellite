@@ -40,13 +40,13 @@ the configurations created by `blocksat-cli`.
 
 ## USB Receiver
 
-First of all, there is an important limitation to running the [Linux USB
-receiver](tbs.md) inside a container. The USB receiver's drivers must be
-installed on the Docker host, not on the Docker container. This means that the
-referred `blockstream/blocksat-host` image does not contain the
+First of all, there is an important limitation to running the
+[Linux USB receiver](tbs.md) inside a container. The USB receiver's drivers must
+be installed on the Docker host, not on the Docker container. This means that
+the referred `blockstream/blocksat-host` image does not contain the
 drivers. Instead, you will need to install the drivers on your Docker
-host. Please refer to the driver installation instructions on the [USB receiver
-guide](tbs.md#tbs-5927-drivers).
+host. Please refer to the driver installation instructions on the
+[USB receiver guide](tbs.md#tbs-5927-drivers).
 
 After installing the drivers and connecting the TBS5927 device to your Docker
 host, you can then start the container. You will need to share the DVB network
@@ -138,9 +138,9 @@ docker run --rm -it \
 
 Then, inside the container, run `bitcoind` as usual.
 
-Also, if you have not [generated your bitcoin.conf configuration
-file](bitcoin.md#configuration) yet, you can run the following inside the
-container:
+Also, if you have not generated your `bitcoin.conf`
+[configuration file](bitcoin.md#configuration) yet, you can run the following
+inside the container:
 
 ```
 blocksat-cli btc

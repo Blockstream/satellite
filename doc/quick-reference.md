@@ -126,8 +126,7 @@ blocksat-cli sdr
 ## Receiver-specific Antenna Alignment Steps
 
 This is the most time-consuming part of the process and has detailed guidance on
-the [antenna alignment
-guide](antenna-pointing.md#find-the-satellite-and-lock-the-signal).
+the [antenna alignment guide](antenna-pointing.md#find-the-satellite-and-lock-the-signal).
 
 In summary, you will try to point your antenna until you get a signal lock on
 your receiver.

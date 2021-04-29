@@ -73,8 +73,8 @@ blocksat-cli sat-ip
 ## Next Steps
 
 At this point, if your antenna is already correctly pointed, you should be able
-to start receiving data on Bitcoin Satellite. Please follow the [instructions
-for Bitcoin Satellite configuration](bitcoin.md). If your antenna is not aligned
+to start receiving data on Bitcoin Satellite. Please follow the instructions for
+[Bitcoin Satellite configuration](bitcoin.md). If your antenna is not aligned
 yet, refer to the [antenna alignment guide](antenna-pointing.md).
 
 ## Further Information

@@ -121,9 +121,9 @@ stream when configured with option `udpmulticast` (added to the `bitcoin.conf`
 file).
 
 There are several possibilities regarding the configuration of option
-`udpmulticast`. It depends on your hardware setup (for instance, your [receiver
-type](hardware.md#supported-receiver-options)) and the satellite that you are
-receiving from. The option is described as follows:
+`udpmulticast`. It depends on your hardware setup (for instance, your
+[receiver type](hardware.md#supported-receiver-options)) and the satellite that
+you are receiving from. The option is described as follows:
 
 ```
  -udpmulticast=<if>,<dst_ip>:<port>,<src_ip>,<trusted>[,<label>]

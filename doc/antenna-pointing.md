@@ -117,8 +117,8 @@ receiver, this step involves one of the following commands:
 
 - For the Novra S400 Standalone ([Pro
 Kit](https://store.blockstream.com/product/blockstream-satellite-pro-kit/))
-receiver: `blocksat-cli standalone monitor` (see the [S400's
-instructions](s400.md#monitoring)).
+receiver: `blocksat-cli standalone monitor` (see the
+[S400's instructions](s400.md#monitoring)).
 
 - For the Sat-IP receiver ([Satellite Base
   Station](https://store.blockstream.com/product/blockstream-satellite-base-station/)):
@@ -180,8 +180,8 @@ This approach works for all types of receivers. However, there are helpful
 receiver-specific instructions for the pointing process, listed below:
 
 - **Novra S400 Standalone receiver**: you can find various receiver status
-metrics within the receiver's web interface. See [the
-instructions](#novra-s400s-user-interface).
+  metrics within the receiver's web interface. See [the
+  instructions](#novra-s400s-user-interface).
 - **SDR receiver**: with an SDR receiver, you can visualize the signal spectrum
   and point the antenna more easily. See [the SDR
   instructions](#pointing-with-an-sdr-based-receiver).
@@ -216,16 +216,16 @@ close as possible.
 ## Next Steps
 
 Well done! You are now ready to run the Bitcoin Satellite application receiving
-data via the Blockstream Satellite Network. Please refer to the [Bitcoin
-Satellite guide](bitcoin.md) for further instructions.
+data via the Blockstream Satellite Network. Please refer to the
+[Bitcoin Satellite guide](bitcoin.md) for further instructions.
 
 ## Further Information
 
 ### Novra S400's User Interface
 
-The Novra S400 receiver features a [web-based user interface
-(UI)](s400.md#s400-configuration-via-the-web-ui), which provides several
-receiver metrics.
+The Novra S400 receiver features a
+[web-based user interface (UI)](s400.md#s400-configuration-via-the-web-ui),
+which provides several receiver metrics.
 
 At the top, the web UI has an *LNB* indicator, which indicates whether the S400
 is supplying power to the LNB. Furthermore, it shows whether the S400 is
@@ -251,8 +251,8 @@ under *RF1 Detailed Status*. For example:
 receiver's RF status")
 
 Note that the carrier-to-noise ratio (C/N) parameter relates to the SNR
-parameter that should be [optimized during the antenna
-pointing](#optimize-the-snr).
+parameter that should be [optimized](#optimize-the-snr) during the antenna
+pointing.
 
 ### Pointing with an SDR-based Receiver
 
@@ -263,11 +263,11 @@ consists of two steps:
 1. Visualization using `gqrx`;
 2. Locking using the actual receiver application.
 
-In the first step, you should launch `gqrx` (check the gqrx [configuration
-instructions](sdr.md#configuration)). Then, click the start icon ("Start DSP
-Processing") and see if you can recognize the Blockstream Satellite
-signal. Ideally, you would see a flat level spanning a frequency band (in the
-horizontal axis) of approximately 1 MHz. Here is an example:
+In the first step, you should launch `gqrx` (check the gqrx
+[configuration instructions](sdr.md#configuration)). Then, click the start
+icon ("Start DSP Processing") and see if you can recognize the Blockstream
+Satellite signal. Ideally, you would see a flat level spanning a frequency band
+(in the horizontal axis) of approximately 1 MHz. Here is an example:
 
 ![Blockstream Satellite signal visible on Gqrx](img/gqrx-offset.png?raw=true
 "Blockstream Satellite signal visible on Gqrx")
@@ -490,9 +490,9 @@ Additionally, you will need to define:
 - Symbol rate: set it to "1000 kbaud" (or "1000000 baud", or "1 Mbaud",
   depending on the units adopted by your finder).
 - 22 kHz: enable only when using a Universal LNB and pointing to Galaxy 18 or
-  Eutelsat 113 (i.e., when receiving in [Ku high
-  band](frequency.md)). Otherwise, leave it disabled. See [the notes regarding
-  Universal LNBs](hardware.md#universal-lnb).
+  Eutelsat 113 (i.e., when receiving in
+  [Ku high band](frequency.md)). Otherwise, leave it disabled. See the
+  [notes regarding Universal LNBs](hardware.md#universal-lnb).
 
 After you configure the satellite finder, you will typically be presented with
 signal strength and (or) quality indicators. Try to point your antenna until you

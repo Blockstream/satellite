@@ -53,8 +53,9 @@ Next, install the drivers for the TBS 5927 by running:
 blocksat-cli deps tbs-drivers
 ```
 
-> Note: this command requires CLI version 0.2.5 or higher. Please [upgrade
-> blocksat-cli](quick-reference.md#cli-installation-and-upgrade) if necessary.
+> Note: this command requires CLI version 0.2.5 or higher. Please
+> [upgrade blocksat-cli](quick-reference.md#cli-installation-and-upgrade) if
+> necessary.
 
 Once the script completes the installation, reboot the virtual machine.
 
@@ -117,16 +118,11 @@ blocksat-cli usb launch
 > NOTE: you can run this command with a non-root user. Only the configuration
 > step (`blocksat-cli usb config`) requires root access.
 
-At this point, if your dish is already correctly pointed, you should be able to
-start receiving data on Bitcoin Satellite. Please follow the [instructions for
-Bitcoin Satellite configuration](bitcoin.md). If your antenna is not aligned
-yet, please follow the [antenna alignment guide](antenna-pointing.md).
-
 ## Next Steps
 
 At this point, if your antenna is already correctly pointed, you should be able
-to start receiving data on Bitcoin Satellite. Please follow the [instructions
-for Bitcoin Satellite configuration](bitcoin.md). If your antenna is not pointed
+to start receiving data on Bitcoin Satellite. Please follow the instructions for
+[Bitcoin Satellite configuration](bitcoin.md). If your antenna is not pointed
 yet, refer to the [antenna alignment guide](antenna-pointing.md).
 
 ## Further Information

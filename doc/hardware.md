@@ -228,16 +228,16 @@ The receiver options are summarized below:
   Linux DVB-S2 apps on the host to configure the external receiver and get the
   data from it. Overall, this option is expected to perform exceptionally and
   with negligible CPU usage. On the other hand, it can require a time-consuming
-  initial setup due to the driver installation. You can try the [driver
-  installation](tbs.md#tbs-5927-drivers) on your intended host before committing
-  to this receiver option.
+  initial setup due to the driver installation. You can try the
+  [driver installation](tbs.md#tbs-5927-drivers) on your intended host before
+  committing to this receiver option.
 
 - **Standalone Receiver**: this is also a hardware-based setup, with the
   difference that it is entirely independent of the host PC. It connects to the
   PC through the network and can potentially feed multiple PCs
   concurrently. This is also expected to be a great option in terms of
-  performance. Besides, this is the only option capable of [dual-satellite
-  reception](dual-satellite.md) using a single receiver device.
+  performance. Besides, this is the only option capable of
+  [dual-satellite reception](dual-satellite.md) using a single receiver device.
 
 - **Sat-IP Receiver**: this is another hardware-based and standalone receiver
   option. The difference is that it is based on an all-in-one antenna with a
@@ -267,9 +267,9 @@ need cables to connect them to each other.
 
 The antenna and LNB components are required in all setups other than the
 all-in-one [Satellite Base
-Station](https://store.blockstream.com/product/blockstream-satellite-base-station/). The
-latter, in contrast, consists of an antenna with an integrated receiver and LNB,
-all in one device.
+Station](https://store.blockstream.com/product/blockstream-satellite-base-station/).
+The latter, in contrast, consists of an antenna with an integrated receiver and
+LNB, all in one device.
 
 Refer to the following requirements to select the appropriate antenna, LNB, and
 cables.
@@ -279,12 +279,12 @@ cables.
 The most widely available antenna option is the regular satellite TV dish with a
 conventional parabolic reflector.
 
-Blockstream Satellite is designed to work with small dishes. In [Ku
-band](frequency.md#signal-bands), it is expected to work with antennas of only
-45 cm in diameter, while in the C band, it is designed to work with 60 cm or
-higher. However, a larger antenna is always better. When possible, we recommend
-installing an antenna larger than the referred minimum if one is readily
-available. Antennas of 60 cm, 90 cm, and 1.2 m are readily available.
+Blockstream Satellite is designed to work with small dishes. In
+[Ku band](frequency.md#signal-bands), it is expected to work with antennas of
+only 45 cm in diameter, while in the C band, it is designed to work with 60 cm
+or higher. However, a larger antenna is always better. When possible, we
+recommend installing an antenna larger than the referred minimum if one is
+readily available. Antennas of 60 cm, 90 cm, and 1.2 m are readily available.
 
 Other than size, the only additional requirement is that the antenna works with
 the frequency band that suits your coverage region. You can always use antennas
@@ -309,8 +309,8 @@ model has limited compatibility. It is an excellent option for:
 Europe, and Telstar 18V Ku).
 
 In contrast, the Selfsat H50D flat panel is **not** compatible with receivers
-(of any type) in the Telstar 18V C (C Band) region. It only works in [Ku
-band](frequency.md#signal-bands).
+(of any type) in the Telstar 18V C (C Band) region. It only works in
+[Ku band](frequency.md#signal-bands).
 
 The flat panel requires an extra 22 kHz generator to work with **SDR** receivers
 in Ku high band regions (Galaxy 18 and Eutelsat 113). This antenna includes a
@@ -339,8 +339,8 @@ coverage area. For example, if you are located in North America and covered by
 the Eutelsat 113 satellite, the downlink frequency of interest is 12066.9
 GHz. In this case, an LNB that operates from 11.7 GHz to 12.2 GHz would work. In
 contrast, an LNB that operates from 10.7 GHz to 11.7 GHz would **not** work. You
-can check the signal frequencies of each region in [the frequency
-guide](frequency.md#signal-frequencies).
+can check the signal frequencies of each region in the
+[frequency guide](frequency.md#signal-frequencies).
 
 Regarding **polarization**, an LNB with **Linear Polarization** is
 required. While most Ku band LNBs are linearly polarized, some popular satellite
@@ -443,10 +443,10 @@ below summarizes which tuner to pick for each satellite:
 | Telstar 18V C      | R820T2        |
 
 This tuner recommendation has to do with the L-band frequencies expected in each
-region, as summarized in the [frequency
-guide](frequency.md#l-band-frequencies). The E4000 tuner is recommended for the
-areas where the L-band frequency is close to the maximum tuning range of the
-R820T2 tuner (1766 MHz).
+region, as summarized in the
+[frequency guide](frequency.md#l-band-frequencies). The E4000 tuner is
+recommended for the areas where the L-band frequency is close to the maximum
+tuning range of the R820T2 tuner (1766 MHz).
 
 Hence, for example, if you are going to receive from Galaxy 18, you should get
 an RTL-SDR RTL2832U with tuner R820T2 and TCXO. In contrast, if you are going to
@@ -551,9 +551,9 @@ An important limitation applies to the SDR setup when using a Universal LNB.
 Note the SDR setup described in this guide is receiver-only. Hence, it cannot
 generate a 22 kHz tone to configure the Universal LNB. Consequently, a Universal
 LNB connected to an SDR receiver operates in Ku low band only. Thus, we
-recommend using this type of LNB only within [Ku low band
-regions](frequency.md#signal-frequencies), i.e., within the areas covered by
-Telstar 11N Africa, Telstar 11N Europe, or Telstar 18V Ku.
+recommend using this type of LNB only within
+[Ku low band regions](frequency.md#signal-frequencies), i.e., within the areas
+covered by Telstar 11N Africa, Telstar 11N Europe, or Telstar 18V Ku.
 
 Meanwhile, in contrast to an SDR setup, both Linux USB and Standalone [receiver
 options](#supported-receiver-options) support the generation of 22 kHz. Hence,
