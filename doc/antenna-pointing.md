@@ -224,8 +224,8 @@ Satellite guide](bitcoin.md) for further instructions.
 ### Novra S400's User Interface
 
 The Novra S400 receiver features a [web-based user interface
-(UI)](s400.md#s400s-web-user-interface-ui), which provides several receiver
-metrics.
+(UI)](s400.md#s400-configuration-via-the-web-ui), which provides several
+receiver metrics.
 
 At the top, the web UI has an *LNB* indicator, which indicates whether the S400
 is supplying power to the LNB. Furthermore, it shows whether the S400 is

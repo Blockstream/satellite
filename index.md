@@ -3,48 +3,73 @@ title: Home
 nav_order: 1
 ---
 
-# Overview
+# Blockstream Satellite
 
-The Blockstream Satellite network broadcasts the Bitcoin blockchain using the
-[second-generation Digital Video Broadcasting Satellite (DVB-S2)
-standard](https://en.wikipedia.org/wiki/DVB-S2). To receive this signal, you
-need a DVB-S2 receiver, for which there are a couple of options. The receiver
-outputs a data stream that can be fed to a host running the [Bitcoin
-Satellite](https://github.com/Blockstream/bitcoinsatellite/) application. This
-application, in turn, decodes the blocks received over satellite and keeps the
-blockchain in sync.
+## Overview
 
-Find out if your location has coverage by looking at our [Coverage
-   Map](https://blockstream.com/satellite/#satellite_network-coverage).
+The Blockstream Satellite network broadcasts the Bitcoin blockchain worldwide
+24/7 for free, protecting against network interruptions and providing areas
+without reliable internet connection with the opportunity to use Bitcoin. You
+can join this network by running your own Blockstream Satellite receiver
+node. This document explains how and guides you over all the hardware options,
+software components, and assembly instructions.
 
-To assemble a receiver setup, you will need to go through the following steps:
+The first step to get started is to get the required hardware. As detailed in
+this guide, there is a range of options to suit your needs. Additionally, you
+need a host computer running the [Bitcoin
+Satellite](https://github.com/Blockstream/bitcoinsatellite/) application, a fork
+of Bitcoin Core with custom capabilities to receive the Bitcoin blocks and
+transactions transmitted over satellite.
 
-1. Get the required hardware, such as the DVB-S2 receiver, the satellite
-   dish/antenna, and the low-noise block downconverter (LNB).
+More importantly, you need to be in a location with coverage and clear
+line-of-sight to the satellite in the sky. You can confirm whether your area is
+covered by looking at our [Coverage
+Map](https://blockstream.com/satellite/#satellite_network-coverage).
+
+Once you get your receiver node up and running, there is a lot that you can do
+with it. You can use it as a satellite-connected Bitcoin node offering
+redundancy and protection from internet failures to connected
+peers. Alternatively, you can run it as your primary Bitcoin full node, either
+with hybrid connectivity (internet and satellite) or satellite-connected
+only. The satellite network broadcasts new blocks and transactions, as well as
+the complete block history. Hence, you can synchronize the entire blockchain
+from scratch using the satellite connection only.
+
+You can also send your own encrypted messages worldwide through the satellite
+network using our [Satellite API](doc/api.md) while paying for each transmission
+through the Lightning Network. If you run a Lightning node, you can also sync it
+faster through [Lightning gossip
+snapshots](doc/api.md#lightning-gossip-snapshots) sent over satellite. You can
+even [download the Bitcoin source code](doc/api.md#bitcoin-source-code-messages)
+over satellite and bootstrap the node without ever touching the internet.
+
+The remainder of this guide covers the essential steps to get you started. In
+summary, you will need to:
+
+1. Get the required hardware, such as a
+   [DVB-S2](https://en.wikipedia.org/wiki/DVB-S2) receiver and a compatible
+   satellite antenna.
 2. Install all software requirements, configure the receiver, and configure the
    host.
 3. Align your satellite dish appropriately to receive the Blockstream Satellite
    signal.
-
-You can find detailed guidance for these steps in this guide.
+4. Run the Bitcoin Satellite and Satellite API applications.
 
 ## Hardware
 
-The first step to getting started with Blockstream Satellite is to gather all
-the required hardware components. Satellite Kits with all parts included are
-available at the [Blockstream
+The quickest way to get started is by purchasing a Satellite Kit on [Blockstream
 Store](https://store.blockstream.com/product-category/satellite_kits/).
 
-There are four supported setup options with varying combinations of budget,
-performance, CPU usage, form factor, and compatibility. They are summarized
-below:
+In summary, there are four supported receiver types with varying offerings in
+terms of budget, performance, CPU usage, form factor, and compatibility. They
+are compared below:
 
-| Receiver   | Kit Available | Budget | Performance | CPU  | Form Factor | Dual-Sat<sup>*</sup> | Band |
-|------------|---------------|--------|-------------|------|-------------|-----------|------|
-| SDR        | No            | Low    | Limited     | High | USB Dongle  | No        | C/Ku |
-| Linux USB  | No            | Medium | Excellent   | Low  | USB Device  | No        | C/Ku |
-| Standalone | [Yes](https://store.blockstream.com/product/blockstream-satellite-pro-kit/)      | High   | Excellent   | None | Standalone  | Yes       | C/Ku |
-| Sat-IP     | [Yes](https://store.blockstream.com/product/blockstream-satellite-base-station/) | Medium | Excellent   | None | All-in-one  | No        | Ku   |
+| Receiver   | Kit Available                                                                             | Budget | Performance | CPU  | Form Factor | Dual-Sat<sup>*</sup> | Band |
+|------------|-------------------------------------------------------------------------------------------|--------|-------------|------|-------------|----------------------|------|
+| SDR        | :heavy_multiplication_x:                                                                  | Low    | Limited     | High | USB Dongle  | No                   | C/Ku |
+| Linux USB  | :heavy_multiplication_x:                                                                  | Medium | Excellent   | Low  | USB Device  | No                   | C/Ku |
+| Standalone | [Pro Kit](https://store.blockstream.com/product/blockstream-satellite-pro-kit/)           | High   | Excellent   | None | Standalone  | Yes                  | C/Ku |
+| Sat-IP     | [Base Station](https://store.blockstream.com/product/blockstream-satellite-base-station/) | Medium | Excellent   | None | All-in-one  | No                   | Ku   |
 
 <sup>*</sup> Specific to locations with overlapping coverage from two
 satellites.
@@ -52,28 +77,30 @@ satellites.
 The [Satellite Base
 Station](https://store.blockstream.com/product/blockstream-satellite-base-station/)
 Sat-IP receiver is the only all-in-one hardware option (an antenna with an
-integrated receiver and LNB). Hence, it is our go-to receiver choice, with a
-minimalist design, simplified setup, and sufficient performance for most Bitcoin
-users' needs. However, note it only works in [Ku band](doc/frequency.md). That
-is, it does not work with the Telstar 18V C band satellite covering the
-Asia-Pacific region.
+integrated receiver and
+[LNB](https://en.wikipedia.org/wiki/Low-noise_block_downconverter)). Hence, it
+is our go-to receiver choice, with a minimalist design, simplified setup, and
+sufficient performance for most Bitcoin users' needs. However, note it has
+limited compatibility in the Asia-Pacific region, particularly in locations
+covered only by the Telstar 18V C band beam (check the [coverage
+map](https://blockstream.com/satellite/#satellite_network-coverage)). Everywhere
+else, the base station is compatible.
 
 In all other setup options, the following hardware components are required in
 addition to the receiver:
 
-| Component                | Region-Specific |
-|--------------------------|-----------------|
-| Satellite dish (antenna) | Yes             |
-| LNB                      | Yes             |
-| LNB mounting bracket     | No              |
-| Coaxial Cable            | No              |
+| Component                           | Region-Specific |
+|-------------------------------------|-----------------|
+| Satellite dish (antenna)            | Yes             |
+| Low-noise block downconverter (LNB) | Yes             |
+| LNB mounting bracket                | No              |
+| Coaxial Cable                       | No              |
 
 Note that both the satellite dish and the LNB are **region-specific**. That is,
-they must attend to the frequency band of the signal covering your region.
-
-Additionally, each of the above three setups has specific complementary
-components.  Please refer to the [hardware section](doc/hardware.md) to pick the
-appropriate components or visit [our
+they must attend to the frequency band of the signal covering your
+region. Furthermore, note that other specific complementary components may be
+required, such as connectors, power supply, etc. Please refer to the [hardware
+section](doc/hardware.md) to pick the right parts or visit [our
 store](https://store.blockstream.com/product-category/satellite_kits/).
 
 ## Software and Setup Configuration

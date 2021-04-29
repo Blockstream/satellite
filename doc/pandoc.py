@@ -4,14 +4,6 @@ import re
 import subprocess
 import tempfile
 
-abstract = """The Blockstream Satellite network broadcasts the Bitcoin blockchain
-worldwide 24/7 for free, protecting against network interruptions and providing
-areas without reliable internet connections with the opportunity to use
-Bitcoin. You can join this network by running your own Blockstream Satellite
-receiver node. This document provides detailed guidance for all the hardware
-options, software components, and instructions to assemble a satellite receive
-setup."""
-
 footnote_map = {}
 
 
@@ -196,11 +188,10 @@ def main():
             "pandoc", fp.name, "-f", "markdown", "--pdf-engine=xelatex", "-o",
             "blocksat_manual.pdf", "-V", "title=Blockstream Satellite", "-V",
             "subtitle=User Guide", "-V", "date=" + today.strftime("%B %d, %Y"),
-            "-V", "abstract=" + abstract, "-V", "colorlinks",
-            "--number-sections", "--toc", "--template", "eisvogel",
-            "--listings", "-V", "titlepage", "-V", "logo=img/logo_blks.png",
-            "-V", "table-use-row-colors", "-V", "titlepage-rule-color=3577F8",
-            "-V", "footnotes-pretty"
+            "-V", "colorlinks", "--number-sections", "--toc", "--template",
+            "eisvogel", "--listings", "-V", "titlepage", "-V",
+            "logo=img/logo_blks.png", "-V", "table-use-row-colors", "-V",
+            "titlepage-rule-color=3577F8", "-V", "footnotes-pretty"
         ])
 
 
