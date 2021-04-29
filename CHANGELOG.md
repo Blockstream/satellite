@@ -2,7 +2,7 @@
 
 ## [2.3.2]
 
-Release Date: TBD
+Release Date: 2021-04-28
 
 ### Added
 - Support for the Blockstream Satellite Base Station device and Sat-IP receivers
