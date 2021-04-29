@@ -59,37 +59,49 @@ def convert_footnotes(text, doc):
     return "\n".join(lines)
 
 
-def fix_links(concat_text, docs, absent_docs):
+def remove_yaml_front_matter(text):
+    """Remove the YAML front matter of a Markdown document"""
+    if text[0:4] == "---\n":
+        # Find where the front matter ends
+        lines = text.splitlines()
+        i_end = 1
+        while (i_end < 10):  # front matter should use less than 10 lines
+            if lines[i_end] == "---":
+                break
+            i_end += 1
+        assert (i_end < 10), "Failed to find YAML front matter closure"
+
+        # Remove also the extra line break after the front matter
+        if (lines[i_end + 1] == ""):
+            i_end += 1
+
+        text = "\n".join(lines[(i_end + 1):])
+
+    return text
+
+
+def fix_links(concat_text, docs, title_map, absent_docs):
     """Change document links to anchor links on the concatenated text
 
     The original Markdown docs are linked to each other based on file
     names. However, once they are concatenated, the original file links do not
     work anymore. This function fixes the problem by changing the file links
-    into the corresponding in-document anchor links.
+    into the corresponding in-document anchor links, based on the document's
+    title heading.
 
     The other problem is that not all markdown docs are included on the
     compiled pdf version. This function removes links to the docs are not
     present in the concatenated text.
 
     """
-    # Find out the title heading of each document
-    title_map = {}
-    for doc in docs:
-        with open(doc) as fd:
-            text = fd.read()
-
-        first_line = text.splitlines()[0]
-
-        assert (first_line[:2] == "# ")
-
-        # Convert to the corresponding markdown anchor link
-        title_map[doc] = first_line[2:].lower().replace(" ", "-")
-
     # Replace all document links with the corresponding anchor link
     for doc in docs:
+        # Convert title to the corresponding markdown anchor link
+        anchor_link = title_map[doc].lower().replace(" ", "-")
+
         # Replace direct links
         original_link = "({})".format(doc)
-        new_link = "(#{})".format(title_map[doc])
+        new_link = "(#{})".format(anchor_link)
         concat_text = concat_text.replace(original_link, new_link)
 
         # Fix links pointing to a particular subsection
@@ -109,16 +121,40 @@ def fix_links(concat_text, docs, absent_docs):
 
 def main():
     docs = [
-        "intro.md", "frequency.md", "hardware.md", "s400.md", "tbs.md",
+        "../index.md", "frequency.md", "hardware.md", "s400.md", "tbs.md",
         "sat-ip.md", "sdr.md", "antenna-pointing.md", "bitcoin.md",
         "dual-satellite.md", "api.md", "docker.md", "quick-reference.md"
     ]
+
+    title_map = {}
 
     # Concatenate docs
     concat = ''
     for doc in docs:
         with open(doc) as fd:
             text = fd.read()
+
+        # Remove YAML front matter
+        text = remove_yaml_front_matter(text)
+
+        # Keep track of page titles
+        title_line = text.splitlines()[0]
+        assert (title_line[:2] == "# ")
+        title_map[doc] = title_line[2:]
+
+        # Special case for the index page:
+        #
+        # - Remove the original Markdown title.
+        # - Change the first H2 header (overview) to an H1 title. Also, change
+        #   the cross-links to other documents by assuming they are on the same
+        #   directory level.
+        if doc == "../index.md":
+            lines = text.splitlines()
+            assert (lines[0] == "# Blockstream Satellite")
+            assert (lines[2] == "## Overview")
+            lines[2] = "# Overview"
+            text = "\n".join(lines[2:])
+            text = text.replace("doc/", "")
 
         # Remove ToC
         text = re.sub(r'<!-- markdown-toc start [\s\S]+?markdown-toc end -->',
@@ -151,7 +187,7 @@ def main():
 
     # Fix markdown links
     absent_docs = ["receiver.md"]
-    concat = fix_links(concat, docs, absent_docs)
+    concat = fix_links(concat, docs, title_map, absent_docs)
 
     today = datetime.datetime.now()
     with tempfile.NamedTemporaryFile() as fp:

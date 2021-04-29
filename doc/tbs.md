@@ -1,3 +1,8 @@
+---
+parent: Receiver Setup
+nav_order: 2
+---
+
 # TBS5927 Receiver
 
 The TBS 5927 is a USB receiver, which receives a satellite signal and outputs

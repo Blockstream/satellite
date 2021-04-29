@@ -1,3 +1,7 @@
+---
+nav_order: 8
+---
+
 # Satellite API
 
 The [Blockstream Satellite API](https://blockstream.com/satellite-api/) provides

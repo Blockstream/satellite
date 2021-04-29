@@ -1,3 +1,8 @@
+---
+parent: Receiver Setup
+nav_order: 4
+---
+
 # SDR Receiver
 
 <!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-generate-toc again -->

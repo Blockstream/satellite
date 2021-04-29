@@ -1,3 +1,8 @@
+---
+parent: Receiver Setup
+nav_order: 3
+---
+
 # Selfsat>IP22 Sat-IP Receiver
 
 The Selfsat>IP22 is an all-in-one flat-panel antenna with an integrated DVB-S2

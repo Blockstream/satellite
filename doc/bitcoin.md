@@ -1,3 +1,7 @@
+---
+nav_order: 6
+---
+
 # Bitcoin Satellite
 
 <!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-generate-toc again -->

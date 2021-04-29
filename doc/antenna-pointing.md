@@ -1,3 +1,7 @@
+---
+nav_order: 5
+---
+
 # Antenna Pointing
 
 Aligning a satellite antenna is a precise procedure. Remember that the

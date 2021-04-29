@@ -1,3 +1,7 @@
+---
+nav_order: 10
+---
+
 # Quick Reference Guide
 
 This page contains a quick reference guide for the Blockstream Satellite

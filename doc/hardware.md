@@ -1,3 +1,7 @@
+---
+nav_order: 3
+---
+
 # Hardware Guide
 
 This page explains the hardware components required to assemble a Blockstream

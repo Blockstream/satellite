@@ -1,3 +1,8 @@
+---
+title: Home
+nav_order: 1
+---
+
 # Overview
 
 The Blockstream Satellite network broadcasts the Bitcoin blockchain using the
@@ -49,9 +54,9 @@ Station](https://store.blockstream.com/product/blockstream-satellite-base-statio
 Sat-IP receiver is the only all-in-one hardware option (an antenna with an
 integrated receiver and LNB). Hence, it is our go-to receiver choice, with a
 minimalist design, simplified setup, and sufficient performance for most Bitcoin
-users' needs. However, note it only works in [Ku
-band](doc/frequency.md#signal-bands). That is, it does not work with the Telstar
-18V C band satellite covering the Asia-Pacific region.
+users' needs. However, note it only works in [Ku band](doc/frequency.md). That
+is, it does not work with the Telstar 18V C band satellite covering the
+Asia-Pacific region.
 
 In all other setup options, the following hardware components are required in
 addition to the receiver:
@@ -67,8 +72,8 @@ Note that both the satellite dish and the LNB are **region-specific**. That is,
 they must attend to the frequency band of the signal covering your region.
 
 Additionally, each of the above three setups has specific complementary
-components.  Please refer to the comprehensive [hardware section](hardware.md)
-to pick the appropriate components or visit [our
+components.  Please refer to the [hardware section](doc/hardware.md) to pick the
+appropriate components or visit [our
 store](https://store.blockstream.com/product-category/satellite_kits/).
 
 ## Software and Setup Configuration
@@ -107,13 +112,13 @@ blocksat-cli deps install
 ```
 
 After following the instructions, the next steps include the receiver/host
-configuration, the [Bitcoin Satellite](bitcoin.md) installation, and the
-[antenna pointing](antenna-pointing.md). Please follow the instructions in this
-guide.
+configuration, the [Bitcoin Satellite](doc/bitcoin.md) installation, and the
+[antenna pointing](doc/antenna-pointing.md). Please follow the instructions in
+this guide.
 
-A [quick reference guide](quick-reference.md) is available if you are familiar
-with the commands and steps of the process. Otherwise, we recommend following
-this detailed user guide.
+A [quick reference guide](doc/quick-reference.md) is available if you are
+familiar with the commands and steps of the process. Otherwise, we recommend
+following this detailed user guide.
 
 ## Support
 

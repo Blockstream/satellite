@@ -1,3 +1,7 @@
+---
+nav_order: 7
+---
+
 # Dual-Satellite Connection
 
 <!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-refresh-toc -->

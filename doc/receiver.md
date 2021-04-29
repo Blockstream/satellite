@@ -1,3 +1,10 @@
+---
+title: Receiver Setup
+has_children: true
+nav_order: 4
+has_toc: false
+---
+
 # Receiver Setup
 
 Please follow the guide corresponding to your receiver type:
