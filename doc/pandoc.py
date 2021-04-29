@@ -190,7 +190,7 @@ def main():
             "subtitle=User Guide", "-V", "date=" + today.strftime("%B %d, %Y"),
             "-V", "colorlinks", "--number-sections", "--toc", "--template",
             "eisvogel", "--listings", "-V", "titlepage", "-V",
-            "logo=img/logo_blks.png", "-V", "table-use-row-colors", "-V",
+            "logo=img/blockstream.png", "-V", "table-use-row-colors", "-V",
             "titlepage-rule-color=3577F8", "-V", "footnotes-pretty"
         ])
 
