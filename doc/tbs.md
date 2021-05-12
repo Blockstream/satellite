@@ -134,7 +134,6 @@ container. Please refer to the instructions in the [Docker guide](docker.md).
 
 ### Useful Resources
 
-- [TBS 5927 User guide](https://www.tbsiptv.com/download/tbs5927/tbs5957_user_guide.pdf)
 - [TBS 5927 Datasheet](https://www.tbsiptv.com/download/tbs5927/tbs5927_professtional_dvb-S2_TV_Tuner_USB_data_sheet.pdf)
 - [TBS Drivers Wiki](https://github.com/tbsdtv/linux_media/wiki).
 

@@ -77,12 +77,11 @@ Next, run `bitcoind` as usual, like so:
 bitcoind
 ```
 
-Note that other [Bitcoin Core
-options](https://wiki.bitcoin.com/w/Running_Bitcoin) are supported and can be
-added to the generated `bitcoin.conf` file as needed, or directly as arguments
-to the above command. For example, you can run the node based on satellite links
-only (unplugged from the internet) using option `connect=0` on `bitcoin.conf` or
-by running:
+Note that other Bitcoin Core options are supported and can be added to the
+generated `bitcoin.conf` file as needed, or directly as arguments to the above
+command. For example, you can run the node based on satellite links only
+(unplugged from the internet) using option `connect=0` on `bitcoin.conf` or by
+running:
 
 ```
 bitcoind -connect=0

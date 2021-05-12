@@ -83,9 +83,8 @@ Ku band only), you are all set. Proceed to the [next section](receiver.md).
 
 Otherwise, you can proceed to assemble a satellite receiver on your own. Aside
 from the Pro Kit and Satellite Base Station options, you can gather the required
-components for the Basic Kit (formerly sold on [Blockstream
-Store](https://store.blockstream.com/product/blockstream-satellite-basic-kit/))
-based on a Linux USB Receiver. Refer to the list of [Basic Kit
+components for the Basic Kit (formerly sold on Blockstream Store) based on a
+Linux USB Receiver. Refer to the list of [Basic Kit
 components](#blockstream-satellite-basic-kit). Alternatively, you can find
 detailed information in this guide to put together an affordable SDR receiver
 with just under $100.
@@ -296,8 +295,7 @@ regarding frequency bands, please refer to [the frequency guide](frequency.md).
 
 An alternative to conventional satellite dishes is a flat panel antenna, which
 is generally more compact and stylish. A recommended flat panel model is the
-Selfsat H50D, which was previously [available at our
-store](https://store.blockstream.com/product/flat-panel-antenna/) before being
+Selfsat H50D, which was previously available on Blockstream Store before being
 replaced by the all-in-one [Satellite Base
 Station](https://store.blockstream.com/product/blockstream-satellite-base-station/).
 The Selfsat H50D includes the LNB internally, and so there is no need to

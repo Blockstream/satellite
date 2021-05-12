@@ -6,7 +6,7 @@ nav_order: 10
 
 This page contains a quick reference guide for the Blockstream Satellite
 receiver setup and its general usage. Please refer to the [main
-guide](README.md) for detailed explanations on all steps.
+guide](../index.md) for detailed explanations on all steps.
 
 <!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-refresh-toc -->
 

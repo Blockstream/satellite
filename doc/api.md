@@ -169,8 +169,7 @@ signing.
 ## Satellite API Reception
 
 To receive messages sent over satellite through the Satellite API, first of all,
-you need to have [your satellite receiver](../README.md) running. If you do not
-have a [real
+you need to have your satellite receiver running. If you do not have a [real
 receiver](https://store.blockstream.com/product-category/satellite_kits/), you
 can experiment with the [demo receiver](#demo-receiver) explained in the sequel.
 

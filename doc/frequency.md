@@ -60,4 +60,4 @@ region based on the typical LNB local oscillator (LO) frequencies:
 
 ---
 
-Prev: [Table of Contents](README.md) - Next: [Hardware Guide](hardware.md)
+Prev: [Home](../index.md) - Next: [Hardware Guide](hardware.md)
