@@ -112,3 +112,13 @@ pandoc:
   artifacts:
     paths:
       - doc/blocksat_manual.pdf
+
+check-markdown-links:
+  image:
+    name: ghcr.io/tcort/markdown-link-check:stable
+    entrypoint: [""]
+  only:
+    changes:
+      - "**/*.md"
+  script:
+    - find . -name \*.md | xargs -n1 /src/markdown-link-check
