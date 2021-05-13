@@ -170,14 +170,16 @@ class ApiOrder:
         """Wait until the order achieves a target state (or states)
 
         Args:
-            target  : String or list of strings with the state(s) to wait for.
+            target : String or list of strings with the state(s) to wait
+                     for. When given as a list, this function waits until any
+                     of the states is achieved.
             timeout : Timeout in seconds.
 
         Returns:
             (bool) Whether the state was successfully reached.
 
         """
-        assert(isinstance(target, str) or  isinstance(target, list))
+        assert(isinstance(target, str) or isinstance(target, list))
 
         state_seen = {
             'pending'      : False,
@@ -229,7 +231,7 @@ class ApiOrder:
                 # Print the current state
                 print(msg[self.order['status']])
 
-            if (self.order['status'] in target):
+            if (any([state_seen[x] for x in target])):
                 break
 
             c_time = time.time()

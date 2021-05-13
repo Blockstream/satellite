@@ -12,6 +12,8 @@ Release Date: TBD
 ### Fixed
 - Permissions of the GPG home directory created via the `api config` command and
   other unnecessary warnings during the keyring creation process.
+- API order state wait loop potentially stuck until timeout after an API message
+  transmission.
 
 ## [2.3.2]
 
