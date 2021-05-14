@@ -32,6 +32,11 @@ to receive the Blockstream Satellite traffic.
 
 ## Connections
 
+The integrated Sat-IP antenna-receiver can be connected as follows:
+
+![Sat-IP receiver connections](img/sat-ip-connections.png "Sat-IP receiver
+connections")
+
 - Connect the Ethernet cable from your switch or computer's network adapter
   directly to the antenna's Sat>IP port.
 - If your switch/adapter does not support [Power over Ethernet
