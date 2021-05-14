@@ -16,10 +16,7 @@ import platform
 def main():
     """Main - parse command-line arguments and call subcommands
     """
-    sudo_user       = environ.get('SUDO_USER')
-    user            = sudo_user if sudo_user is not None else ""
-    home            = os.path.expanduser("~" + user)
-    default_cfg_dir = os.path.join(home, ".blocksat")
+    default_cfg_dir = os.path.join(util.get_home_dir(), ".blocksat")
 
     parser = ArgumentParser(prog="blocksat-cli",
                             description="Blockstream Satellite Command-Line Interface",

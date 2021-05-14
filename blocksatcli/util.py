@@ -184,6 +184,14 @@ def prompt_for_enter():
         print("Aborting")
         exit()
 
+
+def get_home_dir():
+    """Get the user's home directory even if running with sudo"""
+    sudo_user = os.environ.get('SUDO_USER')
+    user = sudo_user if sudo_user is not None else ""
+    return os.path.expanduser("~" + user)
+
+
 def root_cmd(cmd):
     """Add sudo to cmd if non-root
 

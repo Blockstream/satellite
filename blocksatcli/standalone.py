@@ -26,11 +26,9 @@ class SnmpClient():
 
     def _dump_mib(self):
         """Generate the compiled (.py) MIB file"""
-        sudo_user = os.environ.get('SUDO_USER')
-        user      = sudo_user if sudo_user is not None else ""
-        home      = os.path.expanduser("~" + user)
 
         # Check if the compiled MIB (.py file) already exists
+        home = util.get_home_dir()
         self.mib_dir = mib_dir = os.path.join(home, ".pysnmp/mibs/")
         if (os.path.exists(os.path.join(mib_dir, self.mib + ".py"))):
             return

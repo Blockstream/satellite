@@ -1,5 +1,8 @@
 import logging
+import os
 import subprocess
+from pathlib import Path
+
 from . import defs
 from . import util
 
@@ -147,6 +150,10 @@ class Tsp():
             Boolean indicating whether the process is running succesfully.
 
         """
+        # Create a .tsduck.lastcheck file on the home directory to skip the
+        # TSDuck version check.
+        Path(os.path.join(util.get_home_dir(), ".tsduck.lastcheck")).touch()
+
         # When tsdump is enabled, hook tsp and tspdump through a pipe file (tsp
         # on the write side and tsdump on the read side)
         if (self.ts_dump):
