@@ -115,9 +115,10 @@ sudo pip3 install blocksat-cli
 
 > NOTE:
 >
-> 1. The CLI requires Python 3.
+> 1. The CLI requires Python 3 and the above command requires Python3's package
+>    installer ([pip3](https://pip.pypa.io/en/stable/installing/)).
 > 2. Some blocksat-cli commands require root access, so it is preferable to run
-> the installation command using `sudo`.
+>    the installation command using `sudo`.
 
 Next, run the configuration helper:
 
