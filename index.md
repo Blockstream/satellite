@@ -14,17 +14,30 @@ can join this network by running your own Blockstream Satellite receiver
 node. This document guides you over all the hardware options, software
 components, and assembly instructions.
 
-The first step to get started is to get the required hardware. As detailed in
-this guide, there is a range of options to suit your needs. Additionally, you
-need a host computer running a few software components. One of them is the
-[Bitcoin Satellite](https://github.com/Blockstream/bitcoinsatellite/)
-application, a fork of Bitcoin Core with custom capabilities to receive the
-Bitcoin blocks and transactions transmitted over satellite.
+The first step to get started is to verify whether your location has satellite
+coverage and clear line-of-sight to the satellite in the sky. You can confirm
+the coverage by looking at our [Coverage
+Map](https://blockstream.com/satellite/#satellite_network-coverage). After that,
+make sure your satellite view does not have any obstacles, such as trees or
+buildings. You can find the target area in the sky by using the antenna pointing
+angles provided by our coverage map or by using an augmented reality app such as
+the Satellite Pointer (available for
+[iOS](https://apps.apple.com/th/app/satellite-pointer/id994565490) and
+[Android](https://play.google.com/store/apps/details?id=com.tda.satpointer)).
 
-More importantly, you need to be in a location with coverage and clear
-line-of-sight to the satellite in the sky. You can confirm whether your area is
-covered by looking at our [Coverage
-Map](https://blockstream.com/satellite/#satellite_network-coverage).
+The second step is to get the required hardware. The quickest option is to
+purchase a ready-to-use [Satellite
+Kit](https://store.blockstream.com/product-category/satellite_kits/). However,
+as detailed [in this guide](doc/hardware.md), there is a range of other options
+to suit your needs.
+
+Third, you need to prepare a host computer with a few software components. One
+of them is the [Bitcoin
+Satellite](https://github.com/Blockstream/bitcoinsatellite/) application, a fork
+of Bitcoin Core with custom capabilities to receive the Bitcoin blocks and
+transactions arriving from space. As detailed later, this step is greatly
+facilitated by the Blockstream Satellite command-line interface (CLI) tool,
+which handles all the necessary software installations.
 
 Once you get your receiver node up and running, there is a lot that you can do
 with it. You can use it as a satellite-connected Bitcoin node offering
@@ -150,7 +163,7 @@ purchased a [satellite
 kit](https://store.blockstream.com/product-category/satellite_kits/), you can
 follow the kit-specific instructions available on [Blockstream's Help
 Center](https://help.blockstream.com/hc/en-us/articles/900001613686).
-Otherwise, we recommend continuing on this guide. You can move to the next
+Otherwise, we recommend continuing on this guide. You can proceed to the next
 section, which covers the [hardware options](doc/hardware.md).
 
 ## Support
