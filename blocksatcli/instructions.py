@@ -155,7 +155,7 @@ def _print_usb_rx_instructions(info):
     _print("""
     NOTE: this command supports the apt, dnf, and yum package managers. For
     other package managers, refer to the instructions at:""")
-    print("https://github.com/Blockstream/satellite/blob/master/doc/tbs.md")
+    print(defs.user_guide_url + "doc/tbs.html")
 
     util.prompt_for_enter()
 
@@ -241,7 +241,7 @@ def _print_sdr_instructions(info):
         CentOS releases. In case you are using another Linux distribution or
         version, please refer to the manual compilation and installation
         instructions at:""")
-    print("https://github.com/Blockstream/satellite/blob/master/doc/sdr.md")
+    print(defs.user_guide_url + "doc/sdr.html")
 
     util.prompt_for_enter()
 
@@ -262,9 +262,6 @@ def _print_sdr_instructions(info):
     print("    blocksat-cli sdr\n")
     print("Or, in GUI mode:\n")
     print("    blocksat-cli sdr --gui\n")
-
-    _print("For further options, please refer to the SDR Guide at:")
-    print("https://github.com/Blockstream/satellite/blob/master/doc/sdr.md")
 
     util.prompt_for_enter()
 
@@ -406,11 +403,11 @@ def _print_next_steps():
            "bitcoin core installed.")
 
     print("For further information, refer to:\n")
-    print("https://github.com/Blockstream/satellite/blob/master/doc/bitcoin.md\n")
+    print(defs.user_guide_url + "doc/bitcoin.html\n")
 
     _print("""If your antenna is not pointed yet, please follow the
     antenna alignment guide at:""")
-    print("https://github.com/Blockstream/satellite/blob/master/doc/antenna-pointing.md\n")
+    print(defs.user_guide_url + "doc/antenna-pointing.html\n")
 
 
 def subparser(subparsers):

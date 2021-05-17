@@ -1,4 +1,5 @@
 # Constants
+user_guide_url  = "https://blockstream.github.io/satellite/"
 mcast_ip        = "239.0.0.2"
 api_port        = 4433
 btc_port        = 4434

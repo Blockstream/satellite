@@ -39,11 +39,11 @@ def _download_file(url, destdir, dry_run):
 
 def _check_distro(supported_distros, setup_type):
     """Check if distribution is supported"""
-    base_url = "https://github.com/Blockstream/satellite/blob/master/doc/"
+    base_url = defs.user_guide_url + "doc/"
     instructions_url = {
-        defs.sdr_setup_type : "sdr.md",
-        defs.linux_usb_setup_type : "tbs.md",
-        defs.sat_ip_setup_type : "sat-ip.md"
+        defs.sdr_setup_type : "sdr.html",
+        defs.linux_usb_setup_type : "tbs.html",
+        defs.sat_ip_setup_type : "sat-ip.html"
     }
     full_url = base_url + instructions_url[setup_type]
     if (distro.id() not in supported_distros):
