@@ -113,9 +113,9 @@ def fix_links(concat_text, docs, title_map, absent_docs):
 
 def main():
     docs = [
-        "../index.md", "frequency.md", "hardware.md", "s400.md", "tbs.md",
-        "sat-ip.md", "sdr.md", "antenna-pointing.md", "bitcoin.md",
-        "dual-satellite.md", "api.md", "docker.md", "quick-reference.md"
+        "../index.md", "hardware.md", "s400.md", "tbs.md", "sat-ip.md",
+        "sdr.md", "antenna-pointing.md", "bitcoin.md", "dual-satellite.md",
+        "api.md", "docker.md", "frequency.md", "quick-reference.md"
     ]
 
     title_map = {}

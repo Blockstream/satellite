@@ -67,10 +67,11 @@ The Blockstream Satellite Pro Kit is available for:
 - Users who want to use their own dish antennas.
 - Users who wish to use larger dish antennas.
 
-Note the Satellite Base Station is not compatible with the C band. That is, it
-does not work with the Telstar 18V C band satellite covering the Asia-Pacific
-region. If you are in a C band location, you will need a Pro Kit or a DIY
-receiver option.
+Note the Satellite Base Station is not compatible with the
+[C band](frequency.md#signal-bands). That is, it does not work with the Telstar
+18V C band beam covering the Asia-Pacific region. If you are in a location with
+C band coverage only (i.e., without [Ku band](frequency.md#signal-bands)
+coverage), you will need a Pro Kit or a DIY receiver option.
 
 If you have decided to go with a satellite kit and selected the Pro Kit
 receiver, note you still need a satellite antenna and coaxial cables (not
