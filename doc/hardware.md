@@ -1,11 +1,11 @@
 ---
-nav_order: 3
+nav_order: 2
 ---
 
 # Hardware Guide
 
 This page explains the hardware components required to assemble a Blockstream
-Satellite receiver setup.
+Satellite receiver.
 
 There are three alternatives to collect the required hardware. The first and
 quickest option is to purchase a ready-to-use [Satellite
@@ -585,4 +585,4 @@ implicitly. To avoid confusion, we advise looking for an LNBF.
 
 ---
 
-Prev: [Frequency Bands](frequency.md) - Next: [Receiver Setup](receiver.md)
+Prev: [Home](../index.md) - Next: [Receiver Setup](receiver.md)

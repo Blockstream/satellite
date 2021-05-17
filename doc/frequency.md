@@ -1,5 +1,5 @@
 ---
-nav_order: 2
+nav_order: 9
 ---
 
 # Frequency Guide
@@ -14,8 +14,7 @@ nav_order: 2
 
 <!-- markdown-toc end -->
 
-This page summarizes several frequencies of interest. We will refer to them
-later in the user guide.
+This page summarizes several frequencies of interest.
 
 ## Signal Bands
 
@@ -58,6 +57,3 @@ region based on the typical LNB local oscillator (LO) frequencies:
 | Telstar 18V Ku Band |             | 1756.75 MHz |              |              |
 | Telstar 18V C Band  | 1096.17 MHz |             |              |              |
 
----
-
-Prev: [Home](../index.md) - Next: [Hardware Guide](hardware.md)
