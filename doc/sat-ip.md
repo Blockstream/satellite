@@ -65,6 +65,13 @@ blocksat-cli sat-ip
 > blocks this traffic type, you can specify the Sat-IP server's IP address
 > (i.e., the Satellite Base Station address) directly using option `-a/--addr`.
 
+> Note: If the command above fails with a 'connection reset by peer' error,
+> changes are you need to perform a firmware update on the Sat-IP server.
+> Visit `http://<Sat-IP server's IP address>:8000`. If you *don't* see a
+> login form, and are presented with a very minimal white page listing only
+> FW version and HW version, visit the [manufacturer's site](http://www.selfsat.com/download-1) 
+> to obtain the latest firmware & instructions.
+
 ## Next Steps
 
 At this point, if your antenna is already correctly pointed, you should be able
