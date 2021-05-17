@@ -126,7 +126,7 @@ Next, run the configuration helper:
 blocksat-cli cfg
 ```
 
-Then, run the instructions helper and follow the instructions:
+Then, check out the instructions for your setup by running:
 
 ```
 blocksat-cli instructions
@@ -145,11 +145,17 @@ configuration, the [Bitcoin Satellite](doc/bitcoin.md) installation, and the
 this guide.
 
 A [quick reference guide](doc/quick-reference.md) is available if you are
-familiar with the commands and steps of the process. Otherwise, we recommend
-following this detailed user guide.
+familiar with the commands and steps of the process. Moreover, if you have
+purchased a [satellite
+kit](https://store.blockstream.com/product-category/satellite_kits/), you can
+follow the kit-specific instructions available on [Blockstream's Help
+Center](https://help.blockstream.com/hc/en-us/articles/900001613686).
+Otherwise, we recommend continuing on this guide. You can move to the next
+section, which covers the [hardware options](doc/hardware.md).
 
 ## Support
 
 For additional help, you can join the **#blockstream-satellite** IRC channel on
-freenode.
+freenode or contact [Blockstream Support](https://help.blockstream.com/).
+
 
