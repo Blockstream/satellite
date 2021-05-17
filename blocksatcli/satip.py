@@ -347,7 +347,7 @@ class SatIp():
         r.raise_for_status()
 
     def fe_stats(self):
-        """Read DVB-S2 stats"""
+        """Read DVB-S2 frontend stats"""
         self._assert_addr()
         url = self.base_url + "/cgi-bin/index.cgi"
         rv = self.session.get(url, params={'cmd': 'frontend_info'})
@@ -441,6 +441,14 @@ def subparser(subparsers):
                    type=int,
                    help="Source port set on SSDP packets used to discover the "
                    "Sat-IP server(s) in the network")
+    p.add_argument('--no-fe-monitoring',
+                   default=True,
+                   action='store_false',
+                   dest='fe_monitoring',
+                   help="Do not monitor the Sat-IP server's physical frontend "
+                   "(DVB-S2 demodulator and tuner). Use this option when the "
+                   "server does not provide a login page or to avoid "
+                   "authentication conflicts between concurrent clients.")
     tsp.add_to_parser(p)
     monitoring.add_to_parser(p)
     p.set_defaults(func=launch)
@@ -480,7 +488,8 @@ def launch(args):
         sat_ip.set_addr(addr)
 
     # Check if the Sat-IP device has the minimum required firmware version
-    fw_version_ok = sat_ip.check_fw_version()
+    min_fw_version = "3.1.18" if args.fe_monitoring else "2.2.19"
+    fw_version_ok = sat_ip.check_fw_version(min_fw_version)
 
     # Try to upgrade the firmware if necessary
     if (fw_version_ok is False):
@@ -494,8 +503,9 @@ def launch(args):
     if (not fw_version_ok):
         return
 
-    # Login with the Sat-IP HTTP server
-    sat_ip.login(args.username, args.password)
+    # Log in with the Sat-IP HTTP server to monitor the DVB-S2 frontend
+    if (args.fe_monitoring):
+        sat_ip.login(args.username, args.password)
 
     # Tuning parameters
     modcod = _parse_modcod(args.modcod)
@@ -525,11 +535,12 @@ def launch(args):
     tsp_handler.run()
 
     # Launch the monitoring thread
-    monitor = _get_monitor(args)
-    t = threading.Thread(target=_monitoring_thread,
-                         args=(sat_ip, monitor),
-                         daemon=True)
-    t.start()
+    if (args.fe_monitoring):
+        monitor = _get_monitor(args)
+        t = threading.Thread(target=_monitoring_thread,
+                             args=(sat_ip, monitor),
+                             daemon=True)
+        t.start()
 
     try:
         tsp_handler.proc.communicate()
