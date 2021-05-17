@@ -11,15 +11,15 @@ The Blockstream Satellite network broadcasts the Bitcoin blockchain worldwide
 24/7 for free, protecting against network interruptions and providing areas
 without reliable internet connection with the opportunity to use Bitcoin. You
 can join this network by running your own Blockstream Satellite receiver
-node. This document explains how and guides you over all the hardware options,
-software components, and assembly instructions.
+node. This document guides you over all the hardware options, software
+components, and assembly instructions.
 
 The first step to get started is to get the required hardware. As detailed in
 this guide, there is a range of options to suit your needs. Additionally, you
-need a host computer running the [Bitcoin
-Satellite](https://github.com/Blockstream/bitcoinsatellite/) application, a fork
-of Bitcoin Core with custom capabilities to receive the Bitcoin blocks and
-transactions transmitted over satellite.
+need a host computer running a few software components. One of them is the
+[Bitcoin Satellite](https://github.com/Blockstream/bitcoinsatellite/)
+application, a fork of Bitcoin Core with custom capabilities to receive the
+Bitcoin blocks and transactions transmitted over satellite.
 
 More importantly, you need to be in a location with coverage and clear
 line-of-sight to the satellite in the sky. You can confirm whether your area is
@@ -37,10 +37,10 @@ from scratch using the satellite connection only.
 
 You can also send your own encrypted messages worldwide through the satellite
 network using our [Satellite API](doc/api.md) while paying for each transmission
-through the Lightning Network. If you run a Lightning node, you can also sync it
-faster through [Lightning gossip snapshots](doc/api.md#lightning-gossip-snapshots)
-sent over satellite. You can even
-[download the Bitcoin source code](doc/api.md#bitcoin-source-code-messages)
+through the Lightning Network. Moreover, if you run a Lightning node, you can
+sync it faster through [Lightning gossip
+snapshots](doc/api.md#lightning-gossip-snapshots) sent over satellite. You can
+even [download the Bitcoin source code](doc/api.md#bitcoin-source-code-messages)
 over satellite and bootstrap the node without ever touching the internet.
 
 The remainder of this guide covers the essential steps to get you started. In
