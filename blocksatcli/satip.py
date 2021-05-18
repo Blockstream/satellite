@@ -5,6 +5,7 @@ import sys
 import threading
 import time
 from argparse import ArgumentDefaultsHelpFormatter
+from distutils.version import StrictVersion
 from ipaddress import ip_address
 from urllib.parse import urlencode
 
@@ -63,6 +64,12 @@ class SatIp():
         self.base_url = dev['base_url']
         self.host = dev['host']
 
+    def _assert_addr(self):
+        """Assert that the Sat-IP device address has been discovered already"""
+        if (self.base_url is None):
+            raise RuntimeError("Sat-IP device address must be discovered or "
+                               "informed first")
+
     def set_addr(self, ip_addr, port=8000):
         """Set the base URL and host address directly"""
         self.base_url = "http://" + ip_addr + ":" + str(port)
@@ -108,8 +115,38 @@ class SatIp():
         else:
             self._set_from_ssdp_dev(sat_ip_devices[0])
 
+    def check_fw_version(self, min_version="3.1.18"):
+        """Check if the Sat-IP server has the minimum required firmware version
+
+        Returns:
+            Boolean indicating whether the current firmware version satisfies
+            the minimum required version.
+
+        """
+        self._assert_addr()
+
+        # Fetch the firmware version
+        url = self.base_url + "/gmi_sw_ver.txt"
+        r = requests.get(url)
+        try:
+            r.raise_for_status()
+        except requests.exceptions.HTTPError as e:
+            logger.error(str(e))
+            return False
+
+        current_version = StrictVersion(r.text.strip('\n'))
+        if (current_version < StrictVersion(min_version)):
+            logger.error("A firmware upgrade is required on the Sat-IP "
+                         "receiver.")
+            logger.info("The current firmware version is {}, but the minimum "
+                        "required version is {}.".format(
+                            current_version, min_version))
+            return False
+        return True
+
     def login(self, username, password):
         """Login with the Sat-IP HTTP server"""
+        self._assert_addr()
         # Cache the credentials to allow auto reconnection
         self.username = username
         self.password = password
@@ -126,6 +163,7 @@ class SatIp():
 
     def fe_stats(self):
         """Read DVB-S2 stats"""
+        self._assert_addr()
         url = self.base_url + "/cgi-bin/index.cgi"
         rv = self.session.get(url, params={'cmd': 'frontend_info'})
 
@@ -255,6 +293,11 @@ def launch(args):
             logger.error(e)
             sys.exit(1)
         sat_ip.set_addr(addr)
+
+    # Check if the Sat-IP device has the minimum required firmware version
+    fw_version_ok = sat_ip.check_fw_version()
+    if (not fw_version_ok):
+        return
 
     # Login with the Sat-IP HTTP server
     sat_ip.login(args.username, args.password)

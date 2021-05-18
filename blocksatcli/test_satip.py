@@ -14,6 +14,15 @@ def _gen_ssdp_dev(addr, friendly_name):
     return ssdp_dev
 
 
+class MockResponse():
+    """Mock requests response"""
+    def __init__(self, text=""):
+        self.text = text
+
+    def raise_for_status(self):
+        pass
+
+
 class TestApi(TestCase):
     @patch('blocksatcli.util._ask_multiple_choice')
     @patch('blocksatcli.upnp.UPnP.discover')
@@ -57,3 +66,19 @@ class TestApi(TestCase):
         sat_ip = satip.SatIp()
         sat_ip.discover(interactive=True)
         self.assertEqual(sat_ip.host, addr2[0])
+
+    @patch('requests.get')
+    def test_fw_check(self, mock_get):
+        """Test Sat-IP firmware validation"""
+
+        # Old firmware version that does not satisfy the minimum
+        mock_get.return_value = MockResponse("2.2.19")
+        sat_ip = satip.SatIp()
+        sat_ip.set_addr("192.168.100.2")
+        self.assertFalse(sat_ip.check_fw_version())
+
+        # Recent firmware version satisfying the minimum
+        mock_get.return_value = MockResponse("3.1.18")
+        sat_ip = satip.SatIp()
+        sat_ip.set_addr("192.168.100.2")
+        self.assertTrue(sat_ip.check_fw_version())
