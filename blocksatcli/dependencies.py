@@ -4,7 +4,7 @@ from . import config, defs, util
 import sys, os, subprocess, logging, glob, json
 from shutil import which
 from pprint import pformat
-import platform, distro, requests
+import platform, distro
 from distutils.version import LooseVersion
 logger = logging.getLogger(__name__)
 
@@ -15,26 +15,6 @@ target_map = {
     "standalone": defs.standalone_setup_type,
     "sat-ip": defs.sat_ip_setup_type
 }
-
-def _download_file(url, destdir, dry_run):
-    filename   = url.split('/')[-1]
-    local_path = os.path.join(destdir, url.split('/')[-1])
-
-    if (dry_run):
-        print("Download: {}".format(url))
-        print("Save at: {}".format(destdir))
-        return
-
-    logger.debug("Download {} and save at {}".format(filename, destdir))
-    with requests.get(url, stream=True) as r:
-        r.raise_for_status()
-        with open(local_path, 'wb') as f:
-            for chunk in r.iter_content(chunk_size=8192):
-                # If you have chunk encoded response uncomment if
-                # and set chunk_size parameter to None.
-                #if chunk:
-                f.write(chunk)
-    return local_path
 
 
 def _check_distro(supported_distros, setup_type):
@@ -505,7 +485,7 @@ def drivers(args):
     tbs_linux_url = "https://www.tbsdtv.com/download/document/linux/"
     fw_tarball    = "tbs-tuner-firmwares_v1.0.tar.bz2"
     fw_url        = tbs_linux_url + fw_tarball
-    _download_file(fw_url, driver_src_dir, args.dry_run)
+    util.download_file(fw_url, driver_src_dir, args.dry_run, logger=logger)
 
     # Install the firmware
     runner.run(util.root_cmd(["tar", "jxvf", fw_tarball, "-C",

@@ -1,5 +1,7 @@
 """Utility functions"""
 import copy, os, textwrap, subprocess
+from urllib.request import urlretrieve
+from urllib.error import HTTPError
 
 
 def fill_print(text):
@@ -291,3 +293,45 @@ class Pipe():
         self.w_fo.write(data)
 
 
+def _print_urlretrieve_progress(block_num, block_size, total_size):
+    """Print progress on urlretrieve's reporthook"""
+    downloaded = block_num * block_size
+    progress = 100 * downloaded / total_size
+    if (total_size > 0):
+        print("Download progress: {:4.1f}%".format(progress), end='\r')
+        if (progress >= 100):
+            print("")
+
+
+def download_file(url, destdir, dry_run, logger=None):
+    """Download file from a given URL
+
+    Args:
+        url     : Download URL.
+        destdir : Destination directory.
+        dry_run : Dry-run mode.
+        logger  : Optional logger to print messages.
+
+    Returns:
+        Path to downloaded file if the download is successful. None in
+        dry-run mode or if the download fails.
+
+    """
+    filename = url.split('/')[-1]
+    local_path = os.path.join(destdir, filename)
+
+    if (dry_run):
+        print("Download: {}".format(url))
+        print("Save at: {}".format(destdir))
+        return
+
+    if (logger is not None):
+        logger.debug("Download {} and save at {}".format(url, destdir))
+
+    try:
+        urlretrieve(url, local_path, _print_urlretrieve_progress)
+    except HTTPError as e:
+        logger.error(str(e))
+        return
+
+    return local_path
