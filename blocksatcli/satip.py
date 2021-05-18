@@ -1,13 +1,17 @@
+import glob
 import json
 import logging
 import requests
+import os
+import shutil
 import sys
 import threading
 import time
+import zipfile
 from argparse import ArgumentDefaultsHelpFormatter
 from distutils.version import StrictVersion
 from ipaddress import ip_address
-from urllib.parse import urlencode
+from urllib.parse import urlencode, quote
 
 from . import config
 from . import defs
@@ -120,7 +124,8 @@ class SatIp():
 
         Returns:
             Boolean indicating whether the current firmware version satisfies
-            the minimum required version.
+            the minimum required version. None if the attempt to read the
+            current firmware version fails.
 
         """
         self._assert_addr()
@@ -132,7 +137,7 @@ class SatIp():
             r.raise_for_status()
         except requests.exceptions.HTTPError as e:
             logger.error(str(e))
-            return False
+            return None
 
         current_version = StrictVersion(r.text.strip('\n'))
         if (current_version < StrictVersion(min_version)):
@@ -142,6 +147,186 @@ class SatIp():
                         "required version is {}.".format(
                             current_version, min_version))
             return False
+        return True
+
+    def set_urllib3_logger_critical(func):
+        """Wrapper to change the urllib3 logging level while calling func
+
+        This function is meant to avoid the MissingHeaderBodySeparatorDefect
+        error leading to urllib3.exceptions.HeaderParsingError when parsing the
+        headers. The urllib3's logging level is restricted before calling the
+        given function. Subsequently, it is restored to the original level.
+
+        """
+        def inner(*args, **kwargs):
+            urllib3_logger = logging.getLogger('urllib3')
+            urllib3_logging_level = urllib3_logger.level
+            urllib3_logger.setLevel(logging.CRITICAL)
+            r = func(*args, **kwargs)
+            urllib3_logger.setLevel(urllib3_logging_level)
+            return r
+
+        return inner
+
+    @set_urllib3_logger_critical
+    def _gmifu_req(self, params=None, files=None, method='post'):
+        gmifu_server = os.path.join(self.base_url, "cgi-bin/gmifu.cgi")
+        if (method == 'post'):
+            r = requests.post(gmifu_server, params=params, files=files)
+        else:
+            r = requests.get(gmifu_server, params=params)
+
+        try:
+            r.raise_for_status()
+        except requests.exceptions.HTTPError as e:
+            logger.error(str(e))
+            return
+        return r
+
+    def upgrade_fw(self,
+                   cfg_dir,
+                   interactive=True,
+                   factory_default='0',
+                   no_wait=False):
+        """Upgrade the Selfsat Sat-IP antenna's firmware
+
+        Args:
+            cfg_dir : User's configuration directory.
+            interactive : Whether to run in interactive mode.
+            factory_default : Whether to restore the factory default configs.
+            no_wait : Do not wait for the complete reboot in the end.
+
+        Returns:
+            Boolean indicating whether the upgrade was successful.
+
+        """
+        self._assert_addr()
+
+        if (interactive and not util._ask_yes_or_no("Proceed?")):
+            logger.info("Aborting")
+            return False
+
+        logger.info("Upgrading the Sat-IP receiver's firmware.")
+
+        # Initialize the upgrade procedure
+        resp = self._gmifu_req(params={'cmd': 'fu_cmd_init'})
+        if (resp is None):
+            return False
+
+        init_resp = resp.json()
+        logger.debug("Firmware upgrade init response:")
+        logger.debug(init_resp)
+        if (init_resp['status'] != "0"):
+            logger.error("({}) {}".format(init_resp['status'],
+                                          init_resp['desc']))
+            return False
+
+        # Download the latest firmware version
+        filename = quote("SAT>IP UPGRADE FIRMWARE.zip")
+        download_url = os.path.join(
+            ("https://s3.ap-northeast-2.amazonaws.com/"
+             "logicsquare-seoul/a64d56aa-567b-4053-bc84-12c2e58e46a6/"),
+            filename)
+        tmp_dir = os.path.join(cfg_dir, "tmp")
+        download_dir = os.path.join(tmp_dir, "sat-ip-fw")
+
+        if not os.path.exists(download_dir):
+            os.makedirs(download_dir)
+
+        logger.info("Downloading the latest firmware version...")
+        download_path = util.download_file(download_url,
+                                           download_dir,
+                                           dry_run=False,
+                                           logger=logger)
+        if (download_path is None):
+            return False
+
+        # Unzip the downloaded file
+        with zipfile.ZipFile(download_path, 'r') as zip_ref:
+            zip_ref.extractall(download_dir)
+
+        # Find the software update .supg file:
+        supg_files = glob.glob(os.path.join(download_dir, "**/*.supg"),
+                               recursive=True)
+        if (len(supg_files) > 1):
+            logger.warning("Found multiple firmware update files")
+            logger.info("Selecting {}".format(supg_files[0]))
+
+        # Send the FW update file to the Sat-IP device
+        logger.info("Uploading new firmware version to the Sat-IP server...")
+        resp = self._gmifu_req(
+            params={
+                'cmd': 'fu_cmd_upload_file',
+                'val': 'update'
+            },
+            files={'fw_signed_updfile': open(supg_files[0], 'rb')})
+
+        # Cleanup the temporary download directory
+        shutil.rmtree(tmp_dir)
+
+        if (resp is None):
+            return False
+
+        # Get the update info
+        resp = self._gmifu_req(params={'cmd': 'fu_cmd_get_upd_info'})
+        if (resp is None):
+            return False
+
+        # Parse
+        update_info = resp.json()
+        logger.debug("Update info:")
+        logger.debug(update_info)
+        if ('thisver' not in update_info or 'newver' not in update_info):
+            logger.error("Failed to parse the firmware update information")
+            return False
+        this_sw_ver = StrictVersion(update_info['thisver']['sw_ver'])
+        new_sw_ver = StrictVersion(update_info['newver']['sw_ver'])
+
+        # Check if the download really contains a newer version
+        if (this_sw_ver >= new_sw_ver):
+            logger.error("Downloaded firmware update does not contain a more "
+                         "recent version.")
+            logger.info("Downloaded version {}, but the Sat-IP server is "
+                        "already running version {}.".format(
+                            new_sw_ver, this_sw_ver))
+            # Cancel the upgrade
+            logger.info("Canceling the firmware upgrade.")
+            resp = self._gmifu_req(params={'cmd': 'fu_cmd_cancel_upd'})
+            return False
+
+        # Start the update
+        logger.info(
+            "Upgrading firmware from version {} to version {}...".format(
+                this_sw_ver, new_sw_ver))
+        resp = self._gmifu_req(params={
+            'cmd': 'fu_cmd_start_update',
+            'factdft': factory_default
+        })
+        if (resp is None):
+            return False
+
+        # Reboot in the end
+        logger.info("Upgrade done. Rebooting...")
+        resp = self._gmifu_req(params={
+            'cmd': 'fu_cmd_reboot',
+            'factdft': factory_default
+        })
+        if (resp is None):
+            return False
+
+        # If so desired, wait until the device comes back
+        if (no_wait):
+            return True
+
+        time.sleep(10)
+        while (True):
+            try:
+                r = self._gmifu_req(method='get')
+                if (r.ok):
+                    break
+            except requests.exceptions.ConnectionError:
+                time.sleep(1)
+
         return True
 
     def login(self, username, password):
@@ -296,6 +481,16 @@ def launch(args):
 
     # Check if the Sat-IP device has the minimum required firmware version
     fw_version_ok = sat_ip.check_fw_version()
+
+    # Try to upgrade the firmware if necessary
+    if (fw_version_ok is False):
+        fw_upgrade_ok = sat_ip.upgrade_fw(args.cfg_dir)
+        if (not fw_upgrade_ok):
+            logger.error("Failed to upgrade the Sat-IP receiver's firmware")
+            return
+        # Check the version again after the upgrade
+        fw_version_ok = sat_ip.check_fw_version()
+
     if (not fw_version_ok):
         return
 

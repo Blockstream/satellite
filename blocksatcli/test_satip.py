@@ -16,11 +16,15 @@ def _gen_ssdp_dev(addr, friendly_name):
 
 class MockResponse():
     """Mock requests response"""
-    def __init__(self, text=""):
+    def __init__(self, text="", json={}):
         self.text = text
+        self._json = json
 
     def raise_for_status(self):
         pass
+
+    def json(self):
+        return self._json
 
 
 class TestApi(TestCase):
@@ -82,3 +86,23 @@ class TestApi(TestCase):
         sat_ip = satip.SatIp()
         sat_ip.set_addr("192.168.100.2")
         self.assertTrue(sat_ip.check_fw_version())
+
+    @patch('requests.post')
+    def test_fw_upgrade(self, mock_post):
+        """Test Sat-IP firmware upgrade"""
+        mock_post.return_value = MockResponse(
+            json={
+                'status': "0",
+                'thisver': {
+                    'sw_ver': "2.2.19"
+                },
+                'newver': {
+                    'sw_ver': "3.1.18"
+                }
+            })
+        sat_ip = satip.SatIp()
+        sat_ip.set_addr("192.168.100.2")
+        fw_upgrade_ok = sat_ip.upgrade_fw("/tmp/",
+                                          interactive=False,
+                                          no_wait=True)
+        self.assertTrue(fw_upgrade_ok)
