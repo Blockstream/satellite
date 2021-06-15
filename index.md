@@ -19,9 +19,10 @@ coverage and clear line-of-sight to the satellite in the sky. You can confirm
 the coverage by looking at our [Coverage
 Map](https://blockstream.com/satellite/#satellite_network-coverage). After that,
 make sure your satellite view does not have any obstacles, such as trees or
-buildings. You can find the target area in the sky by using the antenna pointing
-angles provided by our coverage map or by using an augmented reality app such as
-the Satellite Pointer (available for
+buildings. You can find the target area in the sky by using the antenna
+[pointing angles](doc/antenna-pointing.md#mount-the-antenna) provided by our
+coverage map or by using an augmented reality app such as the Satellite Pointer
+(available for
 [iOS](https://apps.apple.com/th/app/satellite-pointer/id994565490) and
 [Android](https://play.google.com/store/apps/details?id=com.tda.satpointer)).
 
@@ -68,95 +69,6 @@ summary, you will need to:
    signal.
 4. Run the Bitcoin Satellite and Satellite API applications.
 
-## Hardware
-
-The quickest way to get started is by purchasing a Satellite Kit on [Blockstream
-Store](https://store.blockstream.com/product-category/satellite_kits/).
-
-In summary, there are four supported receiver types with varying offerings in
-terms of budget, performance, CPU usage, form factor, and compatibility. They
-are compared below:
-
-| Receiver   | Kit Available                                                                             | Budget | Performance | CPU  | Form Factor | Dual-Sat<sup>*</sup> | Band |
-|------------|-------------------------------------------------------------------------------------------|--------|-------------|------|-------------|----------------------|------|
-| SDR        | :heavy_multiplication_x:                                                                  | Low    | Limited     | High | USB Dongle  | No                   | C/Ku |
-| Linux USB  | :heavy_multiplication_x:                                                                  | Medium | Excellent   | Low  | USB Device  | No                   | C/Ku |
-| Standalone | [Pro Kit](https://store.blockstream.com/product/blockstream-satellite-pro-kit/)           | High   | Excellent   | None | Standalone  | Yes                  | C/Ku |
-| Sat-IP     | [Base Station](https://store.blockstream.com/product/blockstream-satellite-base-station/) | Medium | Excellent   | None | All-in-one  | No                   | Ku   |
-
-<sup>*</sup> Specific to locations with overlapping coverage from two
-satellites.
-
-The [Satellite Base
-Station](https://store.blockstream.com/product/blockstream-satellite-base-station/)
-Sat-IP receiver is the only all-in-one hardware option (an antenna with an
-integrated receiver and
-[LNB](https://en.wikipedia.org/wiki/Low-noise_block_downconverter)). Hence, it
-is our go-to receiver choice, with a minimalist design, simplified setup, and
-sufficient performance for most Bitcoin users' needs. However, note it has
-limited compatibility in the Asia-Pacific region, particularly in locations
-covered only by the Telstar 18V C band beam (check the [coverage
-map](https://blockstream.com/satellite/#satellite_network-coverage)). Everywhere
-else, the base station is compatible.
-
-In all other setup options, the following hardware components are required in
-addition to the receiver:
-
-| Component                           | Region-Specific |
-|-------------------------------------|-----------------|
-| Satellite dish (antenna)            | Yes             |
-| Low-noise block downconverter (LNB) | Yes             |
-| LNB mounting bracket                | No              |
-| Coaxial Cable                       | No              |
-
-Note that both the satellite dish and the LNB are **region-specific**. That is,
-they must attend to the frequency band of the signal covering your
-region. Furthermore, note that other specific complementary components may be
-required, such as connectors, power supply, etc. Please refer to the
-[hardware section](doc/hardware.md) to pick the right parts or visit [our
-store](https://store.blockstream.com/product-category/satellite_kits/).
-
-## Software and Setup Configuration
-
-The Blockstream Satellite command-line interface (CLI) is required to configure
-and run your receiver. You can install it by executing the following command on
-the terminal:
-
-```
-sudo pip3 install blocksat-cli
-```
-
-> NOTE:
->
-> 1. The CLI requires Python 3 and the above command requires Python3's package
->    installer ([pip3](https://pip.pypa.io/en/stable/installing/)).
-> 2. Some blocksat-cli commands require root access, so it is preferable to run
->    the installation command using `sudo`.
-
-Next, run the configuration helper:
-
-```
-blocksat-cli cfg
-```
-
-Then, check out the instructions for your setup by running:
-
-```
-blocksat-cli instructions
-```
-
-Within the set of instructions, one of the required steps is the installation of
-software dependencies, which is accomplished by the following command:
-
-```
-blocksat-cli deps install
-```
-
-After following the instructions, the next steps include the receiver/host
-configuration, the [Bitcoin Satellite](doc/bitcoin.md) installation, and the
-[antenna pointing](doc/antenna-pointing.md). Please follow the instructions in
-this guide.
-
 A [quick reference guide](doc/quick-reference.md) is available if you are
 familiar with the commands and steps of the process. Moreover, if you have
 purchased a [satellite
@@ -170,5 +82,3 @@ section, which covers the [hardware options](doc/hardware.md).
 
 For additional help, you can join the **#blockstream-satellite** IRC channel on
 freenode or contact [Blockstream Support](https://help.blockstream.com/).
-
-

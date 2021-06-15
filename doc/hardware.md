@@ -87,8 +87,8 @@ from the Pro Kit and Satellite Base Station options, you can gather the required
 components for the Basic Kit (formerly sold on Blockstream Store) based on a
 Linux USB Receiver. Refer to the list of [Basic Kit
 components](#blockstream-satellite-basic-kit). Alternatively, you can find
-detailed information in this guide to put together an affordable SDR receiver
-with just under $100.
+detailed information in this guide to put together an affordable
+software-defined radio (SDR) receiver with just under $100.
 
 ### Satellite Kit Comparison
 
@@ -97,16 +97,18 @@ satellite receiver options:
 
 |                                       | SDR                | Basic Kit          | [Pro Kit](https://store.blockstream.com/product/blockstream-satellite-pro-kit/) | [Base Station](https://store.blockstream.com/product/blockstream-satellite-base-station/) |
 |---------------------------------------|:------------------:|:------------------:|:------------------:|:------------------:|
-| Blockstream Kit Available             |                    | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
+| Blockstream Kit Available             |                    |                    | :heavy_check_mark: | :heavy_check_mark: |
 | USB Interface                         | :heavy_check_mark: | :heavy_check_mark: |                    |                    |
 | Ethernet Interface                    |                    |                    | :heavy_check_mark: | :heavy_check_mark: |
 | Requires LNB Power Supply             | :heavy_check_mark: |                    |                    |                    |
 | Support for Universal LNB<sup>1</sup> |                    | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
 | Dual-Satellite Capable<sup>2</sup>    |                    |                    | :heavy_check_mark: |                    |
-| CPU Utilization                       | High               | Low                | None               | None               |
-| Multiple Host Connections<sup>3</sup> |                    |                    | :heavy_check_mark: | :heavy_check_mark: |
+| CPU Utilization<sup>3</sup>           | High               | Low                | None               | None               |
+| Multiple Host Connections<sup>4</sup> |                    |                    | :heavy_check_mark: | :heavy_check_mark: |
 | Optional Rack Mountable               |                    |                    | :heavy_check_mark: |                    |
-| Compatible with C-band                | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |                    |
+| Compatible with C-band<sup>5</sup>    | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |                    |
+| Performance<sup>6</sup>               | Limited            | Excellent          | Excellent          | Excellent          |
+| Budget                                | Low (< $100)       | Medium             | High (> $900)      | Medium ($500)      |
 
 <sup>1</sup> Support means that the interface provides a 22 kHz signal for
 switching the Universal LNB between Ku low and Ku high bands. This feature is
@@ -117,8 +119,20 @@ satellites.
 with overlapping coverage. This feature enables greater redundancy, higher
 bitrate, and faster blockchain sync times.
 
-<sup>3</sup> The receiver can feed the data stream received over satellite to
+<sup>3</sup> The SDR receiver is implemented in software and runs on the host
+computer. Hence, it uses the underlying CPU significantly. The Basic Kit
+receiver uses a dedicated receiver chip and only minimal resources from the host
+CPU. The Pro Kit and Base Station receivers are entirely standalone.
+
+<sup>4</sup> The receiver can feed the data stream received over satellite to
 multiple hosts simultaneously over the local network.
+
+<sup>5</sup> As mentioned earlier, C band support is required to receive the
+Telstar 18V C band beam in the Asia-Pacific region.
+
+<sup>6</sup> The SDR receiver is an excellent option for a budget-limited
+setup. However, it is expected to have inferior performance due to software
+limitations.
 
 ## Satellite Kit Components
 
@@ -586,4 +600,4 @@ implicitly. To avoid confusion, we advise looking for an LNBF.
 
 ---
 
-Prev: [Home](../index.md) - Next: [Receiver Setup](receiver.md)
+Prev: [Home](../index.md) - Next: [Software Requirements](software.md)
