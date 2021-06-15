@@ -8,47 +8,86 @@ nav_order: 6
 **Table of Contents**
 
 - [Dual-Satellite Connection](#dual-satellite-connection)
-    - [Novra S400 Standalone Receiver](#novra-s400-standalone-receiver)
-    - [TBS5927 USB Receiver](#tbs5927-usb-receiver)
-    - [Blockstream Base Station Sat-IP Receiver](#blockstream-base-station-sat-ip-receiver)
-    - [SDR Receiver](#sdr-receiver)
+    - [Required Hardware](#required-hardware)
+    - [Host Configuration](#host-configuration)
+        - [Novra S400 Standalone Receiver](#novra-s400-standalone-receiver)
+        - [TBS5927 USB Receiver](#tbs5927-usb-receiver)
+        - [Blockstream Base Station Sat-IP Receiver](#blockstream-base-station-sat-ip-receiver)
+        - [SDR Receiver](#sdr-receiver)
 
 <!-- markdown-toc end -->
 
 
 Some regions worldwide are covered by two satellites at the same time. For
-example, most of the US has coverage from both the Galaxy 18 and
-Eutelsat 113. In Asia, there is extensive overlapping coverage from Telstar 18V
-C and Telstar 18V Ku. If you are in such a region with overlapping coverage, you
-can simultaneously connect to two satellites and double the bitcoin block
-transfer speed.
+example, most of the US has coverage from both Galaxy 18 and Eutelsat 113. In
+Asia, there is extensive overlapping coverage from Telstar 18V C and Telstar 18V
+Ku. If you are in such a region with overlapping coverage, you can
+simultaneously connect to two satellites and double the Bitcoin block transfer
+speed. This page describes the hardware and host configurations required to run
+such a dual-satellite setup.
 
-You can check if your location has overlapping coverage from two satellites in
-our [Coverage
+Before continuing, however, you should check if your location has overlapping
+coverage from two satellites using our [Coverage
 Map](https://blockstream.com/satellite/#satellite_network-coverage).
 
-To connect to two satellites simultaneously, you need separate antennas pointed
-to each satellite. Correspondingly, you need two LNBs (one per dish), double the
-number of cables, connectors, etc. The only exception is the receiver device, in
-case you have one that supports dual satellite connectivity.
+## Required Hardware
 
-If you have the Novra S400 receiver of the [Pro Ethernet
-Kit](https://store.blockstream.com/product/blockstream-satellite-pro-kit/), you
-can use a single unit simultaneously connected to two antennas/LNBs. Otherwise,
-with a USB or SDR-based receiver (or combinations of them), you need two
-receivers, each connected to a different antenna.
+A straightforward way to connect to two satellites simultaneously is to use
+separate antennas pointed to each satellite. To do so, you need two
+[LNBs](hardware.md#lnb) (one per dish), double the number of cables, twice as
+many connectors, etc. Nevertheless, it is also possible to receive from two
+satellites simultaneously while using a single parabolic reflector. However,
+this approach requires more advanced parts and installation skills.
 
-To run multiple receivers, you need to set up different sets of configurations
-on the command-line interface (CLI). Recall that your first step with the CLI,
-regardless of the type of receiver, is to run the configuration helper, as
+For instance, if your location has overlapping coverage from Galaxy 18 and
+Eutelsat 113, you can use a single dish and two LNBs. To do so, you need a dual
+or multi-feed LNB holder capable of spacing LNBs around the parabolic
+reflector's focal region to receive from satellites that are 10º apart in
+orbit. However, note this setup requires a more intricate antenna alignment
+procedure. Hence, we recommend contacting a local professional
+installer. Otherwise, if you would rather have a more straightforward
+installation on your own, we recommend setting up two independent antennas, one
+for each satellite beam.
+
+> If your location has overlapping coverage from the Telstar 18V C band and Ku
+> band beams, note these are two different beams out of the same satellite. In
+> principle, you could use a single dual-band (C and Ku) combo LNB if you were
+> able to find one. However, such combo LNB models usually select one band or
+> the other (C or Ku) instead of outputting both bands simultaneously. Hence,
+> they are not sufficient for a dual-satellite setup. Once again, we recommend
+> installing two independent antennas with independent LNBs instead. The [Pro
+> Kit](https://store.blockstream.com/product/blockstream-satellite-pro-kit/)
+> already comes with C and Ku band LNBs (see the [parts
+> list](hardware.md#blockstream-satellite-pro-kit)), so you only need to
+> purchase two dishes (and a few cables) in addition to the kit.
+
+Next, note you also need two receivers for a dual-satellite setup, one connected
+to each LNB. The only exception is if your receiver is the Novra S400 of the
+[Pro Ethernet
+Kit](https://store.blockstream.com/product/blockstream-satellite-pro-kit/). This
+receiver model inherently supports dual satellite connectivity by offering two
+independent radio-frequency (RF) channels. Otherwise, if using a Sat-IP, USB, or
+SDR-based receiver (or combinations of them), you need two receiver units, each
+connected to a different antenna/LNB. If using the [Satellite Base
+Station](https://store.blockstream.com/product/blockstream-satellite-base-station/)
+(an integrated receiver-antenna), you also need two units, each pointed to a
+distinct satellite.
+
+## Host Configuration
+
+Once you have the required hardware parts, the next step is to configure the
+receivers using the host computer. Regardless of the adopted hardware, you need
+to create different configurations on the command-line interface (CLI). Recall
+that your first step with the CLI is to run the configuration helper, as
 follows:
 
 ```
 blocksat-cli cfg
 ```
 
-To configure a second receiver, you need to set option `--cfg name`. For
-example, you can set up a second configuration named `rx2`, as follows:
+To create a second receiver configuration, you need to use option `--cfg
+name`. For example, you can set up a second configuration named `rx2`, as
+follows:
 
 ```
 blocksat-cli --cfg rx2 cfg
@@ -58,7 +97,7 @@ Then, select the other satellite of interest and inform the parts composing your
 second receiver setup. Subsequently, you can run all CLI commands using option
 `--cfg rx2`. Specific instructions are provided next.
 
-## Novra S400 Standalone Receiver
+### Novra S400 Standalone Receiver
 
 With the Novra S400, you need to configure the two RF interfaces
 separately. Each interface will be connected to a different antenna and
@@ -87,7 +126,7 @@ second satellite stream. You can do so by running:
 blocksat-cli --cfg rx2 btc --concat
 ```
 
-## TBS5927 USB Receiver
+### TBS5927 USB Receiver
 
 
 With a TBS5927 USB receiver, you would ordinarily run the following sequence
@@ -132,7 +171,7 @@ the second TBS5927 device. You can do so by running:
 blocksat-cli --cfg rx2 btc --concat
 ```
 
-## Blockstream Base Station Sat-IP Receiver
+### Blockstream Base Station Sat-IP Receiver
 
 With the [Satellite Base
 Station](https://store.blockstream.com/product/blockstream-satellite-base-station/)
@@ -152,7 +191,7 @@ receiver:
 blocksat-cli --cfg rx2 sat-ip
 ```
 
-## SDR Receiver
+### SDR Receiver
 
 To set up an SDR-based receiver, you would ordinarily run the following sequence
 of commands:
