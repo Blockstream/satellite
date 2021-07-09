@@ -44,7 +44,9 @@ following parameters:
 
 - **Polarity**: determines the rotation of the LNB. It is the angle of the LNB
   within the LNB mounting bracket (or holder). Often this is referred to also as
-  the LNB *rotational angle* or *LNB skew*.
+  the LNB *polarization angle* or *LNB skew*. A positive angle means a clockwise
+  adjustment when looking at the LNB from behind the dish and facing forwards to
+  the satellite in the sky.
 
 The three angles are illustrated below:
 
