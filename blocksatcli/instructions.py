@@ -75,12 +75,12 @@ def _print_s400_instructions(info):
 
     print("Now, configure the S400 receiver and the host by running:")
 
-    print("\n    sudo blocksat-cli standalone cfg\n")
+    print("\n    blocksat-cli standalone cfg\n")
 
     _print("""If you would like to review the changes that will be made to the
-    host before applying them, first run the command as a non-root user:""")
+    host before applying them, first run the command in dry-run mode:""")
 
-    print("    blocksat-cli standalone cfg\n\n")
+    print("    blocksat-cli standalone cfg --dry-run\n\n")
 
     util.prompt_for_enter()
 
@@ -165,13 +165,13 @@ def _print_usb_rx_instructions(info):
     will output the IP traffic received via the TBS5927. You can apply all
     configurations by running the following command:""")
 
-    print("\n    sudo blocksat-cli usb config\n")
+    print("\n    blocksat-cli usb config\n")
 
     _print("""If you would like to review the changes that will be made before
-    applying them, first run the command as a non-root user:
+    applying them, first run the command in dry-run mode:
     """)
 
-    print("\n    blocksat-cli usb config\n")
+    print("\n    blocksat-cli usb config --dry-run\n")
 
     _print("""
     Note this command will define arbitrary IP addresses to the interfaces. If
@@ -180,7 +180,7 @@ def _print_usb_rx_instructions(info):
     """)
 
     _print("""Furthermore, note that this configuration is not persistent across
-    reboots. After a reboot, you need to run `sudo blocksat-cli usb config`
+    reboots. After a reboot, you need to run `blocksat-cli usb config`
     again.""")
 
     util.prompt_for_enter()

@@ -3,24 +3,28 @@ import logging, os, time, ipaddress
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 from . import rp, firewall, defs, config, dependencies, util, monitoring
 from pysnmp.hlapi import *
+
 logger = logging.getLogger(__name__)
+runner = util.ProcessRunner(logger)
 
 
 class SnmpClient():
     """SNMP Client"""
-    def __init__(self, address, port, mib):
+    def __init__(self, address, port, mib, dry=False):
         """Constructor
 
         Args:
             address : SNMP agent's IP address
             port    : SNMP agent's port
             mib     : Target SNMP MIB
+            dry     : Dry run mode
 
         """
         assert(ipaddress.ip_address(address))  # parse address
         self.address = address
         self.port    = port
         self.mib     = mib
+        self.dry     = dry
         self.engine  = SnmpEngine()
         self._dump_mib()
 
@@ -38,7 +42,7 @@ class SnmpClient():
         cmd = ["mibdump.py",
                "--mib-source={}".format(mib_path),
                self.mib]
-        util.run_and_log(cmd, logger=logger)
+        runner.run(cmd)
 
     def _get(self, *variables):
         """Get one or more variables via SNMP
@@ -91,6 +95,17 @@ class SnmpClient():
             value    : value to set on the given variable.
 
         """
+        if (self.dry):
+            # Convert to the corresponding net-snmp command
+            # TODO: convert the string values that actually represent integers.
+            for key, val in key_vals:
+                if (isinstance(key, tuple)):
+                    key = ".".join([str(x) for x in key])
+                val_type = "s" if isinstance(val, str) else "i"
+                print("> snmpset -v 2c -c public {}:{} {}::{} {} {}".format(
+                    self.address, self.port, self.mib, key, val_type, val))
+            return
+
         obj_types = []
         for key, val in key_vals:
             if isinstance(key, tuple):
@@ -160,8 +175,8 @@ class SnmpClient():
 
 class S400Client(SnmpClient):
     """Novra S400 SNMP Client"""
-    def __init__(self, demod, address, port):
-        super().__init__(address, port, mib='NOVRA-s400-MIB')
+    def __init__(self, demod, address, port, dry=False):
+        super().__init__(address, port, mib='NOVRA-s400-MIB', dry=dry)
         self.demod = demod
 
     def get_stats(self):
@@ -307,8 +322,11 @@ class S400Client(SnmpClient):
             tone = 'disable'
 
         # Fetch and delete the current MPE PIDs
-        logger.info("Resetting MPE PIDs")
-        current_cfg = self._walk()
+        if (not self.dry):
+            logger.info("Resetting MPE PIDs")
+            current_cfg = self._walk()
+        else:
+            current_cfg = {}
         mpe_prefix = 's400MpePid' + self.demod
         for key in current_cfg:
             mpe_row_status = mpe_prefix + "RowStatus"
@@ -344,7 +362,8 @@ class S400Client(SnmpClient):
             logger.info("Enabling the LNB 22kHz tone")
         self._set(('s400Enable22KHzTone', tone))
 
-        logger.info("Receiver configured successfully")
+        if (not self.dry):
+            logger.info("Receiver configured successfully")
 
 
 def subparser(subparsers):
@@ -385,6 +404,10 @@ def subparser(subparsers):
     p1.add_argument('--rx-only', default=False, action='store_true',
                     help="Configure the receiver only and skip the host "
                     "configuration")
+    p1.add_argument("--dry-run",
+                    action='store_true',
+                    default=False,
+                    help="Print all commands but do not execute them")
     p1.set_defaults(func=cfg_standalone)
 
     # Monitoring
@@ -402,15 +425,19 @@ def subparser(subparsers):
 def cfg_standalone(args):
     """Configure the standalone receiver and the host
 
-    Set all parameters required on the standalone receiver: signal, LNB, and MPE
-    parameters. Then, configure the host to communicate with the the standalone
-    DVB-S2 receiver by setting reverse-path filters and firewall configurations.
+    Set all parameters required on the standalone receiver: signal, LNB, and
+    MPE parameters. Then, configure the host to communicate with the the
+    standalone DVB-S2 receiver by setting reverse-path filters and firewall
+    configurations.
 
     """
     user_info = config.read_cfg_file(args.cfg, args.cfg_dir)
 
     if (user_info is None):
         return
+
+    # Configure the subprocess runner
+    runner.set_dry(args.dry_run)
 
     if (not args.rx_only):
         if 'netdev' not in user_info['setup']:
@@ -425,13 +452,14 @@ def cfg_standalone(args):
         if (not dependencies.check_apps(["iptables"])):
             return
 
-        rp.set_filters([interface], prompt=(not args.yes))
+        rp.set_filters([interface], prompt=(not args.yes), dry=args.dry_run)
         firewall.configure([interface], defs.src_ports, user_info['sat']['ip'],
-                           igmp=True, prompt=(not args.yes))
+                           igmp=True, prompt=(not args.yes), dry=args.dry_run)
 
     if (not args.host_only):
         util._print_header("Receiver Configuration")
-        s400 = S400Client(args.demod, args.address, args.port)
+        s400 = S400Client(args.demod, args.address, args.port,
+                          dry=args.dry_run)
         s400.configure(user_info)
 
 

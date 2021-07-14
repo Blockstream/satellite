@@ -1,12 +1,13 @@
 """Manage software dependencies"""
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 from . import config, defs, util
-import sys, os, subprocess, logging, glob, json, textwrap, tempfile
+import sys, os, subprocess, logging, glob, textwrap, tempfile
 from shutil import which
-from pprint import pformat
 import platform, distro, requests
 from distutils.version import LooseVersion
+
 logger = logging.getLogger(__name__)
+runner = util.ProcessRunner(logger)
 
 
 target_map = {
@@ -89,22 +90,18 @@ def _check_pkg_repo(distro_id):
         apt_sources.append("/etc/apt/sources.list")
         cmd = ["grep", grep_str]
         cmd.extend(apt_sources)
-        res = util.run_and_log(cmd, stdout=subprocess.DEVNULL, nocheck=True,
-                               logger=logger)
+        res = runner.run(cmd, stdout=subprocess.DEVNULL, nocheck=True)
         found = (res.returncode == 0)
     elif (which("dnf")):
-        pkgs  = util.run_and_log(
-            util.root_cmd(["dnf", "copr", "list", "--enabled"]),
-            logger=logger,
-            output=True
-        )
-        found =  ("copr.fedorainfracloud.org/blockstream/satellite" in pkgs)
+        res = runner.run(["dnf", "copr", "list", "--enabled"], root=True,
+                         capture_output=True)
+        pkgs = res.stdout.decode().splitlines()
+        found = ("copr.fedorainfracloud.org/blockstream/satellite" in pkgs)
     elif (which("yum")):
         yum_sources = glob.glob("/etc/yum.repos.d/*")
         cmd = ["grep", "blockstream/satellite"]
         cmd.extend(yum_sources)
-        res = util.run_and_log(cmd, stdout=subprocess.DEVNULL, nocheck=True,
-                               logger=logger)
+        res = runner.run(cmd, stdout=subprocess.DEVNULL, nocheck=True)
         found = (res.returncode == 0)
     else:
         raise RuntimeError("Could not find a supported package manager")
@@ -115,13 +112,12 @@ def _check_pkg_repo(distro_id):
     return found
 
 
-def _enable_pkg_repo(distro_id, interactive, dry):
+def _enable_pkg_repo(distro_id, interactive):
     """Enable Blockstream Satellite's binary package repository
 
     Args:
         distro_id: Linux distribution ID
         interactive: Interactive mode
-        dry: Dry run
 
     """
     cmds = list()
@@ -144,7 +140,7 @@ def _enable_pkg_repo(distro_id, interactive, dry):
             # /etc/apt/sources.list.d/. With that, only the move command needs
             # root permissions, whereas the temporary file does not. In dry-run
             # mode, print an equivalent echo command.
-            if (dry):
+            if (runner.dry):
                 cmd = ["echo", "-e", repr(apt_file_content), ">>",
                        apt_list_file]
             else:
@@ -182,18 +178,15 @@ def _enable_pkg_repo(distro_id, interactive, dry):
         raise RuntimeError("Could not find a supported package manager")
 
     for cmd in cmds:
-        if (dry):
-            print(" ".join(util.root_cmd(cmd)))
-        else:
-            util.run_and_log(util.root_cmd(cmd), logger=logger)
+        runner.run(cmd, root=True)
 
 
-def _update_pkg_repo(interactive, dry):
+def _update_pkg_repo(interactive):
     """Update APT's package index
 
-    NOTE: this function updates APT only. On dnf/yum, there is no need to run an
-    update manually. The tool (dnf/yum) updates the package index automatically
-    when an install/upgrade command is called.
+    NOTE: this function updates APT only. On dnf/yum, there is no need to run
+    an update manually. The tool (dnf/yum) updates the package index
+    automatically when an install/upgrade command is called.
 
     """
 
@@ -204,14 +197,11 @@ def _update_pkg_repo(interactive, dry):
     if (not interactive):
         cmd.append("-y")
 
-    if (dry):
-        print(" ".join(util.root_cmd(cmd)))
-    else:
-        util.run_and_log(util.root_cmd(cmd), logger=logger)
+    runner.run(cmd, root=True)
 
 
 def _install_packages(apt_list, dnf_list, yum_list, interactive=True,
-                      update=False, dry=False):
+                      update=False):
     """Install binary packages
 
     Args:
@@ -220,7 +210,6 @@ def _install_packages(apt_list, dnf_list, yum_list, interactive=True,
         dnf_list    : List of package names for installation via yum
         interactive : Whether to run an interactive install (w/ user prompting)
         update      : Whether to update pre-installed packages instead
-        dry         : Print commands instead of executing them
 
 
     """
@@ -254,13 +243,10 @@ def _install_packages(apt_list, dnf_list, yum_list, interactive=True,
             env = os.environ.copy()
             env["DEBIAN_FRONTEND"] = "noninteractive"
 
-    if (dry):
-        print(" ".join(util.root_cmd(cmd)))
-    else:
-        util.run_and_log(util.root_cmd(cmd), logger=logger, env=env)
+    runner.run(cmd, root=True, env=env)
 
 
-def _install_common(interactive=True, update=False, dry=False, btc=False):
+def _install_common(interactive=True, update=False, btc=False):
     """Install dependencies that are common to all setups"""
     util._print_header("Installing Common Dependencies")
     apt_pkg_list = ["software-properties-common"]
@@ -282,11 +268,11 @@ def _install_common(interactive=True, update=False, dry=False, btc=False):
         yum_pkg_list.append("epel-release")
 
     _install_packages(apt_pkg_list, dnf_pkg_list, yum_pkg_list, interactive,
-                      update, dry)
+                      update)
 
     # Enable our binary package repository
-    if dry or (not _check_pkg_repo(distro_id)):
-        _enable_pkg_repo(distro_id, interactive, dry)
+    if runner.dry or (not _check_pkg_repo(distro_id)):
+        _enable_pkg_repo(distro_id, interactive)
 
     # Install bitcoin-satellite
     if (btc):
@@ -303,14 +289,13 @@ def _install_common(interactive=True, update=False, dry=False, btc=False):
             # workaround, install the two packages separately.
             for pkg in dnf_pkg_list:
                 _install_packages(apt_pkg_list, [pkg], [pkg],
-                                  interactive, update, dry)
+                                  interactive, update)
         else:
             _install_packages(apt_pkg_list, [], yum_pkg_list,
-                              interactive, update, dry)
+                              interactive, update)
 
 
-
-def _install_specific(target, interactive=True, update=False, dry=False):
+def _install_specific(target, interactive=True, update=False):
     """Install setup-specific dependencies"""
     key = next(key for key, val in target_map.items() if val == target)
     pkg_map = {
@@ -347,7 +332,7 @@ def _install_specific(target, interactive=True, update=False, dry=False):
                       pkg_map[key]['dnf'],
                       pkg_map[key]['yum'],
                       interactive,
-                      update, dry)
+                      update)
 
 
 def _print_help(args):
@@ -374,7 +359,7 @@ def subparser(subparsers):
     p.add_argument("--dry-run",
                    action='store_true',
                    default=False,
-                   help="Prints all commands but does not execute them")
+                   help="Print all commands but do not execute them")
 
     subsubp = p.add_subparsers(title='subcommands',
                                help='Target sub-command')
@@ -419,6 +404,9 @@ def run(args):
     # Interactive installation? I.e., requires user to press "y/n"
     interactive = (not args.yes)
 
+    # Configure the subprocess runner
+    runner.set_dry(args.dry_run)
+
     if (args.target is not None):
         target = target_map[args.target]
     else:
@@ -437,20 +425,21 @@ def run(args):
         util._print_header("Dry Run Mode")
 
     # Update package index
-    _update_pkg_repo(interactive, args.dry_run)
+    _update_pkg_repo(interactive)
 
     # Common dependencies (regardless of setup)
-    _install_common(interactive=interactive, update=args.update,
-                    dry=args.dry_run, btc=args.btc)
+    _install_common(interactive=interactive, update=args.update, btc=args.btc)
 
     # Install setup-specific dependencies
-    _install_specific(target, interactive=interactive, update=args.update,
-                      dry=args.dry_run)
+    _install_specific(target, interactive=interactive, update=args.update)
 
 
 def drivers(args):
     # Interactive installation? I.e., requires user to press "y/n"
     interactive = (not args.yes)
+
+    # Configure the subprocess runner
+    runner.set_dry(args.dry_run)
 
     if (os.geteuid() != 0 and not args.dry_run):
         util.fill_print("Some commands require root access and may prompt "
@@ -458,8 +447,6 @@ def drivers(args):
 
     if (args.dry_run):
         util._print_header("Dry Run Mode")
-
-    runner = util.ProcessRunner(logger, args.dry_run)
 
     # Install pre-requisites
     linux_release  = platform.release()
@@ -507,7 +494,7 @@ def drivers(args):
             print("Kernel update required")
             if (util._ask_yes_or_no("OK to run \"dnf update\"?")):
                 cmd = ["dnf", "update"]
-                runner.run(util.root_cmd(cmd))
+                runner.run(cmd, root=True)
                 print("Please reboot to load the new kernel and try the " +
                       "command below again:")
                 print("\n  blocksat-cli deps tbs-drivers\n")
@@ -518,9 +505,9 @@ def drivers(args):
             sys.exit(1)
             return
 
-    _update_pkg_repo(interactive, args.dry_run)
+    _update_pkg_repo(interactive)
     _install_packages(apt_pkg_list, dnf_pkg_list, yum_pkg_list,
-                      interactive=interactive, update=False, dry=args.dry_run)
+                      interactive=interactive, update=False)
 
     # Clone the driver repositories
     driver_src_dir  = os.path.join(args.cfg_dir, "src", "tbsdriver")
@@ -567,13 +554,10 @@ def drivers(args):
     # Delete the previous Media Tree installation
     media_lib_path = "/lib/modules/" + linux_release + \
                      "/kernel/drivers/media/"
-    runner.run(
-        util.root_cmd(["rm", "-rf", media_lib_path]),
-        cwd = media_build_dir
-    )
+    runner.run(["rm", "-rf", media_lib_path], root=True, cwd=media_build_dir)
 
     # Install the new Media Tree
-    runner.run(util.root_cmd(["make", "install"]), cwd = media_build_dir)
+    runner.run(["make", "install"], root=True, cwd=media_build_dir)
 
     # Download the firmware
     tbs_linux_url = "https://www.tbsdtv.com/download/document/linux/"
@@ -582,8 +566,8 @@ def drivers(args):
     _download_file(fw_url, driver_src_dir, args.dry_run)
 
     # Install the firmware
-    runner.run(util.root_cmd(["tar", "jxvf", fw_tarball, "-C",
-                              "/lib/firmware/"]), cwd = driver_src_dir)
+    runner.run(["tar", "jxvf", fw_tarball, "-C", "/lib/firmware/"],
+               root=True, cwd=driver_src_dir)
 
     if (not args.dry_run):
         print("Installation completed successfully. Please reboot now.")

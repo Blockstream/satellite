@@ -1,30 +1,35 @@
 """Reverse path settings"""
+import logging
+import os
 from argparse import ArgumentDefaultsHelpFormatter
-import subprocess, os
+
 from . import util
 
+logger = logging.getLogger(__name__)
+runner = util.ProcessRunner(logger)
 
-def _read_filter(ifname, stdout=False):
+
+def _read_filter(ifname, nodry=False):
     safe_ifname = ifname.replace(".", "/")
     cmd = ["sysctl", "net.ipv4.conf." + safe_ifname + ".rp_filter"]
-    if (stdout):
-        print(" ".join(cmd))
-        return
-    return subprocess.check_output(cmd).split()[-1].decode()
+    res = runner.run(cmd, capture_output=True, nodry=nodry, nocheck=True)
+    if (res is None or res.stdout == b''):
+        return -1  # dry run or the interface does not exist
+    else:
+        return int(res.stdout.decode().split()[-1])
 
 
 def _write_filter(ifname, val):
     assert(val == "1" or val == "0")
     safe_ifname = ifname.replace(".", "/")
-    cmd = ["sysctl", "-w", "net.ipv4.conf." + safe_ifname + ".rp_filter=" + val]
+    cmd = ["sysctl", "-w", "net.ipv4.conf." + safe_ifname +
+           ".rp_filter=" + val]
 
-    # Run if root, print if normal user
-    if (os.geteuid() == 0):
-        action = "Enabling" if val == "1" else "Disabling"
-        print("{} RP filter on interface {}".format(action, ifname))
-        subprocess.check_output(cmd)
-    else:
-        print(" ".join(cmd))
+    action = "Enabling" if val == "1" else "Disabling"
+    if (not runner.dry):
+        print("{} the RP filter on interface \"{}\"".format(action, ifname))
+    runner.run(cmd, root=True)
+
 
 def _rm_filter(ifname):
     _write_filter(ifname, "0")
@@ -34,60 +39,41 @@ def _add_filter(ifname):
     _write_filter(ifname, "1")
 
 
-def _check_rp_filters(dvb_if):
-    """Check if reverse-path (RP) filters are configured on the interface
-
-    Args:
-        dvb_if : DVB network interface
-
-    Return:
-        True when configuration is already OK.
-
-    """
-
-    # Check current configuration of DVB interface and "all" rule:
-    dvb_cfg = _read_filter(dvb_if)
-    all_cfg = _read_filter("all")
-
-    return (dvb_cfg == "0" and all_cfg == "0")
-
-
-def _set_filters(dvb_ifs, non_root):
+def _set_filters(dvb_ifs):
     """Disable reverse-path (RP) filtering for the DVB interface
 
     There are two layers of RP filters, one specific to the network interface
     and a higher level that controls the configurations for all network
     interfaces. This function disables RP filtering on the top layer (for all
-    interfaces), but then enables RP filtering individually for each interface,
-    except the DVB interface. This way, in the end only the DVB interface has RP
-    filtering disabled.
+    interfaces) but then enables RP filtering individually on all interfaces,
+    except the DVB-S2 interface of interst. This way, in the end, only the
+    DVB-S2 interface has RP filtering disabled.
+
+    If the top layer RP filter (the "all" rule) is already disabled, this
+    function disables only the target DVB-S2 interface. This strategy is
+    especially useful when multiple DVB-S2 interfaces are attached to the
+    host. If one of them has already disabled the "all" rule, this function
+    disables only the incoming DVB-S2 interface and doesn't re-enable the RP
+    filters of the other interfaces, otherwise it would end up reactivating the
+    filter for the other DVB-S2 interface(s).
 
     Args:
-        dvb_ifs : DVB network interfaces
+        dvb_ifs : List of target DVB-S2 network interfaces.
 
     """
     assert(isinstance(dvb_ifs, list))
 
-    # Check "all" rule:
-    all_cfg = _read_filter("all")
-
-    # If "all" rule is already disabled, it is only necessary to disable the
-    # target interface
-    if (all_cfg == "0"):
-        if (not non_root):
+    # If the "all" rule is already disabled, disable only the target DVB-S2
+    # interface.
+    if (_read_filter("all", nodry=True) == 0):
+        if (not runner.dry):
             print("RP filter for \"all\" interfaces is already disabled")
+
         for dvb_if in dvb_ifs:
             _rm_filter(dvb_if)
-        if (non_root):
-            print()
-            util.fill_print(
-                "NOTE: this assumes the RP filter for \"all\" \
-                interfaces is already disabled. You can check this by running:"
-            )
-            _read_filter("all", stdout=True)
 
-    # If "all" rule is enabled, we will need to disable it. Also to preserve
-    # RP filtering on all other interfaces, we will enable them manually.
+    # If the "all" rule is enabled, disable it, and manually enable the RP
+    # filtering on all other interfaces.
     else:
         # Check interfaces
         ifs = os.listdir("/proc/sys/net/ipv4/conf/")
@@ -98,11 +84,9 @@ def _set_filters(dvb_ifs, non_root):
                 interface in dvb_ifs):
                 continue
 
-            # Check current configuration
-            current_cfg = _read_filter(interface)
-
-            if (int(current_cfg) > 0):
-                if (not non_root):
+            # Enable the RP filter if not enabled already.
+            if (_read_filter(interface, nodry=True) > 0):
+                if (not runner.dry):
                     print("RP filter is already enabled on interface %s" %(
                         interface))
             else:
@@ -116,45 +100,40 @@ def _set_filters(dvb_ifs, non_root):
             _rm_filter(dvb_if)
 
 
-def set_filters(dvb_ifs, prompt=True):
+def set_filters(dvb_ifs, prompt=True, dry=False):
     """Disable reverse-path (RP) filtering for the DVB interfaces
 
     Args:
         dvb_ifs : list of DVB network interfaces
         prompt  : Whether to prompt user before applying a configuration
+        dry     : Dry run mode
 
     """
     assert(isinstance(dvb_ifs, list))
-
+    runner.set_dry(dry)
     util._print_header("Reverse Path Filters")
 
-    # Check if RP filters are already configured properly
-    if (os.geteuid() == 0):
-        rp_filters_set = list()
-        for dvb_if in dvb_ifs:
-            rp_filters_set.append(_check_rp_filters(dvb_if))
+    # Check if the RP filters are already configured properly
+    rp_filters_set = list()
+    rp_filters_set.append(_read_filter("all", nodry=True) == 0)
+    for dvb_if in dvb_ifs:
+        rp_filters_set.append(_read_filter(dvb_if, nodry=True) == 0)
 
-        if (all(rp_filters_set)):
-            print("Current RP filtering configurations are already OK")
-            print("Skipping...")
-            return
+    if (all(rp_filters_set)):
+        print("Current RP filtering configurations are already OK")
+        print("Skipping...")
+        return
 
-    util.fill_print("Blocksat traffic is one-way and thus reverse path (RP) \
-    filtering must be disabled.")
+    util.fill_print("It will be necessary to reconfigure some reverse path \
+    (RP) filtering rules applied by the Linux kernel. This is required to \
+    prevent the filtering of the one-way Blockstream Satellite traffic.")
 
-    # For a non-root user, just run without asking. It is not going to run the
-    # command anyway, just print it to stdout.
-    non_root = os.geteuid() != 0
-    if (non_root):
-        util.fill_print("To configure RP filters, run blocksat-cli as root or \
-        run the following commands on your own:")
-    else:
-        util.fill_print(
-            "The automatic solution disables RP filtering on the DVB interface \
-            and enables RP filtering on all other interfaces.")
+    if (runner.dry):
+        util.fill_print("The following command(s) would be executed to \
+        reconfigure the RP filters:")
 
-    if (non_root or (not prompt) or util._ask_yes_or_no("OK to proceed?")):
-        _set_filters(dvb_ifs, non_root)
+    if (runner.dry or (not prompt) or util._ask_yes_or_no("OK to proceed?")):
+        _set_filters(dvb_ifs)
     else:
         print("RP filtering configuration cancelled")
 
@@ -165,8 +144,14 @@ def subparser(subparsers):
                               description="Set reverse path filters",
                               help='Set reverse path filters',
                               formatter_class=ArgumentDefaultsHelpFormatter)
-    p.add_argument('-i', '--interface', required = True,
+    p.add_argument('-i', '--interface', required=True,
                    help='Network interface')
+    p.add_argument('-y', '--yes', default=False, action='store_true',
+                   help="Default to answering Yes to configuration prompts")
+    p.add_argument("--dry-run",
+                   action='store_true',
+                   default=False,
+                   help="Print all commands but do not execute them")
     p.set_defaults(func=run)
     return p
 
@@ -177,6 +162,6 @@ def run(args):
     Handles the reverse-path subcommand
 
     """
-    set_filters([args.interface])
+    set_filters([args.interface], prompt=(not args.yes), dry=args.dry_run)
 
 

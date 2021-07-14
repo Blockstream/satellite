@@ -3,7 +3,9 @@ import subprocess, logging, textwrap, os, threading, time
 from argparse import ArgumentDefaultsHelpFormatter
 from shutil import which
 from . import config, defs, util, dependencies, monitoring, tsp
+
 logger = logging.getLogger(__name__)
+runner = util.ProcessRunner(logger)
 
 
 def _tune_max_pipe_size(pipesize):
@@ -17,9 +19,7 @@ def _tune_max_pipe_size(pipesize):
     current_max = int(ret.decode().split()[-1])
 
     if (current_max < pipesize):
-        cmd = util.root_cmd(["sysctl", "-w",
-                             "fs.pipe-max-size=" + str(pipesize)])
-
+        cmd = ["sysctl", "-w", "fs.pipe-max-size=" + str(pipesize)]
         print(textwrap.fill("The maximum pipe size that is currently "
                             "configured in your OS is of {} bytes, which is "
                             "not sufficient for the receiver application. "
@@ -31,7 +31,8 @@ def _tune_max_pipe_size(pipesize):
             print("Abort")
             return False
 
-        return subprocess.check_output(cmd)
+        res = runner.run(cmd, root=True)
+        return (res.returncode == 0)
     else:
         return True
 

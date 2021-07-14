@@ -84,7 +84,7 @@ blocksat-cli instructions
 Configure the receiver and the host by running:
 
 ```
-sudo blocksat-cli standalone cfg
+blocksat-cli standalone cfg
 ```
 
 Monitor the S400 receiver:
@@ -99,9 +99,9 @@ Install the drivers:
 blocksat-cli deps tbs-drivers
 ```
 
-Configure the host's interfacing with the TBS5927:
+Configure the host and the TBS5927:
 ```
-sudo blocksat-cli usb config
+blocksat-cli usb config
 ```
 
 Start the USB receiver:

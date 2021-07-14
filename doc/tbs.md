@@ -90,14 +90,14 @@ traffic received via the TBS5927. You can apply all configurations by running
 the following command:
 
 ```
-sudo blocksat-cli usb config
+blocksat-cli usb config
 ```
 
 If you would like to review the changes that will be made before applying them,
-first run the command as a non-root user:
+first run the command in dry-run mode:
 
 ```
-blocksat-cli usb config
+blocksat-cli usb config --dry-run
 ```
 
 Note this command will define an arbitrary IP address to the interface. If you
@@ -105,7 +105,7 @@ would like to define a specific IP address instead, for example, to avoid
 address conflicts, use the command-line argument `--ip`.
 
 Furthermore, note that this configuration is not persistent across
-reboots. After a reboot, you need to run `sudo blocksat-cli usb config` again.
+reboots. After a reboot, you need to run `blocksat-cli usb config` again.
 
 ## Launch
 
@@ -114,9 +114,6 @@ Finally, start the receiver by running:
 ```
 blocksat-cli usb launch
 ```
-
-> NOTE: you can run this command with a non-root user. Only the configuration
-> step (`blocksat-cli usb config`) requires root access.
 
 ## Next Steps
 

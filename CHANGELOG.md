@@ -8,6 +8,13 @@ Release Date: TBD
 - Support for the new Satellite Monitoring API, through which users can opt-in
   to report their receiver performance metrics using option `--report`.
 - Support for the installation of software dependencies on Debian and Raspbian.
+- Dry-run option (`--dry-run`) on the following subcommands: `firewall`, `rp`,
+  `standalone config`, `usb config`, and `usb remove`.
+
+### Changed
+- `sudo` requirement of subcommands `standalone config`, `usb config`, and `usb
+  remove`. These can now be executed both by normal and root users. Running them
+  as a normal user actually executes the changes instead of a dry run.
 
 ### Fixed
 - Permissions of the GPG home directory created via the `api config` command and

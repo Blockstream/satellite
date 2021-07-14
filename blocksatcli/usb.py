@@ -1,11 +1,18 @@
 """Linux USB receiver"""
-from pprint import pformat
-from ipaddress import IPv4Interface
-import os, sys, signal, argparse, subprocess, time, logging, threading, json
+import json
+import logging
+import os
+import signal
+import subprocess
+import sys
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
+from pprint import pformat
+
 from . import config, util, defs, rp, firewall, ip, dependencies, monitoring
-import textwrap
+
+
 logger = logging.getLogger(__name__)
+runner = util.ProcessRunner(logger)
 
 
 def _find_v4l_lnb(info):
@@ -201,7 +208,7 @@ def _dvbnet_single(adapter, ifname, pid, ule, existing_dvbnet_interfaces):
     else:
         encapsulation = 'MPE'
 
-    # Check if interface already exists
+    # Check if the interface already exists
     res = subprocess.call(["ip", "addr", "show", "dev", ifname],
                           stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     os_interface_exists = (res == 0)
@@ -249,14 +256,11 @@ def _dvbnet_single(adapter, ifname, pid, ule, existing_dvbnet_interfaces):
 
         ule_arg = "-U" if ule else ""
 
-        if (os.geteuid() == 0):
-            print("Launch {} using {} encapsulation:".format(
-                ifname, "ULE" if ule else "MPE"))
+        if (runner.dry):
+            print("Create interface {}:".format(ifname))
 
-        res = util.run_or_print_root_cmd(["dvbnet", "-a", adapter, "-p",
-                                          str(pid), ule_arg], logger)
-        if (res is not None):
-            print(res.decode())
+        runner.run(["dvbnet", "-a", adapter, "-p", str(pid), ule_arg],
+                   root=True)
     else:
         print("Network interface %s already configured correctly" %(ifname))
 
@@ -282,10 +286,6 @@ def _dvbnet(adapter, ifnames, pids, ule=False):
     existing_dvbnet_iif = _find_dvbnet_interfaces(adapter)
 
     util._print_header("Network Interface")
-
-    if (os.geteuid() != 0):
-        util.fill_print("Launch blocksat-cli as root or run the following \
-        commands on your own:")
 
     for ifname, pid in zip(ifnames, pids):
         _dvbnet_single(adapter, ifname, pid, ule, existing_dvbnet_iif)
@@ -339,15 +339,14 @@ def _rm_dvbnet_interface(adapter, ifname, verbose=True):
 
     if (verbose):
         util._print_header("Remove dvbnet interface")
-    res       = util.run_or_print_root_cmd(["ip", "link", "set",
-                                            ifname, "down"], logger)
+
+    runner.run(["ip", "link", "set", ifname, "down"], root=True)
+
     if_number = ifname.split("_")[-1]
-    res       = util.run_or_print_root_cmd(["dvbnet", "-a", adapter, "-d",
-                                            if_number], logger)
-    print(res.decode())
+    runner.run(["dvbnet", "-a", adapter, "-d", if_number], root=True)
 
     # Remove also the static IP address configuration
-    ip.rm_ip(ifname)
+    ip.rm_ip(ifname, runner.dry)
 
 
 def zap(adapter, frontend, ch_conf_file, user_info, lnb="UNIVERSAL",
@@ -513,6 +512,11 @@ def subparser(subparsers):
     p2.add_argument('-y', '--yes', default=False, action='store_true',
                     help="Default to answering Yes to configuration prompts")
 
+    p2.add_argument("--dry-run",
+                    action='store_true',
+                    default=False,
+                    help="Print all commands but do not execute them")
+
     p2.set_defaults(func=usb_config)
 
     # Find adapter sub-command
@@ -531,6 +535,10 @@ def subparser(subparsers):
                     action='store_true',
                     help='Remove all dvbnet interfaces associated with the '
                     'adapter')
+    p4.add_argument("--dry-run",
+                    action='store_true',
+                    default=False,
+                    help="Print all commands but do not execute them")
     p4.set_defaults(func=rm_subcommand)
 
     return p
@@ -573,11 +581,6 @@ def _common(args):
 
 def usb_config(args):
     """Config the DVB interface(s) and the host"""
-    if (os.geteuid() != 0):
-        print("WARNING:\n")
-        util.fill_print("\"blocksat-cli usb config\" requires root access. \
-        Please run as root or follow the instructions below.")
-
     common_params = _common(args)
     if (common_params is None):
         return
@@ -589,6 +592,9 @@ def usb_config(args):
         apps.append("iptables")
     if (not dependencies.check_apps(apps)):
         return
+
+    # Configure the subprocess runner
+    runner.set_dry(args.dry_run)
 
     if args.ip is None:
         ips = ip.compute_rx_ips(user_info['sat']['ip'], len(args.pid))
@@ -617,15 +623,15 @@ def usb_config(args):
 
     # Set RP filters
     if (not args.skip_rp):
-        rp.set_filters(net_ifs, prompt=(not args.yes))
+        rp.set_filters(net_ifs, prompt=(not args.yes), dry=args.dry_run)
 
     # Set firewall rules
     if (not args.skip_firewall):
         firewall.configure(net_ifs, defs.src_ports, user_info['sat']['ip'],
-                           prompt=(not args.yes))
+                           prompt=(not args.yes), dry=args.dry_run)
 
     # Set IP
-    ip.set_ips(net_ifs, ips)
+    ip.set_ips(net_ifs, ips, dry=runner.dry)
 
     util._print_header("Next Step")
     print("Run:\n\nblocksat-cli usb launch\n")
@@ -775,13 +781,11 @@ def rm_subcommand(args):
 
     """
 
-    if (os.geteuid() != 0):
-        logger.error("Root access is required to remove dvbnet interfaces.")
-        print("Please, run as root.")
-        return
-
     if (not dependencies.check_apps(["dvbnet", "dvb-fe-tool", "ip"])):
         return
+
+    # Configure the subprocess runner
+    runner.set_dry(args.dry_run)
 
     # Find adapter
     if (args.adapter is None):

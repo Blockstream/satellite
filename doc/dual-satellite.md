@@ -106,13 +106,13 @@ receiving from a different satellite. As explained on the
 (RF1) is configured by the following command:
 
 ```
-sudo blocksat-cli standalone cfg
+blocksat-cli standalone cfg
 ```
 
 To configure the second RF interface, run:
 
 ```
-sudo blocksat-cli --cfg rx2 standalone --demod 2 cfg --rx-only
+blocksat-cli --cfg rx2 standalone --demod 2 cfg --rx-only
 ```
 
 Next, access the S400 web management console as instructed in the
@@ -144,7 +144,7 @@ blocksat-cli deps install
 
 3. Configuration of the host interfaces:
 ```
-sudo blocksat-cli usb config
+blocksat-cli usb config
 ```
 
 4. Receiver launch:
@@ -157,7 +157,7 @@ you only need to repeat steps 3 and 4 while including argument `--cfg rx2`, as
 follows:
 
 ```
-sudo blocksat-cli --cfg rx2 usb config
+blocksat-cli --cfg rx2 usb config
 
 blocksat-cli --cfg rx2 usb launch
 ```

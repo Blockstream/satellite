@@ -1,5 +1,9 @@
 """Utility functions"""
-import copy, os, textwrap, subprocess
+import copy
+import os
+import subprocess
+import textwrap
+import tempfile
 
 
 def fill_print(text):
@@ -192,60 +196,12 @@ def get_home_dir():
     return os.path.expanduser("~" + user)
 
 
-def root_cmd(cmd):
-    """Add sudo to cmd if non-root
-
-    Args:
-        cmd : Command as list
-
-    """
-    assert(isinstance(cmd, list))
-    if (os.geteuid() != 0 and cmd[0] != "sudo"):
-        cmd.insert(0, "sudo")
-    return cmd
-
-
-def run_or_print_root_cmd(cmd, logger=None):
-    """Run root command
-
-    Args:
-        cmd : Command as list
-
-    """
-    assert(isinstance(cmd, list))
-    assert(cmd[0] != "sudo")
-
-    if (os.geteuid() == 0):
-        if (logger is not None):
-            logger.debug("> " + " ".join(cmd))
-        return subprocess.check_output(cmd)
-    else:
-        print("> " + " ".join(cmd) + "\n")
-
-
-def run_and_log(cmd, logger=None, cwd=None, env=None, output=False, stdout=None,
-                stderr=None, nocheck=False):
-    assert(isinstance(cmd, list))
-    if (logger is not None):
-        logger.debug("> " + " ".join(cmd))
-
-    if (output):
-        res = subprocess.check_output(cmd, cwd=cwd, env=env)
-        # NOTE: don't overwrite stdout/stderr for check_output
-        return res.decode().splitlines()
-    else:
-        res = subprocess.run(cmd, cwd=cwd, env=env, stdout=stdout,
-                             stderr=stderr)
-        if (not nocheck):
-            res.check_returncode()
-        return res
-
-
 class ProcessRunner():
     def __init__(self, logger=None, dry=False):
-        self.logger   = logger
-        self.dry      = dry
+        self.logger = logger
+        self.dry = dry
         self.last_cwd = None
+        self.root = os.geteuid() == 0
 
     def _get_cmd_str(self, orig_cmd):
         """Generate string for command
@@ -258,26 +214,65 @@ class ProcessRunner():
         for i, elem in enumerate(quoted_cmd):
             if (" " in elem):
                 quoted_cmd[i] = "\'{}\'".format(elem)
-        return " ".join(quoted_cmd)
+        return "> " + " ".join(quoted_cmd)
+
+    def set_dry(self, dry=True):
+        self.dry = dry
 
     def run(self, cmd, cwd=None, env=None, stdout=None, stderr=None,
-            nocheck=False):
+            nocheck=False, root=False, nodry=False, capture_output=False):
         assert(isinstance(cmd, list))
-        if (self.dry):
+
+        # Add sudo if necessary
+        if (root and not self.root and cmd[0] != "sudo"):
+            orig_cmd = cmd  # Keep the original list untouched
+            cmd = orig_cmd.copy()
+            cmd.insert(0, "sudo")
+
+        # Handle capture_output for backwards compatibility with py3.6
+        if (capture_output):
+            assert(stdout is None)
+            assert(stderr is None)
+            stdout = subprocess.PIPE
+            stderr = subprocess.PIPE
+
+        if (self.dry and not nodry):
             if (cwd != self.last_cwd):
-                print("cd {}".format(cwd))
+                print("> cd {}".format(cwd))
                 self.last_cwd = cwd
             print(self._get_cmd_str(cmd))
             return
 
         if (self.logger is not None):
-            self.logger.debug("> " + self._get_cmd_str(cmd))
+            self.logger.debug(self._get_cmd_str(cmd))
 
-        res = subprocess.run(cmd, cwd=cwd, env=env, stdout=stdout,
-                             stderr=stderr)
-        if (not nocheck):
-            res.check_returncode()
+        try:
+            res = subprocess.run(cmd, cwd=cwd, env=env, stdout=stdout,
+                                 stderr=stderr, check=(not nocheck))
+        except KeyboardInterrupt:
+            print("Aborting")
+            exit()
+
         return res
+
+    def create_file(self, content, path, **kwargs):
+        """Create file with given content on a specified path
+
+        If the target path requires root privileges, this function can be
+        executed with option root=True.
+
+        """
+        if (self.dry):
+            # In dry-run mode, run an equivalent echo command.
+            cmd = ["echo", "-e", repr(content), ">", path]
+        else:
+            tmp_file = tempfile.NamedTemporaryFile(mode="w", delete=False)
+            with tmp_file as fd:
+                fd.write(content)
+            cmd = ["mv", tmp_file.name, path]
+        self.run(cmd, **kwargs)
+        if (not self.dry):
+            self.logger.info("Created file {}".format(path))
 
 
 class Pipe():
