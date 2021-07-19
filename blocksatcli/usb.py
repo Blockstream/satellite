@@ -422,11 +422,17 @@ def zap(adapter, frontend, ch_conf_file, user_info, lnb="UNIVERSAL",
 
     logger.debug("> " + " ".join(cmd))
 
+    # Make sure the locale of dvbv5-zap is set to English. Otherwise, the
+    # parser of "_parse_log" would not work.
+    new_env = dict(os.environ)
+    new_env['LC_ALL'] = 'C'
+
     if (monitor or rec_mode):
-        ps = subprocess.Popen(cmd)
+        ps = subprocess.Popen(cmd, env=new_env)
     else:
         ps = subprocess.Popen(cmd, stdout=subprocess.PIPE,
-                              stderr=subprocess.PIPE, universal_newlines=True)
+                              stderr=subprocess.PIPE, env=new_env,
+                              universal_newlines=True)
     return ps
 
 

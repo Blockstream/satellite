@@ -21,6 +21,7 @@ Release Date: TBD
   other unnecessary warnings during the keyring creation process.
 - API order state wait loop potentially stuck until timeout after an API message
   transmission.
+- Incompatibility when parsing USB receiver logs on non-English terminal locale.
 
 ## [2.3.2]
 
