@@ -10,6 +10,8 @@ Release Date: TBD
 - Support for the installation of software dependencies on Debian and Raspbian.
 - Dry-run option (`--dry-run`) on the following subcommands: `firewall`, `rp`,
   `standalone config`, `usb config`, and `usb remove`.
+- Option `--report-passphrase` to enable scripted runs while using option
+  `--report`.
 
 ### Changed
 - `sudo` requirement of subcommands `standalone config`, `usb config`, and `usb

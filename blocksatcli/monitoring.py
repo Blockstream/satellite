@@ -18,7 +18,8 @@ def get_report_opts(args):
         'hostname': args.report_hostname,
         'tls_cert': args.report_cert,
         'tls_key': args.report_key,
-        'gnupghome': args.report_gnupghome
+        'gnupghome': args.report_gnupghome,
+        'passphrase': args.report_passphrase
     }
 
 
@@ -29,7 +30,7 @@ class Reporter():
 
     """
     def __init__(self, cfg, cfg_dir, dest_addr, hostname=None, tls_cert=None,
-                 tls_key=None, gnupghome=None):
+                 tls_key=None, gnupghome=None, passphrase=None):
         """Reporter Constructor
 
         Args:
@@ -41,6 +42,9 @@ class Reporter():
             tls_key   : Key associated with the client side certificate
             gnupghome : GnuPG home directory used when reporting to
                         Blockstream's monitoring API
+            passphrase : Passphrase to the private key used when reporting to
+                         Blockstream's monitoring API. If None, it will be
+                         obtained by prompting the user.
 
         """
         info = config.read_cfg_file(cfg, cfg_dir)
@@ -63,7 +67,8 @@ class Reporter():
         # interaction with this API (e.g., registration).
         if (dest_addr == monitoring_api.metric_endpoint):
             self.bs_monitoring = monitoring_api.BsMonitoring(cfg, cfg_dir,
-                                                             gnupghome)
+                                                             gnupghome,
+                                                             passphrase)
         else:
             self.bs_monitoring = None
 
@@ -426,4 +431,11 @@ def add_to_parser(parser):
         "reporting to Blockstream's Satellite Monitoring API only, where it "
         "determines the name of the directory (inside --cfg-dir) that holds "
         "the key for authentication with the API"
+    )
+    r_p.add_argument(
+        '--report-passphrase',
+        default=None,
+        help="Passphrase to the private GnuPG key used to sign receiver "
+        "status reports sent to Blockstream's Satellite Monitoring API. If "
+        "undefined (default), the program prompts for this passphrase instead."
     )

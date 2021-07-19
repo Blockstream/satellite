@@ -110,10 +110,13 @@ class BsMonitoring():
     file, this class proceeds with metric reporting right away.
 
     """
-    def __init__(self, cfg, cfg_dir, gnupghome):
+    def __init__(self, cfg, cfg_dir, gnupghome, passphrase=None):
         self.cfg = cfg
         self.cfg_dir = cfg_dir
         self.gpg = Gpg(os.path.join(cfg_dir, gnupghome))
+
+        if (passphrase is not None):
+            self.gpg.set_passphrase(passphrase)
 
         # Check if this receiver setup is already registered
         self.user_info = config.read_cfg_file(cfg, cfg_dir)
