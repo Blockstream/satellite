@@ -494,6 +494,8 @@ def drivers(args):
             print("Kernel update required")
             if (util._ask_yes_or_no("OK to run \"dnf update\"?")):
                 cmd = ["dnf", "update"]
+                if (not interactive):
+                    cmd.append("-y")
                 runner.run(cmd, root=True)
                 print("Please reboot to load the new kernel and try the " +
                       "command below again:")
