@@ -483,7 +483,9 @@ def drivers(args):
                 print("Could not find package {}".format(kernel_headers))
 
     # If the target kernel-devel/kernel-headers versions are not available for
-    # the current release, suggest to run dnf update:
+    # the current release, suggest to run dnf update first. If no update is
+    # available, and kernel-headers is the one that has a version mismatch (it
+    # typically is), try with the version that is available.
     if (dnf_update_required):
         res = runner.run(["dnf", "list", "--upgrades", "kernel"],
                          stdout=subprocess.DEVNULL,
@@ -502,7 +504,15 @@ def drivers(args):
                 print("\n  blocksat-cli deps tbs-drivers\n")
                 sys.exit(1)
                 return
+
+        # Fall back to the default kernel-headers package
+        if kernel_headers_unavailable:
+            print("Trying with the default kernel-headers package")
+            dnf_pkg_list.remove(kernel_headers)
+            dnf_pkg_list.append("kernel-headers")
         else:
+            # Break if kernel-devel is missing for the current version and
+            # there is no upgrade available.
             logger.error("Could not find an available kernel update")
             sys.exit(1)
             return

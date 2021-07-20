@@ -22,6 +22,8 @@ Release Date: TBD
 - API order state wait loop potentially stuck until timeout after an API message
   transmission.
 - Incompatibility when parsing USB receiver logs on non-English terminal locale.
+- TBS5927 driver installation giving up on Fedora upon a version mismatch
+  between the kernel and the `kernel-headers` package obtained via the `dnf`.
 
 ## [2.3.2]
 
