@@ -349,7 +349,17 @@ class SatIp():
         r.raise_for_status()
 
     def fe_stats(self):
-        """Read DVB-S2 frontend stats"""
+        """Read DVB-S2 frontend stats
+
+        Returns:
+
+            (dict): Dictionary with the frontend status in case the reading is
+            successful. None on the following error conditions: 1) if the
+            Sat-IP server does not return any frontend info; 2) if the frontend
+            serving this client is not active in the Sat-IP server; and 3) if
+            the frontend status parsing fails.
+
+        """
         self._assert_addr()
         url = self.base_url + "/cgi-bin/index.cgi"
         rv = self.session.get(url, params={'cmd': 'frontend_info'})
@@ -378,7 +388,10 @@ class SatIp():
 
         for fe in active_frontends:
             if fe['ip'] == self.local_addr:
-                return self._parse_fe_info(fe)
+                try:
+                    return self._parse_fe_info(fe)
+                except ValueError:
+                    pass  # let this function return None in the end
 
 
 def _parse_modcod(modcod):
