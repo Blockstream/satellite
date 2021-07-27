@@ -1,9 +1,10 @@
 import glob
 import json
 import logging
-import requests
 import os
+import requests
 import shutil
+import subprocess
 import sys
 import threading
 import time
@@ -40,9 +41,12 @@ class SatIp():
 
         """
         self.session = None
+        self.local_addr = None
+        self.params = None
+        self.serving_fe = None
 
         if (ip_addr is not None):
-            self.set_addr(ip_addr, port)
+            self.set_server_addr(ip_addr, port)
         else:
             self.base_url = None
             self.host = None
@@ -74,10 +78,55 @@ class SatIp():
             raise RuntimeError("Sat-IP device address must be discovered or "
                                "informed first")
 
-    def set_addr(self, ip_addr, port=8000):
-        """Set the base URL and host address directly"""
+    def set_dvbs2_params(self, info, target_modcod):
+        """Set the DVB-S2 and MPEG TS parameters of the target stream"""
+        modcod = _parse_modcod(target_modcod)
+        pilots = 'on' if defs.pilots else 'off'
+        sym_rate = defs.sym_rate[info['sat']['alias']]
+        self.params = {
+            'src': 1,
+            'freq': info['sat']['dl_freq'],
+            'pol': info['sat']['pol'].lower(),
+            'ro': defs.rolloff,
+            'msys': 'dvbs2',
+            'mtype': modcod['mtype'],
+            'plts': pilots,
+            'sr': int(sym_rate / 1e3),
+            'fec': modcod['fec'].replace('/', ''),
+            'pids': ",".join([str(pid) for pid in defs.pids])
+        }
+
+    def set_server_addr(self, ip_addr, port=8000):
+        """Set the Sat-IP server address and the base URL for HTTP requests"""
         self.base_url = "http://" + ip_addr + ":" + str(port)
         self.host = ip_addr
+
+    def set_local_addr(self):
+        """Find out which local address communicates with the Sat-IP server"""
+        try:
+            res = subprocess.check_output(['ip', 'route', 'get', self.host])
+        except subprocess.CalledProcessError as e:
+            logger.warning("Failed to read the local Sat-IP client address")
+            logger.warning(e)
+            return
+
+        out_line = res.decode().splitlines()[0].split()
+        if (out_line[1] == "via" and len(out_line) > 6):
+            local_addr = out_line[6]
+        elif (len(out_line) > 4):
+            local_addr = out_line[4]
+        else:
+            logger.warning("Failed to read the local Sat-IP client address")
+            return
+
+        try:
+            ip_address(local_addr)
+        except ValueError as e:
+            logger.warning("Failed to parse the local Sat-IP client address")
+            logger.warning(e)
+            return
+        logger.debug("Local Sat-IP client address: {}".format(local_addr))
+        self.local_addr = local_addr
 
     def discover(self, interactive=True, src_port=None):
         """Discover the Sat-IP receivers in the local network via UPnP"""
@@ -346,8 +395,87 @@ class SatIp():
                               })
         r.raise_for_status()
 
+    def _find_serving_frontend(self, active_frontends):
+        """Find the Sat-IP frontend serving this client
+
+        Args:
+            active_frontends (list): List of active frontends.
+
+        """
+
+        # First, select the active frontends with matching DVB-S2 parameters.
+        candidate_frontends = []
+        for fe in active_frontends:
+            try:
+                fe_freq = float(fe['fq'])
+                fe_pol = fe['pol']
+            except ValueError:
+                continue
+
+            if fe_freq == self.params['freq'] and fe_pol == self.params['pol']:
+                candidate_frontends.append(fe)
+
+        # If there is only one matching frontend, it's got to be ours.
+        if len(candidate_frontends) == 1:
+            self.serving_fe = candidate_frontends[0]['name']
+            return
+
+        # If there isn't any candidate frontend at this point, warn the user.
+        # There should be at least one matching frontend.
+        if len(candidate_frontends) == 0:
+            logger.warning(
+                "Could not find a frontend with matching parameters")
+            return
+
+        # If there are multiple matching frontends (due to multiple clients),
+        # try to select those serving the local IP address. However, note this
+        # filtering may fail if the local address lies behind a NAT (e.g., a VM
+        # behind a host NAT). In this case, the frontend client IP will be set
+        # to the NAT address, not the local (translated) address.
+        #
+        # If none of the candidate frontends are serving the local address,
+        # warn the user and skip this step, assuming it's the NAT case.
+        if len(candidate_frontends) > 1:
+            any_fe_serving_local_addr = any(
+                [fe['ip'] == self.local_addr for fe in candidate_frontends])
+            if any_fe_serving_local_addr:
+                for fe in candidate_frontends.copy():
+                    if fe['ip'] != self.local_addr:
+                        candidate_frontends.remove(fe)
+            else:
+                logger.warning(
+                    "Could not find a frontend serving the local {} address - "
+                    "logging the status of {}".format(
+                        self.local_addr, candidate_frontends[-1]['name']))
+
+        # In the end, despite the filtering, multiple candidate frontends could
+        # remain. For example, in the NAT case mentioned above, where the IP
+        # filtering is skipped. Alternatively, in case the same host is running
+        # multiple clients. There is no protocol-level solution to detect which
+        # client is which. The only workaround is to guess the frontend number
+        # by inspecting the pre-existing active frontends before launching the
+        # client. However, this is still a TODO. For now, pick the last
+        # frontend from the list (possibly the most recent), and warn the user.
+        self.serving_fe = candidate_frontends[-1]['name']
+        n_candidate = len(candidate_frontends)
+        if n_candidate > 1:
+            logger.warning(
+                "The status logs can be unreliable when streaming from "
+                "multiple frontends concurrently (found {} frontends, "
+                "listening to {})".format(n_candidate, self.serving_fe))
+
     def fe_stats(self):
-        """Read DVB-S2 frontend stats"""
+        """Read DVB-S2 frontend stats
+
+        Returns:
+
+            (dict): Dictionary with the frontend status in case the reading is
+            successful. None on the following error conditions: 1) if the
+            Sat-IP server does not return any frontend info; 2) if the frontend
+            serving this client is not active in the Sat-IP server; and 3) if
+            the frontend status parsing fails.
+
+        """
         self._assert_addr()
         url = self.base_url + "/cgi-bin/index.cgi"
         rv = self.session.get(url, params={'cmd': 'frontend_info'})
@@ -364,9 +492,51 @@ class SatIp():
         if 'frontends' not in info:
             return
 
-        for fe in rv.json()['frontends']:
-            if fe['frontend']['ip'] != 'none':
-                return self._parse_fe_info(fe['frontend'])
+        # Select the active frontends:
+        active_frontends = []
+        for fe in info['frontends']:
+            if fe['frontend']['ip'] != 'none' and fe['frontend']['ip'] != 'NA':
+                active_frontends.append(fe['frontend'])
+
+        if len(active_frontends) == 0:
+            logger.warning("Could not find any active frontend")
+            return
+
+        logger.debug("Active frontends: {}".format(active_frontends))
+
+        # Define the active frontend serving this client
+        if (self.serving_fe is None):
+            self._find_serving_frontend(active_frontends)
+
+        # Check that the serving frontend is still in the active frontend list.
+        # If not, there are two possible reasons:
+        #
+        # 1) We are running with option --ignore-http-errors and the tsp client
+        #    has just reconnected.
+        # 2) The initial procedure to find the serving frontend got confused
+        #    due to other Sat-IP clients running on the same host and was
+        #    actually pointing to a frontend serving another client. Now, this
+        #    other client stopped and the frontend is no longer active.
+        #
+        # In any case, try to find the serving frontend again.
+        if not any([fe['name'] == self.serving_fe for fe in active_frontends]):
+            logger.warning("Sat-IP {} has become inactive.".format(
+                self.serving_fe))
+            self._find_serving_frontend(active_frontends)
+            if (self.serving_fe is not None):
+                logger.info("Switching to {}".format(self.serving_fe))
+
+        # Finally, parse the status from the serving frontend.
+        serving_fe = [
+            fe for fe in active_frontends if fe['name'] == self.serving_fe
+        ]
+        if len(serving_fe) == 0:
+            return
+
+        try:
+            return self._parse_fe_info(serving_fe[0])
+        except ValueError:
+            return
 
 
 def _parse_modcod(modcod):
@@ -469,7 +639,7 @@ def launch(args):
         logger.info("Run \"blocksat-cli cfg\" to re-configure your setup")
         sys.exit(1)
 
-    if (not dependencies.check_apps(['tsp'])):
+    if (not dependencies.check_apps(['tsp', 'ip'])):
         return
 
     # Discover or define the IP address to communicate with the Sat-IP server
@@ -488,7 +658,10 @@ def launch(args):
         except ValueError as e:
             logger.error(e)
             sys.exit(1)
-        sat_ip.set_addr(addr)
+        sat_ip.set_server_addr(addr)
+
+    # Check the local address communicating with the Sat-IP server
+    sat_ip.set_local_addr()
 
     # Check if the Sat-IP device has the minimum required firmware version
     min_fw_version = "3.1.18" if args.fe_monitoring else "2.2.19"
@@ -511,22 +684,8 @@ def launch(args):
         sat_ip.login(args.username, args.password)
 
     # Tuning parameters
-    modcod = _parse_modcod(args.modcod)
-    pilots = 'on' if defs.pilots else 'off'
-    sym_rate = defs.sym_rate[info['sat']['alias']]
-    params = {
-        'src': 1,
-        'freq': info['sat']['dl_freq'],
-        'pol': info['sat']['pol'].lower(),
-        'ro': defs.rolloff,
-        'msys': 'dvbs2',
-        'mtype': modcod['mtype'],
-        'plts': pilots,
-        'sr': int(sym_rate / 1e3),
-        'fec': modcod['fec'].replace('/', ''),
-        'pids': ",".join([str(pid) for pid in defs.pids])
-    }
-    url = "http://" + sat_ip.host + "/?" + urlencode(params)
+    sat_ip.set_dvbs2_params(info, args.modcod)
+    url = "http://" + sat_ip.host + "/?" + urlencode(sat_ip.params)
 
     # Run tsp
     tsp_handler = tsp.Tsp()
