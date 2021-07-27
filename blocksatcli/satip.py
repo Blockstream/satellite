@@ -1,9 +1,10 @@
 import glob
 import json
 import logging
-import requests
 import os
+import requests
 import shutil
+import socket
 import sys
 import threading
 import time
@@ -40,6 +41,7 @@ class SatIp():
 
         """
         self.session = None
+        self.local_addr = socket.gethostbyname(socket.gethostname())
 
         if (ip_addr is not None):
             self.set_addr(ip_addr, port)
@@ -364,9 +366,19 @@ class SatIp():
         if 'frontends' not in info:
             return
 
-        for fe in rv.json()['frontends']:
+        active_frontends = []
+        for fe in info['frontends']:
             if fe['frontend']['ip'] != 'none':
-                return self._parse_fe_info(fe['frontend'])
+                active_frontends.append(fe['frontend'])
+
+        if len(active_frontends) == 0:
+            return
+
+        logger.debug("Active frontends: {}".format(active_frontends))
+
+        for fe in active_frontends:
+            if fe['ip'] == self.local_addr:
+                return self._parse_fe_info(fe)
 
 
 def _parse_modcod(modcod):
