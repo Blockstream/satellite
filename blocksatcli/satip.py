@@ -387,8 +387,9 @@ def _get_monitor(args):
         sat_name  : Satellite name
 
     """
-    # Force scrolling logs if tsp is configured to print to stdout
-    scrolling = tsp.prints_to_stdout(args) or args.log_scrolling
+    # Force scrolling logs if tsp is configured to print to stdout or if
+    # operating in debug mode
+    scrolling = tsp.prints_to_stdout(args) or args.debug or args.log_scrolling
 
     return monitoring.Monitor(args.cfg_dir,
                               logfile=args.log_file,
@@ -409,6 +410,8 @@ def _monitoring_thread(sat_ip, handler):
         status = sat_ip.fe_stats()
 
         if (status is None):
+            if (not handler.scroll):
+                print()
             logger.warning("Failed to fetch the frontend status.")
             continue
 
