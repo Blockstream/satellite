@@ -168,6 +168,34 @@ class SatIp():
         else:
             self._set_from_ssdp_dev(sat_ip_devices[0])
 
+    def check_reachable(self):
+        """Check if the Sat-IP server is reachable
+
+        The server address could be specified directly instead of
+        auto-discovered. Hence, it is worth double-checking the server can be
+        reached by this client.
+
+        Returns:
+            Boolean indicating whether the Sat-IP server is reachable.
+
+        """
+        self._assert_addr()
+
+        try:
+            r = requests.get(self.base_url)
+            r.raise_for_status()
+        except requests.exceptions.ConnectionError as errc:
+            logger.error("Connection Error: {}".format(errc))
+            return False
+        except requests.exceptions.HTTPError as errh:
+            logger.error("HTTP Error: {}".format(errh))
+            return False
+        except requests.exceptions.RequestException as err:
+            logger.error("Error: {}".format(err))
+            return False
+
+        return True
+
     def check_fw_version(self, min_version="3.1.18"):
         """Check if the Sat-IP server has the minimum required firmware version
 
@@ -659,6 +687,10 @@ def launch(args):
             logger.error(e)
             sys.exit(1)
         sat_ip.set_server_addr(addr)
+
+    # Check the Sat-IP server is reachable
+    if not sat_ip.check_reachable():
+        return
 
     # Check the local address communicating with the Sat-IP server
     sat_ip.set_local_addr()
