@@ -650,6 +650,12 @@ def subparser(subparsers):
                    "(DVB-S2 demodulator and tuner). Use this option when the "
                    "server does not provide a login page or to avoid "
                    "authentication conflicts between concurrent clients.")
+    p.add_argument(
+        '--ignore-http-errors',
+        default=False,
+        action='store_true',
+        help="Immediately retry the connection if an HTTP error occurs while "
+        "reading the MPEG transport stream from the Sat-IP server")
     tsp.add_to_parser(p)
     monitoring.add_to_parser(p)
     p.set_defaults(func=launch)
@@ -720,9 +726,12 @@ def launch(args):
     url = "http://" + sat_ip.host + "/?" + urlencode(sat_ip.params)
 
     # Run tsp
+    input_plugin = ['-I', 'http', url, '--infinite']
+    if (args.ignore_http_errors):
+        input_plugin.append('--ignore-errors')
+
     tsp_handler = tsp.Tsp()
-    if (not tsp_handler.gen_cmd(args,
-                                in_plugin=['-I', 'http', url, '--infinite'])):
+    if (not tsp_handler.gen_cmd(args, in_plugin=input_plugin)):
         return
     logger.debug("Run:")
     logger.debug(" ".join(tsp_handler.cmd))
