@@ -78,13 +78,13 @@ class TestApi(TestCase):
         # Old firmware version that does not satisfy the minimum
         mock_get.return_value = MockResponse("2.2.19")
         sat_ip = satip.SatIp()
-        sat_ip.set_addr("192.168.100.2")
+        sat_ip.set_server_addr("192.168.100.2")
         self.assertFalse(sat_ip.check_fw_version())
 
         # Recent firmware version satisfying the minimum
         mock_get.return_value = MockResponse("3.1.18")
         sat_ip = satip.SatIp()
-        sat_ip.set_addr("192.168.100.2")
+        sat_ip.set_server_addr("192.168.100.2")
         self.assertTrue(sat_ip.check_fw_version())
 
     @patch('requests.post')
@@ -101,7 +101,7 @@ class TestApi(TestCase):
                 }
             })
         sat_ip = satip.SatIp()
-        sat_ip.set_addr("192.168.100.2")
+        sat_ip.set_server_addr("192.168.100.2")
         fw_upgrade_ok = sat_ip.upgrade_fw("/tmp/",
                                           interactive=False,
                                           no_wait=True)

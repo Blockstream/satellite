@@ -4,7 +4,7 @@ import logging
 import os
 import requests
 import shutil
-import socket
+import subprocess
 import sys
 import threading
 import time
@@ -41,10 +41,11 @@ class SatIp():
 
         """
         self.session = None
-        self.local_addr = socket.gethostbyname(socket.gethostname())
+        self.local_addr = None
+        self.params = None
 
         if (ip_addr is not None):
-            self.set_addr(ip_addr, port)
+            self.set_server_addr(ip_addr, port)
         else:
             self.base_url = None
             self.host = None
@@ -76,10 +77,46 @@ class SatIp():
             raise RuntimeError("Sat-IP device address must be discovered or "
                                "informed first")
 
-    def set_addr(self, ip_addr, port=8000):
-        """Set the base URL and host address directly"""
+    def set_dvbs2_params(self, info, target_modcod):
+        """Set the DVB-S2 and MPEG TS parameters of the target stream"""
+        modcod = _parse_modcod(target_modcod)
+        pilots = 'on' if defs.pilots else 'off'
+        sym_rate = defs.sym_rate[info['sat']['alias']]
+        self.params = {
+            'src': 1,
+            'freq': info['sat']['dl_freq'],
+            'pol': info['sat']['pol'].lower(),
+            'ro': defs.rolloff,
+            'msys': 'dvbs2',
+            'mtype': modcod['mtype'],
+            'plts': pilots,
+            'sr': int(sym_rate / 1e3),
+            'fec': modcod['fec'].replace('/', ''),
+            'pids': ",".join([str(pid) for pid in defs.pids])
+        }
+
+    def set_server_addr(self, ip_addr, port=8000):
+        """Set the Sat-IP server address and the base URL for HTTP requests"""
         self.base_url = "http://" + ip_addr + ":" + str(port)
         self.host = ip_addr
+
+    def set_local_addr(self):
+        """Find out which local address communicates with the Sat-IP server"""
+        try:
+            res = subprocess.check_output(['ip', 'route', 'get', self.host])
+        except subprocess.CalledProcessError as e:
+            logger.warning("Failed to read the local Sat-IP client address")
+            logger.warning(e)
+            return
+        local_addr = res.splitlines()[0].split()[4].decode()
+        try:
+            ip_address(local_addr)
+        except ValueError as e:
+            logger.warning("Failed to parse the local Sat-IP client address")
+            logger.warning(e)
+            return
+        logger.debug("Local Sat-IP client address: {}".format(local_addr))
+        self.local_addr = local_addr
 
     def discover(self, interactive=True, src_port=None):
         """Discover the Sat-IP receivers in the local network via UPnP"""
@@ -414,12 +451,28 @@ class SatIp():
 
         logger.debug("Active frontends: {}".format(active_frontends))
 
+        # Filter the active frontends serving this client (i.e., the local
+        # address) with matching DVB-S2 parameters. If the local client address
+        # is unknown, filter only by the DVB-S2 parameters.
+        candidate_frontends = []
         for fe in active_frontends:
-            if fe['ip'] == self.local_addr:
-                try:
-                    return self._parse_fe_info(fe)
-                except ValueError:
-                    pass  # let this function return None in the end
+            if float(fe['fq']) != self.params['freq'] or \
+               fe['pol'] != self.params['pol']:
+                continue
+
+            if self.local_addr is None or fe['ip'] == self.local_addr:
+                candidate_frontends.append(fe)
+
+        if len(candidate_frontends) > 1:
+            logger.warning(
+                "The status logs can be unreliable when streaming from "
+                "multiple RF frontends concurrently (found {} frontends)".
+                format(len(candidate_frontends)))
+
+        try:
+            return self._parse_fe_info(candidate_frontends[0])
+        except ValueError:
+            return None  # indicate that an error occurred
 
 
 def _parse_modcod(modcod):
@@ -547,11 +600,14 @@ def launch(args):
         except ValueError as e:
             logger.error(e)
             sys.exit(1)
-        sat_ip.set_addr(addr)
+        sat_ip.set_server_addr(addr)
 
     # Check the Sat-IP server is reachable
     if not sat_ip.check_reachable():
         return
+
+    # Check the local address communicating with the Sat-IP server
+    sat_ip.set_local_addr()
 
     # Check if the Sat-IP device has the minimum required firmware version
     min_fw_version = "3.1.18" if args.fe_monitoring else "2.2.19"
@@ -574,22 +630,8 @@ def launch(args):
         sat_ip.login(args.username, args.password)
 
     # Tuning parameters
-    modcod = _parse_modcod(args.modcod)
-    pilots = 'on' if defs.pilots else 'off'
-    sym_rate = defs.sym_rate[info['sat']['alias']]
-    params = {
-        'src': 1,
-        'freq': info['sat']['dl_freq'],
-        'pol': info['sat']['pol'].lower(),
-        'ro': defs.rolloff,
-        'msys': 'dvbs2',
-        'mtype': modcod['mtype'],
-        'plts': pilots,
-        'sr': int(sym_rate / 1e3),
-        'fec': modcod['fec'].replace('/', ''),
-        'pids': ",".join([str(pid) for pid in defs.pids])
-    }
-    url = "http://" + sat_ip.host + "/?" + urlencode(params)
+    sat_ip.set_dvbs2_params(info, args.modcod)
+    url = "http://" + sat_ip.host + "/?" + urlencode(sat_ip.params)
 
     # Run tsp
     input_plugin = ['-I', 'http', url, '--infinite']

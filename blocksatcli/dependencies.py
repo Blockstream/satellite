@@ -238,9 +238,9 @@ def _install_specific(target, interactive=True, update=False, dry=False):
             'yum': ["iproute", "iptables"]
         },
         'sat-ip': {
-            'apt': ["tsduck"],
-            'dnf': ["tsduck"],
-            'yum': ["tsduck"]
+            'apt': ["iproute2", "tsduck"],
+            'dnf': ["iproute", "tsduck"],
+            'yum': ["iproute", "tsduck"]
         }
     }
     # NOTE:
