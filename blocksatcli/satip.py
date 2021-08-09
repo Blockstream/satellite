@@ -456,8 +456,13 @@ class SatIp():
         # is unknown, filter only by the DVB-S2 parameters.
         candidate_frontends = []
         for fe in active_frontends:
-            if float(fe['fq']) != self.params['freq'] or \
-               fe['pol'] != self.params['pol']:
+            try:
+                fe_freq = float(fe['fq'])
+                fe_pol = fe['pol']
+            except ValueError:
+                continue
+
+            if fe_freq != self.params['freq'] or fe_pol != self.params['pol']:
                 continue
 
             if self.local_addr is None or fe['ip'] == self.local_addr:
