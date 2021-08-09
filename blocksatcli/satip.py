@@ -108,7 +108,16 @@ class SatIp():
             logger.warning("Failed to read the local Sat-IP client address")
             logger.warning(e)
             return
-        local_addr = res.splitlines()[0].split()[4].decode()
+
+        out_line = res.decode().splitlines()[0].split()
+        if (out_line[1] == "via" and len(out_line) > 6):
+            local_addr = out_line[6]
+        elif (len(out_line) > 4):
+            local_addr = out_line[4]
+        else:
+            logger.warning("Failed to read the local Sat-IP client address")
+            return
+
         try:
             ip_address(local_addr)
         except ValueError as e:
@@ -586,7 +595,7 @@ def launch(args):
         logger.info("Run \"blocksat-cli cfg\" to re-configure your setup")
         sys.exit(1)
 
-    if (not dependencies.check_apps(['tsp'])):
+    if (not dependencies.check_apps(['tsp', 'ip'])):
         return
 
     # Discover or define the IP address to communicate with the Sat-IP server
