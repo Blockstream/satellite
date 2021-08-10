@@ -452,7 +452,7 @@ class SatIp():
 
         active_frontends = []
         for fe in info['frontends']:
-            if fe['frontend']['ip'] != 'none':
+            if fe['frontend']['ip'] != 'none' and fe['frontend']['ip'] != 'NA':
                 active_frontends.append(fe['frontend'])
 
         if len(active_frontends) == 0:
