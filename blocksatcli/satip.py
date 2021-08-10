@@ -43,6 +43,7 @@ class SatIp():
         self.session = None
         self.local_addr = None
         self.params = None
+        self.serving_fe = None
 
         if (ip_addr is not None):
             self.set_server_addr(ip_addr, port)
@@ -422,6 +423,75 @@ class SatIp():
                               })
         r.raise_for_status()
 
+    def _find_serving_frontend(self, active_frontends):
+        """Find the Sat-IP frontend serving this client
+
+        Args:
+            active_frontends (list): List of active frontends.
+
+        """
+
+        # First, select the active frontends with matching DVB-S2 parameters.
+        candidate_frontends = []
+        for fe in active_frontends:
+            try:
+                fe_freq = float(fe['fq'])
+                fe_pol = fe['pol']
+            except ValueError:
+                continue
+
+            if fe_freq == self.params['freq'] and fe_pol == self.params['pol']:
+                candidate_frontends.append(fe)
+
+        # If there is only one matching frontend, it's got to be ours.
+        if len(candidate_frontends) == 1:
+            self.serving_fe = candidate_frontends[0]['name']
+            return
+
+        # If there isn't any candidate frontend at this point, warn the user.
+        # There should be at least one matching frontend.
+        if len(candidate_frontends) == 0:
+            logger.warning(
+                "Could not find a frontend with matching parameters")
+            return
+
+        # If there are multiple matching frontends (due to multiple clients),
+        # try to select those serving the local IP address. However, note this
+        # filtering may fail if the local address lies behind a NAT (e.g., a VM
+        # behind a host NAT). In this case, the frontend client IP will be set
+        # to the NAT address, not the local (translated) address.
+        #
+        # If none of the candidate frontends are serving the local address,
+        # warn the user and skip this step, assuming it's the NAT case.
+        if len(candidate_frontends) > 1:
+            any_fe_serving_local_addr = any(
+                [fe['ip'] == self.local_addr for fe in candidate_frontends])
+            if any_fe_serving_local_addr:
+                for fe in candidate_frontends.copy():
+                    if fe['ip'] != self.local_addr:
+                        candidate_frontends.remove(fe)
+            else:
+                logger.warning(
+                    "Could not find a frontend serving the local {} address - "
+                    "logging the status of {}".format(
+                        self.local_addr, candidate_frontends[-1]['name']))
+
+        # In the end, despite the filtering, multiple candidate frontends could
+        # remain. For example, in the NAT case mentioned above, where the IP
+        # filtering is skipped. Alternatively, in case the same host is running
+        # multiple clients. There is no protocol-level solution to detect which
+        # client is which. The only workaround is to guess the frontend number
+        # by inspecting the pre-existing active frontends before launching the
+        # client. However, this is still a TODO. For now, pick the last
+        # frontend from the list (possibly the most recent), and warn the user.
+        self.serving_fe = candidate_frontends[-1]['name']
+        n_candidate = len(candidate_frontends)
+        if n_candidate > 1:
+            logger.warning(
+                "The status logs can be unreliable when streaming from "
+                "multiple frontends concurrently (found {} frontends, "
+                "listening to {})".format(n_candidate, self.serving_fe))
+
     def fe_stats(self):
         """Read DVB-S2 frontend stats
 
@@ -450,46 +520,51 @@ class SatIp():
         if 'frontends' not in info:
             return
 
+        # Select the active frontends:
         active_frontends = []
         for fe in info['frontends']:
             if fe['frontend']['ip'] != 'none' and fe['frontend']['ip'] != 'NA':
                 active_frontends.append(fe['frontend'])
 
         if len(active_frontends) == 0:
+            logger.warning("Could not find any active frontend")
             return
 
         logger.debug("Active frontends: {}".format(active_frontends))
 
-        # Filter the active frontends serving this client (i.e., the local
-        # address) with matching DVB-S2 parameters. If the local client address
-        # is unknown, filter only by the DVB-S2 parameters.
-        candidate_frontends = []
-        for fe in active_frontends:
-            try:
-                fe_freq = float(fe['fq'])
-                fe_pol = fe['pol']
-            except ValueError:
-                continue
+        # Define the active frontend serving this client
+        if (self.serving_fe is None):
+            self._find_serving_frontend(active_frontends)
 
-            if fe_freq != self.params['freq'] or fe_pol != self.params['pol']:
-                continue
+        # Check that the serving frontend is still in the active frontend list.
+        # If not, there are two possible reasons:
+        #
+        # 1) We are running with option --ignore-http-errors and the tsp client
+        #    has just reconnected.
+        # 2) The initial procedure to find the serving frontend got confused
+        #    due to other Sat-IP clients running on the same host and was
+        #    actually pointing to a frontend serving another client. Now, this
+        #    other client stopped and the frontend is no longer active.
+        #
+        # In any case, try to find the serving frontend again.
+        if not any([fe['name'] == self.serving_fe for fe in active_frontends]):
+            logger.warning("Sat-IP {} has become inactive.".format(
+                self.serving_fe))
+            self._find_serving_frontend(active_frontends)
+            if (self.serving_fe is not None):
+                logger.info("Switching to {}".format(self.serving_fe))
 
-            if self.local_addr is None or fe['ip'] == self.local_addr:
-                candidate_frontends.append(fe)
-
-        n_candidate = len(candidate_frontends)
-        if n_candidate > 1:
-            logger.warning(
-                "The status logs can be unreliable when streaming from "
-                "multiple RF frontends concurrently (found {} frontends)".
-                format(n_candidate))
-        elif n_candidate == 0:
-            return None
+        # Finally, parse the status from the serving frontend.
+        serving_fe = [
+            fe for fe in active_frontends if fe['name'] == self.serving_fe
+        ]
+        if len(serving_fe) == 0:
+            return
 
         try:
-            return self._parse_fe_info(candidate_frontends[0])
+            return self._parse_fe_info(serving_fe[0])
         except ValueError:
-            return None  # indicate that an error occurred
+            return
 
 
 def _parse_modcod(modcod):
