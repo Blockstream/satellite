@@ -477,11 +477,14 @@ class SatIp():
             if self.local_addr is None or fe['ip'] == self.local_addr:
                 candidate_frontends.append(fe)
 
-        if len(candidate_frontends) > 1:
+        n_candidate = len(candidate_frontends)
+        if n_candidate > 1:
             logger.warning(
                 "The status logs can be unreliable when streaming from "
                 "multiple RF frontends concurrently (found {} frontends)".
-                format(len(candidate_frontends)))
+                format(n_candidate))
+        elif n_candidate == 0:
+            return None
 
         try:
             return self._parse_fe_info(candidate_frontends[0])
