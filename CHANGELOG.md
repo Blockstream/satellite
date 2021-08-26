@@ -1,6 +1,6 @@
 # Changelog
 
-## [2.3.3]
+## [0.4.0]
 
 Release Date: TBD
 
@@ -20,8 +20,9 @@ Release Date: TBD
 
 ### Changed
 - `sudo` requirement of subcommands `standalone config`, `usb config`, and `usb
-  remove`. These can now be executed both by normal and root users. Running them
-  as a normal user actually executes the changes instead of a dry run.
+  remove`. These can now be executed both by root and non-root users. Running
+  them as a non-root user now applies the changes instead of performing a dry
+  run.
 
 ### Fixed
 - Permissions of the GPG home directory created via the `api config` command and
@@ -34,7 +35,7 @@ Release Date: TBD
 - Logging of Sat-IP frontend metrics from other clients simultaneously connected
   to the same Sat-IP server.
 
-## [2.3.2]
+## [0.3.2]
 
 Release Date: 2021-04-28
 
@@ -58,7 +59,7 @@ Release Date: 2021-04-28
       `--ts-analysis`.
 	- Option `--monitor-ts` was renamed to `--ts-monitor-sequence`.
 
-## [2.3.1]
+## [0.3.1]
 
 Release Date: 2021-03-16
 
@@ -92,7 +93,7 @@ Release Date: 2021-03-16
   correctly.
 - Unused `--chan-conf` option on the command `blocksat-cli cfg`.
 
-## [2.3.0]
+## [0.3.0]
 
 Release Date: 2021-01-27
 
