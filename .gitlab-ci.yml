@@ -4,6 +4,14 @@ test:
     - pip3 install tox
     - tox
 
+lint:
+  image: python:3.9
+  before_script:
+    - pip3 install flake8 yapf
+  script:
+    - flake8 .
+    - yapf --diff --recursive --verbose .
+
 test-make-install-apt:
   image: $IMAGE
   stage: build
