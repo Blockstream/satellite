@@ -12,6 +12,11 @@ Release Date: TBD
   `standalone config`, `usb config`, and `usb remove`.
 - Option `--report-passphrase` to enable scripted runs while using option
   `--report`.
+- Validation and automatic upgrade of the Sat-IP server firmware version on
+  `sat-ip` startup.
+- Option to disable the Sat-IP frontend monitoring for compatibility with old
+  Sat-IP server firmware.
+- Option to ignore errors on the tsp HTTP plugin used by the `sat-ip` command.
 
 ### Changed
 - `sudo` requirement of subcommands `standalone config`, `usb config`, and `usb
@@ -26,6 +31,8 @@ Release Date: TBD
 - Incompatibility when parsing USB receiver logs on non-English terminal locale.
 - TBS5927 driver installation giving up on Fedora upon a version mismatch
   between the kernel and the `kernel-headers` package obtained via the `dnf`.
+- Logging of Sat-IP frontend metrics from other clients simultaneously connected
+  to the same Sat-IP server.
 
 ## [2.3.2]
 
