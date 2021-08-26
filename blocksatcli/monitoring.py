@@ -1,7 +1,14 @@
 """Monitor the satellite receiver"""
-import sys, os, time, logging, math, requests, threading, json
+import json
+import logging
+import math
+import os
+import requests
+import sys
+import threading
+import time
 from http.server import HTTPServer, BaseHTTPRequestHandler
-from datetime import datetime
+
 from . import defs, config, monitoring_api
 
 logger = logging.getLogger(__name__)
@@ -112,11 +119,11 @@ class Reporter():
         data.update(metrics)
 
         # When reporting to Blockstream's Monitoring API, sign every set of
-        # reported data using the local GPG key and don't send the satellite nor
-        # the hostname on the requests. This information is already associated
-        # with the account registered with the Monitoring API. In contrast, when
-        # reporting to a general-purpose server, do include the satellite and
-        # hostname information if defined.
+        # reported data using the local GPG key and don't send the satellite
+        # nor the hostname on the requests. This information is already
+        # associated with the account registered with the Monitoring API. In
+        # contrast, when reporting to a general-purpose server, do include the
+        # satellite and hostname information if defined.
         if (self.bs_monitoring is None):
             data["satellite"] = self.satellite,
             if (self.hostname):
@@ -347,10 +354,10 @@ class Monitor():
             # registration procedure. On the other hand, if a log file is
             # enabled, it is OK to log into it throughout the registration.
             #
-            # Besides, if the reporter is configured to report to the Monitoring
-            # API and the registration is not complete yet, the above call does
-            # not really send the report yet. Nevertheless, it is still
-            # required. Refer to the implementation.
+            # Besides, if the reporter is configured to report to the
+            # Monitoring API and the registration is not complete yet, the
+            # above call does not really send the report yet. Nevertheless, it
+            # is still required. Refer to the implementation.
             #
             # As soon as the registration procedure ends (as indicated by the
             # "registration_running" flag), console logs are reactivated, even

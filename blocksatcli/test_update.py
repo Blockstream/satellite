@@ -1,4 +1,5 @@
-import unittest, os
+import os
+import unittest
 from datetime import datetime
 from . import update
 

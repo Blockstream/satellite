@@ -1,12 +1,17 @@
-import unittest, string, random, time, struct
+import random
+import string
+import struct
+import time
+import unittest
 from . import pkt
 
 
 class TestOrder(unittest.TestCase):
     def _rnd_string(self, n_bytes):
         """Generate random string with given number of bytes"""
-        return ''.join(random.choice(string.ascii_letters + string.digits) \
-                for _ in range(n_bytes)).encode()
+        return ''.join(
+            random.choice(string.ascii_letters + string.digits)
+            for _ in range(n_bytes)).encode()
 
     def test_pack_unpack(self):
         """Test packing and unpacking to/from Blocksat Packet"""
@@ -198,7 +203,8 @@ class TestOrder(unittest.TestCase):
         # Try to clean
         handler.clean()
 
-        # It should not have cleaned anything (timeout interval has not elapsed)
+        # It should not have cleaned anything (timeout interval has not
+        # elapsed)
         assert (seq_num in handler.frag_map)
 
         # Wait enough to time out

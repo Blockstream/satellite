@@ -1,7 +1,11 @@
 """SDR Receiver Wrapper"""
-import subprocess, logging, textwrap, os, threading, time
+import logging
+import subprocess
+import textwrap
+import threading
 from argparse import ArgumentDefaultsHelpFormatter
 from shutil import which
+
 from . import config, defs, util, dependencies, monitoring, tsp
 
 logger = logging.getLogger(__name__)
@@ -385,7 +389,7 @@ def run(args):
         return
 
     if (args.iq_file is None):
-        full_cmd  = "> " + " ".join(rtl_cmd) + " | \\\n" + \
+        full_cmd = "> " + " ".join(rtl_cmd) + " | \\\n" + \
                     " ".join(ldvb_cmd)
         p1 = subprocess.Popen(rtl_cmd, stdout=subprocess.PIPE)
         p2 = subprocess.Popen(ldvb_cmd,

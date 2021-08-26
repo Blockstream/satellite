@@ -3,7 +3,6 @@ import os
 from argparse import ArgumentDefaultsHelpFormatter
 from . import config, util
 import textwrap
-import argparse
 
 
 def subparser(subparsers):

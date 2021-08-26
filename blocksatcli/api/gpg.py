@@ -1,5 +1,10 @@
-import logging, os, getpass, stat
+import getpass
+import logging
+import os
+import stat
+
 import gnupg
+
 from .. import defs
 from .. import util
 
@@ -62,8 +67,7 @@ class Gpg():
                                             name_comment=comment,
                                             name_email=email,
                                             passphrase=self.passphrase)
-        key = self.gpg.gen_key(key_params)
-
+        self.gpg.gen_key(key_params)
         logger.info("Keys succesfully generated at {}".format(
             os.path.abspath(self.gpghome)))
 
@@ -209,9 +213,9 @@ def config_keyring(gpg, log_if_configured=False):
 
     # Import Blockstream's public key
     #
-    # NOTE: the order is important here. Add Blockstream's public key only after
-    # adding the user key. With that, the user key becomes the first key on the
-    # keyring, which is used by default.
+    # NOTE: the order is important here. Add Blockstream's public key only
+    # after adding the user key. With that, the user key becomes the first key
+    # on the keyring, which is used by default.
     pkg_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     key_path = os.path.join(pkg_dir, 'gpg', defs.blocksat_pubkey + ".gpg")
 

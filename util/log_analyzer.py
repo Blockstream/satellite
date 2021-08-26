@@ -1,13 +1,15 @@
 #!/usr/bin/env python3
-import logging, sys, os, re
+import logging
+import os
+import re
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 from datetime import datetime
-import matplotlib
 
-matplotlib.use('agg')
+import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib.dates import DateFormatter
 
+matplotlib.use('agg')
 plt.style.use('seaborn')
 logger = logging.getLogger(__name__)
 

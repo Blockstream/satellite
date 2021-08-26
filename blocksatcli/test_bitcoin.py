@@ -10,13 +10,13 @@ class TestBitcoinConfGen(unittest.TestCase):
             "debug=udpnet\n"
             "debug=udpmulticast\n"
             "udpmulticastloginterval=60\n"
-            "udpmulticast=dvb0_0,239.0.0.2:4434,172.16.235.9,1,blocksat-tbs-lowspeed\n"
-            "udpmulticast=dvb0_1,239.0.0.2:4434,172.16.235.9,1,blocksat-tbs-highspeed\n"
+            "udpmulticast=dvb0_0,239.0.0.2:4434,172.16.235.9,1,tbs-lowspeed\n"
+            "udpmulticast=dvb0_1,239.0.0.2:4434,172.16.235.9,1,tbs-highspeed\n"
         )
         # Corresponding dictionary version
         udpmcastlist = list()
         devices = ["dvb0_0", "dvb0_1"]
-        labels = ["blocksat-tbs-lowspeed", "blocksat-tbs-highspeed"]
+        labels = ["tbs-lowspeed", "tbs-highspeed"]
         for device, label in zip(devices, labels):
             udpmcastlist.append(
                 bitcoin._udpmulticast(device,
@@ -63,9 +63,9 @@ class TestBitcoinConfGen(unittest.TestCase):
                                   "172.16.235.9",
                                   dst_addr=defs.btc_dst_addr,
                                   trusted="1",
-                                  label="blocksat-s400"))
+                                  label="s400"))
         # Add new option to expected text
-        text += "udpmulticast=eth0,239.0.0.2:4434,172.16.235.9,1,blocksat-s400\n"
+        text += "udpmulticast=eth0,239.0.0.2:4434,172.16.235.9,1,s400\n"
         # Check if exported text includes the new option
         self.assertEqual(text, cfg.text())
 

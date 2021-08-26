@@ -5,8 +5,8 @@ import os
 class Cache():
     """Cache handler
 
-    Saves and retrieves a data dictionary to a cache file. Supports dot notation
-    to get and set dictionary fields.
+    Saves and retrieves a data dictionary to a cache file. Supports dot
+    notation to get and set dictionary fields.
 
     """
     def __init__(self, cfg_dir, filename=".cache"):

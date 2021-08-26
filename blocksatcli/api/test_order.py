@@ -1,4 +1,5 @@
-import unittest, hashlib
+import hashlib
+import unittest
 from . import order, pkt
 
 
@@ -45,7 +46,7 @@ class TestOrder(unittest.TestCase):
         bid = tx_len * 50
 
         # Send
-        res = self.order.send(data, bid)
+        self.order.send(data, bid)
 
         # Because the order won't be paid, waiting for "paid" state should time
         # out and return False

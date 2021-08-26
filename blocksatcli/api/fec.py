@@ -1,7 +1,11 @@
 """FEC Encoding/decoding"""
-import logging, struct, random
+import logging
+import random
+import struct
 from math import ceil, floor
+
 import zfec
+
 from . import pkt
 
 logger = logging.getLogger(__name__)
@@ -33,16 +37,16 @@ class Fec:
     of interest, potentially up to 1 MB.
 
     To solve the problem, the adopted scheme can encode the input message using
-    multiple FEC objects. Each object encompasses up to 256 FEC chunks. Then, on
-    the decoding end, the message is reconstructed once all FEC objects are
+    multiple FEC objects. Each object encompasses up to 256 FEC chunks. Then,
+    on the decoding end, the message is reconstructed once all FEC objects are
     successfully decoded.
 
     The scheme is as follows:
 
     - An *input message* is encoded through multiple *FEC objects*;
     - Each *FEC object* contains up to 256 *FEC chunks*.
-    - Each *FEC chunk* goes within a single *FEC packet*. Hence, each
-      *FEC object* yields up to 256 *FEC packets*.
+    - Each *FEC chunk* goes within a single *FEC packet*. Hence, each *FEC
+      object* yields up to 256 *FEC packets*.
     - The *FEC packet* encapsulates the *FEC chunk* and the following metadata:
         - FEC object id: identifies the FEC object corresponding to the chunk
           contained by the packet.
@@ -51,24 +55,25 @@ class Fec:
         - Chunk id: identifies the chunk within the given FEC object, from 0 to
           255 (inclusive).
         - Object length: the length (in bytes) corresponding to the part of the
-          message carried by the current FEC object. The original message length
-          is the sum of the object lengths from all FEC objects.
+          message carried by the current FEC object. The original message
+          length is the sum of the object lengths from all FEC objects.
 
-    The decoder first collects enough FEC chunks from all FEC objects pertaining
-    to the same message. Subsequently, it can decode each FEC object
+    The decoder first collects enough FEC chunks from all FEC objects
+    pertaining to the same message. Subsequently, it can decode each FEC object
     independently and recover the original message.
 
-    Note that the FEC packet does not carry an identification of the
-    message. Hence, the FEC packet alone is not capable of identifying the
-    packets pertaining to the same message. This identification is instead
-    provided by the BlocksatPkt structure (see pkt.py).
+    Note that the FEC packet does not carry an identification of the message.
+    Hence, the FEC packet alone is not capable of identifying the packets
+    pertaining to the same message. This identification is instead provided by
+    the BlocksatPkt structure (see pkt.py).
 
     """
     def __init__(self, overhead=0.1):
         """Constructor
 
         Args:
-            overhead : Percentage of FEC chunks to add as overhead (rounded up).
+            overhead : Percentage of the FEC chunks to add as overhead
+                       (rounded up).
         """
         self.overhead = overhead
 
@@ -135,12 +140,12 @@ class Fec:
         """
         assert (isinstance(data, bytes))
 
-        # The FEC object should contain up to 256 chunks, including the original
-        # (systematic) and the overhead chunks. The original data object (to be
-        # encoded) should occupy up to "256/(1 + overhead)" chunks, whereas the
-        # overhead chunks should occupy "(overhead * 256)/(1 + overhead)"
-        # chunks. Also, the overhead cannot be greater than 255, otherwise the
-        # original data occupies zero chunks per object.
+        # The FEC object should contain up to 256 chunks, including the
+        # original (systematic) and the overhead chunks. The original data
+        # object (to be encoded) should occupy up to "256/(1 + overhead)"
+        # chunks, whereas the overhead chunks should occupy "(overhead *
+        # 256)/(1 + overhead)" chunks. Also, the overhead cannot be greater
+        # than 255, otherwise the original data has zero chunks per object.
         assert(self.overhead <= MAX_OVERHEAD), \
             "FEC overhead exceeds the maximum of {}".format(MAX_OVERHEAD)
 
@@ -184,7 +189,8 @@ class Fec:
         """Decode a single FEC object
 
         Args:
-            obj_len   : Length of the original object encoded by the FEC object.
+            obj_len   : Length of the original object encoded by the FEC
+                        object.
             chunks    : List of FEC chunks.
             chunk_ids : List of ids associated with the list of FEC chunks.
 
@@ -206,12 +212,12 @@ class Fec:
 
         # FEC decoder
         decoder = zfec.Decoder(n_chunks, MAX_FEC_CHUNKS)
-        # NOTE: The hard-coded "MAX_FEC_CHUNKS" represents the maximum number of
-        # chunks that can be generated. The receiver does not know how many
+        # NOTE: The hard-coded "MAX_FEC_CHUNKS" represents the maximum number
+        # of chunks that can be generated. The receiver does not know how many
         # chunks the sender really generated. Nevertheless, it does not need to
         # know, as long as it receives at least n_chunks (any combination of
-        # n_chunks). The explanation for this requirement is that the FEC scheme
-        # is a maximum distance separable (MDS) erasure code.
+        # n_chunks). The explanation for this requirement is that the FEC
+        # scheme is a maximum distance separable (MDS) erasure code.
 
         # Decode using the minimum required number of FEC chunks
         decoded_chunks = decoder.decode(chunks[:n_chunks],
@@ -234,16 +240,16 @@ class Fec:
                    serially.
 
         Note: This is a faster processing tailored specifically to validate the
-             given FEC-encoded data. Unlike method decode(), it does not make
-             any expensive memory copying. The rationale is that the data will
-             not be ready to be decoded most of the time. Hence, it is better to
-             check if decodable separately than to try and decode it in one go.
+            given FEC-encoded data. Unlike method decode(), it does not make
+            any expensive memory copying. The rationale is that the data will
+            not be ready to be decoded most of the time. Hence, it is better to
+            check if decodable separately than to try and decode it in one go.
 
         """
 
         # The encoded data must contain an integer number of FEC packets,
-        # although it may not contain the full FEC-encoded object(s), given that
-        # some parts of it may have been lost.
+        # although it may not contain the full FEC-encoded object(s), given
+        # that some parts of it may have been lost.
         if (len(data) % PKT_SIZE != 0):
             logger.debug("Not a properly formatted FEC-encoded object")
             return False

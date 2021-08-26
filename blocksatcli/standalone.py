@@ -1,8 +1,14 @@
 """Standalone Receiver"""
-import logging, os, time, ipaddress
+import ipaddress
+import logging
+import os
+import time
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
+
+from pysnmp.hlapi import SnmpEngine, ObjectType, ObjectIdentity, \
+     getCmd, setCmd, nextCmd, CommunityData, ContextData, UdpTransportTarget
+
 from . import rp, firewall, defs, config, dependencies, util, monitoring
-from pysnmp.hlapi import *
 
 logger = logging.getLogger(__name__)
 runner = util.ProcessRunner(logger)
@@ -327,7 +333,7 @@ class S400Client(SnmpClient):
         self._set(('s400SymbolRate' + self.demod, sym_rate))
         self._set(('s400SymbolRateAuto' + self.demod, 'disable'))
 
-        logger.info("Setting LNB parameters".format(self.demod))
+        logger.info("Setting LNB parameters")
         self._set(('s400LOFrequency', lo_freq))
         self._set(('s400Polarization', pol))
         self._set(('s400LongLineCompensation', 'disable'))
@@ -475,7 +481,7 @@ def monitor(args):
     """Monitor the standalone DVB-S2 receiver"""
 
     # User info
-    user_info = config.read_cfg_file(args.cfg, args.cfg_dir)
+    config.read_cfg_file(args.cfg, args.cfg_dir)
 
     # Client to the S400's SNMP agent
     s400 = S400Client(args.demod, args.address, args.port)

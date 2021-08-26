@@ -1,10 +1,19 @@
 """Manage software dependencies"""
+import glob
+import logging
+import os
+import platform
+import subprocess
+import sys
+import tempfile
+import textwrap
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
-from . import config, defs, util
-import sys, os, subprocess, logging, glob, textwrap, tempfile
-from shutil import which
-import platform, distro
 from distutils.version import LooseVersion
+from shutil import which
+
+import distro
+
+from . import config, defs, util
 
 logger = logging.getLogger(__name__)
 runner = util.ProcessRunner(logger)
@@ -466,8 +475,8 @@ def drivers(args):
         if (not args.dry_run):
             kernel_devel_unavailable = (res_d.returncode != 0)
             kernel_headers_unavailable = (res_h.returncode != 0)
-            dnf_update_required        = kernel_devel_unavailable or \
-                                         kernel_headers_unavailable
+            dnf_update_required = kernel_devel_unavailable or \
+                kernel_headers_unavailable
             if (kernel_devel_unavailable):
                 print("Could not find package {}".format(kernel_devel))
             if (kernel_headers_unavailable):

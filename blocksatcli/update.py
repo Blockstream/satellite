@@ -1,7 +1,12 @@
-import os, logging, subprocess, json, threading
+import json
+import logging
+import os
+import subprocess
+import threading
 from datetime import datetime, timedelta
 from distutils.version import StrictVersion
 from shutil import which
+
 from .cache import Cache
 
 logger = logging.getLogger(__name__)
@@ -43,7 +48,8 @@ class UpdateCache(Cache):
 
     def has_update(self):
         """Returns whether there is an update available for the CLI"""
-        return 'cli_update' in self.data and self.data['cli_update'] is not None
+        return 'cli_update' in self.data and \
+            self.data['cli_update'] is not None
 
     def new_version(self):
         """Get the new version available for an update
@@ -153,8 +159,9 @@ def check_cli_updates(args, cli_version):
             update_cache.save()
         return
 
-    # If the last update verification was still recent (less than a day ago), do
-    # not check pip. Avoid the unnecessary spawning of the pip-checking thread.
+    # If the last update verification was still recent (less than a day ago),
+    # do not check pip. Avoid the unnecessary spawning of the pip-checking
+    # thread.
     if (update_cache.data):
         time_since_last_check = (datetime.now() - update_cache.last_check())
         if (time_since_last_check < timedelta(days=1)):

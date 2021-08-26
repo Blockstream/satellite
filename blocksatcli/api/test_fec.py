@@ -1,12 +1,16 @@
-import unittest, string, random, math
+import math
+import random
+import string
+import unittest
 from . import fec, pkt
 
 
 class TestFec(unittest.TestCase):
     def _rnd_string(self, n_bytes):
         """Generate a random string with the given number of bytes"""
-        return ''.join(random.choice(string.ascii_letters + string.digits) \
-                       for _ in range(n_bytes)).encode()
+        return ''.join(
+            random.choice(string.ascii_letters + string.digits)
+            for _ in range(n_bytes)).encode()
 
     def test_overhead(self):
         """Test the generated FEC overhead"""

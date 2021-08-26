@@ -1,18 +1,24 @@
 """Blocksat API"""
-import os, textwrap, logging, subprocess, shlex
+import logging
+import os
+import shlex
+import subprocess
+import textwrap
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter, \
     ArgumentTypeError
-import qrcode
 from shutil import which
-from .. import defs
+
+import qrcode
+
+from . import bidding, net
+from . import msg as api_msg
 from .. import config as blocksatcli_config
+from .. import defs
+from .demorx import DemoRx
+from .gpg import Gpg, config_keyring
+from .listen import ApiListener
 from .order import ApiOrder
 from .pkt import calc_ota_msg_len, ApiChannel
-from . import msg as api_msg
-from .demorx import DemoRx
-from .listen import ApiListener
-from . import bidding, net
-from .gpg import Gpg, config_keyring
 
 logger = logging.getLogger(__name__)
 server_map = {
@@ -146,8 +152,8 @@ def listen(args):
     gnupghome = os.path.join(args.cfg_dir, args.gnupghome)
     download_dir = os.path.join(args.cfg_dir, "api", "downloads")
 
-    # Override some options based on the mutual exclusive --gossip and --btc-src
-    # arguments, if present
+    # Override some options based on the mutual exclusive --gossip and
+    # --btc-src arguments, if present
     if (args.gossip):
         channel = ApiChannel.GOSSIP.value
         server_addr = server_map['gossip']
@@ -161,7 +167,7 @@ def listen(args):
         server_addr = _get_server_addr(args.net, args.server)
 
     historian_cli = os.path.join(args.historian_path, 'historian-cli') \
-                    if (args.historian_path) else 'historian-cli'
+        if (args.historian_path) else 'historian-cli'
 
     # Argument validation and special cases
     if (args.gossip):
@@ -285,8 +291,8 @@ def delete(args):
 def demo_rx(args):
     """Demo satellite receiver"""
 
-    # Override some options based on the mutual exclusive --gossip and --btc-src
-    # arguments, if present
+    # Override some options based on the mutual exclusive --gossip and
+    # --btc-src arguments, if present
     if (args.gossip):
         server_addr = server_map['gossip']
         channel = ApiChannel.GOSSIP.value
@@ -380,8 +386,8 @@ def subparser(subparsers):
         aliases=['tx'],
         description=textwrap.dedent('''\
 
-        Sends a file or a text message to the Satellite API for transmission via
-        Blockstream Satellite. By default, runs the following sequence: 1)
+        Sends a file or a text message to the Satellite API for transmission
+        via Blockstream Satellite. By default, runs the following sequence: 1)
         encapsulates the message into a structure containing the data checksum
         and the file name; 2) encrypts the entire structure using GnuPG; and 3)
         posts to the encrypted object to the API server for transmission.
@@ -402,9 +408,9 @@ def subparser(subparsers):
         '-r',
         '--recipient',
         default=None,
-        help="Public key fingerprint of the desired recipient. If not defined, "
-        "the recipient will be automatically set to the first public key in "
-        "the keyring")
+        help="Public key fingerprint of the desired recipient. If not "
+        "defined, the recipient will be automatically set to the first "
+        "public key in the keyring")
     p2.add_argument(
         '--trust',
         default=False,
@@ -456,8 +462,7 @@ def subparser(subparsers):
         default=False,
         action="store_true",
         help="Return immediately after submitting an API transmission order. "
-        "Do not wait for the payment, transmission, and reception confirmations"
-    )
+        "Do not wait for the payment and transmission confirmations")
     p2.set_defaults(func=send)
 
     # Listen
@@ -515,15 +520,16 @@ def subparser(subparsers):
         "that the incoming messages are in plaintext format and save them as "
         "individual files named with timestamps in the download directory. "
         "Note this option saves all incoming messages, including those "
-        "broadcast by other users. In contrast, the default mode (without this "
-        "option) only saves the messages that are successfully decrypted.")
+        "broadcast by other users. In contrast, the default mode (without "
+        "this option) only saves the messages that are successfully decrypted."
+    )
     p3.add_argument(
         '--sender',
         default=None,
         help="Public key fingerprint of a target sender used to filter the "
-        "incoming messages. When specified, the application processes only the "
-        "messages that are digitally signed by the selected sender, including "
-        "clearsigned messages.")
+        "incoming messages. When specified, the application processes only "
+        "the messages that are digitally signed by the selected sender, "
+        "including clearsigned messages.")
     p3.add_argument('--no-password',
                     default=False,
                     action="store_true",
@@ -532,15 +538,15 @@ def subparser(subparsers):
         '--echo',
         default=False,
         action='store_true',
-        help="Print the contents of all incoming text messages to the console, "
-        "as long as these messages are decodable in UTF-8")
+        help="Print the contents of all incoming text messages to the "
+        "console, as long as these messages are decodable in UTF-8")
     stdout_exec_arg_group = p3.add_mutually_exclusive_group()
     stdout_exec_arg_group.add_argument(
         '--stdout',
         default=False,
         action='store_true',
-        help="Serialize the received data to stdout instead of saving on a file"
-    )
+        help="Serialize the received data to stdout instead of saving on a "
+        "file")
     stdout_exec_arg_group.add_argument(
         '--no-save',
         default=False,
@@ -593,8 +599,8 @@ def subparser(subparsers):
         default=None,
         help="Destination for gossip snapshots, formatted as "
         "[nodeid]@[ipaddress]:[port]. If not set, historian-cli attempts to "
-        "discover the destination automatically. This parameter is provided as "
-        "a positional argument of command \'historian-cli snapshot load\', "
+        "discover the destination automatically. This parameter is provided "
+        "as a positional argument of command \'historian-cli snapshot load\', "
         "which is called for each downloaded file in gossip mode (i.e., when "
         "argument --gossip is set).")
     p3.add_argument('-r',
@@ -648,12 +654,12 @@ def subparser(subparsers):
         description=textwrap.dedent('''\
 
         Demo Blockstream Satellite Receiver, used to test the API data listener
-        application without an actual satellite receiver. The satellite receiver
-        receives UDP packets sent over satellite and relays these packets to a
-        host PC, where the API data listener application runs. This application,
-        in turn, produces equivalent UDP packets, just like the satellite
-        receiver would. The difference is that it fetches the data through the
-        internet, rather than receiving via satellite.
+        application without an actual satellite receiver. The satellite
+        receiver receives UDP packets sent over satellite and relays these
+        packets to a host PC, where the API data listener application runs.
+        This application, in turn, produces equivalent UDP packets, just like
+        the satellite receiver would. The difference is that it fetches the
+        data through the internet, rather than receiving via satellite.
 
         '''),
         help='Run demo satellite receiver',

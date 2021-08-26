@@ -1,9 +1,12 @@
 """Configure IP Address of DVB Interfaces"""
-from ipaddress import IPv4Interface
-import os, subprocess, logging
-from . import util
+import logging
+import os
+import subprocess
 import textwrap
+from ipaddress import IPv4Interface
 from shutil import which
+
+from . import util
 
 logger = logging.getLogger(__name__)
 runner = util.ProcessRunner(logger)
@@ -155,7 +158,7 @@ def _check_ip(net_if, ip_addr):
     try:
         res = subprocess.check_output(["ip", "addr", "show", "dev", net_if],
                                       stderr=subprocess.DEVNULL)
-    except subprocess.CalledProcessError as e:
+    except subprocess.CalledProcessError:
         return False, False
 
     has_ip = False
@@ -200,7 +203,7 @@ def set_ips(net_ifs, ip_addrs, verbose=True, dry=False):
 
     Args:
         net_ifs   : List of DVB network interface names
-        ip_addrs  : List of IP addresses for the DVB interface slash subnet mask
+        ip_addrs  : List of IP addresses for the dvbnet interface's subnet mask
         verbose   : Controls verbosity
         dry       : Dry run mode
 
@@ -247,7 +250,7 @@ def check_ips(net_ifs, ip_addrs):
 
     Args:
         net_ifs   : List of DVB network interface names
-        ip_addrs  : List of IP addresses for the DVB interface slash subnet mask
+        ip_addrs  : List of IP addresses for the dvbnet interface's subnet mask
         verbose   : Controls verbosity
 
     """
@@ -265,8 +268,8 @@ def rm_ip(ifname, dry=False):
     """Remove the static IP configuration of a given interface"""
     runner.set_dry(dry)
 
-    # Remove conf file for network interface (next time the interface could have
-    # a different number)
+    # Remove conf file for network interface (next time the interface could
+    # have a different number)
     netplan_file = os.path.join("/etc/netplan/",
                                 "blocksat-" + ifname + ".yaml")
     net_file = os.path.join("/etc/network/interfaces.d/", ifname + ".conf")

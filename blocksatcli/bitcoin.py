@@ -185,7 +185,7 @@ def configure(args):
         util.fill_print("If the dvb interfaces are numbered differently, "
                         "please update {} accordingly.".format(conf_file))
     elif (info['setup']['type'] == defs.standalone_setup_type):
-        print("\n" + textwrap.fill((
-            "NOTE: {0} was configured assuming the Novra S400 receiver will be "
-            "connected to interface {1}. If this is not the case anymore, "
-            "please update {0} accordingly.").format(conf_file, ifname)))
+        print("\n" + textwrap.fill(
+            ("NOTE: {0} was configured assuming the Novra S400 receiver will "
+             "be connected to interface {1}. If this is not the case anymore, "
+             "please update {0} accordingly.").format(conf_file, ifname)))

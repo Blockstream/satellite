@@ -1,5 +1,7 @@
 """Encapsulation of API messages into Blocksat Packets"""
-import logging, struct, time
+import logging
+import struct
+import time
 from enum import Enum
 from math import ceil
 
@@ -14,12 +16,13 @@ HEADER_LEN = 8
 TYPE_API_DATA = b'\x01'
 API_TYPE_LAST_FRAG = b'\x01'  # Type=1 (API), MF=0
 API_TYPE_MORE_FRAG = b'\x81'  # Type=1 (API), MF=1
-# Maximum Blocksat Packet payload in bytes to avoid fragmentation at IPv4 level:
+# Maximum Blocksat Packet payload in bytes to avoid fragmentation at IPv4
+# level:
 #
 # NOTE: The maximum Blocksat Packet payload considers the space occupied by the
 # Blocksat Packet, UDP and IP headers. That is, 8 (blocksat header) + 8 (UDP
-# header) + 20 (minimum IPv4 header), which add to 36 bytes. It also considers a
-# layer-2 MTU of 1500 bytes. See the explanation on calc_ota_msg_len().
+# header) + 20 (minimum IPv4 header), which add to 36 bytes. It also considers
+# a layer-2 MTU of 1500 bytes. See the explanation on calc_ota_msg_len().
 UDP_IP_HEADER = 20 + 8
 MAX_PAYLOAD = 1500 - (UDP_IP_HEADER + HEADER_LEN)
 
@@ -39,8 +42,8 @@ class BlocksatPkt:
     The Blocksat Packet is what goes on the payload of every UDP datagram sent
     over satellite for API traffic. It is responsible for transporting API
     messages (defined on msg.py). Because an API message can be larger than the
-    payload capacity of a UDP datagram, multiple Blocksat Packets can be used to
-    convey a message. In this case, each Blocksat Packet is referred to as a
+    payload capacity of a UDP datagram, multiple Blocksat Packets can be used
+    to convey a message. In this case, each Blocksat Packet is referred to as a
     fragment of the API message.
 
     Each blocksat packet carries an 8-byte header and its payload. The header
@@ -51,9 +54,9 @@ class BlocksatPkt:
     multiplexing and filtering of specific API packet streams (i.e., channels).
 
     This class implements the Blocksat Packet structure. It can serialize the
-    packet contents into a bytes array with the full concatenated packet (header
-    + payload). It can also execute the reverse, i.e., unpack/deserialize the
-    contents of a packet into the corresponding header and payload fields.
+    packet contents into a bytes array with the full concatenated packet
+    (header+payload). It can also execute the reverse, i.e., unpack/deserialize
+    the contents of a packet into the corresponding header and payload fields.
 
     """
     def __init__(self,
@@ -63,7 +66,7 @@ class BlocksatPkt:
                  more_frags=None,
                  payload=None):
         if (chan_num is not None):
-            assert(chan_num >=0 and chan_num < 256), \
+            assert(chan_num >= 0 and chan_num < 256), \
                 "Channel number must be >=0 && < 256"
         self.seq_num = seq_num
         self.frag_num = frag_num
@@ -87,7 +90,8 @@ class BlocksatPkt:
             udp_payload : UDP payload received via socket (bytes)
 
         Returns:
-            Tuple with the Blocksat Packet's payload (bytes) and sequence number
+            Tuple with the Blocksat Packet's payload (bytes) and sequence
+            number.
 
         """
         assert (isinstance(udp_payload, bytes))
@@ -193,8 +197,9 @@ class BlocksatPktHandler:
         """Append incoming BlocksatPkt
 
         Append the incoming Blocksat packet to the map of packets (fragments)
-        pertaining to the same API message. Once the last fragment of a sequence
-        comes, let the caller know that the API message is ready to be decoded.
+        pertaining to the same API message. Once the last fragment of a
+        sequence comes, let the caller know that the API message is ready to be
+        decoded.
 
         Args:
             pkt : Incoming BlocksatPkt
@@ -238,15 +243,16 @@ class BlocksatPktHandler:
         # everything in the end when the message is ready.
         self._concat_pkt(pkt)
 
-        # Track the highest fragment number received so far. This information is
-        # used to identify whether the concatenation cache needs to be
+        # Track the highest fragment number received so far. This information
+        # is used to identify whether the concatenation cache needs to be
         # recomputed for out-of-order packets (see _concat_pkt()).
         if (self.frag_map[pkt.seq_num]['high_frag'] is None
                 or pkt.frag_num > self.frag_map[pkt.seq_num]['high_frag']):
             self.frag_map[pkt.seq_num]['high_frag'] = pkt.frag_num
 
         # Track the last fragment of the sequence. This information is used to
-        # more quickly verify whether the message is ready (see _check_ready()).
+        # more quickly verify whether the message is ready (see
+        # _check_ready()).
         if (not pkt.more_frags):
             self.frag_map[pkt.seq_num]['last_frag'] = pkt.frag_num
 
@@ -307,7 +313,6 @@ class BlocksatPktHandler:
         """
         assert (isinstance(data, bytes))
         n_frags = ceil(len(data) / MAX_PAYLOAD)
-        pkts = list()
 
         logger.debug("BlocksatPktHandler: Message size: {:d} bytes\t"
                      "Fragments: {:d}".format(len(data), n_frags))

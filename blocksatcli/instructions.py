@@ -1,7 +1,10 @@
 """Instructions for the user"""
+import logging
+import os
+import textwrap
 from argparse import ArgumentDefaultsHelpFormatter
+
 from . import util, defs, config
-import os, textwrap, logging
 
 
 def _item(text):
@@ -100,10 +103,10 @@ def _print_usb_rx_instructions(info):
     util._print_header(name)
 
     _print("""
-    The {0} is a USB receiver, which will receive data from satellite and
-    will output data to the host over USB. The host, in turn, is responsible for
-    configuring the receiver using specific DVB-S2 tools. Hence, next, you
-    need to prepare the host for driving the {0}.
+    The {0} is a USB receiver, which will receive data from satellite and will
+    output data to the host over USB. The host, in turn, is responsible for
+    configuring the receiver using specific DVB-S2 tools. Hence, next, you need
+    to prepare the host for driving the {0}.
     """.format(name))
 
     util._print_sub_header("Hardware Connections")
@@ -122,12 +125,12 @@ def _print_usb_rx_instructions(info):
     util._print_sub_header("Drivers")
 
     _print("""
-    Before anything else, note that specific device drivers are required in order to
-    use the {0}. Please, do note that driver installation can cause corruptions
-    and, therefore, it is safer and **strongly recommended** to use a virtual
-    machine for running the {0}. If you do so, please note that all commands
-    recommended in the remainder of this page are supposed to be executed in the
-    virtual machine.
+    Before anything else, note that specific device drivers are required in
+    order to use the {0}. Please, do note that driver installation can cause
+    corruptions and, therefore, it is safer and **strongly recommended** to use
+    a virtual machine for running the {0}. If you do so, please note that all
+    commands recommended in the remainder of this page are supposed to be
+    executed in the virtual machine.
     """.format(name))
 
     _print("Next, install the drivers for the {0} by running:".format(name))
@@ -225,9 +228,8 @@ def _print_sdr_instructions(info):
     print("The SDR-based setup relies on the applications listed below:\n")
 
     _item("leandvb: a software-based DVB-S2 receiver application.")
-    _item(
-        "rtl_sdr: reads samples taken by the RTL-SDR and feeds them into leandvb."
-    )
+    _item("rtl_sdr: reads samples taken by the RTL-SDR and feeds them into "
+          "leandvb.")
     _item("TSDuck: unpacks the output of leandvb and produces "
           "IP packets to be fed to Bitcoin Satellite.")
     _item("Gqrx: useful for spectrum visualization during antenna pointing.")
@@ -333,9 +335,8 @@ def _print_freq_info(info):
 
     util._print_header("Frequencies")
 
-    print(
-        "For your information, your setup relies on the following frequencies:\n"
-    )
+    print("For your information, your setup relies on the following "
+          "frequencies:\n")
     print("| Downlink %2s band frequency            | %8.2f MHz |" %
           (sat['band'], sat['dl_freq']))
     print("| LNB local oscillator (LO) frequency   | %8.2f MHz |" % (lo_freq))
@@ -387,22 +388,21 @@ def _print_lnb_info(info):
         util._print_header("LNB Information")
         logging.warning(
             textwrap.fill(
-                "Your LNB has dual polarization. Check the voltage of your power "
-                "supply in order to discover the polarization on which your LNB "
-                "will operate."))
+                "Your LNB has dual polarization. Check the voltage of your "
+                "power supply in order to discover the polarization on which "
+                "your LNB will operate."))
         util.prompt_for_enter()
 
 
 def _print_next_steps():
     util._print_header("Next Steps")
     _print("""
-    At this point, if your dish is already correctly pointed, you should be able to
-    start receiving data on Bitcoin Satellite.
+    At this point, if your dish is already correctly pointed, you should be
+    able to start receiving data on Bitcoin Satellite.
     """)
 
-    print(
-        "You can generate a bitcoin.conf configuration file for Bitcoin Satellite using:"
-    )
+    print("You can generate a bitcoin.conf configuration file for Bitcoin "
+          "Satellite using:")
     print("\n    blocksat-cli btc\n")
 
     _print("Next, if you are running Ubuntu, Fedora, or CentOS, you can "

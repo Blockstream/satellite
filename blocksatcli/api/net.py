@@ -1,5 +1,10 @@
 """Socket communication"""
-import logging, socket, struct, fcntl, errno, ipaddress
+import errno
+import fcntl
+import ipaddress
+import logging
+import socket
+import struct
 
 logger = logging.getLogger(__name__)
 SIOCGIFINDEX = 0x8933  # Ioctl request for interface index

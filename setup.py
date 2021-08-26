@@ -1,11 +1,12 @@
-import re, sys
+import re
+import sys
 from setuptools import setup, find_packages
 
 if sys.version_info[0] < 3:
     raise SystemExit("Error: blocksat-cli requires Python 3")
     sys.exit(1)
 
-version = re.search('^__version__\s*=\s*"(.*)"',
+version = re.search(r'^__version__\s*=\s*"(.*)"',
                     open('blocksatcli/main.py').read(), re.M).group(1)
 
 long_description = """# Blockstream Satellite CLI

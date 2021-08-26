@@ -1,4 +1,8 @@
-import logging, json, requests, textwrap, time
+import json
+import logging
+import requests
+import textwrap
+import time
 from . import bidding, pkt
 
 logger = logging.getLogger(__name__)

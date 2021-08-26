@@ -1,4 +1,4 @@
-import unittest, threading
+import unittest
 from . import net
 
 

@@ -2,13 +2,15 @@
 
 __version__ = "0.4.0"
 
-import logging, os, time
+import logging
+import os
+import platform
+import time
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
-from . import defs, config, util, instructions, gqrx, bitcoin, sdr, rp, \
+
+from . import config, util, instructions, gqrx, bitcoin, sdr, rp, \
     firewall, standalone, usb, satip, dependencies, update
 from .api import api
-from os import environ
-import platform
 
 
 def main():

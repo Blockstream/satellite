@@ -1,4 +1,9 @@
-import os, unittest, zlib, shutil, string, random, math
+import math
+import os
+import random
+import shutil
+import string
+import unittest
 from . import msg, pkt, fec
 from .gpg import Gpg
 
@@ -12,7 +17,8 @@ class TestApi(unittest.TestCase):
         # ApiMsg on the Tx end (starting from the original data)
         tx_msg = msg.ApiMsg(data)
 
-        # The original data container should be set. The others should be empty.
+        # The original data container should be set. The others should be
+        # empty.
         assert (tx_msg.data["original"] is not None)
         assert (tx_msg.data["encapsulated"] is None)
         assert (tx_msg.data["encrypted"] is None)
@@ -44,8 +50,8 @@ class TestApi(unittest.TestCase):
         # ApiMsg on the Rx end (starting from the encapsulated data)
         rx_msg = msg.ApiMsg(encap_data, msg_format="encapsulated")
 
-        # The Rx message starts with only the encapsulated container filled. The
-        # other containers are empty.
+        # The Rx message starts with only the encapsulated container filled.
+        # The other containers are empty.
         assert (rx_msg.data["original"] is None)
         assert (rx_msg.data["encapsulated"] is not None)
         assert (rx_msg.data["encrypted"] is None)
@@ -116,7 +122,8 @@ class TestApi(unittest.TestCase):
         # Transmit message
         tx_msg = msg.ApiMsg(data)
 
-        # The original data container should be set. The others should be empty.
+        # The original data container should be set. The others should be
+        # empty.
         assert (tx_msg.data["original"] is not None)
         assert (tx_msg.data["encapsulated"] is None)
         assert (tx_msg.data["encrypted"] is None)
@@ -144,8 +151,8 @@ class TestApi(unittest.TestCase):
         self.assertTrue(rx_msg.decrypt(gpg))
 
         # Now the original data container should be non-null too. Also, because
-        # the decryption logic can't detect whether the data is encapsulated, it
-        # fills both the original and encapsulated data containers.
+        # the decryption logic can't detect whether the data is encapsulated,
+        # it fills both the original and encapsulated data containers.
         assert (rx_msg.data["original"] is not None)
         assert (rx_msg.data["encapsulated"] is not None)
         assert (rx_msg.data["encrypted"] is not None)
@@ -159,9 +166,6 @@ class TestApi(unittest.TestCase):
         """Try to decrypt a non-encrypt data object"""
         data = bytes([0, 1, 2, 3])
         gpg = self._setup_gpg()
-
-        # Transmit message (encrypted)
-        tx_msg = msg.ApiMsg(data)
 
         # ApiMsg on the Rx end (starting from the supposedly encrypted data,
         # which is actually the non-encrypted data)
@@ -273,8 +277,8 @@ class TestApi(unittest.TestCase):
         tx_msg.clearsign(gpg, recipient)
         rx_msg3 = msg.ApiMsg(tx_msg.get_data())
 
-        # The verification should filter the message signed by the actual signer
-        # of interest (rx_msg2)
+        # The verification should filter the message signed by the actual
+        # signer of interest (rx_msg2)
         self.assertFalse(rx_msg1.verify(gpg, signer))
         self.assertTrue(rx_msg2.verify(gpg, signer))
         self.assertFalse(rx_msg3.verify(gpg, signer))
@@ -291,8 +295,9 @@ class TestApi(unittest.TestCase):
 
         # Random data
         n_bytes = 100000
-        data    = ''.join(random.choice(string.ascii_letters + string.digits)\
-                          for _ in range(n_bytes)).encode()
+        data = ''.join(
+            random.choice(string.ascii_letters + string.digits)
+            for _ in range(n_bytes)).encode()
 
         # Define the original message, encapsulate it, and apply FEC encoding
         tx_msg = msg.ApiMsg(data)
@@ -380,8 +385,8 @@ class TestApi(unittest.TestCase):
         signer = gpg.gpg.list_keys(True)[1]["fingerprint"]
         assert (recipient != signer)
 
-        # The generator/decoder wrappers assume a plaintext and non-encapsulated
-        # message by default
+        # The generator/decoder wrappers assume a plaintext and
+        # non-encapsulated message by default
         msg1 = msg.ApiMsg(data)
         msg2 = msg.generate(data)
         self.assertEqual(msg1.get_data(), msg2.get_data())

@@ -1,10 +1,14 @@
 """User setup configuration"""
-import sys, os, json, logging
-from argparse import ArgumentDefaultsHelpFormatter, Namespace
-from pprint import pprint, pformat
-from . import util, defs, instructions
+import json
+import logging
+import os
+import sys
 import textwrap
+from argparse import ArgumentDefaultsHelpFormatter, Namespace
 from decimal import Decimal, getcontext
+from pprint import pprint, pformat
+
+from . import util, defs
 
 logger = logging.getLogger(__name__)
 
@@ -80,7 +84,7 @@ def _cfg_rx_setup():
     question = "Select your DVB-S2 receiver:"
     setup = util._ask_multiple_choice(
         defs.demods, question, "Receiver",
-        lambda x: '{} receiver'.format(_get_rx_marketing_name(x), x['type']))
+        lambda x: '{} receiver'.format(_get_rx_marketing_name(x)))
 
     # Network interface connected to the standalone receiver
     if (setup['type'] == defs.standalone_setup_type):
@@ -346,15 +350,15 @@ def _cfg_lnb(sat, setup):
             sys.exit(1)
 
     if (sat['band'].lower() != lnb['band'].lower()):
-        logging.error("The LNB you chose cannot operate " + \
-                      "in %s band (band of satellite %s)" %(sat['band'],
-                                                            sat['alias']))
+        logging.error("The LNB you chose cannot operate " +
+                      "in %s band (band of satellite %s)" %
+                      (sat['band'], sat['alias']))
         sys.exit(1)
 
     # When configuring a non-SDR receiver with a dual polarization LNB, we must
-    # know whether the LNB was pointed before on an SDR setup in order to define
-    # the polarization on channels.conf. When configuring an SDR receiver,
-    # collect the power inserter voltage too for future use.
+    # know whether the LNB was pointed before on an SDR setup in order to
+    # define the polarization on channels.conf. When configuring an SDR
+    # receiver, collect the power inserter voltage too for future use.
     if ((lnb['pol'].lower() == "dual" and setup['type'] != defs.sdr_setup_type)
             or setup['type'] == defs.sdr_setup_type):
         os.system('clear')
@@ -457,10 +461,10 @@ def _cfg_chan_conf(info, chan_file):
             # originally, regardless of the satellite signal's polarization. In
             # v1, what mattered the most was the power supply voltage, which
             # determined the polarization of the dual polarization LNBs. If the
-            # power supply provides voltage >= 18 (often the case), then the LNB
-            # necessarily operates currently with horizontal polarization. Thus,
-            # on channels.conf we must use the same polarization in order for
-            # the DVB adapter to supply the 18VDC voltage.
+            # power supply provides voltage >= 18 (often the case), then the
+            # LNB necessarily operates currently with horizontal polarization.
+            # Thus, on channels.conf we must use the same polarization in order
+            # for the DVB adapter to supply the 18VDC voltage.
             if (info['lnb']["v1_psu_voltage"] >= 16):  # 16VDC threshold
                 f.write('\tPOLARIZATION = HORIZONTAL\n')
             else:
@@ -571,8 +575,8 @@ def get_rx_model(user_info):
     vendeor-model string.
 
     """
-    return (user_info['setup']['vendor'] + " " + \
-        user_info['setup']['model']).strip()
+    return (user_info['setup']['vendor'] + " " +
+            user_info['setup']['model']).strip()
 
 
 def get_antenna_model(user_info):

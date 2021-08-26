@@ -88,8 +88,8 @@ def _is_iptables_udp_rule_set(net_if, cmd):
     """
     assert (cmd[0] != "sudo")
     for rule in _get_iptables_rules(net_if):
-        if (rule['rule'][3] == "ACCEPT" and rule['rule'][6] == cmd[6] and
-            (rule['rule'][4] == "udp" and rule['rule'][12] == cmd[10])):
+        if (rule['rule'][3] == "ACCEPT" and rule['rule'][6] == cmd[6]
+                and rule['rule'][4] == "udp" and rule['rule'][12] == cmd[10]):
             print("\nFirewall rule already configured\n")
             print(rule['header1'])
             print(rule['header2'])

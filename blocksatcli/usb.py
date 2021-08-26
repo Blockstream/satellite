@@ -42,10 +42,12 @@ def _find_v4l_lnb(info):
         if (info['lnb']['pol'].lower() == "dual" and  # user has dual-pol LNB
             (
                 info['sat']['pol'] == "H" or  # and satellite requires H pol
-                ('v1_pointed' in info['lnb'] and info['lnb']['v1_pointed']
-                 and info['lnb']['v1_psu_voltage'] >= 16
-                 )  # or LNB already operates with H pol
-            ) and "rangeswitch" not in lnb):  # but LNB candidate is single-pol
+                (
+                    'v1_pointed' in info['lnb'] and info['lnb']['v1_pointed']
+                    and info['lnb']['v1_psu_voltage'] >=
+                    16  # or LNB already operates with H pol
+                )) and "rangeswitch"
+                not in lnb):  # but LNB candidate is single-pol
             continue  # not a validate candidate, skip
 
         if (target_is_universal):
@@ -104,7 +106,7 @@ def _find_adapter(list_only=False, target_model=None):
                         }
                         adapters.append(adapter)
                         logger.debug(pformat(adapter))
-                    except subprocess.CalledProcessError as e:
+                    except subprocess.CalledProcessError:
                         pass
 
     # If nothing was obtained using dvbnet, try to inspect dmesg logs
@@ -143,7 +145,7 @@ def _find_adapter(list_only=False, target_model=None):
                 cmd = ["dvbnet", "-a", adapter['adapter'], "-l"]
                 logger.debug("> " + " ".join(cmd))
                 res = subprocess.check_output(cmd, stderr=subprocess.DEVNULL)
-            except subprocess.CalledProcessError as e:
+            except subprocess.CalledProcessError:
                 continue
 
             # If it exists, add to set of candidate adapters
@@ -257,8 +259,6 @@ def _dvbnet_single(adapter, ifname, pid, ule, existing_dvbnet_interfaces):
         # first
         if (os_interface_exists):
             _rm_dvbnet_interface(adapter, ifname, verbose=False)
-
-        adapter_dir = '/dev/dvb/adapter' + adapter
 
         ule_arg = "-U" if ule else ""
 
@@ -411,8 +411,8 @@ def zap(adapter,
             # The recording is such that MPEG TS packets are overwritten one by
             # one. For instance, if previous ts file had 1000 MPEG TS packets,
             # when overwriting, the tool would overwrite each packet
-            # individually. So if it was stopped for instance after the first 10
-            # MPEG TS packets, only the first 10 would be overwritten, the
+            # individually. So if it was stopped for instance after the first
+            # 10 MPEG TS packets, only the first 10 would be overwritten, the
             # remaining MPEG TS packets would remain in the ts file.
             #
             # The other option is to remove the ts file completely and start a
@@ -658,9 +658,7 @@ def usb_config(args):
                  for x in ips])), "Please provide IPs in CIDR notation"
 
     assert(len(args.pid) == len(ips)), \
-        "Number of PIDs (%u) defined by argument --pid " %(len(args.pid)) + \
-        "does not match the number of IPs (%u) defined by " %(len(ips)) + \
-        "argument --ip. Please define one IP address for each PID."
+        "Please define one IP address for each PID."
 
     # dvbnet interfaces of interest
     #
@@ -705,7 +703,11 @@ log_key_map = {
 
 
 def _parse_log(line):
-    """Parse logs from dvbv5-zap and convert to format accepted by monitor.py"""
+    """Parse logs from dvbv5-zap and convert to the monitoring format
+
+    The monitoring format is the format accepted by the monitor.py module.
+
+    """
     if (line is None or line == "\n"):
         return
 

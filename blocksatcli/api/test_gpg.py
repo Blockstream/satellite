@@ -1,4 +1,7 @@
-import unittest, os, shutil, time, uuid
+import os
+import shutil
+import unittest
+import uuid
 from .gpg import Gpg
 
 

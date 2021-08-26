@@ -3,11 +3,16 @@
 Read API data directly via internet and output to pipe
 """
 
-import requests, json, logging, time
+import json
+import logging
+import time
+
+import requests
 import sseclient
+
+from . import net
 from .order import ApiOrder
 from .pkt import BlocksatPkt, BlocksatPktHandler
-from . import net
 
 logger = logging.getLogger(__name__)
 MAX_SEQ_NUM = 2**31  # Maximum transmission sequence number
@@ -33,7 +38,8 @@ class DemoRx():
             kbps     : Target bit rate in kbps
             tx_event : SSE event to use as trigger for transmissions
             channel  : API channel number
-            regions  : Regions covered by the transmission (for Tx confirmation)
+            regions  : Regions covered by the transmission (for Tx
+                       confirmation)
             tls_key  : API client key (for Tx confirmation)
             tls_cer  : API client certificate (for Tx confirmation)
 
@@ -103,8 +109,8 @@ class DemoRx():
         # Sequence number
         seq_num = order["tx_seq_num"]
 
-        # If the sequence number has rolled back, maybe it is because the server
-        # has restarted the sequence numbers (not uncommon on test
+        # If the sequence number has rolled back, maybe it is because the
+        # server has restarted the sequence numbers (not uncommon on test
         # environments). In this case, restart the sequence.
         if (self.last_seq_num is not None and seq_num < self.last_seq_num):
             logger.warning("Tx sequence number rolled back from {} to "
@@ -192,7 +198,3 @@ class DemoRx():
                 exit()
 
             logger.info("Reconnecting...")
-
-
-if __name__ == '__main__':
-    main()

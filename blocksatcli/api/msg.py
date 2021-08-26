@@ -1,9 +1,13 @@
 """API Messages"""
-import sys, os, logging, time, struct, zlib, hashlib
-from math import ceil, floor
-import zfec
+import hashlib
+import logging
+import os
+import struct
+import sys
+import time
+import zlib
+
 from .. import defs
-from . import pkt
 from .fec import Fec
 
 logger = logging.getLogger(__name__)
@@ -20,12 +24,12 @@ class ApiMsg:
     """API Message - The content sent by the user over satellite
 
     This class defines the content sent over satellite, which includes the
-    original data array and potentially other features. For example, it could be
-    the original data encapsulated on an application-layer protocol. It could
-    also be the encrypted version of the original data or the encrypted version
-    of the application-layer protocol structure. Moreover, it could include
-    forward error correction (FEC) for extra protection to data loss over the
-    lossy satellite link.
+    original data array and potentially other features. For example, it could
+    be the original data encapsulated on an application-layer protocol. It
+    could also be the encrypted version of the original data or the encrypted
+    version of the application-layer protocol structure. Moreover, it could
+    include forward error correction (FEC) for extra protection to data loss
+    over the lossy satellite link.
 
     """
     def __init__(self, data, msg_format="original", filename=None):
@@ -60,7 +64,7 @@ class ApiMsg:
 
         # When the file name is empty, use a timestamp:
         self.filename = filename if filename is not None else \
-                        time.strftime("%Y%m%d%H%M%S")
+            time.strftime("%Y%m%d%H%M%S")
         if (filename is not None):
             logger.debug("File name: {}".format(filename))
 
@@ -180,11 +184,11 @@ class ApiMsg:
 
         """
         data = self.data['encapsulated'] if self.data['encapsulated'] \
-               else self.data['original']
+            else self.data['original']
 
         logger.debug("Encrypt for recipient %s" % (recipient))
 
-        if (sign and sign != True):
+        if (sign and sign is not True):
             logger.debug("Sign message using key %s" % (sign))
 
         encrypted_obj = gpg.encrypt(data,
@@ -227,8 +231,9 @@ class ApiMsg:
             sign_str_short = "Signed"
 
             if verified:
-                sign_str_long = "Signed by %s (verified w/ trust level: %s)" % (
-                    signed_by, decrypted_data.trust_text)
+                sign_str_long = \
+                    "Signed by %s (verified w/ trust level: %s)" % (
+                        signed_by, decrypted_data.trust_text)
             else:
                 sign_str_long = "Signed by %s (unverified)" % (signed_by)
         else:
@@ -272,9 +277,9 @@ class ApiMsg:
         """Clearsign the data
 
         Unlike the other methods in this class, this method overwrites the
-        original data container. The rationale is that, in this case, the actual
-        message to be delivered to the recipient becomes the clearsigned one,
-        including the signature.
+        original data container. The rationale is that, in this case, the
+        actual message to be delivered to the recipient becomes the clearsigned
+        one, including the signature.
 
         This method should be used in plaintext mode only. In contrast, in
         encryption mode, the signature should be enabled on the call to method
@@ -363,12 +368,13 @@ class ApiMsg:
         controlled by the overhead parameter.
 
         This function applies FEC encoding to the highest data container level
-        available. Furthermore, it generates FEC chunks that completely fill the
-        maximum Blocksat Packet payload. All chunks are of equal size and the
-        last chunk is padded if necessary.
+        available. Furthermore, it generates FEC chunks that completely fill
+        the maximum Blocksat Packet payload. All chunks are of equal size and
+        the last chunk is padded if necessary.
 
         Args:
-            overhead : Percentage of FEC chunks to add as overhead (rounded up).
+            overhead : Percentage of the FEC chunks to add as overhead
+                       (rounded up).
 
         """
         fec = Fec(overhead)
@@ -413,7 +419,7 @@ class ApiMsg:
 
         fec = Fec()
         res = fec.decode(self.data['fec_encoded'])
-        return res != False
+        return res is not False
 
     def save(self, dst_dir, target='original'):
         """Save data into a file
@@ -421,11 +427,11 @@ class ApiMsg:
         Save the data of a specified container into a file. Name the file
         according to the filename attribute of this class.
 
-        If another file with the same name and different contents already exists
-        in the download directory, save the data on a new file with an appended
-        number (e.g., "-2", "-3", and so on). Meanwhile, if a file with the same
-        name exists and its contents are also the same as the incoming data, do
-        not proceed with the saving.
+        If another file with the same name and different contents already
+        exists in the download directory, save the data on a new file with an
+        appended number (e.g., "-2", "-3", and so on). Meanwhile, if a file
+        with the same name exists and its contents are also the same as the
+        incoming data, do not proceed with the saving.
 
         Args:
             dst_dir : Destination directory to save the file
@@ -445,7 +451,8 @@ class ApiMsg:
             os.makedirs(dst_dir)
 
         # If the file already exists, check if it has the same contents as the
-        # data array to be saved. Return in the positive case (no need to save).
+        # data array to be saved. Return in the positive case (no need to save
+        # it again).
         dst_file = os.path.join(dst_dir, self.filename)
 
         if os.path.exists(dst_file):
@@ -546,8 +553,8 @@ def generate(data,
 
     # Encrypt, unless configured otherwise
     if (not plaintext):
-        # Default to the first public key in the keyring if the recipient is not
-        # defined.
+        # Default to the first public key in the keyring if the recipient is
+        # not defined.
         if (recipient is None):
             recipient = gpg.get_default_public_key()["fingerprint"]
             assert(recipient != defs.blocksat_pubkey), \
