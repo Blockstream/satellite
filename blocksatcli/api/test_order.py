@@ -4,26 +4,25 @@ from . import order, pkt
 
 class TestOrder(unittest.TestCase):
     def setUp(self):
-        server     = "https://api.blockstream.space/testnet"
+        server = "https://api.blockstream.space/testnet"
         self.order = order.ApiOrder(server)
 
     def test_transmission(self):
         """Test API order transmission"""
-        data   = "Hello".encode()
+        data = "Hello".encode()
         tx_len = pkt.calc_ota_msg_len(len(data))
-        bid    = tx_len * 50
+        bid = tx_len * 50
 
         # Send
         res = self.order.send(data, bid)
 
         # Check response
-        assert('auth_token' in res)
-        assert('uuid' in res)
-        assert('lightning_invoice' in res)
+        assert ('auth_token' in res)
+        assert ('uuid' in res)
+        assert ('lightning_invoice' in res)
         self.assertEqual(
             res['lightning_invoice']['metadata']['sha256_message_digest'],
-            hashlib.sha256(data).hexdigest()
-        )
+            hashlib.sha256(data).hexdigest())
         self.assertEqual(res['lightning_invoice']['status'], 'unpaid')
         self.assertEqual(int(res['lightning_invoice']['msatoshi']), bid)
 
@@ -41,9 +40,9 @@ class TestOrder(unittest.TestCase):
 
     def test_wait(self):
         """Test waiting for a transmission state"""
-        data   = "Hello".encode()
+        data = "Hello".encode()
         tx_len = pkt.calc_ota_msg_len(len(data))
-        bid    = tx_len * 50
+        bid = tx_len * 50
 
         # Send
         res = self.order.send(data, bid)
@@ -54,9 +53,9 @@ class TestOrder(unittest.TestCase):
 
     def test_bumping(self):
         """Test bumping of API order bid"""
-        data   = "Hello".encode()
+        data = "Hello".encode()
         tx_len = pkt.calc_ota_msg_len(len(data))
-        bid    = tx_len * 50
+        bid = tx_len * 50
 
         # Send first
         res = self.order.send(data, bid)
@@ -73,9 +72,9 @@ class TestOrder(unittest.TestCase):
 
     def test_delete(self):
         """Test bumping of API order bid"""
-        data   = "Hello".encode()
+        data = "Hello".encode()
         tx_len = pkt.calc_ota_msg_len(len(data))
-        bid    = tx_len * 50
+        bid = tx_len * 50
 
         # Send first
         res = self.order.send(data, bid)
@@ -87,4 +86,3 @@ class TestOrder(unittest.TestCase):
 
         # It should work to wait for state "cancelled"
         self.assertTrue(self.order.wait_state("cancelled", timeout=1))
-

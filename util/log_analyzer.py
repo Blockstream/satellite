@@ -3,9 +3,11 @@ import logging, sys, os, re
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 from datetime import datetime
 import matplotlib
+
 matplotlib.use('agg')
 import matplotlib.pyplot as plt
 from matplotlib.dates import DateFormatter
+
 plt.style.use('seaborn')
 logger = logging.getLogger(__name__)
 
@@ -27,28 +29,25 @@ def _parse(log, start_time):
         Dictionary with the receiver metrics.
 
     """
-    log_time    = _get_time(log)
-    info = {
-        'date' : log_time,
-        'time' : (log_time - start_time).total_seconds()
-    }
+    log_time = _get_time(log)
+    info = {'date': log_time, 'time': (log_time - start_time).total_seconds()}
     for entry in log[19:-1].split(";"):
-        key, val  = entry.split("=")
-        key       = key.strip()
-        val       = val.strip()
+        key, val = entry.split("=")
+        key = key.strip()
+        val = val.strip()
 
         if (key == "Lock"):
-            val  = "Locked" if val == "True" else "Unlocked" # categorial plot
+            val = "Locked" if val == "True" else "Unlocked"  # categorial plot
         elif (key == "Level" or key == "SNR"):
             unit = re.sub('[0-9.-]', '', val)
-            val  = val.replace(unit, '')
+            val = val.replace(unit, '')
             # The logs from the S400 could return NaN, in which case "val" is
             # empty here. Skip these values.
             if (val == ''):
                 continue
-            val  = float(val)
+            val = float(val)
         elif (key == "BER" or key == "Packet Errors"):
-            val  = float(val)
+            val = float(val)
         else:
             raise ValueError("Unknown key")
 
@@ -107,7 +106,7 @@ def _plot(ds, ds_name):
         ax.xaxis.set_tick_params(rotation=30, labelsize=10)
         plt.tight_layout()
 
-        savepath = os.path.join(path, key.replace("/","_").lower() + ".png")
+        savepath = os.path.join(path, key.replace("/", "_").lower() + ".png")
         plt.savefig(savepath, dpi=300)
         plt.close()
 
@@ -136,9 +135,9 @@ def parser():
     parser = ArgumentParser(prog="log_analyzer",
                             description="Analyze receiver logs",
                             formatter_class=ArgumentDefaultsHelpFormatter)
-    parser.add_argument('file',
-                        help="Log file")
-    parser.add_argument('--verbose', '-v',
+    parser.add_argument('file', help="Log file")
+    parser.add_argument('--verbose',
+                        '-v',
                         action='count',
                         default=5,
                         help="Verbosity (logging) level")
@@ -149,13 +148,11 @@ def main():
     args = parser()
 
     logging_level = 70 - (10 * args.verbose) if args.verbose > 0 else 0
-    logging.basicConfig(
-        level=logging_level,
-        format='%(asctime)s %(levelname)-8s %(message)s',
-        datefmt='%Y-%m-%d %H:%M:%S'
-    )
+    logging.basicConfig(level=logging_level,
+                        format='%(asctime)s %(levelname)-8s %(message)s',
+                        datefmt='%Y-%m-%d %H:%M:%S')
 
-    logs    = _read_log_file(args.file)
+    logs = _read_log_file(args.file)
     logname = os.path.splitext(os.path.basename(args.file))[0]
 
     _analyze(logs, logname)

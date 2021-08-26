@@ -15,20 +15,19 @@ class TestBitcoinConfGen(unittest.TestCase):
         )
         # Corresponding dictionary version
         udpmcastlist = list()
-        devices      = ["dvb0_0", "dvb0_1"]
-        labels       = ["blocksat-tbs-lowspeed", "blocksat-tbs-highspeed"]
-        for device,label in zip(devices, labels):
+        devices = ["dvb0_0", "dvb0_1"]
+        labels = ["blocksat-tbs-lowspeed", "blocksat-tbs-highspeed"]
+        for device, label in zip(devices, labels):
             udpmcastlist.append(
                 bitcoin._udpmulticast(device,
                                       "172.16.235.9",
                                       dst_addr=defs.btc_dst_addr,
                                       trusted="1",
-                                      label=label)
-            )
+                                      label=label))
         cfg = {
-            'debug'                   : ["udpnet", "udpmulticast"],
-            'udpmulticastloginterval' : "60",
-            'udpmulticast'            : udpmcastlist
+            'debug': ["udpnet", "udpmulticast"],
+            'udpmulticastloginterval': "60",
+            'udpmulticast': udpmcastlist
         }
         return text, cfg
 
@@ -58,13 +57,13 @@ class TestBitcoinConfGen(unittest.TestCase):
         # Create configuration object with the given configs
         cfg = bitcoin.Cfg(dct)
         # Add new option
-        cfg.add_opt("udpmulticast",
-                    bitcoin._udpmulticast("eth0",
-                                          "172.16.235.9",
-                                          dst_addr=defs.btc_dst_addr,
-                                          trusted="1",
-                                          label="blocksat-s400")
-                    )
+        cfg.add_opt(
+            "udpmulticast",
+            bitcoin._udpmulticast("eth0",
+                                  "172.16.235.9",
+                                  dst_addr=defs.btc_dst_addr,
+                                  trusted="1",
+                                  label="blocksat-s400"))
         # Add new option to expected text
         text += "udpmulticast=eth0,239.0.0.2:4434,172.16.235.9,1,blocksat-s400\n"
         # Check if exported text includes the new option
@@ -98,4 +97,3 @@ class TestBitcoinConfGen(unittest.TestCase):
             cfg = bitcoin._gen_cfgs(info, ifname)
             opt = cfg.cfg['udpmulticast']
             self.assertTrue('lo,239.0.0.2:4434,127.0.0.1,' in opt)
-

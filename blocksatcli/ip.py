@@ -16,12 +16,12 @@ def _check_debian_net_interfaces_d(dry):
     just return.
 
     """
-    if_file  = "/etc/network/interfaces"
+    if_file = "/etc/network/interfaces"
 
     if (not os.path.exists(if_file)):
         return
 
-    if_dir   = "/etc/network/interfaces.d/"
+    if_dir = "/etc/network/interfaces.d/"
     src_line = "source /etc/network/interfaces.d/*"
 
     if (dry):
@@ -51,7 +51,7 @@ def _check_debian_net_interfaces_d(dry):
 
 def _add_to_netplan(ifname, addr_with_prefix):
     """Create configuration file at /etc/netplan/"""
-    assert("/" in addr_with_prefix)
+    assert ("/" in addr_with_prefix)
     cfg_dir = "/etc/netplan/"
 
     cfg = ("network:\n"
@@ -61,11 +61,10 @@ def _add_to_netplan(ifname, addr_with_prefix):
            "    {0}:\n"
            "      dhcp4: no\n"
            "      optional: true\n"
-           "      addresses: [{1}]\n").format(
-               ifname, addr_with_prefix)
+           "      addresses: [{1}]\n").format(ifname, addr_with_prefix)
 
-    fname  = "blocksat-" + ifname + ".yaml"
-    path   = os.path.join(cfg_dir, fname)
+    fname = "blocksat-" + ifname + ".yaml"
+    path = os.path.join(cfg_dir, fname)
 
     if (runner.dry):
         util.fill_print("Create a file named {} at {} and add the "
@@ -82,8 +81,8 @@ def _add_to_interfaces_d(ifname, addr, netmask):
     cfg = ("iface {0} inet static\n"
            "    address {1}\n"
            "    netmask {2}\n").format(ifname, addr, netmask)
-    fname  = ifname + ".conf"
-    path   = os.path.join(if_dir, fname)
+    fname = ifname + ".conf"
+    path = os.path.join(if_dir, fname)
 
     if (runner.dry):
         util.fill_print("Create a file named {} at {} and add the "
@@ -104,8 +103,8 @@ def _add_to_sysconfig_net_scripts(ifname, addr, netmask):
            "IPADDR={1}\n"
            "NETMASK={2}\n").format(ifname, addr, netmask)
 
-    fname  = "ifcfg-" + ifname
-    path   = os.path.join(cfg_dir, fname)
+    fname = "ifcfg-" + ifname
+    path = os.path.join(cfg_dir, fname)
 
     if (runner.dry):
         util.fill_print("Create a file named {} at {} and add the "
@@ -125,9 +124,9 @@ def _set_static_iface_ip(ifname, ipv4_if):
 
     """
     isinstance(ipv4_if, IPv4Interface)
-    addr                = str(ipv4_if.ip)
-    addr_with_prefix    = ipv4_if.with_prefixlen
-    netmask             = str(ipv4_if.netmask)
+    addr = str(ipv4_if.ip)
+    addr_with_prefix = ipv4_if.with_prefixlen
+    netmask = str(ipv4_if.netmask)
 
     if (which("netplan") is not None):
         _add_to_netplan(ifname, addr_with_prefix)
@@ -160,15 +159,15 @@ def _check_ip(net_if, ip_addr):
         return False, False
 
     has_ip = False
-    ip_ok  = False
+    ip_ok = False
     for line in res.splitlines():
         if "inet" in line.decode() and "inet6" not in line.decode():
-            has_ip    = True
+            has_ip = True
             # Check if IP matches target
             inet_info = line.decode().split()
-            inet_if   = IPv4Interface(inet_info[1])
+            inet_if = IPv4Interface(inet_info[1])
             target_if = IPv4Interface(ip_addr)
-            ip_ok     = (inet_if == target_if)
+            ip_ok = (inet_if == target_if)
             break
 
     return has_ip, ip_ok
@@ -255,11 +254,11 @@ def check_ips(net_ifs, ip_addrs):
     for net_if, ip_addr in zip(net_ifs, ip_addrs):
         has_ip, ip_ok = _check_ip(net_if, ip_addr)
         if (not has_ip):
-            raise ValueError("Interface {} does not have an IP address".format(
-                net_if))
+            raise ValueError(
+                "Interface {} does not have an IP address".format(net_if))
         elif (has_ip and not ip_ok):
-            raise ValueError("Interface {} IP is not {}".format(net_if,
-                                                                ip_addr))
+            raise ValueError("Interface {} IP is not {}".format(
+                net_if, ip_addr))
 
 
 def rm_ip(ifname, dry=False):
@@ -268,10 +267,11 @@ def rm_ip(ifname, dry=False):
 
     # Remove conf file for network interface (next time the interface could have
     # a different number)
-    netplan_file = os.path.join("/etc/netplan/", "blocksat-" + ifname + ".yaml")
-    net_file     = os.path.join("/etc/network/interfaces.d/", ifname + ".conf")
-    ifcfg_file   = os.path.join("/etc/sysconfig/network-scripts/",
-                                "ifcfg-" + ifname)
+    netplan_file = os.path.join("/etc/netplan/",
+                                "blocksat-" + ifname + ".yaml")
+    net_file = os.path.join("/etc/network/interfaces.d/", ifname + ".conf")
+    ifcfg_file = os.path.join("/etc/sysconfig/network-scripts/",
+                              "ifcfg-" + ifname)
 
     if (which("netplan") is not None):
         cfg_file = netplan_file
@@ -300,15 +300,13 @@ def compute_rx_ips(sat_ip, n_ips, subnet="/29"):
 
     """
     sat_ip_split = [x for x in sat_ip.split(".")]
-    assert(len(sat_ip_split) == 4)
-    base_ip     = ".".join(sat_ip_split[0:3])
+    assert (len(sat_ip_split) == 4)
+    base_ip = ".".join(sat_ip_split[0:3])
     sat_ip_term = int(sat_ip[-1])
     base_offset = 3  # 3 reserved IPs for Tx host and modulator
-    assert(n_ips < 5)  # 5 IPs remaining for user equipment
+    assert (n_ips < 5)  # 5 IPs remaining for user equipment
     ips = list()
     for i in range(0, n_ips):
         rx_ip_term = sat_ip_term + base_offset + i
         ips.append(base_ip + "." + str(rx_ip_term) + subnet)
     return ips
-
-

@@ -10,11 +10,11 @@ class TestOrder(unittest.TestCase):
 
     def test_pack_unpack(self):
         """Test packing and unpacking to/from Blocksat Packet"""
-        chan_num   = pkt.ApiChannel.USER.value
-        seq_num    = 1
-        frag_num   = 10
+        chan_num = pkt.ApiChannel.USER.value
+        seq_num = 1
+        frag_num = 10
         more_frags = False
-        payload    = "Hello".encode()
+        payload = "Hello".encode()
 
         # Packetize
         tx_packet = pkt.BlocksatPkt(seq_num, frag_num, chan_num, more_frags,
@@ -36,7 +36,7 @@ class TestOrder(unittest.TestCase):
     def test_handler(self):
         """Test extraction of API message from collection of Blockst Packets"""
         # Random data
-        data = self._rnd_string(n_bytes = 10000)
+        data = self._rnd_string(n_bytes=10000)
 
         # Distribute data into packets
         chan_num = 1
@@ -45,7 +45,7 @@ class TestOrder(unittest.TestCase):
         handler.split(data, seq_num, chan_num)
 
         # The random data should exceed the length of a single Blocksat Packet
-        assert(handler.get_n_frags(seq_num) > 1)
+        assert (handler.get_n_frags(seq_num) > 1)
 
         # All fragments but the last shall assert the "more fragments" bit
         packets = handler.get_frags(seq_num)
@@ -62,7 +62,7 @@ class TestOrder(unittest.TestCase):
     def test_unordered_packet_handling(self):
         """Test decoding of API message from out-of-order Blocksat Packets"""
         # Random data
-        data = self._rnd_string(n_bytes = 10000)
+        data = self._rnd_string(n_bytes=10000)
 
         # Distribute data into packets
         chan_num = 1
@@ -72,7 +72,7 @@ class TestOrder(unittest.TestCase):
 
         # Pass packets from the Tx handler to the Rx handler out-of-order.
         rx_handler = pkt.BlocksatPktHandler()
-        packets    = tx_handler.get_frags(seq_num)
+        packets = tx_handler.get_frags(seq_num)
         random.shuffle(packets)
         for packet in packets:
             data_ready = rx_handler.append(packet)
@@ -86,7 +86,7 @@ class TestOrder(unittest.TestCase):
     def test_packet_gap_handling(self):
         """Test decoding of API message with gap on Blocksat Packets"""
         # Random data
-        data = self._rnd_string(n_bytes = 10000)
+        data = self._rnd_string(n_bytes=10000)
 
         # Distribute data into packets
         chan_num = 1
@@ -97,9 +97,9 @@ class TestOrder(unittest.TestCase):
         # Pass packets from the Tx handler to the Rx handler out-of-order and
         # drop a packet chosen randomly.
         rx_handler = pkt.BlocksatPktHandler()
-        packets    = tx_handler.get_frags(seq_num)
+        packets = tx_handler.get_frags(seq_num)
         random.shuffle(packets)
-        i_drop     = random.choice([p.frag_num for p in packets])
+        i_drop = random.choice([p.frag_num for p in packets])
         data_ready = False
         for packet in packets:
             if (packet.frag_num == i_drop):
@@ -120,7 +120,7 @@ class TestOrder(unittest.TestCase):
     def test_repeated_fragment(self):
         """Test processing of repeated fragment"""
         # Random data
-        data = self._rnd_string(n_bytes = 10000)
+        data = self._rnd_string(n_bytes=10000)
 
         # Distribute data into packets
         chan_num = 1
@@ -160,7 +160,7 @@ class TestOrder(unittest.TestCase):
     def test_ota_msg_len(self):
         """Test over-the-air message length computation"""
         # Random data
-        data = self._rnd_string(n_bytes = 10000)
+        data = self._rnd_string(n_bytes=10000)
 
         # Expected number of bytes sent over-the-air
         expected_ota_len = pkt.calc_ota_msg_len(len(data))
@@ -172,8 +172,8 @@ class TestOrder(unittest.TestCase):
         tx_handler.split(data, seq_num, chan_num)
 
         # Compute sum of transmitted payload lengths
-        pkts                = tx_handler.get_frags(seq_num)
-        total_len           = 0
+        pkts = tx_handler.get_frags(seq_num)
+        total_len = 0
         udp_ip_mpe_overhead = 8 + 20 + 16
         for packet in pkts:
             total_len += len(packet.pack()) + udp_ip_mpe_overhead
@@ -184,11 +184,11 @@ class TestOrder(unittest.TestCase):
     def test_fragment_clean_up(self):
         """Test automatic cleaning of old pending fragments"""
         # Random data
-        data = self._rnd_string(n_bytes = 10000)
+        data = self._rnd_string(n_bytes=10000)
 
         # Create a packet handler with a short timeout
         timeout = 0.5
-        handler = pkt.BlocksatPktHandler(timeout = timeout)
+        handler = pkt.BlocksatPktHandler(timeout=timeout)
 
         # Distribute data into packets
         chan_num = 1
@@ -199,7 +199,7 @@ class TestOrder(unittest.TestCase):
         handler.clean()
 
         # It should not have cleaned anything (timeout interval has not elapsed)
-        assert(seq_num in handler.frag_map)
+        assert (seq_num in handler.frag_map)
 
         # Wait enough to time out
         time.sleep(timeout)
@@ -208,16 +208,16 @@ class TestOrder(unittest.TestCase):
         handler.clean()
 
         # Now it should be clean
-        assert(seq_num not in handler.frag_map)
-        assert(handler.frag_map == {})
+        assert (seq_num not in handler.frag_map)
+        assert (handler.frag_map == {})
 
     def test_chan_number_backwards_compatibility(self):
         """Unpack the new header format using the previous unpacking format"""
-        chan_num   = pkt.ApiChannel.USER.value
-        seq_num    = 1
-        frag_num   = 10
+        chan_num = pkt.ApiChannel.USER.value
+        seq_num = 1
+        frag_num = 10
         more_frags = True
-        payload    = "Hello".encode()
+        payload = "Hello".encode()
 
         # Packetize using the new implementation (new header format)
         tx_packet = pkt.BlocksatPkt(seq_num, frag_num, chan_num, more_frags,

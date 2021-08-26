@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 from distutils.version import StrictVersion
 from shutil import which
 from .cache import Cache
+
 logger = logging.getLogger(__name__)
 
 
@@ -35,7 +36,8 @@ class UpdateCache(Cache):
                          if any
 
         """
-        self.data['last_check'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')
+        self.data['last_check'] = datetime.now().strftime(
+            '%Y-%m-%d %H:%M:%S.%f')
         self.data['cli_update'] = cli_update
         super().save()
 
@@ -58,8 +60,7 @@ class UpdateCache(Cache):
             return
         print("\nUpdate available for blocksat-cli")
         print("Current version: {}.\nLatest version: {}.".format(
-            self.data['cli_update'][0], self.data['cli_update'][1]
-        ))
+            self.data['cli_update'][0], self.data['cli_update'][1]))
         print("Please run:\n\n    pip3 install blocksat-cli --upgrade\n\n")
 
 
@@ -79,7 +80,8 @@ def _check_pip_updates(cfg_dir, cli_version):
 
     # Is blocksat-cli installed?
     res = subprocess.run(["pip3", "show", "blocksat-cli"],
-                         stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                         stdout=subprocess.DEVNULL,
+                         stderr=subprocess.DEVNULL)
     found = (res.returncode == 0)
 
     # If the CLI was not installed via pip, don't check updates
@@ -90,10 +92,9 @@ def _check_pip_updates(cfg_dir, cli_version):
     # Is the CLI outdated?
     try:
         outdated_list = json.loads(
-            subprocess.check_output(["pip3", "list", "--outdated",
-                                     "--format", "json"],
-                                    stderr=subprocess.DEVNULL).decode()
-        )
+            subprocess.check_output(
+                ["pip3", "list", "--outdated", "--format", "json"],
+                stderr=subprocess.DEVNULL).decode())
     except subprocess.CalledProcessError:
         # Don't break if the command fails. It could be a problem on pip. For
         # example, there is a bug in which pip throws a TypeError on the "list
@@ -157,15 +158,13 @@ def check_cli_updates(args, cli_version):
     if (update_cache.data):
         time_since_last_check = (datetime.now() - update_cache.last_check())
         if (time_since_last_check < timedelta(days=1)):
-            logger.debug("Last update check was less than a day ago: {}".format(
-                str(time_since_last_check)))
+            logger.debug(
+                "Last update check was less than a day ago: {}".format(
+                    str(time_since_last_check)))
             return
 
     # Check pip updates on a thread. This verification can be slow, so it is
     # better not to block.
-    t = threading.Thread(
-        target=_check_pip_updates,
-        args=(args.cfg_dir, cli_version)
-    )
+    t = threading.Thread(target=_check_pip_updates,
+                         args=(args.cfg_dir, cli_version))
     t.start()
-

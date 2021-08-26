@@ -2,7 +2,6 @@ import logging
 from math import ceil
 from .. import util
 
-
 logger = logging.getLogger(__name__)
 MIN_BID_PER_BYTE = 1
 MIN_BID = 1000
@@ -22,7 +21,7 @@ def suggest_bid(data_size, prev_bid=None):
         Bid in millisatoshis
 
     """
-    assert(isinstance(data_size, int))
+    assert (isinstance(data_size, int))
 
     if (prev_bid is not None):
         # Suggest a 5% higher msat/byte ratio
@@ -53,7 +52,7 @@ def validate_bid(bid, prev_bid=None):
 
     if (bid > MAX_BID):
         print("Bid too large. Are you sure you want to bid {:.2f} "
-              "sats (satoshis)?".format(bid/1e3))
+              "sats (satoshis)?".format(bid / 1e3))
         return False
 
     return True
@@ -83,11 +82,10 @@ def ask_bid(data_size, prev_bid=None):
 
     if (prev_bid is not None):
         logger.info("Bump bid by %d msat to a total of %d msat "
-                    "(%.2f msat/byte)" %(
-                        bid - prev_bid, bid, float(bid) / data_size))
+                    "(%.2f msat/byte)" %
+                    (bid - prev_bid, bid, float(bid) / data_size))
     else:
         logger.info("Post data with bid of %d millisatoshis "
-                    "(%.2f msat/byte)" %(bid, float(bid) / data_size))
+                    "(%.2f msat/byte)" % (bid, float(bid) / data_size))
 
     return bid
-

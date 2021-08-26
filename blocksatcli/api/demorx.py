@@ -9,16 +9,22 @@ from .order import ApiOrder
 from .pkt import BlocksatPkt, BlocksatPktHandler
 from . import net
 
-
-logger      = logging.getLogger(__name__)
-MAX_SEQ_NUM = 2 ** 31  # Maximum transmission sequence number
+logger = logging.getLogger(__name__)
+MAX_SEQ_NUM = 2**31  # Maximum transmission sequence number
 
 
 class DemoRx():
     """Demo receiver
     """
-    def __init__(self, server, socks, kbps, tx_event, channel, regions=None,
-                 tls_cert=None, tls_key=None):
+    def __init__(self,
+                 server,
+                 socks,
+                 kbps,
+                 tx_event,
+                 channel,
+                 regions=None,
+                 tls_cert=None,
+                 tls_key=None):
         """ DemoRx Constructor
 
         Args:
@@ -34,18 +40,18 @@ class DemoRx():
 
         """
         # Validate args
-        assert(isinstance(socks, list))
-        assert(all([isinstance(x, net.UdpSock) for x in socks]))
+        assert (isinstance(socks, list))
+        assert (all([isinstance(x, net.UdpSock) for x in socks]))
 
         # Configs
-        self.server   = server
-        self.socks    = socks
-        self.kbps     = kbps
+        self.server = server
+        self.socks = socks
+        self.kbps = kbps
         self.tx_event = tx_event
-        self.channel  = channel
-        self.regions  = regions
+        self.channel = channel
+        self.regions = regions
         self.tls_cert = tls_cert
-        self.tls_key  = tls_key
+        self.tls_key = tls_key
 
         # State
         self.last_seq_num = None
@@ -59,22 +65,21 @@ class DemoRx():
             pkts : List of BlocksatPkt objects to be send over sockets
 
         """
-        assert(isinstance(pkts, list))
-        assert(all([isinstance(x, BlocksatPkt) for x in pkts]))
+        assert (isinstance(pkts, list))
+        assert (all([isinstance(x, BlocksatPkt) for x in pkts]))
 
-        byte_rate = self.kbps * 1e3 / 8 # bytes / sec
-        next_tx   = time.time()
+        byte_rate = self.kbps * 1e3 / 8  # bytes / sec
+        next_tx = time.time()
         for i, pkt in enumerate(pkts):
             # Send the same packet on all sockets
             for sock in self.socks:
                 sock.send(pkt.pack())
-                logger.debug("Send packet %d - %d bytes" %(
-                    i, len(pkt)))
+                logger.debug("Send packet %d - %d bytes" % (i, len(pkt)))
 
             # Throttle
             tx_delay = len(pkt) / byte_rate
             next_tx += tx_delay
-            sleep    = next_tx - time.time()
+            sleep = next_tx - time.time()
             if (sleep > 0):
                 time.sleep(sleep)
 
@@ -89,8 +94,7 @@ class DemoRx():
         order = json.loads(event.data)
 
         # Debug
-        logger.debug("Order: " + json.dumps(order, indent=4,
-                                            sort_keys=True))
+        logger.debug("Order: " + json.dumps(order, indent=4, sort_keys=True))
 
         # Proceed when the event matches the target Tx trigger event
         if (order["status"] != self.tx_event):
@@ -123,16 +127,17 @@ class DemoRx():
             if (seq_num == next_seq_num):
                 rx_pending = False
             else:
-                logger.info("Catch up with transmission %d" %(
-                    next_seq_num))
+                logger.info("Catch up with transmission %d" % (next_seq_num))
 
-            logger.info("Message %-5d\tSize: %d bytes\t" %(
-                next_seq_num, order["message_size"]))
+            logger.info("Message %-5d\tSize: %d bytes\t" %
+                        (next_seq_num, order["message_size"]))
 
             # Get the API message data
-            order = ApiOrder(self.server, seq_num=next_seq_num,
-                             tls_cert=self.tls_cert, tls_key=self.tls_key)
-            data  = order.get_data()
+            order = ApiOrder(self.server,
+                             seq_num=next_seq_num,
+                             tls_cert=self.tls_cert,
+                             tls_key=self.tls_key)
+            data = order.get_data()
 
             if (data is None):
                 # Empty message. There is nothing else to do.
@@ -144,8 +149,7 @@ class DemoRx():
             pkts = tx_handler.get_frags(next_seq_num)
 
             logger.debug("Transmission is going to take: "
-                         "{:6.2f} sec".format(
-                             len(data) * 8 / (self.kbps)))
+                         "{:6.2f} sec".format(len(data) * 8 / (self.kbps)))
 
             # Send the packet(s)
             self._send_pkts(pkts)

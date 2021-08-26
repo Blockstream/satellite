@@ -6,15 +6,14 @@ from .. import defs
 from . import pkt
 from .fec import Fec
 
-
-logger            = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 # API message header:
 # Octets 0 - 254   : string with the file name
 # Octet 255        : bool indicating whether the message is text
 # Octets 256 - 259 : CRC32 checksum
 MSG_HEADER_FORMAT = '<255sxI'
-MSG_HEADER_LEN    = 255 + 1 + 4
-data_formats      = ["original", "encapsulated", "encrypted", "fec_encoded"]
+MSG_HEADER_LEN = 255 + 1 + 4
+data_formats = ["original", "encapsulated", "encrypted", "fec_encoded"]
 
 
 class ApiMsg:
@@ -43,15 +42,15 @@ class ApiMsg:
             filename   : Name of the file represented by the input data, when
                          the data corresponds to a file.
         """
-        assert(isinstance(data, bytes))
-        assert(msg_format in data_formats), "Unknown message format"
+        assert (isinstance(data, bytes))
+        assert (msg_format in data_formats), "Unknown message format"
 
         # Data containers
         self.data = {
-            'original'     : None, # Original data, before encapsulation
-            'encapsulated' : None, # After encapsulation
-            'encrypted'    : None, # After encryption
-            'fec_encoded'  : None  # After forward error correction
+            'original': None,  # Original data, before encapsulation
+            'encapsulated': None,  # After encapsulation
+            'encrypted': None,  # After encryption
+            'fec_encoded': None  # After forward error correction
         }
 
         # The input data fills one of the containers:
@@ -79,7 +78,7 @@ class ApiMsg:
 
         """
         if target is not None:
-            assert(target in data_formats), "Unknown target container"
+            assert (target in data_formats), "Unknown target container"
             return self.data[target]
 
         # Take the highest-level container
@@ -113,15 +112,14 @@ class ApiMsg:
 
         """
         orig_data = self.data["original"]
-        crc32     = zlib.crc32(orig_data)
-        header    = struct.pack(MSG_HEADER_FORMAT, self.filename.encode(),
-                                crc32)
+        crc32 = zlib.crc32(orig_data)
+        header = struct.pack(MSG_HEADER_FORMAT, self.filename.encode(), crc32)
 
         self.data['encapsulated'] = header + orig_data
 
         logger.debug("Checksum: {:d}".format(crc32))
-        logger.debug("Packed in data structure with a total of %d bytes" %(
-            len(self.data['encapsulated'])))
+        logger.debug("Packed in data structure with a total of %d bytes" %
+                     (len(self.data['encapsulated'])))
 
     def decapsulate(self):
         """Decapsulate the data structure
@@ -133,7 +131,7 @@ class ApiMsg:
             Boolean indicating whether the parsing was successful
 
         """
-        assert(self.data['encapsulated'] is not None)
+        assert (self.data['encapsulated'] is not None)
         encap_data = self.data['encapsulated']
 
         if (len(encap_data) < MSG_HEADER_LEN):
@@ -141,8 +139,7 @@ class ApiMsg:
             return False
 
         # Parse the header
-        header        = struct.unpack(MSG_HEADER_FORMAT,
-                                      encap_data[:MSG_HEADER_LEN])
+        header = struct.unpack(MSG_HEADER_FORMAT, encap_data[:MSG_HEADER_LEN])
         try:
             self.filename = header[0].rstrip(b'\0').decode()
         except UnicodeDecodeError:
@@ -152,17 +149,16 @@ class ApiMsg:
         in_checksum = header[1]
 
         # Check the integrity of the payload
-        payload       = encap_data[MSG_HEADER_LEN:]
+        payload = encap_data[MSG_HEADER_LEN:]
         calc_checksum = zlib.crc32(payload)
 
         if (calc_checksum != in_checksum):
-            logger.error("Checksum (%d) does not match the header value (%d)" %(
-                calc_checksum, in_checksum
-            ))
+            logger.error("Checksum (%d) does not match the header value (%d)" %
+                         (calc_checksum, in_checksum))
             return False
         else:
-            logger.info("File: %s\tChecksum: %d\tSize: %d bytes" %(
-                self.filename, in_checksum, len(payload)))
+            logger.info("File: %s\tChecksum: %d\tSize: %d bytes" %
+                        (self.filename, in_checksum, len(payload)))
 
         self.data['original'] = payload
         return True
@@ -186,20 +182,22 @@ class ApiMsg:
         data = self.data['encapsulated'] if self.data['encapsulated'] \
                else self.data['original']
 
-        logger.debug("Encrypt for recipient %s" %(recipient))
+        logger.debug("Encrypt for recipient %s" % (recipient))
 
         if (sign and sign != True):
-            logger.debug("Sign message using key %s" %(sign))
+            logger.debug("Sign message using key %s" % (sign))
 
-        encrypted_obj = gpg.encrypt(data, recipient, always_trust = trust,
-                                    sign = sign)
+        encrypted_obj = gpg.encrypt(data,
+                                    recipient,
+                                    always_trust=trust,
+                                    sign=sign)
         if (not encrypted_obj.ok):
             logger.error(encrypted_obj.stderr)
             raise ValueError(encrypted_obj.status)
 
         self.data['encrypted'] = encrypted_obj.data
-        logger.debug("Encrypted version of the data structure has %d bytes" %(
-            len(self.data['encrypted'])))
+        logger.debug("Encrypted version of the data structure has %d bytes" %
+                     (len(self.data['encrypted'])))
 
     def decrypt(self, gpg, signer_filter=None):
         """Decrypt the data
@@ -217,33 +215,30 @@ class ApiMsg:
         decrypted_data = gpg.decrypt(self.data['encrypted'])
 
         if (not decrypted_data.ok):
-            logger.info(
-                "Size: %7d bytes\t Decryption: FAILED\t" %(
-                    len(self.data['encrypted'])) +
-                "Not encrypted for us (%s)" %(decrypted_data.status)
-            )
+            logger.info("Size: %7d bytes\t Decryption: FAILED\t" %
+                        (len(self.data['encrypted'])) +
+                        "Not encrypted for us (%s)" % (decrypted_data.status))
             return False
 
         # Is the message digitally signed?
         if (decrypted_data.fingerprint is not None):
-            signed_by      = decrypted_data.fingerprint
-            verified       = decrypted_data.trust_level is not None
+            signed_by = decrypted_data.fingerprint
+            verified = decrypted_data.trust_level is not None
             sign_str_short = "Signed"
 
             if verified:
-                sign_str_long = "Signed by %s (verified w/ trust level: %s)" %(
-                    signed_by, decrypted_data.trust_text
-                )
+                sign_str_long = "Signed by %s (verified w/ trust level: %s)" % (
+                    signed_by, decrypted_data.trust_text)
             else:
-                sign_str_long = "Signed by %s (unverified)" %(signed_by)
+                sign_str_long = "Signed by %s (unverified)" % (signed_by)
         else:
             sign_str_short = "Unsigned"
-            sign_str_long  = ""
-            signed_by      = None
-            verified       = False
+            sign_str_long = ""
+            signed_by = None
+            verified = False
 
-        logger.info("Encrypted size: %7d bytes\t Decryption: OK    \t%s" %(
-            len(self.data['encrypted']), sign_str_short))
+        logger.info("Encrypted size: %7d bytes\t Decryption: OK    \t%s" %
+                    (len(self.data['encrypted']), sign_str_short))
 
         if (len(sign_str_long) > 0):
             logger.info(sign_str_long)
@@ -262,13 +257,13 @@ class ApiMsg:
                 logger.warning("Dropping message - signature unverified")
                 return False
 
-        logger.info("Decrypted size: %7d bytes" %(len(str(decrypted_data))))
+        logger.info("Decrypted size: %7d bytes" % (len(str(decrypted_data))))
 
         # We can't know whether decrypted data is encapsulated or not. So, for
         # now, put the data into both fields. If the decrypted data is
         # encapsulated, eventually "decapsulate" will be called and will
         # overwrite the "original" data container.
-        self.data['original']     = decrypted_data.data
+        self.data['original'] = decrypted_data.data
         self.data['encapsulated'] = decrypted_data.data
 
         return True
@@ -293,12 +288,12 @@ class ApiMsg:
         """
         data = self.data['original']
 
-        logger.debug("Sign message using key %s" %(sign_key))
+        logger.debug("Sign message using key %s" % (sign_key))
 
         signed_obj = gpg.sign(data, sign_key)
 
-        logger.debug("Signed version of the data structure has %d bytes" %(
-            len(signed_obj.data)))
+        logger.debug("Signed version of the data structure has %d bytes" %
+                     (len(signed_obj.data)))
 
         self.data['original'] = signed_obj.data
 
@@ -319,10 +314,10 @@ class ApiMsg:
             (bool) Whether the message is signed by the target signer.
 
         """
-        assert(signer is not None)
+        assert (signer is not None)
 
         verif_obj = gpg.gpg.verify(self.data['original'])
-        verified  = verif_obj.trust_level is not None
+        verified = verif_obj.trust_level is not None
         signed_by = verif_obj.fingerprint
 
         if (not signed_by):
@@ -339,8 +334,7 @@ class ApiMsg:
             return False
 
         logger.info("Signed by {} (verified w/ trust level: {})".format(
-            signed_by, verif_obj.trust_text
-        ))
+            signed_by, verif_obj.trust_text))
 
         if (verif_obj.trust_level < verif_obj.TRUST_FULLY):
             logger.warning("Dropping message - signature unverified")
@@ -352,9 +346,9 @@ class ApiMsg:
         # case, decrypted_data.ok returns false, but the data becomes available
         # on decrypted_data.data (although with a '\n' in the end).
         decrypted_data = gpg.decrypt(self.data['original'])
-        assert(verif_obj.fingerprint == decrypted_data.fingerprint)
-        assert(verif_obj.trust_level == decrypted_data.trust_level)
-        assert(decrypted_data.data[-1] == ord('\n'))
+        assert (verif_obj.fingerprint == decrypted_data.fingerprint)
+        assert (verif_obj.trust_level == decrypted_data.trust_level)
+        assert (decrypted_data.data[-1] == ord('\n'))
         self.data['original'] = decrypted_data.data[:-1]
 
         return True
@@ -392,7 +386,7 @@ class ApiMsg:
             "is_fec_decodable()" method before calling it.
 
         """
-        assert(self.data['fec_encoded'] is not None)
+        assert (self.data['fec_encoded'] is not None)
 
         fec = Fec()
         decoded_data = fec.decode(self.data['fec_encoded'])
@@ -404,9 +398,9 @@ class ApiMsg:
         # We can't know whether the underlying message is encrypted or
         # encapsulated. Thus, for now, put the data into all fields. These
         # fields can be overwritten by calling "decrypt()" or "decapsulate()".
-        self.data['original']     = decoded_data
+        self.data['original'] = decoded_data
         self.data['encapsulated'] = decoded_data
-        self.data['encrypted']    = decoded_data
+        self.data['encrypted'] = decoded_data
 
     def is_fec_decodable(self):
         """Check if the FEC-encoded data is decodable
@@ -415,7 +409,7 @@ class ApiMsg:
             (bool) Whether the FEC-encoded data is decodable.
 
         """
-        assert(self.data['fec_encoded'] is not None)
+        assert (self.data['fec_encoded'] is not None)
 
         fec = Fec()
         res = fec.decode(self.data['fec_encoded'])
@@ -444,7 +438,7 @@ class ApiMsg:
 
         """
         data = self.get_data(target)
-        assert(isinstance(data, bytes))
+        assert (isinstance(data, bytes))
 
         # Save file into a specific directory
         if not os.path.exists(dst_dir):
@@ -470,12 +464,13 @@ class ApiMsg:
         # implied that it has different contents. Hence, save the incoming data
         # with the same name but an appended number.
         filename, ext = os.path.splitext(self.filename)
-        i_file        = 1
+        i_file = 1
         while (True):
             if not os.path.exists(dst_file):
                 break
-            i_file  += 1
-            dst_file = os.path.join(dst_dir, filename + "-" + str(i_file) + ext)
+            i_file += 1
+            dst_file = os.path.join(dst_dir,
+                                    filename + "-" + str(i_file) + ext)
 
         # Write file with user data
         f = open(dst_file, 'wb')
@@ -494,13 +489,21 @@ class ApiMsg:
 
         """
         data = self.get_data(target)
-        assert(isinstance(data, bytes))
+        assert (isinstance(data, bytes))
         sys.stdout.buffer.write(data)
         sys.stdout.buffer.flush()
 
 
-def generate(data, filename=None, plaintext=True, encapsulate=False, sign=False,
-             fec=False, gpg=None, recipient=None, trust=False, sign_key=None,
+def generate(data,
+             filename=None,
+             plaintext=True,
+             encapsulate=False,
+             sign=False,
+             fec=False,
+             gpg=None,
+             recipient=None,
+             trust=False,
+             sign_key=None,
              fec_overhead=0.1):
     """Generate an API message
 
@@ -575,7 +578,11 @@ def generate(data, filename=None, plaintext=True, encapsulate=False, sign=False,
     return msg
 
 
-def decode(data, plaintext=True, decapsulate=False, fec=False, sender=None,
+def decode(data,
+           plaintext=True,
+           decapsulate=False,
+           fec=False,
+           sender=None,
            gpg=None):
     """Decode an incoming API message
 

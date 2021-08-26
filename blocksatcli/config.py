@@ -18,12 +18,9 @@ def _cfg_satellite():
                "https://blockstream.com/satellite/#satellite_network-coverage"
 
     question = "Which satellite below covers your location?"
-    sat = util._ask_multiple_choice(defs.satellites,
-                                    question,
-                                    "Satellite",
-                                    lambda sat : '{} ({})'.format(sat['name'],
-                                                                  sat['alias']),
-                                    help_msg)
+    sat = util._ask_multiple_choice(
+        defs.satellites, question, "Satellite",
+        lambda sat: '{} ({})'.format(sat['name'], sat['alias']), help_msg)
     return sat
 
 
@@ -58,13 +55,12 @@ def _ask_antenna():
     util._print_header("Antenna")
 
     question = "What kind of antenna are you using?"
-    antenna = util._ask_multiple_choice(
-        defs.antennas,
-        question,
-        "Antenna",
-        _get_antenna_name,
-        none_option=True,
-        none_str="Other")
+    antenna = util._ask_multiple_choice(defs.antennas,
+                                        question,
+                                        "Antenna",
+                                        _get_antenna_name,
+                                        none_option=True,
+                                        none_str="Other")
 
     if (antenna is None):
         size = util.typed_input("Enter size in cm",
@@ -83,11 +79,8 @@ def _cfg_rx_setup():
     # Receiver
     question = "Select your DVB-S2 receiver:"
     setup = util._ask_multiple_choice(
-        defs.demods,
-        question,
-        "Receiver",
-        lambda x : '{} receiver'.format(_get_rx_marketing_name(x),
-                                        x['type']))
+        defs.demods, question, "Receiver",
+        lambda x: '{} receiver'.format(_get_rx_marketing_name(x), x['type']))
 
     # Network interface connected to the standalone receiver
     if (setup['type'] == defs.standalone_setup_type):
@@ -99,10 +92,8 @@ def _cfg_rx_setup():
 
         question = "Which network interface is connected to the receiver?"
         if (devices is not None):
-            netdev = util._ask_multiple_choice(devices,
-                                               question,
-                                               "Interface",
-                                               lambda x : '{}'.format(x))
+            netdev = util._ask_multiple_choice(devices, question, "Interface",
+                                               lambda x: '{}'.format(x))
         else:
             netdev = input(question + " ")
 
@@ -133,8 +124,9 @@ def _ask_lnb_freq_range():
     while (True):
         while (len(in_range) != 2):
             try:
-                resp = input("Inform the two extreme frequencies (in MHz) of "
-                             "your LNB's frequency range, separated by comma: ")
+                resp = input(
+                    "Inform the two extreme frequencies (in MHz) of "
+                    "your LNB's frequency range, separated by comma: ")
                 in_range = [float(x) for x in resp.split(",")]
             except ValueError:
                 continue
@@ -159,7 +151,8 @@ def _ask_lnb_lo(single_lo=True):
     """Prompt the user for the LNB's LO frequencies"""
     if (single_lo):
         while (True):
-            lo_freq = util.typed_input("LNB LO frequency in MHz", in_type=float)
+            lo_freq = util.typed_input("LNB LO frequency in MHz",
+                                       in_type=float)
 
             if (lo_freq < 3000):
                 print("Please, provide the frequencies in MHz.")
@@ -204,20 +197,19 @@ def _cfg_custom_lnb(sat):
 
     print("\nPlease, inform the specifications of your LNB:")
 
-    bands           = ["C", "Ku"]
-    question        = "Frequency band:"
+    bands = ["C", "Ku"]
+    question = "Frequency band:"
     custom_lnb_band = util._ask_multiple_choice(bands, question, "Band",
-                                                lambda x : '{}'.format(x))
+                                                lambda x: '{}'.format(x))
 
     if (sat['band'].lower() != custom_lnb_band.lower()):
-        logging.error(
-            "You must use a %s band LNB to receive from %s" %(
-                sat['band'], sat['name']))
+        logging.error("You must use a %s band LNB to receive from %s" %
+                      (sat['band'], sat['name']))
         sys.exit(1)
 
-
     if (custom_lnb_band == "Ku"):
-        custom_lnb_universal = util._ask_yes_or_no("Is it a Universal Ku band LNB?")
+        custom_lnb_universal = util._ask_yes_or_no(
+            "Is it a Universal Ku band LNB?")
 
         if (custom_lnb_universal):
             # Input frequency range
@@ -232,7 +224,7 @@ def _cfg_custom_lnb(sat):
 
             # LO
             print()
-            util.fill_print( """A Universal Ku band LNB has two LO (local
+            util.fill_print("""A Universal Ku band LNB has two LO (local
             oscillator) frequencies. Typically the two frequencies are 9750
             MHz and 10600 MHz.""")
             if (util._ask_yes_or_no("Does your LNB have LO frequencies 9750 "
@@ -243,40 +235,36 @@ def _cfg_custom_lnb(sat):
         else:
             # Non-universal Ku-band LNB
             custom_lnb_in_range = _ask_lnb_freq_range()
-            custom_lnb_lo_freq  = _ask_lnb_lo()
+            custom_lnb_lo_freq = _ask_lnb_lo()
     else:
         # C-band LNB
         custom_lnb_universal = False
-        custom_lnb_in_range  = _ask_lnb_freq_range()
-        custom_lnb_lo_freq   = _ask_lnb_lo()
+        custom_lnb_in_range = _ask_lnb_freq_range()
+        custom_lnb_lo_freq = _ask_lnb_lo()
 
     # Polarization
     question = "Choose the LNB polarization:"
-    options = [
-        {
-            'id' : "Dual",
-            'text' : "Dual polarization (horizontal and vertical)"
-        },
-        {
-            'id' : "H",
-            'text' : "Horizontal"
-        },
-        {
-            'id' : "V",
-            'text' : "Vertical"
-        }]
-    pol = util._ask_multiple_choice(options, question,
-                                    "Polarization",
-                                    lambda x : '{}'.format(x['text']))
+    options = [{
+        'id': "Dual",
+        'text': "Dual polarization (horizontal and vertical)"
+    }, {
+        'id': "H",
+        'text': "Horizontal"
+    }, {
+        'id': "V",
+        'text': "Vertical"
+    }]
+    pol = util._ask_multiple_choice(options, question, "Polarization",
+                                    lambda x: '{}'.format(x['text']))
 
     return {
-        'vendor'    : "",
-        'model'     : "",
-        'in_range'  : custom_lnb_in_range,
-        'lo_freq'   : custom_lnb_lo_freq,
-        'universal' : custom_lnb_universal,
-        'band'      : custom_lnb_band,
-        'pol'       : pol['id']
+        'vendor': "",
+        'model': "",
+        'in_range': custom_lnb_in_range,
+        'lo_freq': custom_lnb_lo_freq,
+        'universal': custom_lnb_universal,
+        'band': custom_lnb_band,
+        'pol': pol['id']
     }
 
 
@@ -289,16 +277,19 @@ def _sat_freq_in_lnb_range(sat, lnb):
 def _ask_lnb(sat):
     """Ask the user's LNB"""
     question = "Please, inform your LNB model:"
-    lnb_options = [lnb for lnb in defs.lnbs if _sat_freq_in_lnb_range(sat, lnb)
-                   and lnb['vendor'] != 'Selfsat']
+    lnb_options = [
+        lnb for lnb in defs.lnbs
+        if _sat_freq_in_lnb_range(sat, lnb) and lnb['vendor'] != 'Selfsat'
+    ]
     lnb = util._ask_multiple_choice(
         lnb_options,
-        question, "LNB",
-        lambda x : "{} {} {}".format(
-            x['vendor'], x['model'],
-            "(Universal Ku band LNBF)" if x['universal'] else ""),
-        none_option = True,
-        none_str = "Other")
+        question,
+        "LNB",
+        lambda x: "{} {} {}".format(
+            x['vendor'], x['model'], "(Universal Ku band LNBF)"
+            if x['universal'] else ""),
+        none_option=True,
+        none_str="Other")
 
     if (lnb is None):
         lnb = _cfg_custom_lnb(sat)
@@ -308,11 +299,12 @@ def _ask_lnb(sat):
 
 def _ask_psu_voltage(question):
     """Prompt for the power inserter model or voltage"""
-    psu = util._ask_multiple_choice(
-        defs.psus, question, "Power inserter",
-        lambda x : "{}".format(x['model']),
-        none_option = True,
-        none_str = "No - another model")
+    psu = util._ask_multiple_choice(defs.psus,
+                                    question,
+                                    "Power inserter",
+                                    lambda x: "{}".format(x['model']),
+                                    none_option=True,
+                                    none_str="No - another model")
     if (psu is None):
         voltage = util.typed_input("What is the voltage supplied to the "
                                    "LNB by your power inserter?")
@@ -364,7 +356,7 @@ def _cfg_lnb(sat, setup):
     # the polarization on channels.conf. When configuring an SDR receiver,
     # collect the power inserter voltage too for future use.
     if ((lnb['pol'].lower() == "dual" and setup['type'] != defs.sdr_setup_type)
-        or setup['type'] == defs.sdr_setup_type):
+            or setup['type'] == defs.sdr_setup_type):
         os.system('clear')
         util._print_header("Power Supply")
 
@@ -374,15 +366,15 @@ def _cfg_lnb(sat, setup):
             "before by an SDR receiver?",
             default='n',
             help_msg="NOTE: this information is helpful to determine the "
-            "polarization required for the LNB."
-        )
+            "polarization required for the LNB.")
 
         lnb["v1_pointed"] = prev_sdr_setup
 
         if (prev_sdr_setup):
             print()
-            question = ("In the pre-existing SDR setup, did you use one of the "
-                        "LNB power inserters below?")
+            question = (
+                "In the pre-existing SDR setup, did you use one of the "
+                "LNB power inserters below?")
             lnb["v1_psu_voltage"] = _ask_psu_voltage(question)
     elif (setup['type'] == defs.sdr_setup_type):
         question = ("Are you using one of the LNB power inserters below?")
@@ -432,11 +424,7 @@ def _cfg_frequencies(sat, lnb, setup):
                           _get_rx_marketing_name(setup)))
         sys.exit(1)
 
-    return {
-        'dl'     : sat['dl_freq'],
-        'lo'     : lo_freq,
-        'l_band' : if_freq
-    }
+    return {'dl': sat['dl_freq'], 'lo': lo_freq, 'l_band': if_freq}
 
 
 def _cfg_chan_conf(info, chan_file):
@@ -444,12 +432,13 @@ def _cfg_chan_conf(info, chan_file):
 
     util._print_header("Channel Configuration")
 
-    print(textwrap.fill("This step will generate the channel configuration "
-                        "file that is required when launching the USB "
-                        "receiver in Linux.") + "\n")
+    print(
+        textwrap.fill("This step will generate the channel configuration "
+                      "file that is required when launching the USB "
+                      "receiver in Linux.") + "\n")
 
     if (os.path.isfile(chan_file)):
-        print("Found previous %s file:" %(chan_file))
+        print("Found previous %s file:" % (chan_file))
 
         if (not util._ask_yes_or_no("Remove and regenerate file?")):
             print("Configuration aborted.")
@@ -460,9 +449,9 @@ def _cfg_chan_conf(info, chan_file):
     with open(chan_file, 'w') as f:
         f.write('[blocksat-ch]\n')
         f.write('\tDELIVERY_SYSTEM = DVBS2\n')
-        f.write('\tFREQUENCY = %u\n' %(int(info['sat']['dl_freq']*1000)))
-        if (info['lnb']['pol'].lower() == "dual" and 'v1_pointed' in info['lnb']
-            and info['lnb']['v1_pointed']):
+        f.write('\tFREQUENCY = %u\n' % (int(info['sat']['dl_freq'] * 1000)))
+        if (info['lnb']['pol'].lower() == "dual"
+                and 'v1_pointed' in info['lnb'] and info['lnb']['v1_pointed']):
             # If a dual-polarization LNB is already pointed for Blocksat v1,
             # then we must use the polarization that the LNB was pointed to
             # originally, regardless of the satellite signal's polarization. In
@@ -472,7 +461,7 @@ def _cfg_chan_conf(info, chan_file):
             # necessarily operates currently with horizontal polarization. Thus,
             # on channels.conf we must use the same polarization in order for
             # the DVB adapter to supply the 18VDC voltage.
-            if (info['lnb']["v1_psu_voltage"] >= 16): # 16VDC threshold
+            if (info['lnb']["v1_psu_voltage"] >= 16):  # 16VDC threshold
                 f.write('\tPOLARIZATION = HORIZONTAL\n')
             else:
                 f.write('\tPOLARIZATION = VERTICAL\n')
@@ -488,7 +477,7 @@ def _cfg_chan_conf(info, chan_file):
         pids = "+".join([str(x) for x in defs.pids])
         f.write('\tVIDEO_PID = {}\n'.format(pids))
 
-    print("File \"%s\" saved." %(chan_file))
+    print("File \"%s\" saved." % (chan_file))
 
     with open(chan_file, 'r') as f:
         logging.debug(f.read())
@@ -553,13 +542,12 @@ def read_cfg_file(cfg_name, directory):
 
     """
     cfg_file = _cfg_file_name(cfg_name, directory)
-    info     = _read_cfg_file(cfg_file)
+    info = _read_cfg_file(cfg_file)
 
     while (info is None):
         print("Missing {} configuration file".format(cfg_file))
         if (util._ask_yes_or_no("Run configuration helper now?")):
-            configure(Namespace(cfg_dir=directory,
-                                cfg=cfg_name))
+            configure(Namespace(cfg_dir=directory, cfg=cfg_name))
         else:
             print("Abort")
             return
@@ -611,8 +599,7 @@ def get_lnb_model(user_info):
         if (lnb_info['universal']):
             lnb = "Custom Universal LNB"
         else:
-            lnb = "Custom {}-band LNB".format(
-                lnb_info['band'])
+            lnb = "Custom {}-band LNB".format(lnb_info['band'])
     else:
         lnb = "{} {}".format(lnb_info['vendor'], lnb_info['model'])
     return lnb
@@ -632,8 +619,7 @@ def get_net_if(user_info):
             interface = "dvb0_0"
             logger.warning("Could not find the dvbnet interface name. "
                            "Is the {} receiver running?".format(
-                               get_rx_model(user_info)
-                           ))
+                               get_rx_model(user_info)))
             logger.warning("Assuming interface name {}.".format(interface))
         else:
             adapter = user_info['setup']['adapter']
@@ -647,7 +633,8 @@ def get_net_if(user_info):
 
 def subparser(subparsers):
     """Argument parser of config command"""
-    p = subparsers.add_parser('config', aliases=['cfg'],
+    p = subparsers.add_parser('config',
+                              aliases=['cfg'],
                               description="Configure Blocksat Rx setup",
                               help='Define receiver and Bitcoin Satellite \
                               configurations',
@@ -677,24 +664,24 @@ def configure(args):
 
     """
     cfg_file = _cfg_file_name(args.cfg, args.cfg_dir)
-    rst_ok   = _rst_cfg_file(cfg_file)
+    rst_ok = _rst_cfg_file(cfg_file)
     if (not rst_ok):
         return
 
     try:
-        user_sat   = _cfg_satellite()
+        user_sat = _cfg_satellite()
         user_setup = _cfg_rx_setup()
-        user_lnb   = _cfg_lnb(user_sat, user_setup)
+        user_lnb = _cfg_lnb(user_sat, user_setup)
         user_freqs = _cfg_frequencies(user_sat, user_lnb, user_setup)
     except KeyboardInterrupt:
         print("\nAbort")
         sys.exit(1)
 
     user_info = {
-        'sat'   : user_sat,
-        'setup' : user_setup,
-        'lnb'   : user_lnb,
-        'freqs' : user_freqs
+        'sat': user_sat,
+        'setup': user_setup,
+        'lnb': user_lnb,
+        'freqs': user_freqs
     }
 
     logging.debug(pformat(user_info))
@@ -713,12 +700,11 @@ def configure(args):
 
     os.system('clear')
     util._print_header("JSON configuration file")
-    print("Saved configurations on %s" %(cfg_file))
+    print("Saved configurations on %s" % (cfg_file))
 
     util._print_header("Next Steps")
 
-    print(textwrap.fill(
-        "Please check setup instructions by running:"))
+    print(textwrap.fill("Please check setup instructions by running:"))
     print("""
     blocksat-cli instructions
     """)
@@ -742,8 +728,8 @@ def show(args):
         'sat': {
             'name': ("Satellite name", "", None),
             'band': ("Signal band", "", None),
-            'pol': ("Signal polarization", "",
-                    lambda x : "Horizontal" if x == "H" else "vertical"),
+            'pol': ("Signal polarization", "", lambda x: "Horizontal"
+                    if x == "H" else "vertical"),
         }
     }
     for category in pr_cfgs:

@@ -7,11 +7,14 @@ import argparse
 
 
 def subparser(subparsers):
-    p = subparsers.add_parser('gqrx-conf', aliases=['gqrx'],
+    p = subparsers.add_parser('gqrx-conf',
+                              aliases=['gqrx'],
                               description="Generate gqrx configurations",
                               help='Generate gqrx configurations',
                               formatter_class=ArgumentDefaultsHelpFormatter)
-    p.add_argument('-p', '--path', default=None,
+    p.add_argument('-p',
+                   '--path',
+                   default=None,
                    help='Path where gqrx configuration file should be saved')
 
     p.set_defaults(func=configure)
@@ -35,7 +38,7 @@ def configure(args):
         path = args.path
 
     conf_file = "default.conf"
-    abs_path  = os.path.join(path, conf_file)
+    abs_path = os.path.join(path, conf_file)
 
     cfg = """
     [General]
@@ -57,8 +60,8 @@ def configure(args):
     [receiver]
     demod=0
     """.format(
-        int(info['freqs']['dl']*1e6),
-        int(info['freqs']['lo']*1e6),
+        int(info['freqs']['dl'] * 1e6),
+        int(info['freqs']['lo'] * 1e6),
     )
 
     print("Save {} at {}/".format(conf_file, path))
@@ -79,4 +82,3 @@ def configure(args):
         file.write(textwrap.dedent(cfg))
 
     print("Saved")
-

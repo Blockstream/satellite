@@ -4,7 +4,6 @@ from math import ceil, floor
 import zfec
 from . import pkt
 
-
 logger = logging.getLogger(__name__)
 # FEC packet header:
 # Octet 0      : Object id
@@ -13,12 +12,12 @@ logger = logging.getLogger(__name__)
 # Octets 3 - 6 : Object length
 # Octet 7      : Reserved
 HEADER_FORMAT = '!BBBIx'
-HEADER_LEN    = 8
+HEADER_LEN = 8
 # Each FEC packet (chunk + metadata) should fit a single Blocksat Packet
-PKT_SIZE       = pkt.MAX_PAYLOAD
-CHUNK_SIZE     = PKT_SIZE - HEADER_LEN
+PKT_SIZE = pkt.MAX_PAYLOAD
+CHUNK_SIZE = PKT_SIZE - HEADER_LEN
 MAX_FEC_CHUNKS = 256  # per FEC object
-MAX_OVERHEAD   = MAX_FEC_CHUNKS - 1  # see notes in Fec.encode()
+MAX_OVERHEAD = MAX_FEC_CHUNKS - 1  # see notes in Fec.encode()
 
 
 class Fec:
@@ -89,31 +88,31 @@ class Fec:
             List of FEC-encoded chunks.
 
         """
-        assert(isinstance(data, bytes))
+        assert (isinstance(data, bytes))
 
-        n_chunks          = ceil(len(data) / CHUNK_SIZE)
+        n_chunks = ceil(len(data) / CHUNK_SIZE)
         n_overhead_chunks = ceil(self.overhead * n_chunks)
-        n_fec_chunks      = n_chunks + n_overhead_chunks
+        n_fec_chunks = n_chunks + n_overhead_chunks
 
-        assert(n_fec_chunks <= MAX_FEC_CHUNKS)
+        assert (n_fec_chunks <= MAX_FEC_CHUNKS)
         logger.debug("Original Chunks: {} / "
                      "Overhead Chunks: {} / "
-                     "Total: {}".format(
-                         n_chunks, n_overhead_chunks, n_fec_chunks))
+                     "Total: {}".format(n_chunks, n_overhead_chunks,
+                                        n_fec_chunks))
 
         # Split the given data array into chunks
         chunks = []
         for i_chunk in range(n_chunks):
             # Byte range of the next chunk:
-            s_byte = i_chunk * CHUNK_SIZE       # starting byte
-            e_byte = (i_chunk + 1) * CHUNK_SIZE # ending byte
-            chunk  = data[s_byte:e_byte]
+            s_byte = i_chunk * CHUNK_SIZE  # starting byte
+            e_byte = (i_chunk + 1) * CHUNK_SIZE  # ending byte
+            chunk = data[s_byte:e_byte]
 
             # The last chunk may need zero-padding
             if (i_chunk + 1 == n_chunks and len(chunk) < CHUNK_SIZE):
                 chunk += bytes(CHUNK_SIZE - len(chunk))
 
-            assert(len(chunk) == CHUNK_SIZE)
+            assert (len(chunk) == CHUNK_SIZE)
             chunks.append(chunk)
 
         # Generate the corresponding FEC chunks
@@ -134,7 +133,7 @@ class Fec:
             Bytes array with all FEC packets serially (concatenated).
 
         """
-        assert(isinstance(data, bytes))
+        assert (isinstance(data, bytes))
 
         # The FEC object should contain up to 256 chunks, including the original
         # (systematic) and the overhead chunks. The original data object (to be
@@ -145,7 +144,7 @@ class Fec:
         assert(self.overhead <= MAX_OVERHEAD), \
             "FEC overhead exceeds the maximum of {}".format(MAX_OVERHEAD)
 
-        max_obj_size  = floor(MAX_FEC_CHUNKS / (1 + self.overhead)) * CHUNK_SIZE
+        max_obj_size = floor(MAX_FEC_CHUNKS / (1 + self.overhead)) * CHUNK_SIZE
         n_fec_objects = ceil(len(data) / max_obj_size)
 
         logger.debug("Message Size: {} / FEC Objects: {}".format(
@@ -154,8 +153,8 @@ class Fec:
         # Generate the FEC packets from (potentially) multiple FEC objects
         fec_pkts = []
         for i_obj in range(n_fec_objects):
-            s_byte     = i_obj * max_obj_size       # starting byte
-            e_byte     = (i_obj + 1) * max_obj_size # ending byte
+            s_byte = i_obj * max_obj_size  # starting byte
+            e_byte = (i_obj + 1) * max_obj_size  # ending byte
             fec_object = data[s_byte:e_byte]
 
             logger.debug("FEC Object: {}".format(i_obj))
@@ -177,7 +176,7 @@ class Fec:
         for fec_pkt in fec_pkts:
             encoded_data += fec_pkt
 
-        assert(len(encoded_data) % PKT_SIZE == 0)
+        assert (len(encoded_data) % PKT_SIZE == 0)
 
         return bytes(encoded_data)
 
@@ -200,13 +199,13 @@ class Fec:
         # The original (uncoded) object must fit within the maximum number of
         # FEC chunks. Most of the time `obj_len` will be less than the
         # maximum. It only hits the maximum if the FEC overhead is set to zero.
-        assert(obj_len <= (MAX_FEC_CHUNKS * CHUNK_SIZE))
+        assert (obj_len <= (MAX_FEC_CHUNKS * CHUNK_SIZE))
 
         # Number of FEC chunks required to decode the original message:
         n_chunks = ceil(obj_len / CHUNK_SIZE)
 
         # FEC decoder
-        decoder  = zfec.Decoder(n_chunks, MAX_FEC_CHUNKS)
+        decoder = zfec.Decoder(n_chunks, MAX_FEC_CHUNKS)
         # NOTE: The hard-coded "MAX_FEC_CHUNKS" represents the maximum number of
         # chunks that can be generated. The receiver does not know how many
         # chunks the sender really generated. Nevertheless, it does not need to
@@ -215,12 +214,13 @@ class Fec:
         # is a maximum distance separable (MDS) erasure code.
 
         # Decode using the minimum required number of FEC chunks
-        decoded_chunks = decoder.decode(chunks[:n_chunks], chunk_ids[:n_chunks])
+        decoded_chunks = decoder.decode(chunks[:n_chunks],
+                                        chunk_ids[:n_chunks])
 
         # Concatenate the decoded chunks to form the original object
         decoded_obj = bytearray()
         for chunk in decoded_chunks:
-            assert(len(chunk) == CHUNK_SIZE)
+            assert (len(chunk) == CHUNK_SIZE)
             decoded_obj += chunk
 
         # Remove any zero-padding that may have been applied to the last chunk:
@@ -249,19 +249,19 @@ class Fec:
             return False
 
         # Process each packet and create a map of FEC objects and chunks
-        n_fec_pkts    = len(data) // PKT_SIZE
-        fec_map       = {}
+        n_fec_pkts = len(data) // PKT_SIZE
+        fec_map = {}
         n_fec_objects = None
         for i_fec_pkt in range(n_fec_pkts):
             # Byte range of the next header (don't process the payload here):
-            s_byte  = i_fec_pkt * PKT_SIZE # starting byte
-            e_byte  = s_byte + HEADER_LEN  # ending byte
+            s_byte = i_fec_pkt * PKT_SIZE  # starting byte
+            e_byte = s_byte + HEADER_LEN  # ending byte
 
             # Unpack the metadata from the FEC header
             metadata = struct.unpack(HEADER_FORMAT, data[s_byte:e_byte])
-            obj_id   = metadata[0]
+            obj_id = metadata[0]
             chunk_id = metadata[2]
-            obj_len  = metadata[3]
+            obj_len = metadata[3]
 
             # Check if the chunk id is valid
             if (chunk_id >= MAX_FEC_CHUNKS):
@@ -270,10 +270,7 @@ class Fec:
 
             # All packets of a FEC object should bring the same message length
             if (obj_id not in fec_map):
-                fec_map[obj_id] = {
-                    'len'      : obj_len,
-                    'n_chunks' : 0
-                }
+                fec_map[obj_id] = {'len': obj_len, 'n_chunks': 0}
                 # NOTE: keep the count of chunks here (not the actual chunks).
             elif (obj_len != fec_map[obj_id]['len']):
                 logger.debug("Inconsistent message length on FEC packets - "
@@ -300,7 +297,7 @@ class Fec:
         # All FEC objects should contain enough FEC chunks
         ready = n_fec_objects * [False]
         for i_obj in range(n_fec_objects):
-            n_chunks     = ceil(fec_map[i_obj]['len'] / CHUNK_SIZE)
+            n_chunks = ceil(fec_map[i_obj]['len'] / CHUNK_SIZE)
             ready[i_obj] = fec_map[i_obj]['n_chunks'] >= n_chunks
 
         if (not all(ready)):
@@ -330,13 +327,13 @@ class Fec:
             return False
 
         # Process each packet and create a map of FEC objects and chunks
-        n_fec_pkts    = len(data) // PKT_SIZE
-        fec_map       = {}
+        n_fec_pkts = len(data) // PKT_SIZE
+        fec_map = {}
         n_fec_objects = None
         for i_fec_pkt in range(n_fec_pkts):
             # Byte range of the next FEC packet:
-            s_byte  = i_fec_pkt * PKT_SIZE       # starting byte
-            e_byte  = (i_fec_pkt + 1) * PKT_SIZE # ending byte
+            s_byte = i_fec_pkt * PKT_SIZE  # starting byte
+            e_byte = (i_fec_pkt + 1) * PKT_SIZE  # ending byte
             fec_pkt = data[s_byte:e_byte]
 
             # Unpack the metadata from the FEC header
@@ -345,10 +342,7 @@ class Fec:
 
             # Save the FEC object length and the FEC chunk
             if (obj_id not in fec_map):
-                fec_map[obj_id] = {
-                    'len'    : obj_len,
-                    'chunks' : {}
-                }
+                fec_map[obj_id] = {'len': obj_len, 'chunks': {}}
 
             fec_map[obj_id]['chunks'][chunk_id] = fec_pkt[HEADER_LEN:]
 
@@ -359,10 +353,7 @@ class Fec:
         decoded_data = bytearray()
         for i_obj in range(n_fec_objects):
             decoded_data += self._decode_obj(
-                fec_map[i_obj]['len'],
-                list(fec_map[i_obj]['chunks'].values()),
-                list(fec_map[i_obj]['chunks'].keys())
-            )
+                fec_map[i_obj]['len'], list(fec_map[i_obj]['chunks'].values()),
+                list(fec_map[i_obj]['chunks'].keys()))
 
         return bytes(decoded_data)
-

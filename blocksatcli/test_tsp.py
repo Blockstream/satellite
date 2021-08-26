@@ -23,8 +23,8 @@ class TestTsp(TestCase):
         # If the prompting options are not provided, the tsp command should be
         # generated succesfully every time
         tsp_handler = tsp.Tsp()
-        args = self.parser.parse_args(['--ts-monitor-bitrate',
-                                       '--ts-monitor-sequence'])
+        args = self.parser.parse_args(
+            ['--ts-monitor-bitrate', '--ts-monitor-sequence'])
         self.assertTrue(tsp_handler.gen_cmd(args))
 
         # In this case, the output plugin should be "drop"

@@ -14,13 +14,12 @@ from .listen import ApiListener
 from . import bidding, net
 from .gpg import Gpg, config_keyring
 
-
-logger          = logging.getLogger(__name__)
-server_map      = {
-    'main'   : "https://api.blockstream.space",
-    'test'   : "https://api.blockstream.space/testnet",
-    'gossip' : "https://api.blockstream.space/gossip",
-    'btc-src' : "https://api.blockstream.space/btc-src"
+logger = logging.getLogger(__name__)
+server_map = {
+    'main': "https://api.blockstream.space",
+    'test': "https://api.blockstream.space/testnet",
+    'gossip': "https://api.blockstream.space/gossip",
+    'btc-src': "https://api.blockstream.space/btc-src"
 }
 
 
@@ -54,7 +53,7 @@ def config(args):
 
 def send(args):
     """Send a message over satellite"""
-    gnupghome   = os.path.join(args.cfg_dir, args.gnupghome)
+    gnupghome = os.path.join(args.cfg_dir, args.gnupghome)
     server_addr = _get_server_addr(args.net, args.server)
 
     # Instantiate the GPG wrapper object if running with encryption or signing
@@ -100,20 +99,20 @@ def send(args):
 
     # Actual number of bytes used for satellite transmission
     tx_len = calc_ota_msg_len(msg.get_length())
-    logger.info("Satellite transmission will use %d bytes" %(tx_len))
+    logger.info("Satellite transmission will use %d bytes" % (tx_len))
 
     # Ask user for bid or take it from argument
     bid = args.bid if args.bid else bidding.ask_bid(tx_len)
 
     # API transmission order
     order = ApiOrder(server_addr, tls_cert=args.tls_cert, tls_key=args.tls_key)
-    res   = order.send(msg.get_data(), bid)
+    res = order.send(msg.get_data(), bid)
     print()
 
     # The API servers (except the gossip and btc-src instances) should return a
     # Lightning invoice for the transmission order
-    if (server_addr != server_map['gossip'] and
-        server_addr != server_map['btc-src']):
+    if (server_addr != server_map['gossip']
+            and server_addr != server_map['btc-src']):
         payreq = res["lightning_invoice"]["payreq"]
 
         # Print QR code
@@ -144,7 +143,7 @@ def send(args):
 
 def listen(args):
     """Listen to API messages received over satellite"""
-    gnupghome    = os.path.join(args.cfg_dir, args.gnupghome)
+    gnupghome = os.path.join(args.cfg_dir, args.gnupghome)
     download_dir = os.path.join(args.cfg_dir, "api", "downloads")
 
     # Override some options based on the mutual exclusive --gossip and --btc-src
@@ -200,11 +199,10 @@ def listen(args):
 
         # Warn about unsafe commands
         base_exec_cmd = shlex.split(args.exec)[0]
-        unsafe_cmds   = ["/bin/bash", "bash", "/bin/sh", "sh", "rm"]
+        unsafe_cmds = ["/bin/bash", "bash", "/bin/sh", "sh", "rm"]
         if (base_exec_cmd in unsafe_cmds):
             logger.warning("Running {} on --exec is considered unsafe".format(
-                base_exec_cmd
-            ))
+                base_exec_cmd))
 
     # GPG wrapper object
     if (not args.plaintext or args.sender):
@@ -232,12 +230,23 @@ def listen(args):
 
     # Listen continuously
     listen_loop = ApiListener()
-    listen_loop.run(gpg, download_dir, args.sock_addr, interface, channel,
-                    args.plaintext, args.save_raw, sender=args.sender,
-                    stdout=args.stdout, no_save=args.no_save, echo=args.echo,
-                    exec_cmd=args.exec, gossip_opts=gossip_opts,
-                    server_addr=server_addr, tls_cert=args.tls_cert,
-                    tls_key=args.tls_key, region=args.region)
+    listen_loop.run(gpg,
+                    download_dir,
+                    args.sock_addr,
+                    interface,
+                    channel,
+                    args.plaintext,
+                    args.save_raw,
+                    sender=args.sender,
+                    stdout=args.stdout,
+                    no_save=args.no_save,
+                    echo=args.echo,
+                    exec_cmd=args.exec,
+                    gossip_opts=gossip_opts,
+                    server_addr=server_addr,
+                    tls_cert=args.tls_cert,
+                    tls_key=args.tls_key,
+                    region=args.region)
 
 
 def bump(args):
@@ -313,12 +322,10 @@ def subparser(subparsers):
                 "Choose number within [0, 256)".format(value))
         return ivalue
 
-    p = subparsers.add_parser(
-        'api',
-        description="Blockstream Satellite API",
-        help='Blockstream Satellite API',
-        formatter_class=ArgumentDefaultsHelpFormatter
-    )
+    p = subparsers.add_parser('api',
+                              description="Blockstream Satellite API",
+                              help='Blockstream Satellite API',
+                              formatter_class=ArgumentDefaultsHelpFormatter)
 
     # Common API app arguments
     p.add_argument(
@@ -326,8 +333,7 @@ def subparser(subparsers):
         '--gnupghome',
         default=".gnupg",
         help="GnuPG home directory, by default created inside the config "
-        "directory specified via --cfg-dir option"
-    )
+        "directory specified via --cfg-dir option")
     server_addr = p.add_mutually_exclusive_group()
     server_addr.add_argument(
         '--net',
@@ -336,30 +342,23 @@ def subparser(subparsers):
         help="Choose between the Mainnet API server (main), the Testnet API \
         server (test), the receive-only server used for Lightning gossip \
         messages (gossip), or the receive-only server used for messages \
-        carrying the Bitcoin source code (btc-src)"
-    )
-    server_addr.add_argument(
-        '-s',
-        '--server',
-        default=server_map['main'],
-        help="Satellite API server address"
-    )
+        carrying the Bitcoin source code (btc-src)")
+    server_addr.add_argument('-s',
+                             '--server',
+                             default=server_map['main'],
+                             help="Satellite API server address")
     p.add_argument(
         '--tls-cert',
         default=None,
-        help="Certificate for client-side authentication with the API server"
-    )
+        help="Certificate for client-side authentication with the API server")
     p.add_argument(
         '--tls-key',
         default=None,
-        help="Private key for client-side authentication with the API server"
-    )
+        help="Private key for client-side authentication with the API server")
     p.set_defaults(func=print_help)
 
-    subsubparsers = p.add_subparsers(
-        title='subcommands',
-        help='Target sub-command'
-    )
+    subsubparsers = p.add_subparsers(title='subcommands',
+                                     help='Target sub-command')
 
     # Config
     p1 = subsubparsers.add_parser(
@@ -367,15 +366,12 @@ def subparser(subparsers):
         aliases=['cfg'],
         description="Configure GPG keys",
         help="Configure GPG keys",
-        formatter_class=ArgumentDefaultsHelpFormatter
-    )
-    p1.add_argument(
-        '-v',
-        '--verbose',
-        action='store_true',
-        default=False,
-        help="Verbose mode"
-    )
+        formatter_class=ArgumentDefaultsHelpFormatter)
+    p1.add_argument('-v',
+                    '--verbose',
+                    action='store_true',
+                    default=False,
+                    help="Verbose mode")
     p1.set_defaults(func=config)
 
     # Sender
@@ -392,78 +388,60 @@ def subparser(subparsers):
 
         '''),
         help="Broadcast message through the Satellite API",
-        formatter_class=ArgumentDefaultsHelpFormatter
-    )
+        formatter_class=ArgumentDefaultsHelpFormatter)
     msg_group = p2.add_mutually_exclusive_group()
-    msg_group.add_argument(
-        '-f',
-        '--file',
-        help='File to send through the API'
-    )
-    msg_group.add_argument(
-        '-m',
-        '--message',
-        help='Text message to send through the API'
-    )
-    p2.add_argument(
-        '--bid',
-        default=None,
-        type=int,
-        help="Bid (in millisatoshis) for the message transmission"
-    )
+    msg_group.add_argument('-f', '--file', help='File to send through the API')
+    msg_group.add_argument('-m',
+                           '--message',
+                           help='Text message to send through the API')
+    p2.add_argument('--bid',
+                    default=None,
+                    type=int,
+                    help="Bid (in millisatoshis) for the message transmission")
     p2.add_argument(
         '-r',
         '--recipient',
         default=None,
         help="Public key fingerprint of the desired recipient. If not defined, "
         "the recipient will be automatically set to the first public key in "
-        "the keyring"
-    )
+        "the keyring")
     p2.add_argument(
         '--trust',
         default=False,
         action="store_true",
-        help="Assume that the recipient\'s public key is fully trusted"
-    )
-    p2.add_argument(
-        '--sign',
-        default=False,
-        action="store_true",
-        help="Sign message in addition to encrypting it"
-    )
+        help="Assume that the recipient\'s public key is fully trusted")
+    p2.add_argument('--sign',
+                    default=False,
+                    action="store_true",
+                    help="Sign message in addition to encrypting it")
     p2.add_argument(
         '--sign-key',
         default=None,
         help="Fingerprint of the private key to be used when signing the "
-        "message. If not set, the default key from the keyring will be used"
-    )
+        "message. If not set, the default key from the keyring will be used")
     p2.add_argument(
         '--send-raw',
         default=False,
         action="store_true",
         help="Send the raw file or text message, i.e., without the data "
-        "structure that includes the file name and checksum"
-    )
+        "structure that includes the file name and checksum")
     p2.add_argument(
         '--plaintext',
         default=False,
         action="store_true",
-        help="Send data in plaintext format, i.e., without encryption"
-    )
+        help="Send data in plaintext format, i.e., without encryption")
     p2.add_argument(
         '--fec',
         default=False,
         action="store_true",
-        help="Send data with forward error correction (FEC) encoding"
-    )
+        help="Send data with forward error correction (FEC) encoding")
     p2.add_argument(
         '--fec-overhead',
         default=0.1,
         type=float,
         help="Target ratio between the overhead FEC chunks and the original "
         "chunks. For example, 0.1 implies one overhead (redundant) chunk for "
-        "every 10 original chunks"
-    )
+        "every 10 original chunks")
     p2.add_argument(
         '--no-password',
         default=False,
@@ -472,8 +450,7 @@ def subparser(subparsers):
     p2.add_argument(
         '--invoice-exec',
         help="Execute command with the Lightning invoice. Replaces the string "
-        "\'{}\' with the Lightning bolt11 invoice string."
-    )
+        "\'{}\' with the Lightning bolt11 invoice string.")
     p2.add_argument(
         '--no-wait',
         default=False,
@@ -499,28 +476,23 @@ def subparser(subparsers):
 
         '''),
         help="Listen to API messages",
-        formatter_class=ArgumentDefaultsHelpFormatter
-    )
+        formatter_class=ArgumentDefaultsHelpFormatter)
     p3.add_argument(
         '--sock-addr',
         default=defs.api_dst_addr,
-        help="Multicast UDP address (ip:port) used to listen for API data"
-    )
+        help="Multicast UDP address (ip:port) used to listen for API data")
     intf_arg = p3.add_mutually_exclusive_group()
-    intf_arg.add_argument(
-        '-i',
-        '--interface',
-        default=None,
-        help="Network interface that receives API data"
-    )
+    intf_arg.add_argument('-i',
+                          '--interface',
+                          default=None,
+                          help="Network interface that receives API data")
     intf_arg.add_argument(
         '-d',
         '--demo',
         action="store_true",
         default=False,
         help="Use the same interface as the demo-rx tool, i.e., the loopback "
-        "interface"
-    )
+        "interface")
     p3.add_argument(
         '-c',
         '--channel',
@@ -528,15 +500,13 @@ def subparser(subparsers):
         type=channel_number,
         help="Listen to a specific API transmission channel. If set to 0, "
         "listen to all channels. By default, listen to user transmissions, "
-        "which are sent on channel 1"
-    )
+        "which are sent on channel 1")
     p3.add_argument(
         '--save-raw',
         default=False,
         action="store_true",
         help="Save the raw decrypted data into the download directory while "
-        "ignoring the existence of a data encapsulation structure"
-    )
+        "ignoring the existence of a data encapsulation structure")
     p3.add_argument(
         '--plaintext',
         default=False,
@@ -546,29 +516,24 @@ def subparser(subparsers):
         "individual files named with timestamps in the download directory. "
         "Note this option saves all incoming messages, including those "
         "broadcast by other users. In contrast, the default mode (without this "
-        "option) only saves the messages that are successfully decrypted."
-    )
+        "option) only saves the messages that are successfully decrypted.")
     p3.add_argument(
         '--sender',
         default=None,
         help="Public key fingerprint of a target sender used to filter the "
         "incoming messages. When specified, the application processes only the "
         "messages that are digitally signed by the selected sender, including "
-        "clearsigned messages."
-    )
-    p3.add_argument(
-        '--no-password',
-        default=False,
-        action="store_true",
-        help="Set to access GPG keyring without a password"
-    )
+        "clearsigned messages.")
+    p3.add_argument('--no-password',
+                    default=False,
+                    action="store_true",
+                    help="Set to access GPG keyring without a password")
     p3.add_argument(
         '--echo',
         default=False,
         action='store_true',
         help="Print the contents of all incoming text messages to the console, "
-        "as long as these messages are decodable in UTF-8"
-    )
+        "as long as these messages are decodable in UTF-8")
     stdout_exec_arg_group = p3.add_mutually_exclusive_group()
     stdout_exec_arg_group.add_argument(
         '--stdout',
@@ -580,8 +545,7 @@ def subparser(subparsers):
         '--no-save',
         default=False,
         action='store_true',
-        help="Do not save the files decoded from the received API messages"
-    )
+        help="Do not save the files decoded from the received API messages")
     stdout_exec_arg_group.add_argument(
         '--exec',
         help="Execute arbitrary shell command for each downloaded file. "
@@ -590,8 +554,7 @@ def subparser(subparsers):
         "incoming file to stdout. For security, this option must be used in "
         "conjunction with the --sender option to limit the execution of the "
         "specified command to digitally signed messages from a specified "
-        "sender only. See option --insecure for an alternative."
-    )
+        "sender only. See option --insecure for an alternative.")
     p3.add_argument(
         '--insecure',
         default=False,
@@ -600,8 +563,7 @@ def subparser(subparsers):
         "In this case, any successfully decrypted message (i.e., any message) "
         "encrypted using your public key will trigger the --exec command, "
         "which is considered insecure. Use at your own risk and avoid unsafe "
-        "commands."
-    )
+        "commands.")
     btc_src_gossip_arg_group1 = p3.add_mutually_exclusive_group()
     btc_src_gossip_arg_group1.add_argument(
         '--gossip',
@@ -611,8 +573,7 @@ def subparser(subparsers):
         "and load them using the historian-cli application. This argument "
         "overrides the following options: 1) --plaintext (enabled); 2) "
         "--channel (set to {}); and 3) --server/--net (set to {})".format(
-            ApiChannel.GOSSIP.value, server_map['gossip'])
-    )
+            ApiChannel.GOSSIP.value, server_map['gossip']))
     btc_src_gossip_arg_group1.add_argument(
         '--btc-src',
         default=False,
@@ -621,14 +582,12 @@ def subparser(subparsers):
         "Bitcoin Satellite and Bitcoin Core source codes. This argument "
         "overrides the following options: 1) --plaintext (enabled); 2) "
         "--channel (set to {}); and 3) --server/--net (set to {})".format(
-            ApiChannel.BTC_SRC.value, server_map['btc-src'])
-    )
+            ApiChannel.BTC_SRC.value, server_map['btc-src']))
     p3.add_argument(
         '--historian-path',
         default=None,
         help="Path to the historian-cli application. If not set, look for "
-        "historian-cli globally"
-    )
+        "historian-cli globally")
     p3.add_argument(
         '--historian-destination',
         default=None,
@@ -637,15 +596,12 @@ def subparser(subparsers):
         "discover the destination automatically. This parameter is provided as "
         "a positional argument of command \'historian-cli snapshot load\', "
         "which is called for each downloaded file in gossip mode (i.e., when "
-        "argument --gossip is set)."
-    )
-    p3.add_argument(
-        '-r',
-        '--region',
-        choices=range(0, 6),
-        type=int,
-        help="Coverage region for Rx confirmations"
-    )
+        "argument --gossip is set).")
+    p3.add_argument('-r',
+                    '--region',
+                    choices=range(0, 6),
+                    type=int,
+                    help="Coverage region for Rx confirmations")
     p3.set_defaults(func=listen)
 
     # Bump
@@ -653,26 +609,20 @@ def subparser(subparsers):
         'bump',
         description="Bump bid of an API message order",
         help="Bump bid of an API message order",
-        formatter_class=ArgumentDefaultsHelpFormatter
-    )
+        formatter_class=ArgumentDefaultsHelpFormatter)
     p4.add_argument(
         '--bid',
         default=None,
         type=int,
-        help="New bid (in millisatoshis) for the message transmission"
-    )
-    p4.add_argument(
-        '-u',
-        '--uuid',
-        default=None,
-        help="API order's universally unique identifier (UUID)"
-    )
-    p4.add_argument(
-        '-a',
-        '--auth-token',
-        default=None,
-        help="API order's authentication token"
-    )
+        help="New bid (in millisatoshis) for the message transmission")
+    p4.add_argument('-u',
+                    '--uuid',
+                    default=None,
+                    help="API order's universally unique identifier (UUID)")
+    p4.add_argument('-a',
+                    '--auth-token',
+                    default=None,
+                    help="API order's authentication token")
     p4.set_defaults(func=bump)
 
     # Delete
@@ -681,20 +631,15 @@ def subparser(subparsers):
         aliases=['del'],
         description="Delete API message order",
         help="Delete API message order",
-        formatter_class=ArgumentDefaultsHelpFormatter
-    )
-    p5.add_argument(
-        '-u',
-        '--uuid',
-        default=None,
-        help="API order's universally unique identifier (UUID)"
-    )
-    p5.add_argument(
-        '-a',
-        '--auth-token',
-        default=None,
-        help="API order's authentication token"
-    )
+        formatter_class=ArgumentDefaultsHelpFormatter)
+    p5.add_argument('-u',
+                    '--uuid',
+                    default=None,
+                    help="API order's universally unique identifier (UUID)")
+    p5.add_argument('-a',
+                    '--auth-token',
+                    default=None,
+                    help="API order's authentication token")
     p5.set_defaults(func=delete)
 
     # Demo receiver
@@ -712,14 +657,12 @@ def subparser(subparsers):
 
         '''),
         help='Run demo satellite receiver',
-        formatter_class=ArgumentDefaultsHelpFormatter
-    )
+        formatter_class=ArgumentDefaultsHelpFormatter)
     p6.add_argument(
         '-d',
         '--dest',
         default=defs.api_dst_addr,
-        help="Destination address (ip:port) to which API data will be sent"
-    )
+        help="Destination address (ip:port) to which API data will be sent")
     p6.add_argument(
         '-i',
         '--interface',
@@ -727,49 +670,38 @@ def subparser(subparsers):
         help="Network interface(s) over which to send the API data. If \
         multiple interfaces are provided, the same packets are sent over all \
         interfaces.",
-        default=["lo"]
-    )
-    p6.add_argument(
-        '-c',
-        '--channel',
-        default=ApiChannel.USER.value,
-        type=channel_number,
-        help="Target API transmission channel"
-    )
-    p6.add_argument(
-        '-r',
-        '--regions',
-        nargs="+",
-        choices=range(0, 6),
-        type=int,
-        help="Coverage region for Tx confirmations"
-    )
-    p6.add_argument(
-        '--ttl',
-        type=int,
-        default=1,
-        help="Time-to-live to set on multicast packets"
-    )
+        default=["lo"])
+    p6.add_argument('-c',
+                    '--channel',
+                    default=ApiChannel.USER.value,
+                    type=channel_number,
+                    help="Target API transmission channel")
+    p6.add_argument('-r',
+                    '--regions',
+                    nargs="+",
+                    choices=range(0, 6),
+                    type=int,
+                    help="Coverage region for Tx confirmations")
+    p6.add_argument('--ttl',
+                    type=int,
+                    default=1,
+                    help="Time-to-live to set on multicast packets")
     p6.add_argument(
         '--dscp',
         type=int,
         default=0,
         help="Differentiated services code point (DSCP) to set on the output \
-        multicast IP packets"
-    )
+        multicast IP packets")
     p6.add_argument(
         '--bitrate',
         type=float,
         default=1000,
-        help="Maximum bit rate in kbps of the output packet stream"
-    )
-    p6.add_argument(
-        '-e',
-        '--event',
-        choices=["transmitting", "sent"],
-        default="sent",
-        help='SSE event that should trigger packet transmissions'
-    )
+        help="Maximum bit rate in kbps of the output packet stream")
+    p6.add_argument('-e',
+                    '--event',
+                    choices=["transmitting", "sent"],
+                    default="sent",
+                    help='SSE event that should trigger packet transmissions')
     btc_src_gossip_arg_group2 = p6.add_mutually_exclusive_group()
     btc_src_gossip_arg_group2.add_argument(
         '--gossip',
@@ -777,9 +709,8 @@ def subparser(subparsers):
         action="store_true",
         help="Configure the application to fetch and relay Lightning gossip "
         "messages. This argument overrides option --channel (set to {}) and "
-        "options --server/--net (set to {})".format(
-            ApiChannel.GOSSIP.value, server_map['gossip'])
-    )
+        "options --server/--net (set to {})".format(ApiChannel.GOSSIP.value,
+                                                    server_map['gossip']))
     btc_src_gossip_arg_group2.add_argument(
         '--btc-src',
         default=False,
@@ -787,8 +718,7 @@ def subparser(subparsers):
         help="Configure the application to fetch and relay messages carrying "
         "the Bitcoin Satellite and Bitcoin Core source codes. This argument "
         "overrides option --channel (set to {}) and options --server/--net "
-        "(set to {})".format(ApiChannel.BTC_SRC.value, server_map['btc-src'])
-    )
+        "(set to {})".format(ApiChannel.BTC_SRC.value, server_map['btc-src']))
     p6.set_defaults(func=demo_rx)
 
     return p
@@ -796,8 +726,7 @@ def subparser(subparsers):
 
 def print_help(args):
     """Re-create argparse's help menu for the api command"""
-    parser     = ArgumentParser()
+    parser = ArgumentParser()
     subparsers = parser.add_subparsers(title='', help='')
-    parser     = subparser(subparsers)
+    parser = subparser(subparsers)
     print(parser.format_help())
-

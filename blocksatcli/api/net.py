@@ -1,11 +1,10 @@
 """Socket communication"""
 import logging, socket, struct, fcntl, errno, ipaddress
 
-
-logger           = logging.getLogger(__name__)
-SIOCGIFINDEX     = 0x8933 # Ioctl request for interface index
+logger = logging.getLogger(__name__)
+SIOCGIFINDEX = 0x8933  # Ioctl request for interface index
 IP_MULTICAST_ALL = 49
-MAX_READ         = 2048
+MAX_READ = 2048
 
 
 class UdpSock():
@@ -21,15 +20,15 @@ class UdpSock():
             Socket object
 
         """
-        assert(":" in sock_addr), "Socket address must be in ip:port format"
-        self.ip      = sock_addr.split(":")[0]
-        assert(ipaddress.ip_address(self.ip)) # parse address
-        self.port    = int(sock_addr.split(":")[1])
+        assert (":" in sock_addr), "Socket address must be in ip:port format"
+        self.ip = sock_addr.split(":")[0]
+        assert (ipaddress.ip_address(self.ip))  # parse address
+        self.port = int(sock_addr.split(":")[1])
         self.ifindex = None
 
-        assert(self.ip is not None), "UDP source IP is not defined"
-        assert(self.port is not None), "UDP port is not defined"
-        logger.debug("Connect with UDP socket %s:%s" %(self.ip, self.port))
+        assert (self.ip is not None), "UDP source IP is not defined"
+        assert (self.port is not None), "UDP port is not defined"
+        logger.debug("Connect with UDP socket %s:%s" % (self.ip, self.port))
 
         try:
             # Open and bind socket to Blocksat API port
@@ -48,9 +47,10 @@ class UdpSock():
 
         except socket.error as e:
             if (e.errno == errno.EADDRNOTAVAIL):
-                logger.error("Error on connection with UDP socket %s:%s" %(
-                    self.ip, self.port))
-                logger.info("Use argument `--sock-addr` to define the socket address.")
+                logger.error("Error on connection with UDP socket %s:%s" %
+                             (self.ip, self.port))
+                logger.info(
+                    "Use argument `--sock-addr` to define the socket address.")
             raise
 
     def __del__(self):
@@ -61,8 +61,8 @@ class UdpSock():
     def _get_ifindex(self, ifname):
         """Get the index of a given interface name"""
         if (ifname is not None):
-            ifreq        = struct.pack('16si', ifname.encode(), 0)
-            res          = fcntl.ioctl(self.sock.fileno(), SIOCGIFINDEX, ifreq)
+            ifreq = struct.pack('16si', ifname.encode(), 0)
+            res = fcntl.ioctl(self.sock.fileno(), SIOCGIFINDEX, ifreq)
             self.ifindex = int(struct.unpack('16si', res)[1])
         else:
             self.ifindex = 0
@@ -70,20 +70,15 @@ class UdpSock():
     def _join_mcast_group(self):
         """Join multicast group on the chosen interface"""
         if (self.ifindex != 0):
-            logger.debug("Join multicast group %s on network interface %d" %(
-                self.ip, self.ifindex
-            ))
+            logger.debug("Join multicast group %s on network interface %d" %
+                         (self.ip, self.ifindex))
         else:
-            logger.debug("Join group %s with the default network interface" %(
-                self.ip
-            ))
+            logger.debug("Join group %s with the default network interface" %
+                         (self.ip))
 
-        ip_mreqn = struct.pack('4s4si',
-                               socket.inet_aton(self.ip),
-                               socket.inet_aton('0.0.0.0'),
-                               self.ifindex)
-        self.sock.setsockopt(socket.IPPROTO_IP,
-                             socket.IP_ADD_MEMBERSHIP,
+        ip_mreqn = struct.pack('4s4si', socket.inet_aton(self.ip),
+                               socket.inet_aton('0.0.0.0'), self.ifindex)
+        self.sock.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP,
                              ip_mreqn)
 
         # Make sure that this socket receives messages solely from the above
@@ -99,22 +94,17 @@ class UdpSock():
 
         """
         # Define the interface over which to send the multicast messages
-        ip_mreqn = struct.pack('4s4si',
-                               socket.inet_aton(self.ip),
-                               socket.inet_aton('0.0.0.0'),
-                               self.ifindex)
-        self.sock.setsockopt(socket.IPPROTO_IP,
-                             socket.IP_MULTICAST_IF,
+        ip_mreqn = struct.pack('4s4si', socket.inet_aton(self.ip),
+                               socket.inet_aton('0.0.0.0'), self.ifindex)
+        self.sock.setsockopt(socket.IPPROTO_IP, socket.IP_MULTICAST_IF,
                              ip_mreqn)
 
         # Set multicast TTL
-        self.sock.setsockopt(socket.IPPROTO_IP,
-                             socket.IP_MULTICAST_TTL,
+        self.sock.setsockopt(socket.IPPROTO_IP, socket.IP_MULTICAST_TTL,
                              struct.pack('b', ttl))
 
         # Set DSCP
-        self.sock.setsockopt(socket.IPPROTO_IP,
-                             socket.IP_TOS,
+        self.sock.setsockopt(socket.IPPROTO_IP, socket.IP_TOS,
                              struct.pack('b', dscp))
 
         # Don't loop Tx messages back to us

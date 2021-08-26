@@ -9,7 +9,6 @@ from distutils.version import LooseVersion
 logger = logging.getLogger(__name__)
 runner = util.ProcessRunner(logger)
 
-
 target_map = {
     "sdr": defs.sdr_setup_type,
     "usb": defs.linux_usb_setup_type,
@@ -73,7 +72,8 @@ def _check_pkg_repo(distro_id):
         res = runner.run(cmd, stdout=subprocess.DEVNULL, nocheck=True)
         found = (res.returncode == 0)
     elif (which("dnf")):
-        res = runner.run(["dnf", "copr", "list", "--enabled"], root=True,
+        res = runner.run(["dnf", "copr", "list", "--enabled"],
+                         root=True,
                          capture_output=True)
         pkgs = res.stdout.decode().splitlines()
         found = ("copr.fedorainfracloud.org/blockstream/satellite" in pkgs)
@@ -121,8 +121,10 @@ def _enable_pkg_repo(distro_id, interactive):
             # root permissions, whereas the temporary file does not. In dry-run
             # mode, print an equivalent echo command.
             if (runner.dry):
-                cmd = ["echo", "-e", repr(apt_file_content), ">>",
-                       apt_list_file]
+                cmd = [
+                    "echo", "-e",
+                    repr(apt_file_content), ">>", apt_list_file
+                ]
             else:
                 tmp_file = tempfile.NamedTemporaryFile(mode="w", delete=False)
                 with tmp_file as fd:
@@ -136,8 +138,10 @@ def _enable_pkg_repo(distro_id, interactive):
         cmds.append(cmd)
 
         if distro_id in ["debian", "raspbian"]:
-            cmd = ["apt-key", "adv", "--keyserver", "keyserver.ubuntu.com",
-                   "--recv-keys", defs.blocksat_pubkey]
+            cmd = [
+                "apt-key", "adv", "--keyserver", "keyserver.ubuntu.com",
+                "--recv-keys", defs.blocksat_pubkey
+            ]
             cmds.append(cmd)
 
         cmd = ["apt", "update"]
@@ -180,7 +184,10 @@ def _update_pkg_repo(interactive):
     runner.run(cmd, root=True)
 
 
-def _install_packages(apt_list, dnf_list, yum_list, interactive=True,
+def _install_packages(apt_list,
+                      dnf_list,
+                      yum_list,
+                      interactive=True,
                       update=False):
     """Install binary packages
 
@@ -256,8 +263,9 @@ def _install_common(interactive=True, update=False, btc=False):
 
     # Install bitcoin-satellite
     if (btc):
-        apt_pkg_list = ["bitcoin-satellite", "bitcoin-satellite-qt",
-                        "bitcoin-satellite-tx"]
+        apt_pkg_list = [
+            "bitcoin-satellite", "bitcoin-satellite-qt", "bitcoin-satellite-tx"
+        ]
         dnf_pkg_list = ["bitcoin-satellite", "bitcoin-satellite-qt"]
         yum_pkg_list = ["bitcoin-satellite", "bitcoin-satellite-qt"]
 
@@ -268,11 +276,11 @@ def _install_common(interactive=True, update=False, btc=False):
             # bitcoin-satellite-qt and assumed as installed. Hence, as a
             # workaround, install the two packages separately.
             for pkg in dnf_pkg_list:
-                _install_packages(apt_pkg_list, [pkg], [pkg],
-                                  interactive, update)
+                _install_packages(apt_pkg_list, [pkg], [pkg], interactive,
+                                  update)
         else:
-            _install_packages(apt_pkg_list, [], yum_pkg_list,
-                              interactive, update)
+            _install_packages(apt_pkg_list, [], yum_pkg_list, interactive,
+                              update)
 
 
 def _install_specific(target, interactive=True, update=False):
@@ -308,30 +316,29 @@ def _install_specific(target, interactive=True, update=False):
     #   available on the latest mainstream fedora repositories.
 
     util._print_header("Installing {} Receiver Dependencies".format(target))
-    _install_packages(pkg_map[key]['apt'],
-                      pkg_map[key]['dnf'],
-                      pkg_map[key]['yum'],
-                      interactive,
-                      update)
+    _install_packages(pkg_map[key]['apt'], pkg_map[key]['dnf'],
+                      pkg_map[key]['yum'], interactive, update)
 
 
 def _print_help(args):
     """Re-create argparse's help menu"""
-    parser     = ArgumentParser()
+    parser = ArgumentParser()
     subparsers = parser.add_subparsers(title='', help='')
-    parser     = subparser(subparsers)
+    parser = subparser(subparsers)
     print(parser.format_help())
 
 
 def subparser(subparsers):
     """Parser for install command"""
-    p = subparsers.add_parser('dependencies', aliases=['deps'],
+    p = subparsers.add_parser('dependencies',
+                              aliases=['deps'],
                               description="Manage dependencies",
                               help='Manage dependencies',
                               formatter_class=ArgumentDefaultsHelpFormatter)
 
     p.set_defaults(func=_print_help)
-    p.add_argument("-y", "--yes",
+    p.add_argument("-y",
+                   "--yes",
                    action='store_true',
                    default=False,
                    help="Non-interactive mode. Answers \"yes\" automatically \
@@ -341,8 +348,7 @@ def subparser(subparsers):
                    default=False,
                    help="Print all commands but do not execute them")
 
-    subsubp = p.add_subparsers(title='subcommands',
-                               help='Target sub-command')
+    subsubp = p.add_subparsers(title='subcommands', help='Target sub-command')
 
     p1 = subsubp.add_parser('install',
                             description="Install software dependencies",
@@ -357,7 +363,8 @@ def subparser(subparsers):
                     help="Install bitcoin-satellite")
     p1.set_defaults(func=run, update=False)
 
-    p2 = subsubp.add_parser('update', aliases=['upgrade'],
+    p2 = subsubp.add_parser('update',
+                            aliases=['upgrade'],
                             description="Update software dependencies",
                             help='Update software dependencies')
     p2.add_argument("--target",
@@ -429,31 +436,35 @@ def drivers(args):
         util._print_header("Dry Run Mode")
 
     # Install pre-requisites
-    linux_release  = platform.release()
-    linux_headers  = "linux-headers-" + linux_release
-    kernel_devel   = "kernel-devel-" + linux_release
+    linux_release = platform.release()
+    linux_headers = "linux-headers-" + linux_release
+    kernel_devel = "kernel-devel-" + linux_release
     kernel_headers = "kernel-headers-" + linux_release
-    apt_pkg_list   = ["make", "gcc", "git", "patch", "patchutils",
-                     "libproc-processtable-perl",
-                     linux_headers]
-    dnf_pkg_list   = ["make", "gcc", "git", "patch", "patchutils",
-                      "perl-Proc-ProcessTable", "perl-Digest-SHA",
-                      "perl-File-Copy-Recursive", kernel_devel,
-                      kernel_headers]
-    yum_pkg_list   =  dnf_pkg_list
+    apt_pkg_list = [
+        "make", "gcc", "git", "patch", "patchutils",
+        "libproc-processtable-perl", linux_headers
+    ]
+    dnf_pkg_list = [
+        "make", "gcc", "git", "patch", "patchutils", "perl-Proc-ProcessTable",
+        "perl-Digest-SHA", "perl-File-Copy-Recursive", kernel_devel,
+        kernel_headers
+    ]
+    yum_pkg_list = dnf_pkg_list
 
     # On dnf, not always the kernel-devel/headers package will be available for
     # the same version as the current kernel. Check:
     dnf_update_required = False
     if (which("dnf")):
         res_d = runner.run(["dnf", "list", kernel_devel],
-                           stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
-                           nocheck = True)
+                           stdout=subprocess.DEVNULL,
+                           stderr=subprocess.DEVNULL,
+                           nocheck=True)
         res_h = runner.run(["dnf", "list", kernel_headers],
-                           stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
-                           nocheck = True)
+                           stdout=subprocess.DEVNULL,
+                           stderr=subprocess.DEVNULL,
+                           nocheck=True)
         if (not args.dry_run):
-            kernel_devel_unavailable   = (res_d.returncode != 0)
+            kernel_devel_unavailable = (res_d.returncode != 0)
             kernel_headers_unavailable = (res_h.returncode != 0)
             dnf_update_required        = kernel_devel_unavailable or \
                                          kernel_headers_unavailable
@@ -470,7 +481,7 @@ def drivers(args):
         res = runner.run(["dnf", "list", "--upgrades", "kernel"],
                          stdout=subprocess.DEVNULL,
                          stderr=subprocess.DEVNULL,
-                         nocheck = True)
+                         nocheck=True)
         kernel_update_available = (res.returncode == 0)
         if (kernel_update_available):
             print("Kernel update required")
@@ -498,50 +509,58 @@ def drivers(args):
             return
 
     _update_pkg_repo(interactive)
-    _install_packages(apt_pkg_list, dnf_pkg_list, yum_pkg_list,
-                      interactive=interactive, update=False)
+    _install_packages(apt_pkg_list,
+                      dnf_pkg_list,
+                      yum_pkg_list,
+                      interactive=interactive,
+                      update=False)
 
     # Clone the driver repositories
-    driver_src_dir  = os.path.join(args.cfg_dir, "src", "tbsdriver")
+    driver_src_dir = os.path.join(args.cfg_dir, "src", "tbsdriver")
     media_build_dir = os.path.join(driver_src_dir, "media_build")
-    media_dir       = os.path.join(driver_src_dir, "media")
+    media_dir = os.path.join(driver_src_dir, "media")
 
     if not os.path.exists(driver_src_dir):
         os.makedirs(driver_src_dir)
 
     if os.path.exists(media_build_dir):
-        runner.run(["git", "pull", "origin", "master"], cwd = media_build_dir)
+        runner.run(["git", "pull", "origin", "master"], cwd=media_build_dir)
     else:
-        runner.run(["git", "clone",
-                    "https://github.com/tbsdtv/media_build.git"],
-                   cwd = driver_src_dir)
+        runner.run(
+            ["git", "clone", "https://github.com/tbsdtv/media_build.git"],
+            cwd=driver_src_dir)
 
     if os.path.exists(media_dir):
-        runner.run(["git", "pull", "origin", "latest"], cwd = media_dir)
+        runner.run(["git", "pull", "origin", "latest"], cwd=media_dir)
     else:
-        runner.run(["git", "clone", "--depth=1",
-                    "https://github.com/tbsdtv/linux_media.git",
-                    "-b", "latest", "./media"], cwd = driver_src_dir)
+        runner.run([
+            "git", "clone", "--depth=1",
+            "https://github.com/tbsdtv/linux_media.git", "-b", "latest",
+            "./media"
+        ],
+                   cwd=driver_src_dir)
 
     # Build the media drivers
     nproc = int(subprocess.check_output(["nproc"]).decode().rstrip())
     nproc_arg = "-j" + str(nproc)
 
-    runner.run(["make", "cleanall"], cwd = media_build_dir)
-    runner.run(["make", "dir", "DIR=../media"], cwd = media_build_dir)
-    runner.run(["make", "allyesconfig"], cwd = media_build_dir)
+    runner.run(["make", "cleanall"], cwd=media_build_dir)
+    runner.run(["make", "dir", "DIR=../media"], cwd=media_build_dir)
+    runner.run(["make", "allyesconfig"], cwd=media_build_dir)
 
     # FIXME: Temporary workaround for error "modpost: "__devm_regmap_init_sccb"
     # ov9650.ko undefined!": disable ov9650 from the build. The problem was
     # observed on kernel versions 5.3.7 and 5.7.7. Apply the workaround for any
     # version < 5.8.
-    if (distro.id() == "fedora" and
-        LooseVersion(linux_release) < LooseVersion('5.8')):
-        runner.run(["sed", "-i",
-                    "s/CONFIG_VIDEO_OV9650=m/CONFIG_VIDEO_OV9650=n/g",
-                    "v4l/.config"], cwd = media_build_dir)
+    if (distro.id() == "fedora"
+            and LooseVersion(linux_release) < LooseVersion('5.8')):
+        runner.run([
+            "sed", "-i", "s/CONFIG_VIDEO_OV9650=m/CONFIG_VIDEO_OV9650=n/g",
+            "v4l/.config"
+        ],
+                   cwd=media_build_dir)
 
-    runner.run(["make", nproc_arg], cwd = media_build_dir)
+    runner.run(["make", nproc_arg], cwd=media_build_dir)
 
     # Delete the previous Media Tree installation
     media_lib_path = "/lib/modules/" + linux_release + \
@@ -553,13 +572,14 @@ def drivers(args):
 
     # Download the firmware
     tbs_linux_url = "https://www.tbsdtv.com/download/document/linux/"
-    fw_tarball    = "tbs-tuner-firmwares_v1.0.tar.bz2"
-    fw_url        = tbs_linux_url + fw_tarball
+    fw_tarball = "tbs-tuner-firmwares_v1.0.tar.bz2"
+    fw_url = tbs_linux_url + fw_tarball
     util.download_file(fw_url, driver_src_dir, args.dry_run, logger=logger)
 
     # Install the firmware
     runner.run(["tar", "jxvf", fw_tarball, "-C", "/lib/firmware/"],
-               root=True, cwd=driver_src_dir)
+               root=True,
+               cwd=driver_src_dir)
 
     if (not args.dry_run):
         print("Installation completed successfully. Please reboot now.")
@@ -577,4 +597,3 @@ def check_apps(apps):
             return False
     # All apps are installed
     return True
-

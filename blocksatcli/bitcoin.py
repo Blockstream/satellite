@@ -18,7 +18,7 @@ class Cfg:
             # If this key is not a list yet in the dictionary, make it a list
             if (not isinstance(self.cfg[key], list)):
                 if (val == self.cfg[key]):
-                    return # identical value found
+                    return  # identical value found
 
                 new_val = list()
                 new_val.append(self.cfg[key])
@@ -26,7 +26,7 @@ class Cfg:
                 self.cfg[key] = new_val
             else:
                 if (val in self.cfg[key]):
-                    return # identical value found
+                    return  # identical value found
 
                 self.cfg[key].append(val)
         else:
@@ -51,7 +51,10 @@ class Cfg:
         return text
 
 
-def _udpmulticast(dev, src_addr, dst_addr=defs.btc_dst_addr, trusted="1",
+def _udpmulticast(dev,
+                  src_addr,
+                  dst_addr=defs.btc_dst_addr,
+                  trusted="1",
                   label=""):
     """Return the udpmulticast configuration line for bitcoin.conf"""
     return dev + "," + dst_addr + "," + src_addr + "," + trusted + "," + label
@@ -79,25 +82,33 @@ def _gen_cfgs(info, interface):
     else:
         raise ValueError("Unknown setup type")
 
-    cfg.add_opt("udpmulticast", _udpmulticast(
-        dev=interface, src_addr=src_addr, label=label))
+    cfg.add_opt("udpmulticast",
+                _udpmulticast(dev=interface, src_addr=src_addr, label=label))
 
     return cfg
 
 
 def subparser(subparsers):
     """Argument parser of bitcoin-conf command"""
-    p = subparsers.add_parser('bitcoin-conf', aliases=['btc'],
-                              description="Generate Bitcoin configuration file",
-                              help='Generate Bitcoin configuration file',
-                              formatter_class=ArgumentDefaultsHelpFormatter)
-    p.add_argument('-d', '--datadir', default=None,
+    p = subparsers.add_parser(
+        'bitcoin-conf',
+        aliases=['btc'],
+        description="Generate Bitcoin configuration file",
+        help='Generate Bitcoin configuration file',
+        formatter_class=ArgumentDefaultsHelpFormatter)
+    p.add_argument('-d',
+                   '--datadir',
+                   default=None,
                    help='Path to the data directory where the generated '
                    'bitcoin.conf will be saved')
-    p.add_argument('--stdout', action='store_true', default=False,
+    p.add_argument('--stdout',
+                   action='store_true',
+                   default=False,
                    help='Print the generated bitcoin.conf file to the '
                    'standard output instead of saving the file')
-    p.add_argument('--concat', action='store_true', default=False,
+    p.add_argument('--concat',
+                   action='store_true',
+                   default=False,
                    help='Concatenate configurations to pre-existing '
                    'bitcoin.conf file')
     p.set_defaults(func=configure)
@@ -122,7 +133,7 @@ def configure(args):
         path = args.datadir
 
     conf_file = "bitcoin.conf"
-    abs_path  = os.path.join(path, conf_file)
+    abs_path = os.path.join(path, conf_file)
 
     # Network interface
     ifname = config.get_net_if(info)
@@ -177,6 +188,4 @@ def configure(args):
         print("\n" + textwrap.fill((
             "NOTE: {0} was configured assuming the Novra S400 receiver will be "
             "connected to interface {1}. If this is not the case anymore, "
-            "please update {0} accordingly.").format(
-                conf_file, ifname)))
-
+            "please update {0} accordingly.").format(conf_file, ifname)))

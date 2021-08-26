@@ -10,7 +10,6 @@ from pprint import pformat
 
 from . import config, util, defs, rp, firewall, ip, dependencies, monitoring
 
-
 logger = logging.getLogger(__name__)
 runner = util.ProcessRunner(logger)
 
@@ -22,13 +21,12 @@ def _find_v4l_lnb(info):
 
     """
 
-
-    target_lo_freq_raw  = info['lnb']['lo_freq']
+    target_lo_freq_raw = info['lnb']['lo_freq']
     target_is_universal = info['lnb']['universal']
 
     if (target_is_universal):
-        assert(isinstance(target_lo_freq_raw, list))
-        assert(len(target_lo_freq_raw) == 2)
+        assert (isinstance(target_lo_freq_raw, list))
+        assert (len(target_lo_freq_raw) == 2)
         target_lo_freq = [int(x) for x in target_lo_freq_raw]
     else:
         target_lo_freq = [int(target_lo_freq_raw)]
@@ -41,24 +39,24 @@ def _find_v4l_lnb(info):
         if (target_is_universal and (not is_universal_option)):
             continue
 
-        if (info['lnb']['pol'].lower() == "dual" and # user has dual-pol LNB
-            (info['sat']['pol'] == "H" or # and satellite requires H pol
-             ('v1_pointed' in info['lnb'] and
-              info['lnb']['v1_pointed'] and
-              info['lnb']['v1_psu_voltage'] >= 16) # or LNB already operates with H pol
-            ) and "rangeswitch" not in lnb): # but LNB candidate is single-pol
-            continue # not a validate candidate, skip
+        if (info['lnb']['pol'].lower() == "dual" and  # user has dual-pol LNB
+            (
+                info['sat']['pol'] == "H" or  # and satellite requires H pol
+                ('v1_pointed' in info['lnb'] and info['lnb']['v1_pointed']
+                 and info['lnb']['v1_psu_voltage'] >= 16
+                 )  # or LNB already operates with H pol
+            ) and "rangeswitch" not in lnb):  # but LNB candidate is single-pol
+            continue  # not a validate candidate, skip
 
         if (target_is_universal):
-            if (is_universal_option and
-                lnb['lowfreq'] == target_lo_freq[0] and
-                lnb['highfreq'] == target_lo_freq[1]):
+            if (is_universal_option and lnb['lowfreq'] == target_lo_freq[0]
+                    and lnb['highfreq'] == target_lo_freq[1]):
                 options.append(lnb)
         else:
             if (lnb['lowfreq'] == target_lo_freq[0]):
                 options.append(lnb)
 
-    assert(len(options) > 0), "LNB doesn't match a valid option"
+    assert (len(options) > 0), "LNB doesn't match a valid option"
     logger.debug("Matching LNB options: {}".format(pformat(options)))
 
     return options[0]
@@ -78,24 +76,31 @@ def _find_adapter(list_only=False, target_model=None):
     # we try to list each one individually using `dvbnet -a adapter_no -l`.
     adapters = list()
     for a in range(0, 10):
-        cmd     = ["dvbnet", "-a", str(a), "-l"]
+        cmd = ["dvbnet", "-a", str(a), "-l"]
         logger.debug("> " + " ".join(cmd))
 
         with open(os.devnull, 'w') as devnull:
             res = subprocess.call(cmd, stdout=devnull, stderr=devnull)
             if (res == 0):
                 # Try a few frontends too
-                for f in range(0,2):
+                for f in range(0, 2):
                     try:
-                        output = subprocess.check_output(["dvb-fe-tool", "-a",
-                                                          str(a), "-f", str(f)])
-                        line   = output.splitlines()[0].decode().split()
+                        output = subprocess.check_output(
+                            ["dvb-fe-tool", "-a",
+                             str(a), "-f",
+                             str(f)])
+                        line = output.splitlines()[0].decode().split()
                         adapter = {
-                            "adapter"  : str(a),
-                            "frontend" : line[5].replace(")","").split("frontend")[-1],
-                            "vendor"   : line[1],
-                            "model"    : " ".join(line[2:4]),
-                            "support"  : line[4]
+                            "adapter":
+                            str(a),
+                            "frontend":
+                            line[5].replace(")", "").split("frontend")[-1],
+                            "vendor":
+                            line[1],
+                            "model":
+                            " ".join(line[2:4]),
+                            "support":
+                            line[4]
                         }
                         adapters.append(adapter)
                         logger.debug(pformat(adapter))
@@ -122,15 +127,15 @@ def _find_adapter(list_only=False, target_model=None):
             linesplit = line.decode().split()
             if ("adapter" not in linesplit):
                 continue
-            i_adapter  = linesplit.index('adapter')
+            i_adapter = linesplit.index('adapter')
             i_frontend = linesplit.index('frontend')
-            device     = linesplit[i_frontend + 2:]
+            device = linesplit[i_frontend + 2:]
             adapter = {
-                "adapter"  : linesplit[i_adapter + 1],
-                "frontend" : linesplit[i_frontend + 1],
-                "vendor"   : device[0][1:],
-                "model"    : " ".join(device[1:-1]),
-                "support"  : device[-1][:-4].replace('(', '').replace(')', '')
+                "adapter": linesplit[i_adapter + 1],
+                "frontend": linesplit[i_frontend + 1],
+                "vendor": device[0][1:],
+                "model": " ".join(device[1:-1]),
+                "support": device[-1][:-4].replace('(', '').replace(')', '')
             }
 
             # Maybe the device on dmesg does not exist anymore. Check!
@@ -152,7 +157,7 @@ def _find_adapter(list_only=False, target_model=None):
     dvb_s2_adapters = [a for a in adapters if ("DVB-S/S2" in a["support"])]
     logger.debug(dvb_s2_adapters)
 
-    assert(len(dvb_s2_adapters) > 0), "No DVB-S2 adapters found"
+    assert (len(dvb_s2_adapters) > 0), "No DVB-S2 adapters found"
 
     chosen_adapter = None
     if (target_model is not None):
@@ -164,12 +169,12 @@ def _find_adapter(list_only=False, target_model=None):
     else:
         # Prompt the user
         for adapter in dvb_s2_adapters:
-            print("Found DVB-S2 adapter: %s %s" %(adapter["vendor"],
-                                                  adapter["model"]))
+            print("Found DVB-S2 adapter: %s %s" %
+                  (adapter["vendor"], adapter["model"]))
 
             if (not list_only):
-                if (len(dvb_s2_adapters) == 1 or
-                    util._ask_yes_or_no("Choose adapter?")):
+                if (len(dvb_s2_adapters) == 1
+                        or util._ask_yes_or_no("Choose adapter?")):
                     chosen_adapter = adapter
                     logger.debug("Chosen adapter:")
                     logger.debug(pformat(adapter))
@@ -201,7 +206,7 @@ def _dvbnet_single(adapter, ifname, pid, ule, existing_dvbnet_interfaces):
 
     """
 
-    assert(pid >= 32 and pid <= 8190), "PID not insider range 32 to 8190"
+    assert (pid >= 32 and pid <= 8190), "PID not insider range 32 to 8190"
 
     if (ule):
         encapsulation = 'ULE'
@@ -210,14 +215,15 @@ def _dvbnet_single(adapter, ifname, pid, ule, existing_dvbnet_interfaces):
 
     # Check if the interface already exists
     res = subprocess.call(["ip", "addr", "show", "dev", ifname],
-                          stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                          stdout=subprocess.DEVNULL,
+                          stderr=subprocess.DEVNULL)
     os_interface_exists = (res == 0)
-    matching_dvbnet_if  = None
+    matching_dvbnet_if = None
 
     # When the network interface exists in the OS, we also need to check if the
     # matching dvbnet device is configured according to what we want now
     if (os_interface_exists):
-        print("Network interface %s already exists" %(ifname))
+        print("Network interface %s already exists" % (ifname))
 
         for interface in existing_dvbnet_interfaces:
             if (interface['name'] == ifname):
@@ -228,20 +234,20 @@ def _dvbnet_single(adapter, ifname, pid, ule, existing_dvbnet_interfaces):
     # dev". However, it is possible that dvbnet does not have any interface
     # associated to an adapter, so check if we found anything:
     cfg_interface = False
-    if (len(existing_dvbnet_interfaces) > 0 and matching_dvbnet_if is not None):
+    if (len(existing_dvbnet_interfaces) > 0
+            and matching_dvbnet_if is not None):
         # Compare to desired configurations
-        if (matching_dvbnet_if['pid'] != pid or
-            matching_dvbnet_if['encapsulation'] != encapsulation):
+        if (matching_dvbnet_if['pid'] != pid
+                or matching_dvbnet_if['encapsulation'] != encapsulation):
             cfg_interface = True
 
         if (matching_dvbnet_if['pid'] != pid):
-            print("Current PID is %d. Set it to %d" %(
-                matching_dvbnet_if['pid'], pid))
+            print("Current PID is %d. Set it to %d" %
+                  (matching_dvbnet_if['pid'], pid))
 
         if (matching_dvbnet_if['encapsulation'] != encapsulation):
-            print("Current encapsulation is %s. Set it to %s" %(
-                matching_dvbnet_if['encapsulation'], encapsulation
-            ))
+            print("Current encapsulation is %s. Set it to %s" %
+                  (matching_dvbnet_if['encapsulation'], encapsulation))
     else:
         cfg_interface = True
 
@@ -259,10 +265,11 @@ def _dvbnet_single(adapter, ifname, pid, ule, existing_dvbnet_interfaces):
         if (runner.dry):
             print("Create interface {}:".format(ifname))
 
-        runner.run(["dvbnet", "-a", adapter, "-p", str(pid), ule_arg],
+        runner.run(["dvbnet", "-a", adapter, "-p",
+                    str(pid), ule_arg],
                    root=True)
     else:
-        print("Network interface %s already configured correctly" %(ifname))
+        print("Network interface %s already configured correctly" % (ifname))
 
 
 def _dvbnet(adapter, ifnames, pids, ule=False):
@@ -277,8 +284,8 @@ def _dvbnet(adapter, ifnames, pids, ule=False):
         ule      : Whether to use ULE framing
 
     """
-    assert(isinstance(ifnames, list))
-    assert(isinstance(pids, list))
+    assert (isinstance(ifnames, list))
+    assert (isinstance(pids, list))
     assert(len(ifnames) == len(pids)), \
         "Interface names and PID number must be vectors of the same length"
 
@@ -305,19 +312,19 @@ def _find_dvbnet_interfaces(adapter):
     """
 
     util._print_header("Find dvbnet interface(s)")
-    cmd     = ["dvbnet", "-a", adapter, "-l"]
+    cmd = ["dvbnet", "-a", adapter, "-l"]
     logger.debug("> " + " ".join(cmd))
-    res     = subprocess.check_output(cmd)
+    res = subprocess.check_output(cmd)
 
     interfaces = list()
     for line in res.splitlines():
         if ("Found device" in line.decode()):
-            line_split    = line.decode().split()
+            line_split = line.decode().split()
             interface = {
-                'dev'           : line_split[2][:-1],
-                'name'          : line_split[4][:-1],
-                'pid'           : int(line_split[8][:-1]),
-                'encapsulation' : line_split[10]
+                'dev': line_split[2][:-1],
+                'name': line_split[4][:-1],
+                'pid': int(line_split[8][:-1]),
+                'encapsulation': line_split[10]
             }
             logger.debug(pformat(interface))
             interfaces.append(interface)
@@ -349,8 +356,14 @@ def _rm_dvbnet_interface(adapter, ifname, verbose=True):
     ip.rm_ip(ifname, runner.dry)
 
 
-def zap(adapter, frontend, ch_conf_file, user_info, lnb="UNIVERSAL",
-        output=None, timeout=None, monitor=False):
+def zap(adapter,
+        frontend,
+        ch_conf_file,
+        user_info,
+        lnb="UNIVERSAL",
+        output=None,
+        timeout=None,
+        monitor=False):
     """Run zapper
 
     Args:
@@ -382,15 +395,18 @@ def zap(adapter, frontend, ch_conf_file, user_info, lnb="UNIVERSAL",
     print("  - Frontend: {}".format(frontend))
     print("  - LNB:      {}".format(lnb))
 
-    cmd = ["dvbv5-zap", "-c", ch_conf_file, "-a", str(adapter), "-f",
-           str(frontend), "-l", lnb, "-v"]
+    cmd = [
+        "dvbv5-zap", "-c", ch_conf_file, "-a",
+        str(adapter), "-f",
+        str(frontend), "-l", lnb, "-v"
+    ]
 
     rec_mode = output is not None
     if (rec_mode):
         cmd = cmd + ["-o", output]
 
         if (os.path.exists(output)):
-            print("File %s already exists" %(output))
+            print("File %s already exists" % (output))
 
             # The recording is such that MPEG TS packets are overwritten one by
             # one. For instance, if previous ts file had 1000 MPEG TS packets,
@@ -402,7 +418,8 @@ def zap(adapter, frontend, ch_conf_file, user_info, lnb="UNIVERSAL",
             # The other option is to remove the ts file completely and start a
             # new one. This way, all previous ts packets are guaranteed to be
             # erased.
-            raw_resp = input("Remove and start new (R) or Overwrite (O)? [R/O] ")
+            raw_resp = input(
+                "Remove and start new (R) or Overwrite (O)? [R/O] ")
             response = raw_resp.lower()
 
             if (response == "r"):
@@ -430,8 +447,10 @@ def zap(adapter, frontend, ch_conf_file, user_info, lnb="UNIVERSAL",
     if (monitor or rec_mode):
         ps = subprocess.Popen(cmd, env=new_env)
     else:
-        ps = subprocess.Popen(cmd, stdout=subprocess.PIPE,
-                              stderr=subprocess.PIPE, env=new_env,
+        ps = subprocess.Popen(cmd,
+                              stdout=subprocess.PIPE,
+                              stderr=subprocess.PIPE,
+                              env=new_env,
                               universal_newlines=True)
     return ps
 
@@ -444,11 +463,13 @@ def subparser(subparsers):
                               formatter_class=ArgumentDefaultsHelpFormatter)
 
     # Common parameters
-    p.add_argument('-a', '--adapter',
+    p.add_argument('-a',
+                   '--adapter',
                    default=None,
                    help='DVB-S2 adapter number or model')
 
-    p.add_argument('-f', '--frontend',
+    p.add_argument('-f',
+                   '--frontend',
                    default=None,
                    help='DVB-S2 adapter\'s frontend number')
 
@@ -458,27 +479,36 @@ def subparser(subparsers):
                                      help='Target sub-command')
 
     # Launch
-    p1 = subsubparsers.add_parser('launch',
-                                  description="Launch a USB DVB-S2 receiver",
-                                  help='Launch a Linux USB DVB-S2 receiver',
-                                  formatter_class=ArgumentDefaultsHelpFormatter)
+    p1 = subsubparsers.add_parser(
+        'launch',
+        description="Launch a USB DVB-S2 receiver",
+        help='Launch a Linux USB DVB-S2 receiver',
+        formatter_class=ArgumentDefaultsHelpFormatter)
 
-    p1.add_argument('-l', '--lnb',
-                    choices=defs.lnb_options,
+    p1.add_argument(
+        '-l',
+        '--lnb',
+        choices=defs.lnb_options,
+        default=None,
+        metavar='',
+        help="LNB being used. If not specified, it will be defined "
+        "automatically. Choose from the following LNBs supported "
+        "by v4l-utils: " + ", ".join(defs.lnb_options))
+
+    p1.add_argument('-r',
+                    '--record-file',
                     default=None,
-                    metavar='',
-                    help="LNB being used. If not specified, it will be defined "
-                    "automatically. Choose from the following LNBs supported "
-                    "by v4l-utils: " + ", ".join(defs.lnb_options))
-
-    p1.add_argument('-r', '--record-file', default=None,
                     help='Record MPEG-TS traffic into a target file')
 
-    p1.add_argument('-t', '--timeout', default=None,
+    p1.add_argument('-t',
+                    '--timeout',
+                    default=None,
                     help='Stop zapping after a timeout in seconds - useful to \
                     control recording time')
 
-    p1.add_argument('-m', '--monitor', default=False,
+    p1.add_argument('-m',
+                    '--monitor',
+                    default=False,
                     action='store_true',
                     help='Launch dvbv5-zap in monitor mode to debug MPEG TS '
                     'packet and bit rates')
@@ -488,34 +518,46 @@ def subparser(subparsers):
     p1.set_defaults(func=launch)
 
     # Initial configurations
-    p2 = subsubparsers.add_parser('config', aliases=['cfg'],
-                                  description='Initial configurations',
-                                  help='Configure DVB-S2 interface(s) and\
+    p2 = subsubparsers.add_parser(
+        'config',
+        aliases=['cfg'],
+        description='Initial configurations',
+        help='Configure DVB-S2 interface(s) and\
                                   the host',
-                                  formatter_class=ArgumentDefaultsHelpFormatter)
-    p2.add_argument('-U', '--ule', default=False,
+        formatter_class=ArgumentDefaultsHelpFormatter)
+    p2.add_argument('-U',
+                    '--ule',
+                    default=False,
                     action='store_true',
                     help='Use ULE encapsulation instead of MPE')
 
-    p2.add_argument('--skip-rp', default=False, action='store_true',
+    p2.add_argument('--skip-rp',
+                    default=False,
+                    action='store_true',
                     help='Skip settting of reverse path filters')
 
-    p2.add_argument('--skip-firewall', default=False,
+    p2.add_argument('--skip-firewall',
+                    default=False,
                     action='store_true',
                     help='Skip configuration of firewall rules')
 
-    p2.add_argument('--pid', default=defs.pids,
+    p2.add_argument('--pid',
+                    default=defs.pids,
                     type=int,
                     nargs='+',
                     help='List of PIDs to be listened to by dvbnet')
 
-    p2.add_argument('-i', '--ip',
+    p2.add_argument('-i',
+                    '--ip',
                     default=None,
                     nargs='+',
                     help='IP address set for each DVB-S2 net \
                     interface with subnet mask in CIDR notation')
 
-    p2.add_argument('-y', '--yes', default=False, action='store_true',
+    p2.add_argument('-y',
+                    '--yes',
+                    default=False,
+                    action='store_true',
                     help="Default to answering Yes to configuration prompts")
 
     p2.add_argument("--dry-run",
@@ -526,18 +568,23 @@ def subparser(subparsers):
     p2.set_defaults(func=usb_config)
 
     # Find adapter sub-command
-    p3 = subsubparsers.add_parser('list', aliases=['ls'],
-                                  description="List DVB-S2 adapters",
-                                  help='List DVB-S2 adapters',
-                                  formatter_class=ArgumentDefaultsHelpFormatter)
+    p3 = subsubparsers.add_parser(
+        'list',
+        aliases=['ls'],
+        description="List DVB-S2 adapters",
+        help='List DVB-S2 adapters',
+        formatter_class=ArgumentDefaultsHelpFormatter)
     p3.set_defaults(func=list_subcommand)
 
     # Remove adapter sub-command
-    p4 = subsubparsers.add_parser('remove', aliases=['rm'],
-                                  description="Remove DVB-S2 adapter",
-                                  help='Remove DVB-S2 adapter',
-                                  formatter_class=ArgumentDefaultsHelpFormatter)
-    p4.add_argument('--all', default=False,
+    p4 = subsubparsers.add_parser(
+        'remove',
+        aliases=['rm'],
+        description="Remove DVB-S2 adapter",
+        help='Remove DVB-S2 adapter',
+        formatter_class=ArgumentDefaultsHelpFormatter)
+    p4.add_argument('--all',
+                    default=False,
                     action='store_true',
                     help='Remove all dvbnet interfaces associated with the '
                     'adapter')
@@ -570,7 +617,7 @@ def _common(args):
             # --frontend is also required.
             if (args.frontend is None):
                 raise ValueError("argument --adapter requires --frontend.")
-            adapter  = args.adapter
+            adapter = args.adapter
             frontend = args.frontend
         else:
             # Assume argument --adapter has the target model
@@ -607,7 +654,8 @@ def usb_config(args):
     else:
         ips = args.ip
 
-    assert(all(["/" in x for x in ips])), "Please provide IPs in CIDR notation"
+    assert (all(["/" in x
+                 for x in ips])), "Please provide IPs in CIDR notation"
 
     assert(len(args.pid) == len(ips)), \
         "Number of PIDs (%u) defined by argument --pid " %(len(args.pid)) + \
@@ -618,7 +666,7 @@ def usb_config(args):
     #
     # NOTE: there is one dvbnet interface per PID. Each interface will have a
     # different IP address.
-    net_ifs  = list()
+    net_ifs = list()
     for i_device in range(0, len(args.pid)):
         # Define interface name that is going to be generated by dvbnet
         net_if = "dvb" + adapter + "_" + str(i_device)
@@ -633,8 +681,11 @@ def usb_config(args):
 
     # Set firewall rules
     if (not args.skip_firewall):
-        firewall.configure(net_ifs, defs.src_ports, user_info['sat']['ip'],
-                           prompt=(not args.yes), dry=args.dry_run)
+        firewall.configure(net_ifs,
+                           defs.src_ports,
+                           user_info['sat']['ip'],
+                           prompt=(not args.yes),
+                           dry=args.dry_run)
 
     # Set IP
     ip.set_ips(net_ifs, ips, dry=runner.dry)
@@ -646,10 +697,10 @@ def usb_config(args):
 
 
 log_key_map = {
-    'Lock'    : 'lock',
-    'Signal'  : 'level',
-    'C/N'     : 'snr',
-    'postBER' : 'ber'
+    'Lock': 'lock',
+    'Signal': 'level',
+    'C/N': 'snr',
+    'postBER': 'ber'
 }
 
 
@@ -665,33 +716,33 @@ def _parse_log(line):
     # Only process lines containing "Signal"
     if ("Signal" not in line):
         return
-    d           = {}
-    elements    = line.split()
-    n_elem      = len(elements)
-    d['lock']   = ("Lock" in line, None)
+    d = {}
+    elements = line.split()
+    n_elem = len(elements)
+    d['lock'] = ("Lock" in line, None)
     for i, elem in enumerate(elements):
         # Each metric is printed as "name=value"
-        if (elem[-1] == "=" and (i+1) <= n_elem):
-            key       = elem[:-1]
-            raw_value = elements[i+1]
+        if (elem[-1] == "=" and (i + 1) <= n_elem):
+            key = elem[:-1]
+            raw_value = elements[i + 1]
 
             # Convert key to the nomenclature adopted on monitor.py
             key = log_key_map[key]
 
             # Fix any scientific notation
             if ("^" in raw_value):
-                raw_value = raw_value.replace("x10^","e")
+                raw_value = raw_value.replace("x10^", "e")
 
             # Parse value and unit
             unit = None
             if ("%" in raw_value):
                 unit = "%"
-                val  = float(raw_value[:-1].replace(",","."))
+                val = float(raw_value[:-1].replace(",", "."))
             elif (raw_value[-2:] == "dB"):
-                val  = float(raw_value[:-2].replace(",","."))
+                val = float(raw_value[:-2].replace(",", "."))
                 unit = "dB"
             elif (raw_value[-3:] == "dBm"):
-                val  = float(raw_value[:-3].replace(",","."))
+                val = float(raw_value[:-3].replace(",", "."))
                 unit = "dBm"
             else:
                 val = float(raw_value.replace(",", "."))
@@ -718,30 +769,33 @@ def launch(args):
         return
 
     # Check conflicting logging options
-    if ((args.monitor or args.record_file) and
-        (args.log_scrolling or args.log_file)):
+    if ((args.monitor or args.record_file)
+            and (args.log_scrolling or args.log_file)):
         raise ValueError("Logging options are disabled when running with "
                          "-m/--monitor or -r/--record-file")
 
     # Log Monitoring
-    monitor = monitoring.Monitor(
-        args.cfg_dir,
-        logfile = args.log_file,
-        scroll = args.log_scrolling,
-        min_interval = args.log_interval,
-        server = args.monitoring_server,
-        port = args.monitoring_port,
-        report = args.report,
-        report_opts = monitoring.get_report_opts(args),
-        utc = args.utc
-    )
+    monitor = monitoring.Monitor(args.cfg_dir,
+                                 logfile=args.log_file,
+                                 scroll=args.log_scrolling,
+                                 min_interval=args.log_interval,
+                                 server=args.monitoring_server,
+                                 port=args.monitoring_port,
+                                 report=args.report,
+                                 report_opts=monitoring.get_report_opts(args),
+                                 utc=args.utc)
 
     # Channel configuration file
     chan_conf = user_info['setup']['channel']
 
     # Zap
-    zap_ps = zap(adapter, frontend, chan_conf, user_info, lnb=args.lnb,
-                 output=args.record_file, timeout=args.timeout,
+    zap_ps = zap(adapter,
+                 frontend,
+                 chan_conf,
+                 user_info,
+                 lnb=args.lnb,
+                 output=args.record_file,
+                 timeout=args.timeout,
                  monitor=args.monitor)
 
     # Handler for SIGINT
@@ -761,7 +815,7 @@ def launch(args):
         zap_ps.wait()
     else:
         while (zap_ps.poll() is None):
-            line    = zap_ps.stderr.readline()
+            line = zap_ps.stderr.readline()
             metrics = _parse_log(line)
             if (metrics is None):
                 continue
@@ -802,7 +856,7 @@ def rm_subcommand(args):
         adapter = args.adapter if args.adapter.isdigit() else \
             _find_adapter(target_model=args.adapter)[0]
 
-    interfaces     = _find_dvbnet_interfaces(adapter)
+    interfaces = _find_dvbnet_interfaces(adapter)
     chosen_devices = list()
 
     if (len(interfaces) > 1):
@@ -812,7 +866,7 @@ def rm_subcommand(args):
         else:
             print("Choose net device to remove:")
             for i_dev, interface in enumerate(interfaces):
-                print("[%2u] %s" %(i_dev, interface['name']))
+                print("[%2u] %s" % (i_dev, interface['name']))
             print("[ *] all")
 
             try:
@@ -823,8 +877,7 @@ def rm_subcommand(args):
                     i_chosen_devices = [int(choice)]
             except ValueError:
                 raise ValueError(
-                    "Please choose a number or \"*\" for all devices"
-                )
+                    "Please choose a number or \"*\" for all devices")
 
             for i_chosen_dev in i_chosen_devices:
                 if (i_chosen_dev > len(interfaces)):
@@ -845,9 +898,7 @@ def rm_subcommand(args):
 
 def print_help(args):
     """Re-create argparse's help menu for the usb command"""
-    parser     = ArgumentParser()
+    parser = ArgumentParser()
     subparsers = parser.add_subparsers(title='', help='')
-    parser     = subparser(subparsers)
+    parser = subparser(subparsers)
     print(parser.format_help())
-
-

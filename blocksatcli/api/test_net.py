@@ -5,11 +5,11 @@ from . import net
 class TestApi(unittest.TestCase):
     def test_send_rcv(self):
         """Test transmission and reception of data"""
-        ip     = "239.0.0.2"
-        port   = 4444
-        addr   = ip + ":" + str(port)
+        ip = "239.0.0.2"
+        port = 4444
+        addr = ip + ":" + str(port)
         ifname = "lo"
-        data   = bytes([0,1,2,3])
+        data = bytes([0, 1, 2, 3])
 
         # Tx socket
         tx_sock = net.UdpSock(addr, ifname, mcast_rx=False)
@@ -33,4 +33,3 @@ class TestApi(unittest.TestCase):
         # Check
         self.assertEqual(data, rx_payload)
         self.assertEqual(rx_addr[1], port)
-

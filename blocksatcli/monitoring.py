@@ -4,7 +4,6 @@ from http.server import HTTPServer, BaseHTTPRequestHandler
 from datetime import datetime
 from . import defs, config, monitoring_api
 
-
 logger = logging.getLogger(__name__)
 sats = [x['alias'] for x in defs.satellites]
 
@@ -29,8 +28,15 @@ class Reporter():
     Sends receiver metrics to a remote server.
 
     """
-    def __init__(self, cfg, cfg_dir, dest_addr, hostname=None, tls_cert=None,
-                 tls_key=None, gnupghome=None, passphrase=None):
+    def __init__(self,
+                 cfg,
+                 cfg_dir,
+                 dest_addr,
+                 hostname=None,
+                 tls_cert=None,
+                 tls_key=None,
+                 gnupghome=None,
+                 passphrase=None):
         """Reporter Constructor
 
         Args:
@@ -48,27 +54,26 @@ class Reporter():
 
         """
         info = config.read_cfg_file(cfg, cfg_dir)
-        assert(info is not None)
+        assert (info is not None)
 
         # Validate the satellite
         satellite = info['sat']['alias']
-        assert(satellite is not None), "Reporting satellite undefined"
-        assert(satellite in sats), "Invalid satellite"
+        assert (satellite is not None), "Reporting satellite undefined"
+        assert (satellite in sats), "Invalid satellite"
         self.satellite = satellite
 
         # Destination address, hostname, and client side cert
         self.dest_addr = dest_addr
         self.hostname = hostname
         self.tls_cert = tls_cert
-        self.tls_key  = tls_key
+        self.tls_key = tls_key
 
         # If the report destination address corresponds to Blockstream's
         # Monitoring API (the default), create the object to handle the
         # interaction with this API (e.g., registration).
         if (dest_addr == monitoring_api.metric_endpoint):
-            self.bs_monitoring = monitoring_api.BsMonitoring(cfg, cfg_dir,
-                                                             gnupghome,
-                                                             passphrase)
+            self.bs_monitoring = monitoring_api.BsMonitoring(
+                cfg, cfg_dir, gnupghome, passphrase)
         else:
             self.bs_monitoring = None
 
@@ -119,13 +124,12 @@ class Reporter():
         else:
             self.bs_monitoring.sign_report(data)
 
-        logger.debug("Report {} to {}".format(
-            data, self.dest_addr
-        ))
+        logger.debug("Report {} to {}".format(data, self.dest_addr))
 
         try:
-            r = requests.post(self.dest_addr, json=data,
-                              cert = (self.tls_cert, self.tls_key))
+            r = requests.post(self.dest_addr,
+                              json=data,
+                              cert=(self.tls_cert, self.tls_key))
             if (r.status_code != requests.codes.ok):
                 print()
                 logger.error("Report failed: " + r.text)
@@ -136,7 +140,8 @@ class Reporter():
 
 class Server(BaseHTTPRequestHandler):
     """Server that replies the Rx stats requested via HTTP"""
-    monitor = None # trick to access the Monitor object
+    monitor = None  # trick to access the Monitor object
+
     def _set_headers(self):
         self.send_response(200)
         self.send_header('Content-type', 'application/json')
@@ -147,9 +152,7 @@ class Server(BaseHTTPRequestHandler):
 
     def do_GET(self):
         self._set_headers()
-        self.wfile.write(
-            json.dumps(self.monitor.get_stats()).encode()
-        )
+        self.wfile.write(json.dumps(self.monitor.get_stats()).encode())
 
 
 class Monitor():
@@ -159,9 +162,17 @@ class Monitor():
     file, and reports to a server.
 
     """
-    def __init__(self, cfg_dir, logfile=False, scroll=False, echo=True,
-                 min_interval=1.0, server=False, port=defs.monitor_port,
-                 report=False, report_opts={}, utc=True):
+    def __init__(self,
+                 cfg_dir,
+                 logfile=False,
+                 scroll=False,
+                 echo=True,
+                 min_interval=1.0,
+                 server=False,
+                 port=defs.monitor_port,
+                 report=False,
+                 report_opts={},
+                 utc=True):
         """Monitor Constructor
 
         Args:
@@ -181,44 +192,44 @@ class Monitor():
             utc          : Whether to print logs in UTC time.
 
         """
-        self.cfg_dir      = cfg_dir
-        self.logfile      = None
-        self.scroll       = scroll
-        self.echo         = echo
+        self.cfg_dir = cfg_dir
+        self.logfile = None
+        self.scroll = scroll
+        self.echo = echo
         self.min_interval = min_interval
-        self.report       = report
-        self.utc          = utc
+        self.report = report
+        self.utc = utc
         if (logfile):
             self._setup_logfile()
 
         # Supported receiver metrics, with their labels and printing formats
         self._metrics = {
-            'lock'    : {
-                'label'      : 'Lock',
-                'format_str' : ''
+            'lock': {
+                'label': 'Lock',
+                'format_str': ''
             },
-            'level'   : {
-                'label'      : 'Level',
-                'format_str' : '.2f'
+            'level': {
+                'label': 'Level',
+                'format_str': '.2f'
             },
-            'snr'     : {
-                'label'      : 'SNR',
-                'format_str' : '.2f'
+            'snr': {
+                'label': 'SNR',
+                'format_str': '.2f'
             },
-            'ber'     : {
-                'label'      : 'BER',
-                'format_str' : '.2e'
+            'ber': {
+                'label': 'BER',
+                'format_str': '.2e'
             },
-            'quality' : {
-                'label'      : 'Signal Quality',
-                'format_str' : '.1f'
+            'quality': {
+                'label': 'Signal Quality',
+                'format_str': '.1f'
             },
-            'pkt_err' : {
-                'label'      : 'Packet Errors',
-                'format_str' : 'd'
+            'pkt_err': {
+                'label': 'Packet Errors',
+                'format_str': 'd'
             }
         }
-        self.stats    = {}
+        self.stats = {}
 
         # Reporter sessions
         if (report):
@@ -229,11 +240,9 @@ class Monitor():
 
         # Launch HTTP server on a daemon thread
         if (server):
-            self.sever_thread = threading.Thread(
-                target=self._run_server,
-                args=(port,),
-                daemon=True
-            )
+            self.sever_thread = threading.Thread(target=self._run_server,
+                                                 args=(port, ),
+                                                 daemon=True)
             self.sever_thread.start()
 
     def _run_server(self, port):
@@ -276,7 +285,7 @@ class Monitor():
         if not os.path.exists(log_dir):
             os.makedirs(log_dir)
 
-        name         = time.strftime("%Y%m%d-%H%M%S") + ".log"
+        name = time.strftime("%Y%m%d-%H%M%S") + ".log"
         self.logfile = os.path.join(log_dir, name)
         logger.info("Saving logs at {}".format(self.logfile))
 
@@ -307,11 +316,11 @@ class Monitor():
         """
 
         # The input should be a dictionary of tuples
-        assert(isinstance(data, dict))
-        assert(all([isinstance(x, tuple) for x in data.values()]))
+        assert (isinstance(data, dict))
+        assert (all([isinstance(x, tuple) for x in data.values()]))
 
         # All keys in the input dictionary must be supported receiver metrics
-        assert(all([k in self._metrics for k in data.keys()]))
+        assert (all([k in self._metrics for k in data.keys()]))
 
         # Copy all the data
         self.stats = data
@@ -346,9 +355,9 @@ class Monitor():
             # As soon as the registration procedure ends (as indicated by the
             # "registration_running" flag), console logs are reactivated, even
             # if the registration fails.
-            if (self.reporter.bs_monitoring is not None and not
-                self.reporter.bs_monitoring.registered and
-                self.reporter.bs_monitoring.registration_running):
+            if (self.reporter.bs_monitoring is not None
+                    and not self.reporter.bs_monitoring.registered
+                    and self.reporter.bs_monitoring.registration_running):
                 return
 
         # Print to console
@@ -367,62 +376,45 @@ def add_to_parser(parser):
         default=False,
         action='store_true',
         help='Print receiver logs line-by-line rather than repeatedly on the \
-        same line'
-    )
-    m_p.add_argument(
-        '--log-file',
-        default=False,
-        action='store_true',
-        help='Save receiver logs on a file'
-    )
-    m_p.add_argument(
-        '--log-interval',
-        type=float,
-        default=1.0,
-        help="Logging interval in seconds"
-    )
+        same line')
+    m_p.add_argument('--log-file',
+                     default=False,
+                     action='store_true',
+                     help='Save receiver logs on a file')
+    m_p.add_argument('--log-interval',
+                     type=float,
+                     default=1.0,
+                     help="Logging interval in seconds")
 
     ms_p = parser.add_argument_group('receiver monitoring server options')
-    ms_p.add_argument(
-        '--monitoring-server',
-        default=False,
-        action='store_true',
-        help='Run HTTP server to monitor the receiver'
-    )
-    ms_p.add_argument(
-        '--monitoring-port',
-        default=defs.monitor_port,
-        type=int,
-        help='Monitoring server\'s port'
-    )
+    ms_p.add_argument('--monitoring-server',
+                      default=False,
+                      action='store_true',
+                      help='Run HTTP server to monitor the receiver')
+    ms_p.add_argument('--monitoring-port',
+                      default=defs.monitor_port,
+                      type=int,
+                      help='Monitoring server\'s port')
 
     r_p = parser.add_argument_group('receiver reporting options')
-    r_p.add_argument(
-        '--report',
-        default=False,
-        action='store_true',
-        help='Report receiver metrics to a remote HTTP server'
-    )
+    r_p.add_argument('--report',
+                     default=False,
+                     action='store_true',
+                     help='Report receiver metrics to a remote HTTP server')
     r_p.add_argument(
         '--report-dest',
         default=monitoring_api.metric_endpoint,
         help='Destination address in http://ip:port format. By default, '
-        'report to Blockstream\'s Satellite Monitoring API'
-    )
-    r_p.add_argument(
-        '--report-hostname',
-        help='Reporter\'s hostname'
-    )
+        'report to Blockstream\'s Satellite Monitoring API')
+    r_p.add_argument('--report-hostname', help='Reporter\'s hostname')
     r_p.add_argument(
         '--report-cert',
         default=None,
-        help="Certificate for client-side authentication with the destination"
-    )
+        help="Certificate for client-side authentication with the destination")
     r_p.add_argument(
         '--report-key',
         default=None,
-        help="Private key for client-side authentication with the destination"
-    )
+        help="Private key for client-side authentication with the destination")
     r_p.add_argument(
         '--report-gnupghome',
         default=".gnupg",
@@ -430,8 +422,7 @@ def add_to_parser(parser):
         "directory specified via --cfg-dir option. This option is used when "
         "reporting to Blockstream's Satellite Monitoring API only, where it "
         "determines the name of the directory (inside --cfg-dir) that holds "
-        "the key for authentication with the API"
-    )
+        "the key for authentication with the API")
     r_p.add_argument(
         '--report-passphrase',
         default=None,

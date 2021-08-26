@@ -11,22 +11,22 @@ class TestGpg(unittest.TestCase):
 
     def test_key_creation(self):
         """Test creation of GPG keys"""
-        name       = "Test"
-        email      = "test@test.com"
-        comment    = "comment"
+        name = "Test"
+        email = "test@test.com"
+        comment = "comment"
         passphrase = "test"
         gpg = Gpg(self.gpghome)
         gpg.create_keys(name, email, comment, passphrase)
-        assert(os.path.exists(self.gpghome))
+        assert (os.path.exists(self.gpghome))
 
         # Check public key
         expected_uid = name + " (" + comment + ") <" + email + ">"
-        created_uid  = gpg.get_default_public_key()['uids'][0]
+        created_uid = gpg.get_default_public_key()['uids'][0]
         self.assertEqual(created_uid, expected_uid)
 
         # Check private key
         expected_uid = name + " (" + comment + ") <" + email + ">"
-        created_uid  = gpg.get_default_priv_key()['uids'][0]
+        created_uid = gpg.get_default_priv_key()['uids'][0]
         self.assertEqual(created_uid, expected_uid)
 
         # The passphrase should be saved internally
@@ -34,15 +34,15 @@ class TestGpg(unittest.TestCase):
 
     def test_duplicate_key(self):
         """Test creation of duplicate GPG keys"""
-        name       = "Test"
-        email      = "test@test.com"
-        comment    = "comment"
+        name = "Test"
+        email = "test@test.com"
+        comment = "comment"
         passphrase = "test"
         gpg = Gpg(self.gpghome)
 
         # Create keys for the first time
         gpg.create_keys(name, email, comment, passphrase)
-        assert(os.path.exists(self.gpghome))
+        assert (os.path.exists(self.gpghome))
 
         # Try to create again
         gpg.create_keys(name, email, comment, passphrase)
@@ -50,22 +50,22 @@ class TestGpg(unittest.TestCase):
 
     def test_encrypt_decrypt(self):
         """Test encryption and decryption"""
-        name       = "Test"
-        email      = "test@test.com"
-        comment    = "comment"
+        name = "Test"
+        email = "test@test.com"
+        comment = "comment"
         passphrase = "test"
         gpg = Gpg(self.gpghome)
 
         # Create keys for the first time
         gpg.create_keys(name, email, comment, passphrase)
-        assert(os.path.exists(self.gpghome))
+        assert (os.path.exists(self.gpghome))
 
         # Original message
-        data  = bytes([0,1,2,3])
+        data = bytes([0, 1, 2, 3])
 
         # Encrypt to self
         recipient = gpg.get_default_public_key()['fingerprint']
-        enc_data  = gpg.encrypt(data, recipient).data
+        enc_data = gpg.encrypt(data, recipient).data
 
         # Decryption requires the passphrase, otherwise it throws an exception
         gpg.passphrase = None  # delete the passphrase set on key creation
@@ -78,5 +78,3 @@ class TestGpg(unittest.TestCase):
 
         # Check
         self.assertEqual(data, dec_data)
-
-

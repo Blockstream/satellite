@@ -20,7 +20,7 @@ def typed_input(msg, hint=None, in_type=int, default=None):
     while (res is None):
         try:
             if (default is not None):
-                assert(isinstance(default, in_type))
+                assert (isinstance(default, in_type))
                 input_val = input(msg + ": [{}] ".format(default)) or default
             else:
                 input_val = input(msg + ": ")
@@ -36,8 +36,8 @@ def typed_input(msg, hint=None, in_type=int, default=None):
                     print("Please enter a {}".format(type_str))
             else:
                 print(hint)
-    assert(res is not None)
-    assert(isinstance(res, in_type))
+    assert (res is not None)
+    assert (isinstance(res, in_type))
     return res
 
 
@@ -46,14 +46,14 @@ def string_input(msg, default=None):
     res = ""
     while (len(res) == 0):
         if (default is not None):
-            assert(isinstance(default, str))
+            assert (isinstance(default, str))
             res = input(msg + ": [{}] ".format(default)) or default
         else:
             res = input(msg + ": ")
     return res
 
 
-def _ask_yes_or_no(msg, default="y", help_msg = None):
+def _ask_yes_or_no(msg, default="y", help_msg=None):
     """Yes or no question
 
     Args:
@@ -91,8 +91,13 @@ def _ask_yes_or_no(msg, default="y", help_msg = None):
     return (response == "y")
 
 
-def _ask_multiple_choice(vec, msg, label, to_str, help_msg = None,
-                         none_option = False, none_str = "None of the above"):
+def _ask_multiple_choice(vec,
+                         msg,
+                         label,
+                         to_str,
+                         help_msg=None,
+                         none_option=False,
+                         none_str="None of the above"):
     """Multiple choice question
 
     Args:
@@ -109,18 +114,18 @@ def _ask_multiple_choice(vec, msg, label, to_str, help_msg = None,
 
     """
     if (none_option):
-        assert(len(vec) > 0)
+        assert (len(vec) > 0)
     else:
-        assert(len(vec) > 1)
+        assert (len(vec) > 1)
 
     print(msg)
 
     for i_elem, elem in enumerate(vec):
         elem_str = to_str(elem)
-        print("[%2u] %s" %(i_elem, elem_str))
+        print("[%2u] %s" % (i_elem, elem_str))
 
     if (none_option):
-        print("[%2u] %s" %(len(vec), none_str))
+        print("[%2u] %s" % (len(vec), none_str))
 
     if (help_msg is not None):
         print()
@@ -129,14 +134,14 @@ def _ask_multiple_choice(vec, msg, label, to_str, help_msg = None,
     resp = None
     while (not isinstance(resp, int)):
         try:
-            resp = int(input("\n%s number: " %(label)))
+            resp = int(input("\n%s number: " % (label)))
         except ValueError:
             print("Please choose a number")
             continue
 
         max_resp = len(vec) + 1 if none_option else len(vec)
         if (resp >= max_resp):
-            print("Please choose number from 0 to %u" %(max_resp - 1))
+            print("Please choose number from 0 to %u" % (max_resp - 1))
             resp = None
             continue
 
@@ -156,12 +161,12 @@ def _ask_multiple_choice(vec, msg, label, to_str, help_msg = None,
 def _print_header(header, target_len=80):
     """Print section header"""
 
-    prefix      = ""
-    suffix      = ""
-    header_len  = len(header) + 2
-    remaining   = target_len - header_len
-    prefix_len  = int(remaining / 2)
-    suffix_len  = int(remaining / 2)
+    prefix = ""
+    suffix = ""
+    header_len = len(header) + 2
+    remaining = target_len - header_len
+    prefix_len = int(remaining / 2)
+    suffix_len = int(remaining / 2)
 
     if (remaining % 1 == 1):
         prefix_len += 1
@@ -221,9 +226,17 @@ class ProcessRunner():
     def set_dry(self, dry=True):
         self.dry = dry
 
-    def run(self, cmd, cwd=None, env=None, stdout=None, stderr=None,
-            nocheck=False, root=False, nodry=False, capture_output=False):
-        assert(isinstance(cmd, list))
+    def run(self,
+            cmd,
+            cwd=None,
+            env=None,
+            stdout=None,
+            stderr=None,
+            nocheck=False,
+            root=False,
+            nodry=False,
+            capture_output=False):
+        assert (isinstance(cmd, list))
 
         # Add sudo if necessary
         if (root and not self.root and cmd[0] != "sudo"):
@@ -233,8 +246,8 @@ class ProcessRunner():
 
         # Handle capture_output for backwards compatibility with py3.6
         if (capture_output):
-            assert(stdout is None)
-            assert(stderr is None)
+            assert (stdout is None)
+            assert (stderr is None)
             stdout = subprocess.PIPE
             stderr = subprocess.PIPE
 
@@ -249,8 +262,12 @@ class ProcessRunner():
             self.logger.debug(self._get_cmd_str(cmd))
 
         try:
-            res = subprocess.run(cmd, cwd=cwd, env=env, stdout=stdout,
-                                 stderr=stderr, check=(not nocheck))
+            res = subprocess.run(cmd,
+                                 cwd=cwd,
+                                 env=env,
+                                 stdout=stdout,
+                                 stderr=stderr,
+                                 check=(not nocheck))
         except KeyboardInterrupt:
             print("Aborting")
             exit()
@@ -283,11 +300,11 @@ class Pipe():
         """Create unnamed pipe"""
         r_fd, w_fd = os.pipe()
 
-        self.r_fd  = r_fd                  # read file descriptor
-        self.r_fo  = os.fdopen(r_fd, "r")  # read file object
+        self.r_fd = r_fd  # read file descriptor
+        self.r_fo = os.fdopen(r_fd, "r")  # read file object
 
-        self.w_fd  = w_fd                  # write file descriptor
-        self.w_fo  = os.fdopen(w_fd, "w")  # write file object
+        self.w_fd = w_fd  # write file descriptor
+        self.w_fo = os.fdopen(w_fd, "w")  # write file object
 
     def __del__(self):
         """Close pipe"""

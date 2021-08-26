@@ -8,9 +8,9 @@ class TestUpdate(unittest.TestCase):
         os.remove("/tmp/.update")
 
     def test_cache_file(self):
-        test_dir     = "/tmp/"
+        test_dir = "/tmp/"
         update_cache = update.UpdateCache(test_dir)
-        datetime_s   = datetime.now()
+        datetime_s = datetime.now()
 
         # At first, there should be no ".update" file to load. Hence, the cache
         # object should not have any data.
@@ -31,6 +31,5 @@ class TestUpdate(unittest.TestCase):
 
         # The last update check date should be set
         datetime_e = datetime.now()
-        assert(update_cache2.last_check() > datetime_s)
-        assert(update_cache2.last_check() < datetime_e)
-
+        assert (update_cache2.last_check() > datetime_s)
+        assert (update_cache2.last_check() < datetime_e)

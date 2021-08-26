@@ -20,10 +20,11 @@ def _read_filter(ifname, nodry=False):
 
 
 def _write_filter(ifname, val):
-    assert(val == "1" or val == "0")
+    assert (val == "1" or val == "0")
     safe_ifname = ifname.replace(".", "/")
-    cmd = ["sysctl", "-w", "net.ipv4.conf." + safe_ifname +
-           ".rp_filter=" + val]
+    cmd = [
+        "sysctl", "-w", "net.ipv4.conf." + safe_ifname + ".rp_filter=" + val
+    ]
 
     action = "Enabling" if val == "1" else "Disabling"
     if (not runner.dry):
@@ -61,7 +62,7 @@ def _set_filters(dvb_ifs):
         dvb_ifs : List of target DVB-S2 network interfaces.
 
     """
-    assert(isinstance(dvb_ifs, list))
+    assert (isinstance(dvb_ifs, list))
 
     # If the "all" rule is already disabled, disable only the target DVB-S2
     # interface.
@@ -80,15 +81,15 @@ def _set_filters(dvb_ifs):
 
         # Enable all RP filters
         for interface in ifs:
-            if (interface == "all" or interface == "lo" or
-                interface in dvb_ifs):
+            if (interface == "all" or interface == "lo"
+                    or interface in dvb_ifs):
                 continue
 
             # Enable the RP filter if not enabled already.
             if (_read_filter(interface, nodry=True) > 0):
                 if (not runner.dry):
-                    print("RP filter is already enabled on interface %s" %(
-                        interface))
+                    print("RP filter is already enabled on interface %s" %
+                          (interface))
             else:
                 _add_filter(interface)
 
@@ -109,7 +110,7 @@ def set_filters(dvb_ifs, prompt=True, dry=False):
         dry     : Dry run mode
 
     """
-    assert(isinstance(dvb_ifs, list))
+    assert (isinstance(dvb_ifs, list))
     runner.set_dry(dry)
     util._print_header("Reverse Path Filters")
 
@@ -140,13 +141,19 @@ def set_filters(dvb_ifs, prompt=True, dry=False):
 
 def subparser(subparsers):
     """Parser for rp command"""
-    p = subparsers.add_parser('reverse-path', aliases=['rp'],
+    p = subparsers.add_parser('reverse-path',
+                              aliases=['rp'],
                               description="Set reverse path filters",
                               help='Set reverse path filters',
                               formatter_class=ArgumentDefaultsHelpFormatter)
-    p.add_argument('-i', '--interface', required=True,
+    p.add_argument('-i',
+                   '--interface',
+                   required=True,
                    help='Network interface')
-    p.add_argument('-y', '--yes', default=False, action='store_true',
+    p.add_argument('-y',
+                   '--yes',
+                   default=False,
+                   action='store_true',
                    help="Default to answering Yes to configuration prompts")
     p.add_argument("--dry-run",
                    action='store_true',
@@ -163,5 +170,3 @@ def run(args):
 
     """
     set_filters([args.interface], prompt=(not args.yes), dry=args.dry_run)
-
-

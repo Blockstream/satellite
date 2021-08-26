@@ -3,26 +3,25 @@ import logging, struct, time
 from enum import Enum
 from math import ceil
 
-
-logger             = logging.getLogger(__name__)
-HEADER_FORMAT      = '!cBHI'
+logger = logging.getLogger(__name__)
+HEADER_FORMAT = '!cBHI'
 # Header format:
 # octet 0    : Type bit on LSB, MF bit on MSB
 # octet 1    : Channel number
 # octets 2-3 : Fragment number
 # octets 4-7 : Sequence number
-HEADER_LEN         = 8
-TYPE_API_DATA      = b'\x01'
-API_TYPE_LAST_FRAG = b'\x01' # Type=1 (API), MF=0
-API_TYPE_MORE_FRAG = b'\x81' # Type=1 (API), MF=1
+HEADER_LEN = 8
+TYPE_API_DATA = b'\x01'
+API_TYPE_LAST_FRAG = b'\x01'  # Type=1 (API), MF=0
+API_TYPE_MORE_FRAG = b'\x81'  # Type=1 (API), MF=1
 # Maximum Blocksat Packet payload in bytes to avoid fragmentation at IPv4 level:
 #
 # NOTE: The maximum Blocksat Packet payload considers the space occupied by the
 # Blocksat Packet, UDP and IP headers. That is, 8 (blocksat header) + 8 (UDP
 # header) + 20 (minimum IPv4 header), which add to 36 bytes. It also considers a
 # layer-2 MTU of 1500 bytes. See the explanation on calc_ota_msg_len().
-UDP_IP_HEADER      = 20 + 8
-MAX_PAYLOAD        = 1500 - (UDP_IP_HEADER + HEADER_LEN)
+UDP_IP_HEADER = 20 + 8
+MAX_PAYLOAD = 1500 - (UDP_IP_HEADER + HEADER_LEN)
 
 
 class ApiChannel(Enum):
@@ -57,16 +56,20 @@ class BlocksatPkt:
     contents of a packet into the corresponding header and payload fields.
 
     """
-    def __init__(self, seq_num=None, frag_num=None, chan_num=None,
-                 more_frags=None, payload=None):
+    def __init__(self,
+                 seq_num=None,
+                 frag_num=None,
+                 chan_num=None,
+                 more_frags=None,
+                 payload=None):
         if (chan_num is not None):
             assert(chan_num >=0 and chan_num < 256), \
                 "Channel number must be >=0 && < 256"
-        self.seq_num    = seq_num
-        self.frag_num   = frag_num
-        self.chan_num   = chan_num
+        self.seq_num = seq_num
+        self.frag_num = frag_num
+        self.chan_num = chan_num
         self.more_frags = more_frags
-        self.payload    = payload
+        self.payload = payload
 
     def pack(self):
         """Form Blocksat Packet
@@ -87,11 +90,11 @@ class BlocksatPkt:
             Tuple with the Blocksat Packet's payload (bytes) and sequence number
 
         """
-        assert(isinstance(udp_payload, bytes))
-        assert(len(udp_payload) >= HEADER_LEN)
+        assert (isinstance(udp_payload, bytes))
+        assert (len(udp_payload) >= HEADER_LEN)
 
         # Separate header and payload
-        header       = udp_payload[:HEADER_LEN]
+        header = udp_payload[:HEADER_LEN]
         self.payload = udp_payload[HEADER_LEN:]
 
         # Parse header
@@ -99,7 +102,7 @@ class BlocksatPkt:
             HEADER_FORMAT, header)
 
         # Sanity check
-        assert(ord(octet_0) & 1), "Not an API packet"
+        assert (ord(octet_0) & 1), "Not an API packet"
 
         # Are there more fragments coming?
         self.more_frags = bool(ord(octet_0) & ord(b'\x80'))
@@ -128,7 +131,7 @@ class BlocksatPktHandler:
 
         """
         self.frag_map = {}
-        self.timeout  = timeout
+        self.timeout = timeout
 
     def _check_gaps(self, seq_num):
         """Check if there is any fragment number gap
@@ -138,16 +141,16 @@ class BlocksatPktHandler:
 
         """
         frag_idxs = sorted(self.frag_map[seq_num]['frags'].keys())
-        for i,x in enumerate(frag_idxs):
+        for i, x in enumerate(frag_idxs):
             if (i == 0 and x != 0):
                 if (x > 1):
                     logger.warning("First {:d} fragments were lost".format(x))
                 else:
                     logger.warning("First fragment was lost")
                 return False
-            elif (i > 0 and x - frag_idxs[i-1] != 1):
+            elif (i > 0 and x - frag_idxs[i - 1] != 1):
                 logger.warning("Gap between fragment {:d} and fragment "
-                               "{:d}".format(frag_idxs[i-1], x))
+                               "{:d}".format(frag_idxs[i - 1], x))
                 return False
         return True
 
@@ -174,11 +177,12 @@ class BlocksatPktHandler:
 
         # If it's an out-of-order packet, re-compute the concatenated
         # version. Otherwise, just append directly to the cache.
-        if (self.frag_map[seq_num]['high_frag'] is not None and
-            pkt.frag_num < self.frag_map[seq_num]['high_frag']):
+        if (self.frag_map[seq_num]['high_frag'] is not None
+                and pkt.frag_num < self.frag_map[seq_num]['high_frag']):
 
             concat_msg = bytearray()
-            for i_frag, frag in sorted(self.frag_map[seq_num]['frags'].items()):
+            for i_frag, frag in sorted(
+                    self.frag_map[seq_num]['frags'].items()):
                 concat_msg += frag.payload
 
             self.frag_map[seq_num]['concat'] = concat_msg
@@ -200,13 +204,13 @@ class BlocksatPktHandler:
             the corresponding collection of packets.
 
         """
-        assert(isinstance(pkt, BlocksatPkt))
+        assert (isinstance(pkt, BlocksatPkt))
 
         if (pkt.seq_num not in self.frag_map):
             self.frag_map[pkt.seq_num] = {
-                'high_frag' : None,
-                'last_frag' : None,
-                'concat'    : bytearray()
+                'high_frag': None,
+                'last_frag': None,
+                'concat': bytearray()
             }
             self.frag_map[pkt.seq_num]['frags'] = {}
 
@@ -215,14 +219,13 @@ class BlocksatPktHandler:
             logger.debug("BlocksatPktHandler: fragment {} has already "
                          "been received".format(pkt.frag_num))
             # Check if the repeated fragment actually has the same contents
-            pre_existing_pkt = self.frag_map[pkt.seq_num]['frags'][pkt.frag_num]
+            pre_existing_pkt = self.frag_map[pkt.seq_num]['frags'][
+                pkt.frag_num]
             if (pkt.payload != pre_existing_pkt.payload):
                 logger.warning(
                     "Got the same fragment twice but with different contents "
                     "(frag_num: {}, seq_num: {})".format(
-                        pkt.frag_num, pkt.seq_num
-                    )
-                )
+                        pkt.frag_num, pkt.seq_num))
             return self._check_ready(pkt.seq_num)
 
         self.frag_map[pkt.seq_num]['frags'][pkt.frag_num] = pkt
@@ -238,8 +241,8 @@ class BlocksatPktHandler:
         # Track the highest fragment number received so far. This information is
         # used to identify whether the concatenation cache needs to be
         # recomputed for out-of-order packets (see _concat_pkt()).
-        if (self.frag_map[pkt.seq_num]['high_frag'] is None or
-            pkt.frag_num > self.frag_map[pkt.seq_num]['high_frag']):
+        if (self.frag_map[pkt.seq_num]['high_frag'] is None
+                or pkt.frag_num > self.frag_map[pkt.seq_num]['high_frag']):
             self.frag_map[pkt.seq_num]['high_frag'] = pkt.frag_num
 
         # Track the last fragment of the sequence. This information is used to
@@ -271,7 +274,7 @@ class BlocksatPktHandler:
             Bytes array with the concatenated payloads
 
         """
-        assert(seq_num in self.frag_map)
+        assert (seq_num in self.frag_map)
 
         # The caller should call this function only when it's known that the
         # message can be decoded
@@ -302,9 +305,9 @@ class BlocksatPktHandler:
             chan_num : API channel number
 
         """
-        assert(isinstance(data, bytes))
+        assert (isinstance(data, bytes))
         n_frags = ceil(len(data) / MAX_PAYLOAD)
-        pkts    = list()
+        pkts = list()
 
         logger.debug("BlocksatPktHandler: Message size: {:d} bytes\t"
                      "Fragments: {:d}".format(len(data), n_frags))
@@ -314,8 +317,8 @@ class BlocksatPktHandler:
             more_frags = (i_frag + 1) < n_frags
 
             # Byte range of the data to send on this Blocksat packet
-            s_byte  = i_frag * MAX_PAYLOAD # starting byte
-            e_byte  = (i_frag + 1) * MAX_PAYLOAD # ending byte
+            s_byte = i_frag * MAX_PAYLOAD  # starting byte
+            e_byte = (i_frag + 1) * MAX_PAYLOAD  # ending byte
 
             # Packetize
             pkt = BlocksatPkt(seq_num, i_frag, chan_num, more_frags,
@@ -329,7 +332,7 @@ class BlocksatPktHandler:
         """
         # Find the timed-out messages
         timed_out = []
-        t_now     = time.time()
+        t_now = time.time()
         for seq_num in self.frag_map:
             if (t_now - self.frag_map[seq_num]['t_last'] > self.timeout):
                 timed_out.append(seq_num)
@@ -365,4 +368,3 @@ def calc_ota_msg_len(msg_len):
     total_mpe_overhead = mpe_header * n_frags
 
     return total_mpe_overhead + total_overhead + msg_len
-

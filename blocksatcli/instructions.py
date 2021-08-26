@@ -29,10 +29,8 @@ def _print_s400_instructions(info):
 
     _print("The Novra S400 can be connected as follows:")
 
-
     print(("LNB ----> S400 (RF1 Interface) -- "
            "S400 (LAN 1 Interface) ----> Host / Network\n"))
-
 
     _item("Connect the LNB directly to interface RF1 of the S400 using a "
           "coaxial cable (an RG6 cable is recommended).")
@@ -145,8 +143,8 @@ def _print_usb_rx_instructions(info):
 
     util._print_sub_header("Host Requirements")
 
-
-    print("Now, install all pre-requisites (in the virtual machine) by running:")
+    print(
+        "Now, install all pre-requisites (in the virtual machine) by running:")
 
     print("""
     blocksat-cli deps install
@@ -161,7 +159,8 @@ def _print_usb_rx_instructions(info):
 
     util._print_sub_header("Configure the Host")
 
-    _print("""Next, you need to create and configure the network interfaces that
+    _print(
+        """Next, you need to create and configure the network interfaces that
     will output the IP traffic received via the TBS5927. You can apply all
     configurations by running the following command:""")
 
@@ -179,7 +178,8 @@ def _print_usb_rx_instructions(info):
     avoid IP address conflicts, use command-line argument `--ip`.
     """)
 
-    _print("""Furthermore, note that this configuration is not persistent across
+    _print(
+        """Furthermore, note that this configuration is not persistent across
     reboots. After a reboot, you need to run `blocksat-cli usb config`
     again.""")
 
@@ -225,7 +225,9 @@ def _print_sdr_instructions(info):
     print("The SDR-based setup relies on the applications listed below:\n")
 
     _item("leandvb: a software-based DVB-S2 receiver application.")
-    _item("rtl_sdr: reads samples taken by the RTL-SDR and feeds them into leandvb.")
+    _item(
+        "rtl_sdr: reads samples taken by the RTL-SDR and feeds them into leandvb."
+    )
     _item("TSDuck: unpacks the output of leandvb and produces "
           "IP packets to be fed to Bitcoin Satellite.")
     _item("Gqrx: useful for spectrum visualization during antenna pointing.")
@@ -235,8 +237,7 @@ def _print_sdr_instructions(info):
     blocksat-cli deps install
     """)
 
-    _print(
-        """
+    _print("""
         NOTE: This command supports the two most recent Ubuntu LTS, Fedora, and
         CentOS releases. In case you are using another Linux distribution or
         version, please refer to the manual compilation and installation
@@ -247,8 +248,9 @@ def _print_sdr_instructions(info):
 
     util._print_sub_header("Configuration")
 
-    _print("Next, you can generate the configurations that are needed for gqrx "
-           "by running:")
+    _print(
+        "Next, you can generate the configurations that are needed for gqrx "
+        "by running:")
 
     print("    blocksat-cli gqrx-conf")
 
@@ -256,8 +258,9 @@ def _print_sdr_instructions(info):
 
     util._print_sub_header("Running")
 
-    _print("You should now be ready to launch the SDR receiver. You can run it "
-           "by executing:")
+    _print(
+        "You should now be ready to launch the SDR receiver. You can run it "
+        "by executing:")
 
     print("    blocksat-cli sdr\n")
     print("Or, in GUI mode:\n")
@@ -322,62 +325,71 @@ def _print_sat_ip_instructions(info):
 
 def _print_freq_info(info):
     """Print summary of frequencies of interest"""
-    sat     = info['sat']
-    setup   = info['setup']
-    lnb     = info['lnb']
+    sat = info['sat']
+    setup = info['setup']
+    lnb = info['lnb']
     lo_freq = info['freqs']['lo']
-    l_freq  = info['freqs']['l_band']
+    l_freq = info['freqs']['l_band']
 
     util._print_header("Frequencies")
 
-    print("For your information, your setup relies on the following frequencies:\n")
-    print("| Downlink %2s band frequency            | %8.2f MHz |" %(sat['band'], sat['dl_freq']))
-    print("| LNB local oscillator (LO) frequency   | %8.2f MHz |" %(lo_freq))
-    print("| Receiver L-band frequency             | %7.2f MHz  |" %(l_freq))
+    print(
+        "For your information, your setup relies on the following frequencies:\n"
+    )
+    print("| Downlink %2s band frequency            | %8.2f MHz |" %
+          (sat['band'], sat['dl_freq']))
+    print("| LNB local oscillator (LO) frequency   | %8.2f MHz |" % (lo_freq))
+    print("| Receiver L-band frequency             | %7.2f MHz  |" % (l_freq))
     print()
 
     if (lnb['universal'] and (setup['type'] == defs.sdr_setup_type)):
         if (sat['dl_freq'] > defs.ku_band_thresh):
             print("NOTE regarding Universal LNB:\n")
 
-            print(textwrap.fill(("The DL frequency of {} is in Ku high "
-                                 "band (> {:.1f} MHz). Hence, you need to use "
-                                 "the higher frequency LO ({:.1f} MHz) of your "
-                                 "Universal LNB. This requires a 22 kHz tone "
-                                 "to be sent to the LNB."
-            ).format(sat['alias'], defs.ku_band_thresh, lo_freq)))
+            print(
+                textwrap.fill(
+                    ("The DL frequency of {} is in Ku high "
+                     "band (> {:.1f} MHz). Hence, you need to use "
+                     "the higher frequency LO ({:.1f} MHz) of your "
+                     "Universal LNB. This requires a 22 kHz tone "
+                     "to be sent to the LNB.").format(sat['alias'],
+                                                      defs.ku_band_thresh,
+                                                      lo_freq)))
             print()
-            print(textwrap.fill(("With a software-defined setup, you will "
-                                 "need to place a 22 kHz tone generator "
-                                 "inline between the LNB and the power "
-                                 "inserter. Typically the tone generator "
-                                 "uses power from the power inserter while "
-                                 "delivering the tone directly to the "
-                                 "LNB.")))
+            print(
+                textwrap.fill(("With a software-defined setup, you will "
+                               "need to place a 22 kHz tone generator "
+                               "inline between the LNB and the power "
+                               "inserter. Typically the tone generator "
+                               "uses power from the power inserter while "
+                               "delivering the tone directly to the "
+                               "LNB.")))
 
     util.prompt_for_enter()
 
 
 def _print_lnb_info(info):
     """Print important waraning based on LNB choice"""
-    lnb   = info['lnb']
-    sat   = info['sat']
+    lnb = info['lnb']
+    sat = info['sat']
     setup = info['setup']
 
     if ((lnb['pol'] != "Dual") and (lnb['pol'] != sat['pol'])):
         util._print_header("LNB Information")
         lnb_pol = "Vertical" if lnb['pol'] == "V" else "Horizontal"
-        logging.warning(textwrap.fill(
-            "Your LNB has {} polarization and the signal from {} has the "
-            "opposite polarization.".format(lnb_pol, sat['name'])))
+        logging.warning(
+            textwrap.fill(
+                "Your LNB has {} polarization and the signal from {} has the "
+                "opposite polarization.".format(lnb_pol, sat['name'])))
         util.prompt_for_enter()
 
     if ((lnb['pol'] == "Dual") and (setup['type'] == defs.sdr_setup_type)):
         util._print_header("LNB Information")
-        logging.warning(textwrap.fill(
-            "Your LNB has dual polarization. Check the voltage of your power "
-            "supply in order to discover the polarization on which your LNB "
-            "will operate."))
+        logging.warning(
+            textwrap.fill(
+                "Your LNB has dual polarization. Check the voltage of your power "
+                "supply in order to discover the polarization on which your LNB "
+                "will operate."))
         util.prompt_for_enter()
 
 
@@ -388,9 +400,10 @@ def _print_next_steps():
     start receiving data on Bitcoin Satellite.
     """)
 
-    print("You can generate a bitcoin.conf configuration file for Bitcoin Satellite using:")
+    print(
+        "You can generate a bitcoin.conf configuration file for Bitcoin Satellite using:"
+    )
     print("\n    blocksat-cli btc\n")
-
 
     _print("Next, if you are running Ubuntu, Fedora, or CentOS, you can "
            "install bitcoin-satellite by running:")

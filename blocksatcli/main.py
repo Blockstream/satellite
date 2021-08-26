@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 
-
 __version__ = "0.4.0"
-
 
 import logging, os, time
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
@@ -18,10 +16,13 @@ def main():
     """
     default_cfg_dir = os.path.join(util.get_home_dir(), ".blocksat")
 
-    parser = ArgumentParser(prog="blocksat-cli",
-                            description="Blockstream Satellite Command-Line Interface",
-                            formatter_class=ArgumentDefaultsHelpFormatter)
-    parser.add_argument('-d', '--debug', action='store_true',
+    parser = ArgumentParser(
+        prog="blocksat-cli",
+        description="Blockstream Satellite Command-Line Interface",
+        formatter_class=ArgumentDefaultsHelpFormatter)
+    parser.add_argument('-d',
+                        '--debug',
+                        action='store_true',
                         help='Set debug mode')
     parser.add_argument('--cfg',
                         default="config",
@@ -32,7 +33,9 @@ def main():
     parser.add_argument('--utc',
                         action='store_true',
                         help="Print log timestamps in UTC")
-    parser.add_argument('-v', '--version', action='version',
+    parser.add_argument('-v',
+                        '--version',
+                        action='version',
                         version='%(prog)s {}'.format(__version__))
 
     subparsers = parser.add_subparsers(title='subcommands',
@@ -62,11 +65,9 @@ def main():
     # Logging
     logging_fmt = '%(asctime)s %(levelname)-8s %(name)s %(message)s' if \
                   args.debug else '%(asctime)s %(levelname)-8s %(message)s'
-    logging.basicConfig(
-        level=logging.DEBUG if args.debug else logging.INFO,
-        format=logging_fmt,
-        datefmt='%Y-%m-%d %H:%M:%S'
-    )
+    logging.basicConfig(level=logging.DEBUG if args.debug else logging.INFO,
+                        format=logging_fmt,
+                        datefmt='%Y-%m-%d %H:%M:%S')
     if (args.utc):
         logging.Formatter.converter = time.gmtime
     logging.debug('[Debug Mode]')

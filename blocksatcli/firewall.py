@@ -4,7 +4,6 @@ from argparse import ArgumentDefaultsHelpFormatter
 from shutil import which
 from . import util, defs, config
 
-
 logger = logging.getLogger(__name__)
 runner = util.ProcessRunner(logger)
 
@@ -33,7 +32,7 @@ def _get_iptables_rules(net_if):
     # Parse
     header1 = ""
     header2 = ""
-    rules   = list()
+    rules = list()
     for line in res.splitlines():
         if ("Chain INPUT" in line.decode()):
             header1 = line.decode()
@@ -43,9 +42,9 @@ def _get_iptables_rules(net_if):
 
         if (net_if in line.decode()):
             rules.append({
-                'rule' : line.decode().split(),
-                'header1' : header1,
-                'header2' : header2
+                'rule': line.decode().split(),
+                'header1': header1,
+                'header2': header2
             })
 
     return rules
@@ -62,11 +61,10 @@ def _is_iptables_igmp_rule_set(net_if, cmd):
         True if rule is already set, False otherwise.
 
     """
-    assert(cmd[0] != "sudo")
+    assert (cmd[0] != "sudo")
     for rule in _get_iptables_rules(net_if):
-        if (rule['rule'][3] == "ACCEPT" and
-            rule['rule'][6] == cmd[6] and
-            rule['rule'][4] == "igmp"):
+        if (rule['rule'][3] == "ACCEPT" and rule['rule'][6] == cmd[6]
+                and rule['rule'][4] == "igmp"):
             print("\nFirewall rule for IGMP already configured\n")
             print(rule['header1'])
             print(rule['header2'])
@@ -88,12 +86,10 @@ def _is_iptables_udp_rule_set(net_if, cmd):
         True if rule is already set, False otherwise.
 
     """
-    assert(cmd[0] != "sudo")
+    assert (cmd[0] != "sudo")
     for rule in _get_iptables_rules(net_if):
-        if (rule['rule'][3] == "ACCEPT" and
-            rule['rule'][6] == cmd[6] and
-            (rule['rule'][4] == "udp" and
-             rule['rule'][12] == cmd[10])):
+        if (rule['rule'][3] == "ACCEPT" and rule['rule'][6] == cmd[6] and
+            (rule['rule'][4] == "udp" and rule['rule'][12] == cmd[10])):
             print("\nFirewall rule already configured\n")
             print(rule['header1'])
             print(rule['header2'])
@@ -112,7 +108,7 @@ def _add_iptables_rule(net_if, cmd):
         cmd    : list with iptables command
 
     """
-    assert(cmd[0] != "sudo")
+    assert (cmd[0] != "sudo")
 
     # Set up the iptables rules
     runner.run(cmd, root=True)
@@ -120,13 +116,11 @@ def _add_iptables_rule(net_if, cmd):
     for rule in _get_iptables_rules(net_if):
         print_rule = False
 
-        if (rule['rule'][3] == "ACCEPT" and
-            rule['rule'][6] == cmd[6] and
-            rule['rule'][4] == cmd[4]):
+        if (rule['rule'][3] == "ACCEPT" and rule['rule'][6] == cmd[6]
+                and rule['rule'][4] == cmd[4]):
             if (cmd[4] == "igmp"):
                 print_rule = True
-            elif (cmd[4] == "udp" and
-                  rule['rule'][12] == cmd[10]):
+            elif (cmd[4] == "udp" and rule['rule'][12] == cmd[10]):
                 print_rule = True
 
             if (print_rule):
@@ -149,12 +143,18 @@ def _configure_iptables(net_if, ports, igmp=False, prompt=True):
 
     cmd = [
         "iptables",
-        "-I", "INPUT",
-        "-p", "udp",
-        "-i", net_if,
-        "--match", "multiport",
-        "--dports", ",".join(ports),
-        "-j", "ACCEPT",
+        "-I",
+        "INPUT",
+        "-p",
+        "udp",
+        "-i",
+        net_if,
+        "--match",
+        "multiport",
+        "--dports",
+        ",".join(ports),
+        "-j",
+        "ACCEPT",
     ]
 
     util.fill_print(
@@ -166,8 +166,7 @@ def _configure_iptables(net_if, ports, igmp=False, prompt=True):
         util.fill_print("The following command would be executed:")
 
     if (not _is_iptables_udp_rule_set(net_if, cmd)):
-        if (runner.dry or (not prompt) or
-            util._ask_yes_or_no(
+        if (runner.dry or (not prompt) or util._ask_yes_or_no(
                 "Add the corresponding ACCEPT firewall rule?")):
             _add_iptables_rule(net_if, cmd)
         else:
@@ -184,10 +183,14 @@ def _configure_iptables(net_if, ports, igmp=False, prompt=True):
     # membership timeouts are implemented by the intermediate switches.
     cmd = [
         "iptables",
-        "-I", "INPUT",
-        "-p", "igmp",
-        "-i", net_if,
-        "-j", "ACCEPT",
+        "-I",
+        "INPUT",
+        "-p",
+        "igmp",
+        "-i",
+        net_if,
+        "-j",
+        "ACCEPT",
     ]
 
     print()
@@ -199,8 +202,7 @@ def _configure_iptables(net_if, ports, igmp=False, prompt=True):
         util.fill_print("The following command would be executed:")
 
     if (not _is_iptables_igmp_rule_set(net_if, cmd)):
-        if (runner.dry or (not prompt) or
-            util._ask_yes_or_no(
+        if (runner.dry or (not prompt) or util._ask_yes_or_no(
                 "Add the corresponding ACCEPT firewall rule?")):
             _add_iptables_rule(net_if, cmd)
         else:
@@ -218,15 +220,16 @@ def is_firewalld():
 
     # Run the following commands even in dry-run mode
     res1 = runner.run(['systemctl', 'is-active', '--quiet', 'firewalld'],
-                      nodry=True, nocheck=True)
+                      nodry=True,
+                      nocheck=True)
     res2 = runner.run(['systemctl', 'is-active', '--quiet', 'iptables'],
-                      nodry=True, nocheck=True)
+                      nodry=True,
+                      nocheck=True)
 
     # If running (active), 'is-active' returns 0
     if (res1.returncode == 0 and res2.returncode == 0):
         raise ValueError(
-            "Failed to detect firewall system (firewalld or iptables)"
-        )
+            "Failed to detect firewall system (firewalld or iptables)")
 
     return (res1.returncode == 0)
 
@@ -257,23 +260,19 @@ def _configure_firewalld(net_if, ports, src_ip, igmp, prompt):
     util.fill_print(
         "- Configure the firewall to accept Blocksat traffic arriving " +
         "from {} towards address {} on UDP ports {}:\n".format(
-            src_ip, defs.mcast_ip, portrange)
-    )
+            src_ip, defs.mcast_ip, portrange))
 
     if (not runner.dry and prompt):
         if (not util._ask_yes_or_no("Add firewalld rule?")):
             print("\nFirewall configuration cancelled")
             return
 
-    rich_rule = (
-        "rule "
-        "family=ipv4 "
-        "source address={} "
-        "destination address={}/32 "
-        "port port={} protocol=udp accept".format(
-            src_ip, defs.mcast_ip, portrange
-        )
-    )
+    rich_rule = ("rule "
+                 "family=ipv4 "
+                 "source address={} "
+                 "destination address={}/32 "
+                 "port port={} protocol=udp accept".format(
+                     src_ip, defs.mcast_ip, portrange))
     runner.run(['firewall-cmd', '--add-rich-rule', "{}".format(rich_rule)],
                root=True)
 
@@ -281,8 +280,7 @@ def _configure_firewalld(net_if, ports, src_ip, igmp, prompt):
         print()
         util.fill_print(
             "NOTE: Add \"--permanent\" to make it persistent. In this case, "
-            "remember to reload firewalld afterwards."
-        )
+            "remember to reload firewalld afterwards.")
 
     # We're done, unless we also need to configure an IGMP rule
     if (not igmp):
@@ -290,8 +288,7 @@ def _configure_firewalld(net_if, ports, src_ip, igmp, prompt):
 
     util.fill_print(
         "- Allow IGMP packets. This is necessary when using a standalone "
-        "DVB-S2 receiver connected through a switch:\n"
-    )
+        "DVB-S2 receiver connected through a switch:\n")
 
     if (not runner.dry and prompt):
         if (not util._ask_yes_or_no("Enable IGMP on the firewall?")):
@@ -314,7 +311,7 @@ def configure(net_ifs, ports, src_ip, igmp=False, prompt=True, dry=False):
         dry     : Dry run mode
 
     """
-    assert(isinstance(net_ifs, list))
+    assert (isinstance(net_ifs, list))
     runner.set_dry(dry)
     util._print_header("Firewall Rules")
 
@@ -334,12 +331,19 @@ def subparser(subparsers):
                               description="Set firewall rules",
                               help='Set firewall rules',
                               formatter_class=ArgumentDefaultsHelpFormatter)
-    p.add_argument('-i', '--interface', required=True,
+    p.add_argument('-i',
+                   '--interface',
+                   required=True,
                    help='Network interface')
-    p.add_argument('--standalone', default=False,
+    p.add_argument(
+        '--standalone',
+        default=False,
+        action='store_true',
+        help='Apply configurations for a standalone DVB-S2 receiver')
+    p.add_argument('-y',
+                   '--yes',
+                   default=False,
                    action='store_true',
-                   help='Apply configurations for a standalone DVB-S2 receiver')
-    p.add_argument('-y', '--yes', default=False, action='store_true',
                    help="Default to answering Yes to configuration prompts")
     p.add_argument("--dry-run",
                    action='store_true',
@@ -360,7 +364,9 @@ def firewall_subcommand(args):
     if (user_info is None):
         return
 
-    configure([args.interface], defs.src_ports, user_info['sat']['ip'],
-              igmp=args.standalone, prompt=(not args.yes), dry=args.dry_run)
-
-
+    configure([args.interface],
+              defs.src_ports,
+              user_info['sat']['ip'],
+              igmp=args.standalone,
+              prompt=(not args.yes),
+              dry=args.dry_run)
