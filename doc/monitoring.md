@@ -4,36 +4,45 @@ nav_order: 11
 
 # Monitoring Server
 
-As of version 0.3.2 of the Blocksat CLI, it is now possible to report receiver
-performance metrics back to a Blockstream-hosted server, referred to as the
-*satellite monitoring server*. To do so, you must explicitly enable the
-reporting functionality, which activates periodic reports sent automatically by
-the CLI over the internet to the monitoring server. Ultimately, the reported
-data is used to better plan and improve the worldwide satellite communications
-service and coverage.
+While running your receiver, you can opt in to report your receiver performance
+metrics to a Blockstream-hosted server, referred to as the *satellite
+monitoring server*. To do so, you must explicitly enable the reporting
+functionality by appending option `--report` when launching the receiver. With
+this option, the CLI will periodically send reports over the internet. And by
+doing so, you will be helping us better plan and improve the satellite
+communications service and worldwide coverage.
 
-If you would like to help us improve the service by reporting your receiver
-performance, you can do so by appending the command-line option `--report` when
-launching the receiver, as follows:
+The `--report` option can be appended to all supported receiver types, as
+follows:
 
 TBS 5927 USB receiver:
+
 ```
 blocksat-cli usb launch --report
 ```
 
-Novra S400 standalone receiver (see the [S400 monitoring instructions](s400.md#monitoring)):
+Novra S400 standalone receiver:
+
 ```
 blocksat-cli standalone monitor --report
 ```
 
 SDR receiver:
+
 ```
 blocksat-cli sdr --report
 ```
 
-> Note option `--report` was added in blocksat-cli version v0.3.1. Refer to the
-> [upgrade instructions](quick-reference.md#cli-installation-and-upgrade) if
-> necessary.
+Sat-IP receiver:
+
+```
+blocksat-cli sat-ip
+```
+
+> NOTE: This feature was introduced in blocksat-cli version v0.4.0. Please,
+> refer to the [upgrade
+> instructions](quick-reference.md#cli-installation-and-upgrade) if you are
+> running an older version.
 
 When using this option for the first time, the CLI explains the reporting
 process and runs an initial registration procedure to confirm you are running a
@@ -68,14 +77,14 @@ exclusively over the satellite network.
 After the initial registration, the CLI enables periodic reporting of the
 receiver status. While doing so, it automatically appends a [detached GPG
 signature](https://www.gnupg.org/gph/en/manual/x135.html) to every set of
-metrics to be reported. With that, the monitoring server validates the
-authenticity of each report.
+reported metrics. With that, the monitoring server validates the authenticity
+of each report.
 
 Note that because reports are GPG-signed, every time you launch the receiver
-with option `--report`, the CLI will ask for the passphrase to the private GPG
-key required for signing. You can observe the underlying process in action by
-running the CLI in debug mode. For example, with the USB receiver, you can
-execute the following command:
+with option `--report`, the CLI will ask for the passphrase to your local
+private GPG key used for signing. You can observe the underlying process in
+action by running the CLI in debug mode. For example, with the USB receiver,
+you can execute the following command:
 
 ```
 blocksat-cli --debug usb launch --report --log-scrolling
