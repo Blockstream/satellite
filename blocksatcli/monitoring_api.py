@@ -69,8 +69,7 @@ def _register_explainer():
     registration procedure and, subsequently, to authenticate your receiver \
     status reports. Refer to further information at:")
 
-    print("https://github.com/Blockstream/satellite/blob/master/doc/"
-          "monitoring.md\n")
+    print(defs.user_guide_url + "doc/monitoring.html\n")
 
     util.fill_print("Note that any identification information held by the \
     public key will be included in the data sent to Blockstream. For \
