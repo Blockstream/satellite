@@ -2,7 +2,7 @@
 
 ## [0.4.0]
 
-Release Date: TBD
+Release Date: 2021-09-10
 
 ### Added
 - Support for the new Satellite Monitoring API, through which users can opt-in
