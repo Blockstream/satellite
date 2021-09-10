@@ -36,7 +36,7 @@ blocksat-cli sdr --report
 Sat-IP receiver:
 
 ```
-blocksat-cli sat-ip
+blocksat-cli sat-ip --report
 ```
 
 > NOTE: This feature was introduced in blocksat-cli version v0.4.0. Please,
