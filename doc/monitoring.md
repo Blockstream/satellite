@@ -40,9 +40,9 @@ blocksat-cli sat-ip --report
 ```
 
 > NOTE: This feature was introduced in blocksat-cli version v0.4.0. Please,
-> refer to the [upgrade
-> instructions](quick-reference.md#cli-installation-and-upgrade) if you are
-> running an older version.
+> refer to the
+> [upgrade instructions](quick-reference.md#cli-installation-and-upgrade)
+> if you are running an older version.
 
 When using this option for the first time, the CLI explains the reporting
 process and runs an initial registration procedure to confirm you are running a
