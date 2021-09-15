@@ -36,7 +36,8 @@ install: $(SDIST)
 docker: $(SDIST)
 	docker build --build-arg distro=$(DISTRO) \
 	-t $(DOCKERHUB_REPO)/blocksat-host \
-	-t $(DOCKERHUB_REPO)/blocksat-host-$(DISTRO_ALT) \
+	-t $(DOCKERHUB_REPO)/blocksat-host:$(DISTRO_ALT) \
+	-t $(DOCKERHUB_REPO)/blocksat-host:$(VERSION) \
 	-f docker/blocksat-host.docker .
 
 pypi: clean sdist wheel
@@ -52,5 +53,5 @@ buildx-push: $(SDIST)
 	docker buildx build --platform $(PLATFORM) --push \
 	--build-arg distro=$(DISTRO) \
 	-t $(DOCKERHUB_REPO)/blocksat-host \
-	-t $(DOCKERHUB_REPO)/blocksat-host-$(DISTRO_ALT) \
+	-t $(DOCKERHUB_REPO)/blocksat-host:$(VERSION) \
 	-f docker/blocksat-host.docker .
