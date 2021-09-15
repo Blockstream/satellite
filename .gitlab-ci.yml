@@ -96,7 +96,7 @@ pypi-upload:
     - make pypi
 
 docker-upload:
-  image: docker
+  image: maniator/dind-buildx
   stage: deploy
   tags:
     - k8s-docker
@@ -111,9 +111,11 @@ docker-upload:
     - if: $DOCKER_UPLOAD
   before_script:
     - apk add make python3 py3-setuptools py3-pip
+    - docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+    - docker buildx create --use
   script:
     - echo $DOCKERHUB_PW | docker login -u $DOCKERHUB_USER --password-stdin
-    - make docker-push
+    - make buildx-push
 
 pandoc:
   image:

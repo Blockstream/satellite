@@ -4,6 +4,7 @@ SDIST      = dist/blocksat-cli-$(VERSION).tar.gz
 WHEEL      = dist/blocksat-cli-$(VERSION)-py3-none-any.whl
 DISTRO     = ubuntu:focal
 DISTRO_ALT = $(subst :,-,$(DISTRO))
+PLATFORM   = linux/amd64,linux/arm64
 DOCKERHUB_REPO = blockstream
 
 .PHONY: all clean clean-py sdist wheel install docker pypi testpypi
@@ -46,3 +47,10 @@ testpypi: clean sdist wheel
 
 docker-push: docker
 	docker push $(DOCKERHUB_REPO)/blocksat-host
+
+buildx-push: $(SDIST)
+	docker buildx build --platform $(PLATFORM) --push \
+	--build-arg distro=$(DISTRO) \
+	-t $(DOCKERHUB_REPO)/blocksat-host \
+	-t $(DOCKERHUB_REPO)/blocksat-host-$(DISTRO_ALT) \
+	-f docker/blocksat-host.docker .
