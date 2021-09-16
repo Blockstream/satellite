@@ -8,7 +8,7 @@ command-line interface
 ([blocksat-cli](https://blockstream.github.io/satellite/doc/software.html)) and
 the
 [Bitcoin Satellite](https://blockstream.github.io/satellite/doc/bitcoin.html)
-application. All you need to do is launch the `blockstream/blocksat-host`
+application. All you need to do is launch the `blockstream/satellite`
 container while providing the appropriate resources to it.
 
 For example, to interface with a Sat-IP receiver, run the container as follows:
@@ -17,7 +17,7 @@ For example, to interface with a Sat-IP receiver, run the container as follows:
 docker run --rm -it \
     --network=host \
     -v blocksat-cfg:/root/.blocksat/ \
-    blockstream/blocksat-host
+    blockstream/satellite
 ```
 
 Please refer to the [user
@@ -26,9 +26,9 @@ information, including the commands for other supported receiver types.
 
 ## Versions and Updates
 
-The `blocksat-host` image receives automatic updates whenever a new version of
+The `satellite` image receives automatic updates whenever a new version of
 the Blocksat CLI becomes available. Each version is tagged as
-`blocksat-host:x.y.z`, where `x.y.z` indicates the Blocksat CLI version
+`satellite:x.y.z`, where `x.y.z` indicates the Blocksat CLI version
 installed on the image.
 
 Furthermore, the image is also updated when a new version of the Bitcoin

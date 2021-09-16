@@ -35,9 +35,9 @@ install: $(SDIST)
 
 docker: $(SDIST)
 	docker build --build-arg distro=$(DISTRO) \
-	-t $(DOCKERHUB_REPO)/blocksat-host \
-	-t $(DOCKERHUB_REPO)/blocksat-host:$(DISTRO_ALT) \
-	-t $(DOCKERHUB_REPO)/blocksat-host:$(VERSION) \
+	-t $(DOCKERHUB_REPO)/satellite \
+	-t $(DOCKERHUB_REPO)/satellite:$(DISTRO_ALT) \
+	-t $(DOCKERHUB_REPO)/satellite:$(VERSION) \
 	-f docker/blocksat-host.docker .
 
 pypi: clean sdist wheel
@@ -47,11 +47,11 @@ testpypi: clean sdist wheel
 	python3 -m twine upload --repository testpypi dist/*
 
 docker-push: docker
-	docker push $(DOCKERHUB_REPO)/blocksat-host
+	docker push $(DOCKERHUB_REPO)/satellite
 
 buildx-push: $(SDIST)
 	docker buildx build --platform $(PLATFORM) --push \
 	--build-arg distro=$(DISTRO) \
-	-t $(DOCKERHUB_REPO)/blocksat-host \
-	-t $(DOCKERHUB_REPO)/blocksat-host:$(VERSION) \
+	-t $(DOCKERHUB_REPO)/satellite \
+	-t $(DOCKERHUB_REPO)/satellite:$(VERSION) \
 	-f docker/blocksat-host.docker .

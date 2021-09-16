@@ -20,19 +20,19 @@ nav_order: 9
 
 A Docker image is available to be used as the *Blockstream Satellite host*, that
 is, the system with everything you need to interface with the supported
-satellite receivers. All you need to do is run the `blockstream/blocksat-host`
+satellite receivers. All you need to do is run the `blockstream/satellite`
 Docker image while providing the appropriate resources to the container. This
 process is explained next.
 
 ## Standalone Receiver
 
 There are no special requirements to communicate with the standalone receiver
-from a container. You can launch the `blocksat-host` image as follows:
+from a container. You can launch the `satellite` image as follows:
 
 ```
 docker run --rm -it \
     -v blocksat-cfg:/root/.blocksat/ \
-    blockstream/blocksat-host
+    blockstream/satellite
 ```
 
 Note the `blocksat-cfg` named volume is meant to provide persistent storage for
@@ -43,7 +43,7 @@ the configurations created by `blocksat-cli`.
 First of all, there is an important limitation to running the
 [Linux USB receiver](tbs.md) inside a container. The USB receiver's drivers must
 be installed on the Docker host, not on the Docker container. This means that
-the referred `blockstream/blocksat-host` image does not contain the
+the referred `blockstream/satellite` image does not contain the
 drivers. Instead, you will need to install the drivers on your Docker
 host. Please refer to the driver installation instructions on the
 [USB receiver guide](tbs.md#tbs-5927-drivers).
@@ -62,7 +62,7 @@ docker run --rm -it \
     --cap-add=NET_ADMIN \
     --cap-add=SYS_ADMIN \
     -v blocksat-cfg:/root/.blocksat/ \
-    blockstream/blocksat-host
+    blockstream/satellite
 ```
 
 After running, configure the reverse path filters by running the following on
@@ -84,7 +84,7 @@ docker run --rm -it \
     --privileged \
     -v /dev/bus/usb:/dev/bus/usb \
     -v blocksat-cfg:/root/.blocksat/ \
-    blockstream/blocksat-host
+    blockstream/satellite
 ```
 
 Note **privileged mode** is used to grant access to the RTL-SDR USB
@@ -111,7 +111,7 @@ launch the container using option `--network=host`, as follows:
 docker run --rm -it \
     --network=host \
     -v blocksat-cfg:/root/.blocksat/ \
-    blockstream/blocksat-host
+    blockstream/satellite
 ```
 
 Alternatively, if you know the IP address of the Sat-IP receiver, you can
@@ -122,14 +122,14 @@ container.
 ## Bitcoin Satellite
 
 In addition to controlling or running the satellite receivers, you can also run
-[Bitcoin Satellite](bitcoin.md) using the `blocksat-host` container image. For
+[Bitcoin Satellite](bitcoin.md) using the `satellite` container image. For
 example, you can run the following:
 
 ```
 docker run --rm -it \
     -v ~/.bitcoin/:/root/.bitcoin/ \
     -v blocksat-cfg:/root/.blocksat/ \
-    blockstream/blocksat-host
+    blockstream/satellite
 ```
 
 > NOTE: with option `-v ~/.bitcoin/:/root/.bitcoin/`, the `bitcoind` application
