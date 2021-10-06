@@ -24,6 +24,7 @@ to receive the Blockstream Satellite traffic.
     - [Next Steps](#next-steps)
     - [Further Information](#further-information)
         - [Software Updates](#software-updates)
+        - [Troubleshooting the Server Discovery](#troubleshooting-the-server-discovery)
         - [Docker](#docker)
         - [Compilation from Source](#compilation-from-source)
 
@@ -71,9 +72,11 @@ blocksat-cli sat-ip
 ```
 
 > Note: the Sat-IP client discovers the server via
-> [UPnP](https://en.wikipedia.org/wiki/Universal_Plug_and_Play). If your network
-> blocks this traffic type, you can specify the Sat-IP server's IP address
-> (i.e., the Satellite Base Station address) directly using option `-a/--addr`.
+> [UPnP](https://en.wikipedia.org/wiki/Universal_Plug_and_Play). If your
+> network blocks this traffic type, you can specify the Sat-IP server's IP
+> address (i.e., the Satellite Base Station address) directly using option
+> `-a/--addr`. Alternatively, see the [troubleshooting
+> section](#troubleshooting-the-server-discovery).
 
 ## Next Steps
 
@@ -92,6 +95,53 @@ for updates and install them when available:
 ```
 blocksat-cli deps update
 ```
+### Troubleshooting the Server Discovery
+
+When the Sat-IP client returns the error "Could not find a Sat-IP receiver," it
+is possible that either the network or your host is blocking the
+[UPnP](https://en.wikipedia.org/wiki/Universal_Plug_and_Play) traffic used to
+auto-discover the base station receiver.
+
+To troubleshoot the problem, you can start by inspecting whether the devices in
+the network are replying to the
+[SSDP](https://en.wikipedia.org/wiki/Simple_Service_Discovery_Protocol) packets
+sent by your host. To do so, run `tcpdump` as follows:
+
+```
+sudo tcpdump -i any port 1900
+```
+
+Typically, a reply will come from your local router, but we also need the
+response from the Sat-IP server (the base station device). If the base station
+is not replying, you can try changing the SSDP source port to 1900 and recheck
+the results on tcpdump:
+
+```
+blocksat-cli sat-ip --ssdp-src-port 1900
+```
+
+If you see the response coming from the base station now, but the Sat-IP client
+still does not connect to it, your host's firewall might be blocking the
+response. If you are on Ubuntu (using `ufw`), you can allow SSDP responses by
+running `sudo ufw allow 1900`. More specifically, it is generally preferable to
+configure the firewall rule with a reduced scope. For instance, you can enable
+only the SSDP packets coming specifically from the base station device. If you
+know the base station's IP address, you can do so by running:
+
+```
+sudo ufw allow from [base-station-address] to any port 1900
+```
+
+If you don't know the base station's IP address at this point, you can allow
+SSDP packets coming from any address in the local subnet. For instance, for a
+192.168.1.1/24 subnet, run:
+
+```
+sudo ufw allow from 192.168.1.1/24 to any port 1900
+```
+
+More generally, if you are running another Linux distribution or firewall
+manager, make sure to allow UDP packets sent to port 1900.
 
 ### Docker
 
