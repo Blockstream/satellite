@@ -94,9 +94,8 @@ SDR application uses for changing option `fs.pipe-max-size`.
 > On a Mac OSX host, you will need to set up a
 > [docker-machine](https://docs.docker.com/machine/) to share the SDR USB
 > device. Once the docker-machine is active, you can share the USB device
-> through the [machine driver's
-> settings](https://docs.docker.com/machine/drivers/). Then, run the above
-> `docker run` command normally.
+> through the [machine driver's settings](https://github.com/machine-drivers).
+> Then, run the above `docker run` command normally.
 
 ## Sat-IP Receiver
 
