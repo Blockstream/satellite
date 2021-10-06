@@ -1,5 +1,4 @@
 import glob
-import json
 import logging
 import os
 import requests
@@ -510,7 +509,7 @@ class SatIp():
 
         try:
             info = rv.json()
-        except json.decoder.JSONDecodeError:
+        except ValueError:
             if ("/cgi-bin/login.cgi" in rv.text and rv.status_code == 200):
                 logger.warning("Sat-IP server has closed the session. "
                                "Reconnecting.")
