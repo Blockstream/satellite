@@ -130,7 +130,7 @@ def configure(args):
         home = os.path.expanduser("~")
         path = os.path.join(home, ".bitcoin")
     else:
-        path = args.datadir
+        path = os.path.abspath(args.datadir)
 
     conf_file = "bitcoin.conf"
     abs_path = os.path.join(path, conf_file)
@@ -156,7 +156,7 @@ def configure(args):
         return
 
     # Proceed to saving configurations
-    print("Save {} at {}/".format(conf_file, path))
+    print("Save {} at {}".format(conf_file, path))
 
     if (not util.ask_yes_or_no("Proceed?")):
         print("Aborted")
