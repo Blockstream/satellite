@@ -13,6 +13,49 @@ from . import rp, firewall, defs, config, dependencies, util, monitoring
 logger = logging.getLogger(__name__)
 runner = util.ProcessRunner(logger)
 
+standard_snmp_table = {'both': 0, 'dvbs': 1, 'dvbs2': 2}
+modcod_snmp_table = {
+    'auto': 0,
+    'oneQuarterQPSK': 1,
+    'oneThirdQPSK': 2,
+    'twoFifthsQPSK': 3,
+    'oneHalfQPSK': 4,
+    'threeFifthsQPSK': 5,
+    'twoThirdsQPSK': 6,
+    'threeQuartersQPSK': 7,
+    'fourFifthsQPSK': 8,
+    'fiveSixthsQPSK': 9,
+    'eightNinthsQPSK': 10,
+    'nineTenthsQPSK': 11,
+    'threeFifths8PSK': 12,
+    'twoThirds8PSK': 13,
+    'threeQuarters8PSK': 14,
+    'fiveSixths8PSK': 15,
+    'eightNinths8PSK': 16,
+    'nineTenths8PSK': 17,
+    'twoThirds16APSK': 18,
+    'threeQuarters16APSK': 19,
+    'fourFifths16APSK': 20,
+    'fiveSixths16APSK': 21,
+    'eightNinths16APSK': 22,
+    'nineTenths16APSK': 23,
+    'threeQuarters32APSK': 24,
+    'fourFifths32APSK': 25,
+    'fiveSixths32APSK': 26,
+    'eightNinths32APSK': 27,
+    'nineTenths32APSK': 28,
+    'oneThirdBPSK': 29,
+    'oneQuarterBPSK': 30,
+}
+snmp_row_status_table = {
+    'active': 1,
+    'notInService': 2,
+    'notReady': 3,
+    'createAndGo': 4,
+    'createAndWait': 5,
+    'destroy': 6
+}
+
 
 class SnmpClient():
     """SNMP Client"""
@@ -99,12 +142,40 @@ class SnmpClient():
         """
         if (self.dry):
             # Convert to the corresponding net-snmp command
-            # TODO: convert the string values that actually represent integers.
             for key, val in key_vals:
+                # SNMP OID
                 if (isinstance(key, tuple)):
                     key = ".".join([str(x) for x in key])
-                val_type = "s" if isinstance(val, str) else "i"
-                print("> snmpset -v 2c -c public {}:{} {}::{} {} {}".format(
+                else:
+                    key += ".0"  # scalar values must have a .0 suffix
+                # Translate values
+                # TODO: Fix s400LOFrequency.0, which is not writable due to
+                # being a Counter64 object.
+                if ("s400ModulationStandard" in key):
+                    if (val in standard_snmp_table):
+                        val = standard_snmp_table[val]
+                if ("s400Modcod" in key):
+                    if (val in modcod_snmp_table):
+                        val = modcod_snmp_table[val]
+                if ("RowStatus" in key):
+                    if (val in snmp_row_status_table):
+                        val = snmp_row_status_table[val]
+                if (val in ["disable", "enable"]):
+                    val = int(val == "enable")
+                if (val in ["disabled", "enabled"]):
+                    val = int(val == "enabled")
+                if (val in ["vertical", "horizontal"]):
+                    val = int(val == "horizontal")
+                # Value type
+                if isinstance(val, str):
+                    val_type = "s"
+                elif (("LBandFrequency" in key)
+                      or ("SymbolRate" in key and "SymbolRateAuto" not in key)
+                      or ("s400MpePid1Pid" in key)):
+                    val_type = "u"
+                else:
+                    val_type = "i"
+                print("> snmpset -v 2c -c private {}:{} {}::{} {} {}".format(
                     self.address, self.port, self.mib, key, val_type, val))
             return
 
@@ -315,12 +386,12 @@ class S400Client(SnmpClient):
             tone = 'disable'
 
         # Fetch and delete the current MPE PIDs
-        if (not self.dry):
-            logger.info("Resetting MPE PIDs")
-            current_cfg = self._walk()
-        else:
-            current_cfg = {}
+        current_cfg = self._walk()
         mpe_prefix = 's400MpePid' + self.demod
+        has_mpe_table = any(
+            [mpe_prefix + "RowStatus" in key for key in current_cfg])
+        if (has_mpe_table):
+            logger.info("Resetting MPE PIDs")
         for key in current_cfg:
             mpe_row_status = mpe_prefix + "RowStatus"
             if mpe_row_status in key:
