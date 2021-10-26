@@ -6,6 +6,7 @@ import sys
 import textwrap
 from argparse import ArgumentDefaultsHelpFormatter, Namespace
 from decimal import Decimal, getcontext
+from ipaddress import IPv4Address
 from pprint import pprint, pformat
 
 from . import util, defs
@@ -102,6 +103,16 @@ def _cfg_rx_setup():
             netdev = input(question + " ")
 
         setup['netdev'] = netdev.strip()
+
+        custom_ip = util.ask_yes_or_no(
+            "Have you manually assigned a custom IP address to the receiver?",
+            default="n")
+        if (custom_ip):
+            ipv4_addr = util.typed_input("Which IPv4 address?",
+                                         in_type=IPv4Address)
+            setup["rx_ip"] = str(ipv4_addr)
+        else:
+            setup["rx_ip"] = defs.default_standalone_ip_addr
 
     # Define the Sat-IP antenna directly without asking the user
     if (setup['type'] == defs.sat_ip_setup_type):

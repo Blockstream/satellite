@@ -19,6 +19,7 @@ sym_rate = {
     'T18V C': 1000000,
     'T18V Ku': 1000000
 }
+default_standalone_ip_addr = "192.168.1.2"
 
 satellites = [{
     'name': "Galaxy 18",

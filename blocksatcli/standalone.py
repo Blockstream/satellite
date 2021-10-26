@@ -1,9 +1,9 @@
 """Standalone Receiver"""
-import ipaddress
 import logging
 import os
 import time
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
+from ipaddress import ip_address
 
 from pysnmp.hlapi import SnmpEngine, ObjectType, ObjectIdentity, \
      getCmd, setCmd, nextCmd, CommunityData, ContextData, UdpTransportTarget
@@ -69,7 +69,7 @@ class SnmpClient():
             dry     : Dry run mode
 
         """
-        assert (ipaddress.ip_address(address))  # parse address
+        assert (ip_address(address))  # parse address
         self.address = address
         self.port = port
         self.mib = mib
@@ -432,20 +432,36 @@ class S400Client(SnmpClient):
             logger.info("Receiver configured successfully")
 
 
+def _parse_address(user_info, arg_addr):
+    """Parse the receiver's IP address"""
+    # If the command-line address argument is defined, prioritize it over the
+    # address configured on the JSON config file
+    if (arg_addr is not None):
+        raw_addr = arg_addr
+    elif "rx_ip" in user_info["setup"]:
+        raw_addr = user_info["setup"]["rx_ip"]
+    else:
+        raw_addr = defs.default_standalone_ip_addr
+
+    try:
+        validated_addr = ip_address(raw_addr)
+    except ValueError:
+        logger.error("{} is not a valid IPv4 address".format(raw_addr))
+        return
+    return str(validated_addr)
+
+
 def subparser(subparsers):
     p = subparsers.add_parser('standalone',
                               description="Standalone DVB-S2 receiver manager",
                               help='Manage the standalone DVB-S2 receiver',
                               formatter_class=ArgumentDefaultsHelpFormatter)
-    p.add_argument('-a',
-                   '--address',
-                   default="192.168.1.2",
-                   help="Address of the receiver's SNMP agent")
+    p.add_argument('-a', '--address', help="Standalone receiver\'s IP address")
     p.add_argument('-p',
                    '--port',
                    default=161,
                    type=int,
-                   help="Port of the receiver's SNMP agent")
+                   help="Port of the receiver\'s SNMP agent")
     p.add_argument('-d',
                    '--demod',
                    default="1",
@@ -511,12 +527,14 @@ def cfg_standalone(args):
 
     """
     user_info = config.read_cfg_file(args.cfg, args.cfg_dir)
-
     if (user_info is None):
         return
 
     # Configure the subprocess runner
     runner.set_dry(args.dry_run)
+
+    # IP Address
+    rx_ip_addr = _parse_address(user_info, args.address)
 
     if (not args.rx_only):
         if 'netdev' not in user_info['setup']:
@@ -541,10 +559,7 @@ def cfg_standalone(args):
 
     if (not args.host_only):
         util.print_header("Receiver Configuration")
-        s400 = S400Client(args.demod,
-                          args.address,
-                          args.port,
-                          dry=args.dry_run)
+        s400 = S400Client(args.demod, rx_ip_addr, args.port, dry=args.dry_run)
         s400.configure(user_info)
 
 
@@ -552,16 +567,20 @@ def monitor(args):
     """Monitor the standalone DVB-S2 receiver"""
 
     # User info
-    config.read_cfg_file(args.cfg, args.cfg_dir)
+    user_info = config.read_cfg_file(args.cfg, args.cfg_dir)
+    if (user_info is None):
+        return
+
+    # IP Address
+    rx_ip_addr = _parse_address(user_info, args.address)
 
     # Client to the S400's SNMP agent
-    s400 = S400Client(args.demod, args.address, args.port)
+    s400 = S400Client(args.demod, rx_ip_addr, args.port)
 
     util.print_header("Novra S400 Receiver")
 
     if (not s400.print_demod_config()):
-        logger.error("s400 receiver at {}:{} is unreachable".format(
-            s400.address, s400.port))
+        logger.error("s400 receiver at {} is unreachable".format(s400.address))
         return
 
     # Log Monitoring

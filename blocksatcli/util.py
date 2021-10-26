@@ -4,6 +4,7 @@ import os
 import subprocess
 import textwrap
 import tempfile
+from ipaddress import IPv4Address
 from urllib.request import urlretrieve
 from urllib.error import HTTPError
 
@@ -31,6 +32,8 @@ def typed_input(msg, hint=None, in_type=int, default=None):
                     print("Please enter an integer number")
                 elif (in_type == float):
                     print("Please enter a number")
+                elif (in_type == IPv4Address):
+                    print("Please enter a valid IPv4 address")
                 else:
                     type_str = in_type.__name__
                     print("Please enter a {}".format(type_str))
