@@ -16,13 +16,13 @@ logger = logging.getLogger(__name__)
 def _cfg_satellite():
     """Configure satellite covering the user"""
     os.system('clear')
-    util._print_header("Satellite")
+    util.print_header("Satellite")
 
     help_msg = "Not sure? Check the coverage map at:\n" \
                "https://blockstream.com/satellite/#satellite_network-coverage"
 
     question = "Which satellite below covers your location?"
-    sat = util._ask_multiple_choice(
+    sat = util.ask_multiple_choice(
         defs.satellites, question, "Satellite",
         lambda sat: '{} ({})'.format(sat['name'], sat['alias']), help_msg)
     return sat
@@ -56,15 +56,15 @@ def _get_antenna_name(x):
 def _ask_antenna():
     """Configure antenna"""
     os.system('clear')
-    util._print_header("Antenna")
+    util.print_header("Antenna")
 
     question = "What kind of antenna are you using?"
-    antenna = util._ask_multiple_choice(defs.antennas,
-                                        question,
-                                        "Antenna",
-                                        _get_antenna_name,
-                                        none_option=True,
-                                        none_str="Other")
+    antenna = util.ask_multiple_choice(defs.antennas,
+                                       question,
+                                       "Antenna",
+                                       _get_antenna_name,
+                                       none_option=True,
+                                       none_str="Other")
 
     if (antenna is None):
         size = util.typed_input("Enter size in cm",
@@ -78,11 +78,11 @@ def _ask_antenna():
 def _cfg_rx_setup():
     """Configure Rx setup - which receiver user is using """
     os.system('clear')
-    util._print_header("Receiver")
+    util.print_header("Receiver")
 
     # Receiver
     question = "Select your DVB-S2 receiver:"
-    setup = util._ask_multiple_choice(
+    setup = util.ask_multiple_choice(
         defs.demods, question, "Receiver",
         lambda x: '{} receiver'.format(_get_rx_marketing_name(x)))
 
@@ -96,8 +96,8 @@ def _cfg_rx_setup():
 
         question = "Which network interface is connected to the receiver?"
         if (devices is not None):
-            netdev = util._ask_multiple_choice(devices, question, "Interface",
-                                               lambda x: '{}'.format(x))
+            netdev = util.ask_multiple_choice(devices, question, "Interface",
+                                              lambda x: '{}'.format(x))
         else:
             netdev = input(question + " ")
 
@@ -203,8 +203,8 @@ def _cfg_custom_lnb(sat):
 
     bands = ["C", "Ku"]
     question = "Frequency band:"
-    custom_lnb_band = util._ask_multiple_choice(bands, question, "Band",
-                                                lambda x: '{}'.format(x))
+    custom_lnb_band = util.ask_multiple_choice(bands, question, "Band",
+                                               lambda x: '{}'.format(x))
 
     if (sat['band'].lower() != custom_lnb_band.lower()):
         logging.error("You must use a %s band LNB to receive from %s" %
@@ -212,7 +212,7 @@ def _cfg_custom_lnb(sat):
         sys.exit(1)
 
     if (custom_lnb_band == "Ku"):
-        custom_lnb_universal = util._ask_yes_or_no(
+        custom_lnb_universal = util.ask_yes_or_no(
             "Is it a Universal Ku band LNB?")
 
         if (custom_lnb_universal):
@@ -220,8 +220,8 @@ def _cfg_custom_lnb(sat):
             print()
             util.fill_print("""A Universal Ku band LNB typically covers an
             input frequency range from 10.7 to 12.75 GHz.""")
-            if (util._ask_yes_or_no("Does your LNB cover this input range "
-                                    "from 10.7 to 12.75 GHz?")):
+            if (util.ask_yes_or_no("Does your LNB cover this input range "
+                                   "from 10.7 to 12.75 GHz?")):
                 custom_lnb_in_range = [10700.0, 12750.0]
             else:
                 custom_lnb_in_range = _ask_lnb_freq_range()
@@ -231,8 +231,8 @@ def _cfg_custom_lnb(sat):
             util.fill_print("""A Universal Ku band LNB has two LO (local
             oscillator) frequencies. Typically the two frequencies are 9750
             MHz and 10600 MHz.""")
-            if (util._ask_yes_or_no("Does your LNB have LO frequencies 9750 "
-                                    "MHz and 10600 MHz?")):
+            if (util.ask_yes_or_no("Does your LNB have LO frequencies 9750 "
+                                   "MHz and 10600 MHz?")):
                 custom_lnb_lo_freq = [9750.0, 10600.0]
             else:
                 custom_lnb_lo_freq = _ask_lnb_lo(single_lo=False)
@@ -258,8 +258,8 @@ def _cfg_custom_lnb(sat):
         'id': "V",
         'text': "Vertical"
     }]
-    pol = util._ask_multiple_choice(options, question, "Polarization",
-                                    lambda x: '{}'.format(x['text']))
+    pol = util.ask_multiple_choice(options, question, "Polarization",
+                                   lambda x: '{}'.format(x['text']))
 
     return {
         'vendor': "",
@@ -285,7 +285,7 @@ def _ask_lnb(sat):
         lnb for lnb in defs.lnbs
         if _sat_freq_in_lnb_range(sat, lnb) and lnb['vendor'] != 'Selfsat'
     ]
-    lnb = util._ask_multiple_choice(
+    lnb = util.ask_multiple_choice(
         lnb_options,
         question,
         "LNB",
@@ -303,12 +303,12 @@ def _ask_lnb(sat):
 
 def _ask_psu_voltage(question):
     """Prompt for the power inserter model or voltage"""
-    psu = util._ask_multiple_choice(defs.psus,
-                                    question,
-                                    "Power inserter",
-                                    lambda x: "{}".format(x['model']),
-                                    none_option=True,
-                                    none_str="No - another model")
+    psu = util.ask_multiple_choice(defs.psus,
+                                   question,
+                                   "Power inserter",
+                                   lambda x: "{}".format(x['model']),
+                                   none_option=True,
+                                   none_str="No - another model")
     if (psu is None):
         voltage = util.typed_input("What is the voltage supplied to the "
                                    "LNB by your power inserter?")
@@ -337,7 +337,7 @@ def _cfg_lnb(sat, setup):
                 return lnb
 
     os.system('clear')
-    util._print_header("LNB")
+    util.print_header("LNB")
 
     lnb = _ask_lnb(sat)
 
@@ -345,7 +345,7 @@ def _cfg_lnb(sat, setup):
         logging.warning("Your LNB's input frequency range does not cover the "
                         "frequency of {} ({} MHz)".format(
                             sat['name'], sat['dl_freq']))
-        if not util._ask_yes_or_no("Continue anyway?", default="n"):
+        if not util.ask_yes_or_no("Continue anyway?", default="n"):
             logging.error("Invalid LNB")
             sys.exit(1)
 
@@ -362,10 +362,10 @@ def _cfg_lnb(sat, setup):
     if ((lnb['pol'].lower() == "dual" and setup['type'] != defs.sdr_setup_type)
             or setup['type'] == defs.sdr_setup_type):
         os.system('clear')
-        util._print_header("Power Supply")
+        util.print_header("Power Supply")
 
     if (lnb['pol'].lower() == "dual" and setup['type'] != defs.sdr_setup_type):
-        prev_sdr_setup = util._ask_yes_or_no(
+        prev_sdr_setup = util.ask_yes_or_no(
             "Are you reusing an LNB that is already pointed and that was used "
             "before by an SDR receiver?",
             default='n',
@@ -434,7 +434,7 @@ def _cfg_frequencies(sat, lnb, setup):
 def _cfg_chan_conf(info, chan_file):
     """Generate the channels.conf file"""
 
-    util._print_header("Channel Configuration")
+    util.print_header("Channel Configuration")
 
     print(
         textwrap.fill("This step will generate the channel configuration "
@@ -444,7 +444,7 @@ def _cfg_chan_conf(info, chan_file):
     if (os.path.isfile(chan_file)):
         print("Found previous %s file:" % (chan_file))
 
-        if (not util._ask_yes_or_no("Remove and regenerate file?")):
+        if (not util.ask_yes_or_no("Remove and regenerate file?")):
             print("Configuration aborted.")
             return
         else:
@@ -531,7 +531,7 @@ def _rst_cfg_file(cfg_file):
     if (info is not None):
         print("Found previous configuration:")
         pprint(info, width=80, compact=False)
-        if (util._ask_yes_or_no("Reset?")):
+        if (util.ask_yes_or_no("Reset?")):
             os.remove(cfg_file)
         else:
             print("Configuration aborted.")
@@ -550,7 +550,7 @@ def read_cfg_file(cfg_name, directory):
 
     while (info is None):
         print("Missing {} configuration file".format(cfg_file))
-        if (util._ask_yes_or_no("Run configuration helper now?")):
+        if (util.ask_yes_or_no("Run configuration helper now?")):
             configure(Namespace(cfg_dir=directory, cfg=cfg_name))
         else:
             print("Abort")
@@ -703,10 +703,10 @@ def configure(args):
     _write_cfg_file(cfg_file, user_info)
 
     os.system('clear')
-    util._print_header("JSON configuration file")
+    util.print_header("JSON configuration file")
     print("Saved configurations on %s" % (cfg_file))
 
-    util._print_header("Next Steps")
+    util.print_header("Next Steps")
 
     print(textwrap.fill("Please check setup instructions by running:"))
     print("""

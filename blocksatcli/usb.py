@@ -72,7 +72,7 @@ def _find_adapter(list_only=False, target_model=None):
 
     """
     if (target_model is None):
-        util._print_header("Find DVB Adapter")
+        util.print_header("Find DVB Adapter")
 
     # Search a range of adapters. There is no command to list all adapters, so
     # we try to list each one individually using `dvbnet -a adapter_no -l`.
@@ -176,7 +176,7 @@ def _find_adapter(list_only=False, target_model=None):
 
             if (not list_only):
                 if (len(dvb_s2_adapters) == 1
-                        or util._ask_yes_or_no("Choose adapter?")):
+                        or util.ask_yes_or_no("Choose adapter?")):
                     chosen_adapter = adapter
                     logger.debug("Chosen adapter:")
                     logger.debug(pformat(adapter))
@@ -292,7 +292,7 @@ def _dvbnet(adapter, ifnames, pids, ule=False):
     # Find the dvbnet interfaces that already exist for the chosen adapter
     existing_dvbnet_iif = _find_dvbnet_interfaces(adapter)
 
-    util._print_header("Network Interface")
+    util.print_header("Network Interface")
 
     for ifname, pid in zip(ifnames, pids):
         _dvbnet_single(adapter, ifname, pid, ule, existing_dvbnet_iif)
@@ -311,7 +311,7 @@ def _find_dvbnet_interfaces(adapter):
 
     """
 
-    util._print_header("Find dvbnet interface(s)")
+    util.print_header("Find dvbnet interface(s)")
     cmd = ["dvbnet", "-a", adapter, "-l"]
     logger.debug("> " + " ".join(cmd))
     res = subprocess.check_output(cmd)
@@ -345,7 +345,7 @@ def _rm_dvbnet_interface(adapter, ifname, verbose=True):
     """
 
     if (verbose):
-        util._print_header("Remove dvbnet interface")
+        util.print_header("Remove dvbnet interface")
 
     runner.run(["ip", "link", "set", ifname, "down"], root=True)
 
@@ -382,7 +382,7 @@ def zap(adapter,
 
     """
 
-    util._print_header("Tuning the DVB-S2 Receiver")
+    util.print_header("Tuning the DVB-S2 Receiver")
 
     # LNB name to use when calling dvbv5-zap
     if (lnb is None):
@@ -688,7 +688,7 @@ def usb_config(args):
     # Set IP
     ip.set_ips(net_ifs, ips, dry=runner.dry)
 
-    util._print_header("Next Step")
+    util.print_header("Next Step")
     print("Run:\n\nblocksat-cli usb launch\n")
 
     return
@@ -809,7 +809,7 @@ def launch(args):
     signal.signal(signal.SIGINT, signal_handler)
     signal.signal(signal.SIGTERM, signal_handler)
 
-    util._print_header("Receiver Monitoring")
+    util.print_header("Receiver Monitoring")
     print()
 
     # Listen to dvbv5-zap indefinitely

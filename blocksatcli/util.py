@@ -53,7 +53,7 @@ def string_input(msg, default=None):
     return res
 
 
-def _ask_yes_or_no(msg, default="y", help_msg=None):
+def ask_yes_or_no(msg, default="y", help_msg=None):
     """Yes or no question
 
     Args:
@@ -91,13 +91,13 @@ def _ask_yes_or_no(msg, default="y", help_msg=None):
     return (response == "y")
 
 
-def _ask_multiple_choice(vec,
-                         msg,
-                         label,
-                         to_str,
-                         help_msg=None,
-                         none_option=False,
-                         none_str="None of the above"):
+def ask_multiple_choice(vec,
+                        msg,
+                        label,
+                        to_str,
+                        help_msg=None,
+                        none_option=False,
+                        none_str="None of the above"):
     """Multiple choice question
 
     Args:
@@ -158,7 +158,7 @@ def _ask_multiple_choice(vec,
         return choice
 
 
-def _print_header(header, target_len=80):
+def print_header(header, target_len=80):
     """Print section header"""
 
     prefix = ""
@@ -180,9 +180,9 @@ def _print_header(header, target_len=80):
     print("\n" + prefix + " " + header + " " + suffix)
 
 
-def _print_sub_header(header, target_len=60):
+def print_sub_header(header, target_len=60):
     """Print sub-section header"""
-    _print_header(header, target_len=target_len)
+    print_header(header, target_len=target_len)
 
 
 def prompt_for_enter():

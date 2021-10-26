@@ -33,7 +33,7 @@ def _tune_max_pipe_size(pipesize):
                           width=80))
         print("\n" + " ".join(cmd) + "\n")
 
-        if (not util._ask_yes_or_no("Is that OK?", default="y")):
+        if (not util.ask_yes_or_no("Is that OK?", default="y")):
             print("Abort")
             return False
 
@@ -319,7 +319,7 @@ def run(args):
             logger.info(
                 textwrap.fill("NOTE: the file will grow by approximately "
                               "{} MB per second.".format(bytes_per_sec)))
-            if (not util._ask_yes_or_no("Proceed?", default="y")):
+            if (not util.ask_yes_or_no("Proceed?", default="y")):
                 return
             rtl_cmd.append(args.iq_file)
         else:

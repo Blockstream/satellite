@@ -50,7 +50,7 @@ class Gpg():
             if (not self.interactive):
                 logger.info("Aborting")
                 return
-            elif (util._ask_yes_or_no("Abort the creation of a new key?")):
+            elif (util.ask_yes_or_no("Abort the creation of a new key?")):
                 return
 
         # Password

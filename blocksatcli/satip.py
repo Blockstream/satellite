@@ -158,7 +158,7 @@ class SatIp():
                 self._set_from_ssdp_dev(sat_ip_devices[0])
             else:
                 logger.info("Found multiple Sat-IP receivers.")
-                selected = util._ask_multiple_choice(
+                selected = util.ask_multiple_choice(
                     sat_ip_devices,
                     "Select the Sat-IP receiver by IP address:",
                     "Sat-IP receiver",
@@ -278,7 +278,7 @@ class SatIp():
         """
         self._assert_addr()
 
-        if (interactive and not util._ask_yes_or_no("Proceed?")):
+        if (interactive and not util.ask_yes_or_no("Proceed?")):
             logger.info("Aborting")
             return False
 

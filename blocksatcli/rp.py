@@ -112,7 +112,7 @@ def set_filters(dvb_ifs, prompt=True, dry=False):
     """
     assert (isinstance(dvb_ifs, list))
     runner.set_dry(dry)
-    util._print_header("Reverse Path Filters")
+    util.print_header("Reverse Path Filters")
 
     # Check if the RP filters are already configured properly
     rp_filters_set = list()
@@ -133,7 +133,7 @@ def set_filters(dvb_ifs, prompt=True, dry=False):
         util.fill_print("The following command(s) would be executed to \
         reconfigure the RP filters:")
 
-    if (runner.dry or (not prompt) or util._ask_yes_or_no("OK to proceed?")):
+    if (runner.dry or (not prompt) or util.ask_yes_or_no("OK to proceed?")):
         _set_filters(dvb_ifs)
     else:
         print("RP filtering configuration cancelled")

@@ -244,7 +244,7 @@ def _install_packages(apt_list,
 
 def _install_common(interactive=True, update=False, btc=False):
     """Install dependencies that are common to all setups"""
-    util._print_header("Installing Common Dependencies")
+    util.print_header("Installing Common Dependencies")
     apt_pkg_list = ["software-properties-common"]
     dnf_pkg_list = ["dnf-plugins-core"]
     yum_pkg_list = ["yum-plugin-copr"]
@@ -324,7 +324,7 @@ def _install_specific(target, interactive=True, update=False):
     #   the specific case of dnf (RPM) installation, given that dvb-apps is not
     #   available on the latest mainstream fedora repositories.
 
-    util._print_header("Installing {} Receiver Dependencies".format(target))
+    util.print_header("Installing {} Receiver Dependencies".format(target))
     _install_packages(pkg_map[key]['apt'], pkg_map[key]['dnf'],
                       pkg_map[key]['yum'], interactive, update)
 
@@ -418,7 +418,7 @@ def run(args):
                         "for a password")
 
     if (args.dry_run):
-        util._print_header("Dry Run Mode")
+        util.print_header("Dry Run Mode")
 
     # Update package index
     _update_pkg_repo(interactive)
@@ -442,7 +442,7 @@ def drivers(args):
                         "for a password")
 
     if (args.dry_run):
-        util._print_header("Dry Run Mode")
+        util.print_header("Dry Run Mode")
 
     # Install pre-requisites
     linux_release = platform.release()
@@ -494,7 +494,7 @@ def drivers(args):
         kernel_update_available = (res.returncode == 0)
         if (kernel_update_available):
             print("Kernel update required")
-            if (util._ask_yes_or_no("OK to run \"dnf update\"?")):
+            if (util.ask_yes_or_no("OK to run \"dnf update\"?")):
                 cmd = ["dnf", "update"]
                 if (not interactive):
                     cmd.append("-y")

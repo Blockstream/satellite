@@ -28,7 +28,7 @@ class MockResponse():
 
 
 class TestApi(TestCase):
-    @patch('blocksatcli.util._ask_multiple_choice')
+    @patch('blocksatcli.util.ask_multiple_choice')
     @patch('blocksatcli.upnp.UPnP.discover')
     def test_discover(self, mock_upnp_discover, mock_ask_multi_choice):
         """Test Sat-IP device discovery"""

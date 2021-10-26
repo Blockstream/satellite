@@ -25,7 +25,7 @@ metric_endpoint = os.path.join(base_url, "metrics")
 
 def _register_explainer():
     os.system('clear')
-    util._print_header("Receiver Monitoring")
+    util.print_header("Receiver Monitoring")
 
     util.fill_print("Option --report enables periodic reporting of receiver \
     performance metrics to Blockstream's monitoring server. This information \
@@ -33,7 +33,7 @@ def _register_explainer():
     communications service.")
 
     util.prompt_for_enter()
-    util._print_sub_header("Reported Metrics")
+    util.print_sub_header("Reported Metrics")
 
     util.fill_print("The reported metrics vary according to the receiver type "
                     "and consist of a subset of the following:")
@@ -45,7 +45,7 @@ def _register_explainer():
     print("  - Packet error count.")
 
     util.prompt_for_enter()
-    util._print_sub_header("Registration Procedure")
+    util.print_sub_header("Registration Procedure")
 
     util.fill_print(
         "An initial registration procedure is necessary to confirm \
@@ -56,7 +56,7 @@ def _register_explainer():
     confirm it to the server (over the internet).")
 
     util.prompt_for_enter()
-    util._print_sub_header("Collected Information")
+    util.print_sub_header("Collected Information")
 
     util.fill_print("For registration, we require the following information:")
 
@@ -142,7 +142,7 @@ class BsMonitoring():
         if (len(matching_keys) == 0):
             logger.error("Could not find key {} in the local "
                          "keyring.".format(fingerprint))
-            try_again = util._ask_yes_or_no(
+            try_again = util.ask_yes_or_no(
                 "Reset the Monitoring API credentials and try registering "
                 "with a new key?",
                 default="n")
@@ -239,7 +239,7 @@ class BsMonitoring():
 
             # Wait until the user confirms the full address
             address += ", {}".format(country)
-            confirmed = util._ask_yes_or_no("\"{}\"?".format(address))
+            confirmed = util.ask_yes_or_no("\"{}\"?".format(address))
 
         os.system('clear')
 

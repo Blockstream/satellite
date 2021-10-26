@@ -9,7 +9,7 @@ class TestTsp(TestCase):
         self.parser = argparse.ArgumentParser()
         tsp.add_to_parser(self.parser)
 
-    @patch('blocksatcli.util._ask_yes_or_no')
+    @patch('blocksatcli.util.ask_yes_or_no')
     def test_file_save_prompt(self, mock_yes_or_no):
         """Test tsp options that prompt the user for yes/no"""
         for opt in ['--ts-analysis', '--ts-file']:

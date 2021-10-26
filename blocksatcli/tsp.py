@@ -106,7 +106,7 @@ class Tsp():
         if (args.ts_analysis):
             logger.info("MPEG-TS analysis will be saved on file {}".format(
                 args.ts_analysis))
-            if (not util._ask_yes_or_no("Proceed?", default="y")):
+            if (not util.ask_yes_or_no("Proceed?", default="y")):
                 return False
             cmd.extend(["-P", "analyze", "-o", args.ts_analysis])
 
@@ -131,7 +131,7 @@ class Tsp():
         if (args.ts_file is not None):
             logger.info("MPEG TS output will be saved on file {}".format(
                 args.ts_file))
-            if (not util._ask_yes_or_no("Proceed?", default="y")):
+            if (not util.ask_yes_or_no("Proceed?", default="y")):
                 return False
             cmd.extend(["-O", "file", args.ts_file])
         elif (not args.ts_dump):

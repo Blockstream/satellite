@@ -211,7 +211,7 @@ def set_ips(net_ifs, ip_addrs, verbose=True, dry=False):
     runner.set_dry(dry)
 
     if (verbose):
-        util._print_header("Interface IP Address")
+        util.print_header("Interface IP Address")
 
     if (dry):
         print("Configure a static IP address on the dvbnet interface.\n")

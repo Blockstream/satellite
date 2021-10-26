@@ -20,7 +20,7 @@ def _print(text):
 def _print_s400_instructions(info):
     """Print instructions for configuration of the Novra S400
     """
-    util._print_header("Novra S400")
+    util.print_header("Novra S400")
 
     _print("""
     The Novra S400 is a standalone receiver, which will receive data from
@@ -28,7 +28,7 @@ def _print_s400_instructions(info):
     will need to configure both the S400 and the host.
     """)
 
-    util._print_sub_header("Connections")
+    util.print_sub_header("Connections")
 
     _print("The Novra S400 can be connected as follows:")
 
@@ -41,7 +41,7 @@ def _print_s400_instructions(info):
 
     util.prompt_for_enter()
 
-    util._print_sub_header("Network Connection")
+    util.print_sub_header("Network Connection")
 
     _print("Next, make sure the S400 receiver is reachable by the host.")
 
@@ -61,7 +61,7 @@ def _print_s400_instructions(info):
 
     util.prompt_for_enter()
 
-    util._print_sub_header("Software Requirements")
+    util.print_sub_header("Software Requirements")
 
     _print("Next, install all software pre-requisites on your host. Run:")
 
@@ -72,7 +72,7 @@ def _print_s400_instructions(info):
 
     util.prompt_for_enter()
 
-    util._print_sub_header("Receiver and Host Configuration")
+    util.print_sub_header("Receiver and Host Configuration")
 
     print("Now, configure the S400 receiver and the host by running:")
 
@@ -85,7 +85,7 @@ def _print_s400_instructions(info):
 
     util.prompt_for_enter()
 
-    util._print_sub_header("Monitoring")
+    util.print_sub_header("Monitoring")
 
     print("Finally, you can monitor your receiver by running:")
 
@@ -100,7 +100,7 @@ def _print_usb_rx_instructions(info):
 
     name = (info['setup']['vendor'] + " " + info['setup']['model']).strip()
 
-    util._print_header(name)
+    util.print_header(name)
 
     _print("""
     The {0} is a USB receiver, which will receive data from satellite and will
@@ -109,7 +109,7 @@ def _print_usb_rx_instructions(info):
     to prepare the host for driving the {0}.
     """.format(name))
 
-    util._print_sub_header("Hardware Connections")
+    util.print_sub_header("Hardware Connections")
 
     print("The {} should be connected as follows:\n".format(name))
 
@@ -122,7 +122,7 @@ def _print_usb_rx_instructions(info):
 
     util.prompt_for_enter()
 
-    util._print_sub_header("Drivers")
+    util.print_sub_header("Drivers")
 
     _print("""
     Before anything else, note that specific device drivers are required in
@@ -144,7 +144,7 @@ def _print_usb_rx_instructions(info):
 
     util.prompt_for_enter()
 
-    util._print_sub_header("Host Requirements")
+    util.print_sub_header("Host Requirements")
 
     print(
         "Now, install all pre-requisites (in the virtual machine) by running:")
@@ -160,7 +160,7 @@ def _print_usb_rx_instructions(info):
 
     util.prompt_for_enter()
 
-    util._print_sub_header("Configure the Host")
+    util.print_sub_header("Configure the Host")
 
     _print(
         """Next, you need to create and configure the network interfaces that
@@ -188,7 +188,7 @@ def _print_usb_rx_instructions(info):
 
     util.prompt_for_enter()
 
-    util._print_sub_header("Launch")
+    util.print_sub_header("Launch")
 
     print("Finally, start the receiver by running:")
 
@@ -200,9 +200,9 @@ def _print_usb_rx_instructions(info):
 def _print_sdr_instructions(info):
     """Print instruction for configuration of an SDR setup
     """
-    util._print_header("SDR Setup")
+    util.print_header("SDR Setup")
 
-    util._print_sub_header("Connections")
+    util.print_sub_header("Connections")
 
     print("The SDR setup is connected as follows:\n")
 
@@ -223,7 +223,7 @@ def _print_sdr_instructions(info):
 
     util.prompt_for_enter()
 
-    util._print_sub_header("Software Requirements")
+    util.print_sub_header("Software Requirements")
 
     print("The SDR-based setup relies on the applications listed below:\n")
 
@@ -248,7 +248,7 @@ def _print_sdr_instructions(info):
 
     util.prompt_for_enter()
 
-    util._print_sub_header("Configuration")
+    util.print_sub_header("Configuration")
 
     _print(
         "Next, you can generate the configurations that are needed for gqrx "
@@ -258,7 +258,7 @@ def _print_sdr_instructions(info):
 
     util.prompt_for_enter()
 
-    util._print_sub_header("Running")
+    util.print_sub_header("Running")
 
     _print(
         "You should now be ready to launch the SDR receiver. You can run it "
@@ -273,7 +273,7 @@ def _print_sdr_instructions(info):
 
 def _print_sat_ip_instructions(info):
 
-    util._print_header("Sat-IP Setup")
+    util.print_header("Sat-IP Setup")
 
     _print("""The Sat-IP setup relies on the Blockstream Satellite Base
     Station (available on Blockstream Store), an all-in-one flat-panel antenna
@@ -286,7 +286,7 @@ def _print_sat_ip_instructions(info):
 
     util.prompt_for_enter()
 
-    util._print_sub_header("Connections")
+    util.print_sub_header("Connections")
 
     _item("Connect the Ethernet cable from your switch or computer's network "
           "adapter directly to the antenna's Sat>IP port.")
@@ -304,7 +304,7 @@ def _print_sat_ip_instructions(info):
 
     util.prompt_for_enter()
 
-    util._print_sub_header("Software Requirements")
+    util.print_sub_header("Software Requirements")
 
     _print("Next, install all software pre-requisites on your host. Run:")
 
@@ -315,7 +315,7 @@ def _print_sat_ip_instructions(info):
 
     util.prompt_for_enter()
 
-    util._print_sub_header("Running")
+    util.print_sub_header("Running")
 
     _print("You should now be ready to launch the Sat-IP client. You can run "
            "it by executing:")
@@ -333,7 +333,7 @@ def _print_freq_info(info):
     lo_freq = info['freqs']['lo']
     l_freq = info['freqs']['l_band']
 
-    util._print_header("Frequencies")
+    util.print_header("Frequencies")
 
     print("For your information, your setup relies on the following "
           "frequencies:\n")
@@ -376,7 +376,7 @@ def _print_lnb_info(info):
     setup = info['setup']
 
     if ((lnb['pol'] != "Dual") and (lnb['pol'] != sat['pol'])):
-        util._print_header("LNB Information")
+        util.print_header("LNB Information")
         lnb_pol = "Vertical" if lnb['pol'] == "V" else "Horizontal"
         logging.warning(
             textwrap.fill(
@@ -385,7 +385,7 @@ def _print_lnb_info(info):
         util.prompt_for_enter()
 
     if ((lnb['pol'] == "Dual") and (setup['type'] == defs.sdr_setup_type)):
-        util._print_header("LNB Information")
+        util.print_header("LNB Information")
         logging.warning(
             textwrap.fill(
                 "Your LNB has dual polarization. Check the voltage of your "
@@ -395,7 +395,7 @@ def _print_lnb_info(info):
 
 
 def _print_next_steps():
-    util._print_header("Next Steps")
+    util.print_header("Next Steps")
     _print("""
     At this point, if your dish is already correctly pointed, you should be
     able to start receiving data on Bitcoin Satellite.

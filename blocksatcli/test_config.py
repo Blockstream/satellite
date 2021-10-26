@@ -19,7 +19,7 @@ class TestConfigDir(TestCase):
     def tearDown(self):
         shutil.rmtree(self.cfg_dir, ignore_errors=True)
 
-    @patch('blocksatcli.util._ask_yes_or_no')
+    @patch('blocksatcli.util.ask_yes_or_no')
     def test_read_write(self, mock_yes_or_no):
         mock_yes_or_no.return_value = False
 
@@ -35,7 +35,7 @@ class TestConfigDir(TestCase):
         user_info = config.read_cfg_file(self.cfg_name, self.cfg_dir)
         self.assertEqual(user_info, test_info)
 
-    @patch('blocksatcli.util._ask_yes_or_no')
+    @patch('blocksatcli.util.ask_yes_or_no')
     @patch('blocksatcli.defs.pids', defs.pids)
     def test_chan_conf(self, mock_yes_or_no):
         mock_yes_or_no.return_value = True

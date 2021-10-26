@@ -166,7 +166,7 @@ def _configure_iptables(net_if, ports, igmp=False, prompt=True):
         util.fill_print("The following command would be executed:")
 
     if (not _is_iptables_udp_rule_set(net_if, cmd)):
-        if (runner.dry or (not prompt) or util._ask_yes_or_no(
+        if (runner.dry or (not prompt) or util.ask_yes_or_no(
                 "Add the corresponding ACCEPT firewall rule?")):
             _add_iptables_rule(net_if, cmd)
         else:
@@ -202,7 +202,7 @@ def _configure_iptables(net_if, ports, igmp=False, prompt=True):
         util.fill_print("The following command would be executed:")
 
     if (not _is_iptables_igmp_rule_set(net_if, cmd)):
-        if (runner.dry or (not prompt) or util._ask_yes_or_no(
+        if (runner.dry or (not prompt) or util.ask_yes_or_no(
                 "Add the corresponding ACCEPT firewall rule?")):
             _add_iptables_rule(net_if, cmd)
         else:
@@ -263,7 +263,7 @@ def _configure_firewalld(net_if, ports, src_ip, igmp, prompt):
             src_ip, defs.mcast_ip, portrange))
 
     if (not runner.dry and prompt):
-        if (not util._ask_yes_or_no("Add firewalld rule?")):
+        if (not util.ask_yes_or_no("Add firewalld rule?")):
             print("\nFirewall configuration cancelled")
             return
 
@@ -291,7 +291,7 @@ def _configure_firewalld(net_if, ports, src_ip, igmp, prompt):
         "DVB-S2 receiver connected through a switch:\n")
 
     if (not runner.dry and prompt):
-        if (not util._ask_yes_or_no("Enable IGMP on the firewall?")):
+        if (not util.ask_yes_or_no("Enable IGMP on the firewall?")):
             print("\nFirewall configuration cancelled")
             return
 
@@ -313,7 +313,7 @@ def configure(net_ifs, ports, src_ip, igmp=False, prompt=True, dry=False):
     """
     assert (isinstance(net_ifs, list))
     runner.set_dry(dry)
-    util._print_header("Firewall Rules")
+    util.print_header("Firewall Rules")
 
     for i, net_if in enumerate(net_ifs):
         if (is_firewalld()):

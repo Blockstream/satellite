@@ -540,7 +540,7 @@ def cfg_standalone(args):
                            dry=args.dry_run)
 
     if (not args.host_only):
-        util._print_header("Receiver Configuration")
+        util.print_header("Receiver Configuration")
         s400 = S400Client(args.demod,
                           args.address,
                           args.port,
@@ -557,7 +557,7 @@ def monitor(args):
     # Client to the S400's SNMP agent
     s400 = S400Client(args.demod, args.address, args.port)
 
-    util._print_header("Novra S400 Receiver")
+    util.print_header("Novra S400 Receiver")
 
     if (not s400.print_demod_config()):
         logger.error("s400 receiver at {}:{} is unreachable".format(
@@ -575,7 +575,7 @@ def monitor(args):
                                  report_opts=monitoring.get_report_opts(args),
                                  utc=args.utc)
 
-    util._print_header("Receiver Monitoring")
+    util.print_header("Receiver Monitoring")
 
     # Fetch the receiver stats periodically
     c_time = time.time()

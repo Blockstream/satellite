@@ -28,7 +28,7 @@ def configure(args):
     if (info is None):
         return
 
-    util._print_header("Gqrx Conf Generator")
+    util.print_header("Gqrx Conf Generator")
 
     if args.path is None:
         home = os.path.expanduser("~")
@@ -65,7 +65,7 @@ def configure(args):
 
     print("Save {} at {}/".format(conf_file, path))
 
-    if (not util._ask_yes_or_no("Proceed?")):
+    if (not util.ask_yes_or_no("Proceed?")):
         print("Aborted")
         return
 
@@ -73,7 +73,7 @@ def configure(args):
         os.makedirs(path)
 
     if os.path.exists(abs_path):
-        if (not util._ask_yes_or_no("File already exists. Overwrite?")):
+        if (not util.ask_yes_or_no("File already exists. Overwrite?")):
             print("Aborted")
             return
 
