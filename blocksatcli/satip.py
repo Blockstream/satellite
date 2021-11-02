@@ -127,9 +127,9 @@ class SatIp():
         logger.debug("Local Sat-IP client address: {}".format(local_addr))
         self.local_addr = local_addr
 
-    def discover(self, interactive=True, src_port=None):
+    def discover(self, interactive=True, src_port=None, interface=None):
         """Discover the Sat-IP receivers in the local network via UPnP"""
-        upnp = UPnP(src_port)
+        upnp = UPnP(src_port, interface)
         devices = upnp.discover()
 
         if (len(devices) == 0):
@@ -641,6 +641,10 @@ def subparser(subparsers):
                    type=int,
                    help="Source port set on SSDP packets used to discover the "
                    "Sat-IP server(s) in the network")
+    p.add_argument(
+        '--ssdp-net-if',
+        help="Network interface over which to send SSDP packets to discover "
+        "the Sat-IP server(s) in the network")
     p.add_argument('--no-fe-monitoring',
                    default=True,
                    action='store_false',
@@ -678,7 +682,8 @@ def launch(args):
     # Discover or define the IP address to communicate with the Sat-IP server
     sat_ip = SatIp()
     if args.addr is None:
-        sat_ip.discover(src_port=args.ssdp_src_port)
+        sat_ip.discover(src_port=args.ssdp_src_port,
+                        interface=args.ssdp_net_if)
         if (sat_ip.host is None):
             logger.error("Could not find a Sat-IP receiver")
             logger.info("Check your network or specify the receiver address "

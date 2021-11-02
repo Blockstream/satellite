@@ -6,12 +6,18 @@
 # Copyright (c) 2019 5kyc0d3r
 #
 # Source: https://github.com/5kyc0d3r/upnpy
+import fcntl
+import logging
 import socket
+import struct
 import urllib.request
 from urllib.parse import urlparse
 from xml.dom import minidom
 from functools import wraps
 import urllib.error
+
+SIOCGIFINDEX = 0x8933  # Get interface index
+logger = logging.getLogger(__name__)
 
 
 class NotRetrievedError(Exception):
@@ -96,6 +102,13 @@ def _device_description_required(func):
         return func(device, *args, **kwargs)
 
     return wrapper
+
+
+def _get_if_index(ifname, fd):
+    """Get the index corresponding to interface ifname used by socket fd"""
+    ifreq = struct.pack('16si', ifname.encode(), 0)
+    res = fcntl.ioctl(fd, SIOCGIFINDEX, ifreq)
+    return int(struct.unpack('16si', res)[1])
 
 
 class SSDPDevice:
@@ -241,6 +254,7 @@ class SSDPRequest(SSDPHeader):
                  ssdp_mcast_addr='239.255.255.250',
                  ssdp_port=1900,
                  src_port=None,
+                 interface=None,
                  **headers):
         super().__init__(**headers)
 
@@ -255,6 +269,26 @@ class SSDPRequest(SSDPHeader):
         if (src_port is not None):
             self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             self.socket.bind(('', src_port))
+
+        if (interface is not None):
+            try:
+                ifindex = _get_if_index(interface, self.socket.fileno())
+            except OSError:
+                logger.error(
+                    "Could not find interface \"{}\"".format(interface))
+                return
+            except ValueError:
+                logger.error(
+                    "Failed to parse the index of interface \"{}\"".format(
+                        interface))
+                return
+            ip_mreqn = struct.pack(
+                '4s4si',
+                socket.inet_aton(ssdp_mcast_addr),
+                socket.inet_aton('0.0.0.0'),  # INADDR_ANY
+                ifindex)
+            self.socket.setsockopt(socket.IPPROTO_IP, socket.IP_MULTICAST_IF,
+                                   ip_mreqn)
 
     def __del__(self):
         self.socket.close()
@@ -334,8 +368,8 @@ class UPnP:
     A UPnP object used for device discovery
 
     """
-    def __init__(self, src_port=None):
-        self.ssdp = SSDPRequest(src_port=src_port)
+    def __init__(self, src_port=None, interface=None):
+        self.ssdp = SSDPRequest(src_port=src_port, interface=interface)
         self.discovered_devices = []
 
     def discover(self, delay=2, **headers):
