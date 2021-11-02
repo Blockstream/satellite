@@ -15,6 +15,7 @@ from urllib.parse import urlparse
 from xml.dom import minidom
 from functools import wraps
 import urllib.error
+import xml
 
 SIOCGIFINDEX = 0x8933  # Get interface index
 logger = logging.getLogger(__name__)
@@ -354,7 +355,10 @@ class SSDPRequest(SSDPHeader):
                 # https://en.wikipedia.org/wiki/User_Datagram_Protocol#Packet_structure
 
                 response, addr = self.socket.recvfrom(65507)
-                device = SSDPDevice(addr, response.decode())
+                try:
+                    device = SSDPDevice(addr, response.decode())
+                except xml.parsers.expat.ExpatError:
+                    continue
                 devices.append(device)
         except socket.timeout:
             pass
