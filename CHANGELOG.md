@@ -1,5 +1,28 @@
 # Changelog
 
+## [0.4.1]
+
+Release Date: 2021-11-12
+
+### Added
+- Storage of the standalone receiver's IP address in the user's config file.
+- Option `--ssdp-net-if` on the Sat-IP client to define the network interface
+  for sending SSDP discovery packets.
+- `make buildx-push` command to build Docker images for amd64 and arm64 using
+  buildx.
+
+### Changed
+- Rename the Docker image from `blocksat-host` to `satellite`.
+
+### Fixed
+- Handling of empty Sat-IP frontend status responses.
+- `snmpset` definitions printed by the `standalone cfg` command in dry run.
+- Handling of invalid SSDP discovery replies received by the Sat-IP client.
+- Reading of empty cache files such as the `.update` file with CLI update info.
+- Handling of keyboard interrupts when waiting on user input.
+- Catching of errors on the frontend status requests sent to the Sat-IP server.
+- Success verification on the initial Sat-IP client login.
+
 ## [0.4.0]
 
 Release Date: 2021-09-10
