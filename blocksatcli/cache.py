@@ -25,8 +25,11 @@ class Cache():
         if (not os.path.exists(self.path)):
             return
 
-        with open(self.path, 'r') as fd:
-            self.data = json.load(fd)
+        try:
+            with open(self.path, 'r') as fd:
+                self.data = json.load(fd)
+        except json.decoder.JSONDecodeError:
+            return
 
     def save(self):
         """Save data into the cache file

@@ -80,3 +80,13 @@ class TestCache(unittest.TestCase):
 
         # Make sure the non-tested field did not erase the previous field
         self.assertEqual(cache_obj.get('a.b.c'), 12)
+
+    def test_loading_empty_cache_file(self):
+        # Create an empty cache file
+        open(os.path.join(self.test_dir, ".cache"), 'a').close()
+
+        # Try loading the empty file
+        cache_obj = cache.Cache(self.test_dir)
+
+        # It should load successfully with an empty data dictionary
+        self.assertFalse(cache_obj.data)
