@@ -1,6 +1,12 @@
 # Changelog
 
-## [0.4.1]
+- [0.4.1](#041)
+- [0.4.0](#040)
+- [0.3.2](#032)
+- [0.3.1](#031)
+- [0.3.0](#030)
+
+## 0.4.1
 
 Release Date: 2021-11-12
 
@@ -23,7 +29,7 @@ Release Date: 2021-11-12
 - Catching of errors on the frontend status requests sent to the Sat-IP server.
 - Success verification on the initial Sat-IP client login.
 
-## [0.4.0]
+## 0.4.0
 
 Release Date: 2021-09-10
 
@@ -58,7 +64,7 @@ Release Date: 2021-09-10
 - Logging of Sat-IP frontend metrics from other clients simultaneously connected
   to the same Sat-IP server.
 
-## [0.3.2]
+## 0.3.2
 
 Release Date: 2021-04-28
 
@@ -82,7 +88,7 @@ Release Date: 2021-04-28
       `--ts-analysis`.
 	- Option `--monitor-ts` was renamed to `--ts-monitor-sequence`.
 
-## [0.3.1]
+## 0.3.1
 
 Release Date: 2021-03-16
 
@@ -116,7 +122,7 @@ Release Date: 2021-03-16
   correctly.
 - Unused `--chan-conf` option on the command `blocksat-cli cfg`.
 
-## [0.3.0]
+## 0.3.0
 
 Release Date: 2021-01-27
 
