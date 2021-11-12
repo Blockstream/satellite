@@ -9,6 +9,14 @@ from urllib.request import urlretrieve
 from urllib.error import HTTPError
 
 
+def _input(*args):
+    try:
+        return input(*args)
+    except KeyboardInterrupt:
+        print("\nAborting")
+        exit()
+
+
 def fill_print(text):
     text = " ".join(text.replace("\n", "").split())
     print(textwrap.fill(text))
@@ -22,9 +30,9 @@ def typed_input(msg, hint=None, in_type=int, default=None):
         try:
             if (default is not None):
                 assert (isinstance(default, in_type))
-                input_val = input(msg + ": [{}] ".format(default)) or default
+                input_val = _input(msg + ": [{}] ".format(default)) or default
             else:
-                input_val = input(msg + ": ")
+                input_val = _input(msg + ": ")
             res = in_type(input_val)
         except ValueError:
             if (hint is None):
@@ -50,9 +58,9 @@ def string_input(msg, default=None):
     while (len(res) == 0):
         if (default is not None):
             assert (isinstance(default, str))
-            res = input(msg + ": [{}] ".format(default)) or default
+            res = _input(msg + ": [{}] ".format(default)) or default
         else:
-            res = input(msg + ": ")
+            res = _input(msg + ": ")
     return res
 
 
@@ -78,13 +86,13 @@ def ask_yes_or_no(msg, default="y", help_msg=None):
     while response not in {"y", "n"}:
         if (help_msg is None):
             question = msg + " " + options + " "
-            raw_resp = input(question) or default
+            raw_resp = _input(question) or default
         else:
             print(textwrap.fill(msg))
             print()
             print(textwrap.fill(help_msg))
             print()
-            raw_resp = input("Answer " + options + " ") or default
+            raw_resp = _input("Answer " + options + " ") or default
 
         response = raw_resp.lower()
 
@@ -137,7 +145,7 @@ def ask_multiple_choice(vec,
     resp = None
     while (not isinstance(resp, int)):
         try:
-            resp = int(input("\n%s number: " % (label)))
+            resp = int(_input("\n%s number: " % (label)))
         except ValueError:
             print("Please choose a number")
             continue
@@ -189,14 +197,10 @@ def print_sub_header(header, target_len=60):
 
 
 def prompt_for_enter():
-    try:
-        resp = input("\nPress Enter to continue...")
-        if (resp == "q"):
-            exit()
-        os.system('clear')
-    except KeyboardInterrupt:
-        print("Aborting")
+    resp = _input("\nPress Enter to continue...")
+    if (resp == "q"):
         exit()
+    os.system('clear')
 
 
 def get_home_dir():
