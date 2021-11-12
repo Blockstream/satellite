@@ -405,20 +405,22 @@ class SatIp():
 
         return True
 
-    def login(self, username, password):
+    def login(self, username=None, password=None):
         """Login with the Sat-IP HTTP server"""
         self._assert_addr()
         # Cache the credentials to allow auto reconnection
-        self.username = username
-        self.password = password
+        if (username is not None):
+            self.username = username
+        if (password is not None):
+            self.password = password
 
         url = self.base_url + "/cgi-bin/login.cgi"
         self.session = requests.Session()
         r = self.session.post(url,
                               data={
                                   'cmd': 'login',
-                                  'username': username,
-                                  'password': password
+                                  'username': self.username,
+                                  'password': self.password
                               })
         r.raise_for_status()
 
@@ -505,7 +507,24 @@ class SatIp():
         """
         self._assert_addr()
         url = self.base_url + "/cgi-bin/index.cgi"
-        rv = self.session.get(url, params={'cmd': 'frontend_info'})
+
+        try:
+            rv = self.session.get(url, params={'cmd': 'frontend_info'})
+        except requests.exceptions.ConnectionError as errc:
+            logger.error("Connection Error: {}".format(errc))
+            logger.info("Reconnecting")
+            self.login()
+            return
+        except requests.exceptions.HTTPError as errh:
+            logger.error("HTTP Error: {}".format(errh))
+            logger.info("Reconnecting")
+            self.login()
+            return
+        except requests.exceptions.RequestException as err:
+            logger.error("Error: {}".format(err))
+            logger.info("Reconnecting")
+            self.login()
+            return
 
         try:
             info = rv.json()
@@ -513,7 +532,7 @@ class SatIp():
             if ("/cgi-bin/login.cgi" in rv.text and rv.status_code == 200):
                 logger.warning("Sat-IP server has closed the session. "
                                "Reconnecting.")
-                self.login(self.username, self.password)
+                self.login()
             return
 
         if 'frontends' not in info:
