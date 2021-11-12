@@ -22,6 +22,8 @@ from . import util
 from .upnp import UPnP
 
 logger = logging.getLogger(__name__)
+DEFAULT_USERNAME = "admin"
+DEFAULT_PASSWORD = "admin"
 
 
 class SatIp():
@@ -424,6 +426,13 @@ class SatIp():
                               })
         r.raise_for_status()
 
+        success = "Error" not in r.text
+        if (not success):
+            logger.debug("Login response:")
+            logger.debug(r.text)
+
+        return success
+
     def _find_serving_frontend(self, active_frontends):
         """Find the Sat-IP frontend serving this client
 
@@ -650,11 +659,11 @@ def subparser(subparsers):
                    "Choose from: " + ", ".join(defs.modcods.keys()))
     p.add_argument('-u',
                    '--username',
-                   default="admin",
+                   default=DEFAULT_USERNAME,
                    help='Sat-IP client username')
     p.add_argument('-p',
                    '--password',
-                   default="admin",
+                   default=DEFAULT_PASSWORD,
                    help='Sat-IP client password')
     p.add_argument('--ssdp-src-port',
                    type=int,
@@ -742,7 +751,16 @@ def launch(args):
 
     # Log in with the Sat-IP HTTP server to monitor the DVB-S2 frontend
     if (args.fe_monitoring):
-        sat_ip.login(args.username, args.password)
+        login_ok = sat_ip.login(args.username, args.password)
+        if (not login_ok):
+            logger.error("Failed to authenticate with the Sat-IP server.")
+            if (args.username == DEFAULT_USERNAME
+                    and args.password == DEFAULT_PASSWORD):
+                logger.info("Have you changed the default credentials on the "
+                            "Sat-IP server?")
+            else:
+                logger.info("Please double-check your credentials.")
+            return
 
     # Tuning parameters
     sat_ip.set_dvbs2_params(info, args.modcod)
