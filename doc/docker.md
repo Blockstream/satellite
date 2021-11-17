@@ -40,24 +40,22 @@ the configurations created by `blocksat-cli`.
 
 ## USB Receiver
 
-First of all, there is an important limitation to running the
-[Linux USB receiver](tbs.md) inside a container. The USB receiver's drivers must
-be installed on the Docker host, not on the Docker container. This means that
-the referred `blockstream/satellite` image does not contain the
-drivers. Instead, you will need to install the drivers on your Docker
-host. Please refer to the driver installation instructions on the
-[USB receiver guide](tbs.md#tbs-5927-drivers).
+First of all, there is an important limitation to running a Linux USB receiver
+inside a container. The USB receiver's drivers must be installed on the Docker
+host, not on the Docker container. This means that the referred
+`blockstream/satellite` image does not contain the drivers. Instead, you will
+need to install the drivers on your Docker host. Please refer to the driver
+installation instructions on the [USB receiver guide](tbs.md#tbs-5927-drivers).
 
-After installing the drivers and connecting the TBS5927 device to your Docker
-host, you can then start the container. You will need to share the DVB network
-interfaces (visible in the Docker host) with the container. Check the DVB
-interfaces at `/dev/` (typically named `dvb0_0` and `dvb0_1`) and adapt the
-command below accordingly:
+Next, after installing the drivers and connecting the USB receiver to your
+host, you can start the container. Just note that you will need to share the
+DVB network interface (visible on the Docker host) with the container. To do
+so, check the DVB interface at `/dev/dvb/` (typically named `adapter0`) and
+assign it to the container using option `--device` as follows:
 
 ```
 docker run --rm -it \
-    --device=/dev/dvb0_0 \
-    --device=/dev/dvb0_1 \
+    --device=/dev/dvb/adapter0 \
     --network=host \
     --cap-add=NET_ADMIN \
     --cap-add=SYS_ADMIN \
@@ -65,12 +63,32 @@ docker run --rm -it \
     blockstream/satellite
 ```
 
-After running, configure the reverse path filters by running the following on
-the Docker host (not from the container):
+After that, you can run the [USB configuration
+command](tbs.md#configure-the-host) inside the container:
+
+```
+blocksat-cli usb config
+```
+
+The above step creates a network interface (typically named `dvb0_0`),
+configures the appropriate firewall rules, and assigns an IP address to the
+interface. Additionally, it configures the so-called reverse-path filtering
+rule for the interface. However, this particular configuration will not take
+effect when executed inside the container, as the container does not have
+permission to change the reverse-path filtering rules. Hence, to complete the
+configuration, run the following command directly from the host instead:
 
 ```
 blocksat-cli rp -i dvb0_0
-blocksat-cli rp -i dvb0_1
+```
+
+> Note: If your network interface is named differently (not `dvb0_0`), you can
+> find its name by running: `ip link show | grep dvb`.
+
+Finally, launch the receiver inside the container:
+
+```
+blocksat-cli usb launch
 ```
 
 ## SDR Receiver
@@ -99,12 +117,12 @@ SDR application uses for changing option `fs.pipe-max-size`.
 
 ## Sat-IP Receiver
 
-The important point for running the Sat-IP client inside a container concerns
+The essential point for running the Sat-IP client inside a container concerns
 the network configuration. By default, the Sat-IP client discovers the Sat-IP
-server via
-[UPnP](https://en.wikipedia.org/wiki/Universal_Plug_and_Play). However, this
-does not work if the container runs on an isolated network. Hence, you need to
-launch the container using option `--network=host`, as follows:
+server via [UPnP](https://en.wikipedia.org/wiki/Universal_Plug_and_Play).
+However, the discovery mechanism does not work if the container runs on an
+isolated network. To solve the problem, you need to launch the container using
+option `--network=host` as follows:
 
 ```
 docker run --rm -it \
