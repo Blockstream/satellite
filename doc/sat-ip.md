@@ -25,7 +25,8 @@ to receive the Blockstream Satellite traffic.
     - [Further Information](#further-information)
         - [Software Updates](#software-updates)
         - [Troubleshooting the Server Discovery](#troubleshooting-the-server-discovery)
-        - [Docker](#docker)
+        - [Direct Connection to the Base Station](#direct-connection-to-the-base-station)
+        - [Running on Docker](#running-on-docker)
         - [Compilation from Source](#compilation-from-source)
 
 <!-- markdown-toc end -->
@@ -143,7 +144,46 @@ sudo ufw allow from 192.168.1.1/24 to any port 1900
 More generally, if you are running another Linux distribution or firewall
 manager, make sure to allow UDP packets sent to port 1900.
 
-### Docker
+### Direct Connection to the Base Station
+
+A typical use case for the base station is connecting it to a switch or router
+and accessing it from hosts within the same network. However, note it is also
+possible to connect the host directly to the base station without intermediate
+switches or routers. In this case, you need to pay attention to two aspects:
+
+1. The network interface that the host shall use when attempting to discover the
+  Sat-IP server automatically.
+2. The IP address of the chosen interface.
+
+By default, the host will send the device discovery requests via its default
+network interface (for instance, a WLAN interface). Meanwhile, you may have the
+base station connected directly to a secondary Ethernet interface. In this
+case, the discovery packets would never reach the IP22. To solve the problem,
+specify the Ethernet interface via the `--ssdp-net-if` option when launching
+the Sat-IP client.
+
+Regarding the IP address configuration, note the base station typically will
+not receive an IP address via
+[DHCP](https://en.wikipedia.org/wiki/Dynamic_Host_Configuration_Protocol) when
+connected directly to your host. Instead, it will fall back to a
+[link-local address](https://en.wikipedia.org/wiki/Link-local_address) in the
+169.254.0.0/16 subnet. Hence, to communicate with the base station, you need to
+configure your host's Ethernet interface with an arbitrary address in the
+169.254.0.0/16 subnet. For instance, assuming the Ethernet interface is named
+`eth0`, run:
+
+```
+ip addr add 169.254.100.50/16 dev eth0
+```
+
+Finally, run the Sat-IP client as follows while replacing `eth0` with your
+interface name:
+
+```
+blocksat-cli sat-ip --ssdp-net-if eth0
+```
+
+### Running on Docker
 
 A Docker image is available for running the Sat-IP client on a container. Please
 refer to the instructions on the [Docker guide](docker.md).
