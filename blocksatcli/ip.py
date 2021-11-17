@@ -138,8 +138,9 @@ def _set_static_iface_ip(ifname, ipv4_if):
     elif (os.path.exists("/etc/sysconfig/network-scripts")):
         _add_to_sysconfig_net_scripts(ifname, addr, netmask)
     else:
-        raise ValueError("Could not set a static IP address on interface "
-                         "{}".format(ifname))
+        logger.warning("Falling back to \"ip addr add\" command")
+        runner.run(["ip", "addr", "add", addr_with_prefix, "dev", ifname],
+                   root=True)
 
 
 def _check_ip(net_if, ip_addr):
@@ -224,11 +225,13 @@ def set_ips(net_ifs, ip_addrs, verbose=True, dry=False):
         _set_ip(net_if, ip_addr, verbose)
 
     # Bring up interfaces
+    ifup_required = False
     if (which("netplan") is not None):
         if (dry):
             print("Finally, apply the new netplan configuration:\n")
         runner.run(["netplan", "apply"], root=True)
     elif (os.path.exists("/etc/network/interfaces.d/")):
+        ifup_required = True
         # Debian approach
         if (dry):
             util.fill_print("Finally, restart the networking service and "
@@ -236,11 +239,12 @@ def set_ips(net_ifs, ip_addrs, verbose=True, dry=False):
             print()
         runner.run(["systemctl", "restart", "networking"], root=True)
     elif (os.path.exists("/etc/sysconfig/network-scripts")):
+        ifup_required = True
         # CentOS/Fedora/RHEL approach
         if (dry):
             print(textwrap.fill("Finally, bring up the interfaces:") + "\n")
 
-    if (which("netplan") is None):
+    if (ifup_required):
         for net_if in net_ifs:
             runner.run(["ifup", net_if], root=True)
 
