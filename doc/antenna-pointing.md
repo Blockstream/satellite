@@ -50,9 +50,9 @@ following parameters:
 
 The three angles are illustrated below:
 
-Azimuth                                        |  Elevation                                           | Polarity                                                  |
-:---------------------------------------------:|:----------------------------------------------------:|:---------------------------------------------------------:|
-![Azimuth](img/azimuth.png?raw=true "Azimuth") | ![Elevation](img/elevation.png?raw=true "Elevation") | ![Polarity](img/lnb_polarization.png?raw=true "Polarity") |
+|                    Azimuth                     |                      Elevation                       |                         Polarity                          |
+| :--------------------------------------------: | :--------------------------------------------------: | :-------------------------------------------------------: |
+| ![Azimuth](img/azimuth.png?raw=true "Azimuth") | ![Elevation](img/elevation.png?raw=true "Elevation") | ![Polarity](img/lnb_polarization.png?raw=true "Polarity") |
 
 Next, visually inspect the direction to which your antenna must point. Use a
 compass or smartphone app (e.g., Satellite Pointer for
@@ -128,7 +128,7 @@ receiver: `blocksat-cli standalone monitor` (see the
 
 - For the SDR receiver: `blocksat-cli sdr`.
 
-Next, you should monitor the receiver logs printed to the console. Initially,
+Next, you should monitor the receiver logs printed on the console. Initially,
 while the antenna is not pointed correctly, the receiver will be unlocked. In
 this case, the application will print logs like the following:
 
@@ -169,7 +169,7 @@ attenuation over the coaxial cable, connectors, and adapters. The expected
 minimum and maximum signal levels are summarized below:
 
 | Receiver   | Minimum Signal Level | Maximum Signal Level |
-|------------|----------------------|----------------------|
+| ---------- | -------------------- | -------------------- |
 | TBS 5927   | -69 dBm              | -23 dBm              |
 | Novra S400 | -65 dBm              | -25 dBm              |
 
@@ -192,8 +192,8 @@ Alternatively, you can try to point the antenna using a satellite finder. This
 approach is generally more useful for the Linux USB (TBS 5927), standalone
 (Novra S400), and Sat-IP receivers. In contrast, for SDR-based receivers, the
 [SDR signal visualization tools](#pointing-with-an-sdr-based-receiver) are
-usually better for pointing. Refer to the instructions in the [satellite finder
-section](#pointing-with-a-satellite-finder).
+usually better. Refer to the instructions in the
+[satellite finder section](#pointing-with-a-satellite-finder).
 
 ## Optimize the SNR
 
@@ -420,7 +420,7 @@ is a very narrow signal seen as a narrow pulse (or peak) on gqrx. All you need
 to do is change the frequency on gqrx to one of the beacon frequencies below:
 
 | Satellite    | Beacons                                                                                                |
-|--------------|--------------------------------------------------------------------------------------------------------|
+| ------------ | ------------------------------------------------------------------------------------------------------ |
 | Galaxy 18    | 11701 MHz (Horizontal), 12195 MHz (Vertical)                                                           |
 | Eutelsat 113 | 11701.5 MHz (Vertical), 12199 MHz (Horizontal)                                                         |
 | Telstar 11N  | 11199.25 MHz (Vertical), 11699.50 MHz (Vertical), 11198.25 MHz (Horizontal), 11698.50 MHz (Horizontal) |
@@ -453,29 +453,126 @@ receiver. For example:
 
 ### Pointing with a Satellite Finder
 
-In some cases, it is helpful to try pointing with a satellite finder instead of
-using the satellite receiver directly.
+The antenna alignment procedure can be challenging when using a receiver other
+than the SDR receiver. The main limitation is that the Linux USB (TBS 5927),
+Novra S400, and Sat-IP receivers indicate the lock status as a true or false
+metric. As a result, you will often see the lock status as false until you
+suddenly get the correct antenna direction and the lock status changes to true.
+In contrast, you can observe the received power spectrum in real-time with an
+SDR receiver and notice the satellite carrier (or beacon) even before the
+receiver locks. Hence, the alignment process is significantly more
+straightforward with an SDR receiver.
+
+Other than using an SDR receiver, the alternative solution to obtain a gradual
+signal strength indicator during the antenna alignment procedure is to use a
+*satellite finder* device. You can plug the satellite finder into your setup
+and use it in conjunction with the satellite receiver. The finder can provide a
+signal strength indicator to allow for the optimal antenna alignment. At the
+same time, the receiver can confirm the pointing is correct when it properly
+locks to the signal.
 
 A satellite finder usually has two connections: one to the LNB (typically
-labeled *satellite*) and one to the receiver. The receiver connection is used to
-provide power to the finder. However, some finders come with an alternative
-power supply, in which case the connection to the receiver is unnecessary.
+labeled *satellite*) and the other to the receiver. The receiver is supposed to
+provide power to the finder (just like how it powers up the LNB), whereas the
+LNB feeds the signal of interest. Hence, the overall connection is as follows:
 
-Some finders only measure the signal level, whereas other models can demodulate
-signals and lock to them. Both approaches are considered in the sequel.
+```
+Receiver <---> Finder <---> LNB
+```
 
-A basic finder model (such as the `SF-95DR` included on [satellite
-kits](https://store.blockstream.com/product-category/satellite_kits/)) can only
-measure signal level. In this case, connect the finder inline between the
-receiver (TBS5927 or S400) and the LNB. Run the receiver normally so that the
-receiver can power up the finder. Then, try to point the antenna until you get
-adequate signal levels on the finder. Once you achieve good signal strength on
-the finder, check if the receiver is locked ([see the previous
-instructions](#find-the-satellite-and-lock-the-signal)).
+Some finders also come with a dedicated power supply. And even if not, you
+could purchase a power supply such as the one used in the
+[SDR setup](hardware.md#software-defined-radio-sdr-setup). In this case, it
+suffices to connect the finder to the power supply instead of the receiver, as
+follows:
 
-Alternatively, if you are using a satellite finder that supports DVB-S2
-demodulation, you can configure it to lock to the signal. To do so, you
-typically need to configure the following signal parameters:
+```
+Power Supply <---> Finder <---> LNB
+```
+
+The latter case is handy when using a [base station receiver](sat-ip.md). You
+can connect the finder inline between the base station's legacy coaxial output
+and the power supply. Otherwise, with the other receiver types, we recommend
+connecting the finder inline between the receiver and LNB so that you can
+inspect the receiver concurrently with the finder.
+
+Satellite finders can also differ widely in their offered capabilities. For
+instance, some finders only measure the signal level, such as the SF-95DR model
+included on the
+[satellite kits](https://store.blockstream.com/product-category/satellite_kits/).
+Meanwhile, other more advanced finder models can go a step further and
+demodulate DVB-S2 signals. The instructions in the sequel cover both finder
+categories.
+
+#### Pointing with a Level Measurement Finder
+
+This section applies to satellite finders capable of measuring the signal level
+only, such as the SF-95DR model.
+
+To start, connect the finder as instructed earlier and enable/launch the
+receiver as usual to power up the finder. You should see the finder powered on
+with an active display.
+
+Next, make sure the finder has an adequate attenuation and gain configuration
+to observe the signal level. Proceed with the following steps:
+
+1. Press the left ATT button as many times as possible to increase the
+   attenuation to the maximum. Also, increase the dial on the side to its max
+   and check the signal level on the finder's display. This step aims to
+   prepare the finder to measure the strongest possible signal. By setting the
+   highest attenuation first, an eventual strong signal can still fall within
+   the measurable range.
+
+2. If the measured signal level is not 99%, it means the signal received by the
+   finder is not as strong as anticipated. Hence, reduce the attenuation to
+   observe weaker signals. That is, press the right ATT button until you get to
+   a 99% level. Keep the dial on the side at its maximum throughout this
+   process so that you can adjust the attenuation setting first.
+
+3. Once the finder measures 99% signal level, turn the side dial down (reduce
+   the gain) until you get a reasonably low signal level on the finder's
+   display. For example, try achieving a level between 5% and 30%.
+
+At this point, you should be ready to start the antenna alignment process. Make
+sure to keep an eye on the receiver's lock status (refer to the
+[lock status instructions](#find-the-satellite-and-lock-the-signal)) throughout
+the process and continue with the following steps:
+
+1. Adjust the antenna roughly in the right direction based on the azimuth,
+   elevation, and polarity angles obtained from the
+   [website](https://blockstream.com/satellite/#satellite_network-coverage).
+2. Choose a coordinate to optimize (azimuth, elevation, or polarity) and focus
+   on it. For example, start by optimizing the azimuth.
+3. Make subtle adjustments to the chosen coordinate until you can observe an
+   increase in the signal level measured by the finder.
+4. If the level increases too much and reaches 99%, turn the side dial (gain)
+   down slightly such that the measured signal strength comes back to a low
+   value. If the side dial reaches its minimum and the measured level remains
+   at 99%, it means the signal is now too strong to be measured. Increase the
+   attenuation by pressing the left ATT button once and readjust the side dial
+   to get the measured level back at a low value.
+5. Go back to step 3 and repeat the process until you can no longer observe
+   improvements on the measured level for the chosen coordinate.
+6. Go back to step 2 and pick the next coordinate to be optimized.
+
+If the receiver logs `Lock = True` on the console at any point, it means you
+are in the right direction. Otherwise, if you have optimized all coordinates
+using the above procedure and the receiver still logs `Lock = False`, you may
+have pointed to the wrong satellite. In this case, inspect the final alignment
+and repeat the process if necessary.
+
+Note the main disadvantage of a level-measurement finder is that it cannot
+guarantee the correctness of the satellite. It only measures the signal level,
+so it may inadvertently guide you to a stronger signal in the sky coming from
+an adjacent satellite. Hence, it is vital to keep an eye on the receiver's lock
+status throughout the process. Only the lock status can confirm the antenna
+alignment is correct.
+
+#### Pointing with a DVB-S2 Capable Finder
+
+If you are using a satellite finder that supports DVB-S2 demodulation, you can
+configure it to lock to the signal. To do so, you typically need to configure
+the following signal parameters:
 
 - Downlink frequency
 - LNB local oscillator (LO) frequency
@@ -492,17 +589,17 @@ Additionally, you will need to define:
 - Symbol rate: set it to "1000 kbaud" (or "1000000 baud", or "1 Mbaud",
   depending on the units adopted by your finder).
 - 22 kHz: enable only when using a Universal LNB and pointing to Galaxy 18 or
-  Eutelsat 113 (i.e., when receiving in
-  [Ku high band](frequency.md)). Otherwise, leave it disabled. See the
+  Eutelsat 113 (i.e., when receiving in [Ku high band](frequency.md)).
+  Otherwise, leave it disabled. See the
   [notes regarding Universal LNBs](hardware.md#universal-lnb).
 
-After you configure the satellite finder, you will typically be presented with
-signal strength and (or) quality indicators. Try to point your antenna until you
-can maximize these levels.
+After the configuration, the finder will typically present you with signal
+strength and (or) quality indicators. At this point, try aligning your antenna
+until you can maximize these levels.
 
 Once you lock to the signal using the finder, check that your receiver can lock
-too by following the [instructions presented
-earlier](#find-the-satellite-and-lock-the-signal).
+too by following the
+[instructions presented earlier](#find-the-satellite-and-lock-the-signal).
 
 ---
 
