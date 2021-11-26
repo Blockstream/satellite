@@ -448,7 +448,7 @@ def zap(adapter,
         ps = subprocess.Popen(cmd, env=new_env)
     else:
         ps = subprocess.Popen(cmd,
-                              stdout=subprocess.PIPE,
+                              stdout=subprocess.DEVNULL,
                               stderr=subprocess.PIPE,
                               env=new_env,
                               universal_newlines=True)
