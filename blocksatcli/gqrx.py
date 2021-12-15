@@ -39,6 +39,9 @@ def configure(args):
     conf_file = "default.conf"
     abs_path = os.path.join(path, conf_file)
 
+    default_gains = r'@Variant(\0\0\0\b\0\0\0\x2\0\0\0\x6\0L\0N\0\x41\0\0' + \
+        r'\0\x2\0\0\x1\x92\0\0\0\x4\0I\0\x46\0\0\0\x2\0\0\0\xcc)'
+
     cfg = """
     [General]
     configversion=2
@@ -53,6 +56,7 @@ def configure(args):
     bandwidth=1000000
     device="rtl=0"
     frequency={}
+    gains={}
     lnb_lo={}
     sample_rate=2400000
 
@@ -60,6 +64,7 @@ def configure(args):
     demod=0
     """.format(
         int(info['freqs']['dl'] * 1e6),
+        default_gains,
         int(info['freqs']['lo'] * 1e6),
     )
 
