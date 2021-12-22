@@ -217,7 +217,7 @@ class ProcessRunner():
         self.last_cwd = None
         self.root = os.geteuid() == 0
 
-    def _get_cmd_str(self, orig_cmd):
+    def _get_cmd_str(self, orig_cmd, cwd=None):
         """Generate string for command
 
         If any argument is supposed to be quoted (i.e., has spaces), add the
@@ -228,7 +228,10 @@ class ProcessRunner():
         for i, elem in enumerate(quoted_cmd):
             if (" " in elem):
                 quoted_cmd[i] = "\'{}\'".format(elem)
-        return "> " + " ".join(quoted_cmd)
+        cmd = "> " + " ".join(quoted_cmd)
+        if (cwd is not None):
+            cmd += " [from {}]".format(cwd)
+        return cmd
 
     def set_dry(self, dry=True):
         self.dry = dry
@@ -266,7 +269,7 @@ class ProcessRunner():
             return
 
         if (self.logger is not None):
-            self.logger.debug(self._get_cmd_str(cmd))
+            self.logger.debug(self._get_cmd_str(cmd, cwd))
 
         try:
             res = subprocess.run(cmd,
