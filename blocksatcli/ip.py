@@ -32,7 +32,7 @@ def _check_debian_net_interfaces_d(dry):
             "Make sure directory \"{}\" is considered as source for network "
             "interface configurations. Check if your \"{}\" file contains "
             "the following line:".format(if_dir, if_file))
-        print("\n{}\n".format(src_line))
+        print("{}\n".format(src_line))
         print("If not, add it.\n")
         return
 
@@ -48,8 +48,7 @@ def _check_debian_net_interfaces_d(dry):
     if (src_included):
         return
 
-    with open(if_file, 'a') as fd:
-        fd.write("\n" + src_line)
+    runner.append_to_file("\n" + src_line + "\n", if_file, root=True)
 
 
 def _add_to_netplan(ifname, addr_with_prefix):

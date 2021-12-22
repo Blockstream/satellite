@@ -4,6 +4,7 @@ import os
 import subprocess
 import textwrap
 import tempfile
+import shutil
 from ipaddress import IPv4Address
 from urllib.request import urlretrieve
 from urllib.error import HTTPError
@@ -302,6 +303,31 @@ class ProcessRunner():
         self.run(cmd, **kwargs)
         if (not self.dry):
             self.logger.info("Created file {}".format(path))
+
+    def append_to_file(self, content, path, **kwargs):
+        """Append content to a specified file
+
+        If writing to the target path requires root privileges, this function
+        can be executed with option root=True.
+
+        """
+        if (self.dry):
+            # In dry-run mode, run an equivalent echo command.
+            cmd = ["echo", "-e", repr(content), ">>", path]
+        else:
+            kwargs_cat = kwargs.copy()
+            kwargs_cat['capture_output'] = True
+            previous_content = self.run(["cat", path],
+                                        **kwargs_cat).stdout.decode()
+            new_content = previous_content + content
+            tmp_file = tempfile.NamedTemporaryFile(mode="w", delete=False)
+            with tmp_file as fd:
+                fd.write(new_content)
+            shutil.copymode(path, tmp_file.name)  # preserve the original mode
+            cmd = ["mv", tmp_file.name, path]
+        self.run(cmd, **kwargs)
+        if (not self.dry):
+            self.logger.info("Appended to file {}".format(path))
 
 
 class Pipe():
