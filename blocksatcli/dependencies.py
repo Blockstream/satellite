@@ -389,6 +389,11 @@ def subparser(subparsers):
     p3 = subsubp.add_parser('tbs-drivers',
                             description="Install TBS USB receiver drivers",
                             help='Install TBS USB receiver drivers')
+    p3.add_argument(
+        "--clean",
+        action='store_true',
+        default=False,
+        help="Clean a previous build before rebuilding the drivers")
     p3.set_defaults(func=drivers)
 
     return p
@@ -445,8 +450,12 @@ def drivers(args):
         util.print_header("Dry Run Mode")
 
     # Install pre-requisites
+    distro_id = distro.id()
     linux_release = platform.release()
-    linux_headers = "linux-headers-" + linux_release
+    if (distro_id == "raspbian"):
+        linux_headers = "raspberrypi-kernel-headers"
+    else:
+        linux_headers = "linux-headers-" + linux_release
     kernel_devel = "kernel-devel-" + linux_release
     kernel_headers = "kernel-headers-" + linux_release
     apt_pkg_list = [
@@ -503,7 +512,6 @@ def drivers(args):
                       "command below again:")
                 print("\n  blocksat-cli deps tbs-drivers\n")
                 sys.exit(1)
-                return
 
         # Fall back to the default kernel-headers package
         if kernel_headers_unavailable:
@@ -515,7 +523,6 @@ def drivers(args):
             # there is no upgrade available.
             logger.error("Could not find an available kernel update")
             sys.exit(1)
-            return
 
     _update_pkg_repo(interactive)
     _install_packages(apt_pkg_list,
@@ -523,6 +530,34 @@ def drivers(args):
                       yum_pkg_list,
                       interactive=interactive,
                       update=False)
+
+    # On Raspbian, check that the raspberrypi-kernel-headers version matches
+    # the actual kernel version
+    if (distro_id == "raspbian"):
+        rpi_header_contents = runner.run(
+            ["dpkg", "-L", "raspberrypi-kernel-headers"],
+            nodry=True,
+            capture_output=True).stdout.decode().splitlines()
+        for line in rpi_header_contents:
+            version_match = False
+            if (linux_release in line):
+                version_match = True
+                break
+        if (not version_match):
+            print("Kernel update required")
+            if (util.ask_yes_or_no("OK to run \"apt full-upgrade\"?")):
+                cmd = ["apt", "update"]
+                if (not interactive):
+                    cmd.append("-y")
+                runner.run(cmd, root=True)
+                cmd = ["apt", "full-upgrade"]
+                if (not interactive):
+                    cmd.append("-y")
+                runner.run(cmd, root=True)
+                print("Please reboot to load the new kernel and try the " +
+                      "command below again:")
+                print("\n  blocksat-cli deps tbs-drivers\n")
+                sys.exit(1)
 
     # Clone the driver repositories
     driver_src_dir = os.path.join(args.cfg_dir, "src", "tbsdriver")
@@ -553,7 +588,9 @@ def drivers(args):
     nproc = int(subprocess.check_output(["nproc"]).decode().rstrip())
     nproc_arg = "-j" + str(nproc)
 
-    runner.run(["make", "cleanall"], cwd=media_build_dir)
+    if (args.clean):
+        runner.run(["make", "cleanall"], cwd=media_build_dir)
+
     runner.run(["make", "dir", "DIR=../media"], cwd=media_build_dir)
     runner.run(["make", "allyesconfig"], cwd=media_build_dir)
 
@@ -561,10 +598,34 @@ def drivers(args):
     # ov9650.ko undefined!": disable ov9650 from the build. The problem was
     # observed on kernel versions 5.3.7 and 5.7.7. Apply the workaround for any
     # version < 5.8.
-    if (distro.id() == "fedora"
+    if (distro_id == "fedora"
             and LooseVersion(linux_release) < LooseVersion('5.8')):
         runner.run([
             "sed", "-i", "s/CONFIG_VIDEO_OV9650=m/CONFIG_VIDEO_OV9650=n/g",
+            "v4l/.config"
+        ],
+                   cwd=media_build_dir)
+
+    # On Raspbian, disable RC/IR support and disable the MN88436 drivers to
+    # avoid the __aeabi_ldivmod/__aeabi_uldivmod undefined errors. Also,
+    # disable SAA7146 which lead to
+    # saa7146_pgtable_free/saa7146_pgtable_alloc/saa7146_pgtable_build_single
+    # undefined when running on a RPi3 B+ with kernel 5.10.63-v7+.
+    if (distro_id == "raspbian"):
+        runner.run(
+            ["sed", "-i", "-r", "s/(^CONFIG.*_RC.*=)./\1n/g", "v4l/.config"],
+            cwd=media_build_dir)
+        runner.run(
+            ["sed", "-i", "-r", "s/(^CONFIG.*_IR.*=)./\1n/g", "v4l/.config"],
+            cwd=media_build_dir)
+        runner.run([
+            "sed", "-i", "s/CONFIG_DVB_MN88436=m/CONFIG_DVB_MN88436=n/g",
+            "v4l/.config"
+        ],
+                   cwd=media_build_dir)
+        runner.run([
+            "sed", "-i",
+            "s/CONFIG_VIDEO_SAA7146_VV=m/CONFIG_VIDEO_SAA7146_VV=n/g",
             "v4l/.config"
         ],
                    cwd=media_build_dir)
