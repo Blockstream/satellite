@@ -1,10 +1,33 @@
 # Changelog
 
+- [0.4.2](#042)
 - [0.4.1](#041)
 - [0.4.0](#040)
 - [0.3.2](#032)
 - [0.3.1](#031)
 - [0.3.0](#030)
+
+## 0.4.2
+
+Unreleased
+
+### Added
+- Support for the TBS 5520SE USB receiver.
+- Support for the TBS drivers installation on Raspberry Pi OS.
+- Fallback command for static IP configuration via `ip addr` in the absence of
+  a supported system-specific network configuration utility.
+- Definition of the starting RTL-SDR LNA and IF gains on the Gqrx configuration
+  file.
+- Verification of a matching receiver type on the local configuration file
+  before launching receiver commands.
+- Support for filtering of orders by region on the API demo-rx app.
+- Support for non-rate-limited transmissions on the API demo-rx app.
+- Support for the new Satellite API order state (confirming) on the sender app.
+
+### Fixed
+- Eventual blocking of Linux USB receiver due to a full stdout pipe.
+- Non-root configuration of the /etc/network/interface file when the
+  interfaces.d sources are not enabled.
 
 ## 0.4.1
 
