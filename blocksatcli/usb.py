@@ -604,6 +604,9 @@ def _common(args):
     if (user_info is None):
         return
 
+    util.check_configured_setup_type(user_info, defs.linux_usb_setup_type,
+                                     logger)
+
     # Check if dvbnet is available before trying to find the adapter
     if (not dependencies.check_apps(["dvbnet", "dvb-fe-tool"])):
         return

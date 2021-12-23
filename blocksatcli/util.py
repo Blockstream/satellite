@@ -5,9 +5,12 @@ import subprocess
 import textwrap
 import tempfile
 import shutil
+import sys
 from ipaddress import IPv4Address
 from urllib.request import urlretrieve
 from urllib.error import HTTPError
+
+from . import defs
 
 
 def _input(*args):
@@ -403,3 +406,15 @@ def download_file(url, destdir, dry_run, logger=None):
         return
 
     return local_path
+
+
+def check_configured_setup_type(info, setup_type, logger):
+    type_str = setup_type
+    if (setup_type != defs.linux_usb_setup_type
+            and setup_type != defs.sat_ip_setup_type):
+        type_str = setup_type.lower()
+
+    if (info['setup']['type'] != setup_type):
+        logger.error("Setup not configured for a {} receiver".format(type_str))
+        logger.info("Run \"blocksat-cli cfg\" to reconfigure your setup")
+        sys.exit(1)

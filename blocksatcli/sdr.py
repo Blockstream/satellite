@@ -270,6 +270,8 @@ def run(args):
     if (info is None):
         return
 
+    util.check_configured_setup_type(info, defs.sdr_setup_type, logger)
+
     pipe_size_bytes = int(args.pipe_size * (2**20))
     if (not _tune_max_pipe_size(pipe_size_bytes)):
         return

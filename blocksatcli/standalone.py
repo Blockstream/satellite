@@ -517,6 +517,17 @@ def subparser(subparsers):
     return p
 
 
+def _common(args):
+    user_info = config.read_cfg_file(args.cfg, args.cfg_dir)
+    if (user_info is None):
+        return
+
+    util.check_configured_setup_type(user_info, defs.standalone_setup_type,
+                                     logger)
+
+    return user_info
+
+
 def cfg_standalone(args):
     """Configure the standalone receiver and the host
 
@@ -526,7 +537,7 @@ def cfg_standalone(args):
     configurations.
 
     """
-    user_info = config.read_cfg_file(args.cfg, args.cfg_dir)
+    user_info = _common(args)
     if (user_info is None):
         return
 
@@ -567,7 +578,7 @@ def monitor(args):
     """Monitor the standalone DVB-S2 receiver"""
 
     # User info
-    user_info = config.read_cfg_file(args.cfg, args.cfg_dir)
+    user_info = _common(args)
     if (user_info is None):
         return
 

@@ -698,11 +698,7 @@ def launch(args):
     if (info is None):
         return
 
-    if (info['setup']['type'] != defs.sat_ip_setup_type):
-        logger.error("Setup not configured for {} receiver".format(
-            defs.sat_ip_setup_type))
-        logger.info("Run \"blocksat-cli cfg\" to re-configure your setup")
-        sys.exit(1)
+    util.check_configured_setup_type(info, defs.sat_ip_setup_type, logger)
 
     if (not dependencies.check_apps(['tsp', 'ip'])):
         return
