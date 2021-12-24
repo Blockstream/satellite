@@ -83,16 +83,17 @@ class TestBitcoinConfGen(unittest.TestCase):
         self.assertTrue('en0,239.0.0.2:4434,172.16.235.1,' in opt)
 
         # USB Rx
-        info['setup'] = defs.demods[1]
-        ifname = config.get_net_if(info)
-        cfg = bitcoin._gen_cfgs(info, ifname)
-        opt = cfg.cfg['udpmulticast']
-        self.assertTrue('dvb0_0,239.0.0.2:4434,172.16.235.1,' in opt)
+        for demod in [1, 2]:
+            info['setup'] = defs.demods[demod]
+            ifname = config.get_net_if(info)
+            cfg = bitcoin._gen_cfgs(info, ifname)
+            opt = cfg.cfg['udpmulticast']
+            self.assertTrue('dvb0_0,239.0.0.2:4434,172.16.235.1,' in opt)
 
         # SDR and Sat-IP Rx (both use the loopback interface and the 127.0.0.1
         # source address)
-        for demod in defs.demods[2:4]:
-            info['setup'] = demod
+        for demod in [3, 4]:
+            info['setup'] = defs.demods[demod]
             ifname = config.get_net_if(info)
             cfg = bitcoin._gen_cfgs(info, ifname)
             opt = cfg.cfg['udpmulticast']

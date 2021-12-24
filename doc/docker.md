@@ -42,10 +42,10 @@ the configurations created by `blocksat-cli`.
 
 First of all, there is an important limitation to running a Linux USB receiver
 inside a container. The USB receiver's drivers must be installed on the Docker
-host, not on the Docker container. This means that the referred
+host, not on the Docker container. Hence, the referred
 `blockstream/satellite` image does not contain the drivers. Instead, you will
 need to install the drivers on your Docker host. Please refer to the driver
-installation instructions on the [USB receiver guide](tbs.md#tbs-5927-drivers).
+installation instructions on the [USB receiver guide](tbs.md#tbs-drivers).
 
 Next, after installing the drivers and connecting the USB receiver to your
 host, you can start the container. Just note that you will need to share the

@@ -14,12 +14,12 @@ guide](../index.md) for detailed explanations on all steps.
 - [Common Steps](#common-steps)
 - [Receiver-specific Configuration Steps](#receiver-specific-configuration-steps)
     - [Novra S400 standalone receiver](#novra-s400-standalone-receiver)
-    - [TBS5927 USB receiver](#tbs5927-usb-receiver)
+    - [TBS 5927/5520SE USB receiver](#tbs-usb-receiver)
     - [Sat-IP receiver](#sat-ip-receiver)
     - [SDR receiver](#sdr-receiver)
 - [Receiver-specific Antenna Alignment Steps](#receiver-specific-antenna-alignment-steps)
     - [Novra S400 standalone receiver](#novra-s400-standalone-receiver-1)
-    - [TBS5927 USB receiver](#tbs5927-usb-receiver-1)
+    - [TBS 5927/5520SE USB receiver](#tbs-usb-receiver-1)
     - [Sat-IP receiver](#sat-ip-receiver-1)
     - [SDR receiver](#sdr-receiver-1)
 - [Bitcoin-satellite Setup](#bitcoin-satellite-setup)
@@ -92,14 +92,14 @@ Monitor the S400 receiver:
 blocksat-cli standalone monitor
 ```
 
-### TBS5927 USB receiver
+### TBS USB receiver
 
 Install the drivers:
 ```
 blocksat-cli deps tbs-drivers
 ```
 
-Configure the host and the TBS5927:
+Configure the host and the TBS 5927/5520SE:
 ```
 blocksat-cli usb config
 ```
@@ -147,7 +147,7 @@ While pointing the antenna, check the logs on the terminal until the receiver
 logs a `Lock`. Alternatively, check the lock indicator on the S400's web UI or
 front panel until it becomes green (locked).
 
-### TBS5927 USB receiver
+### TBS USB receiver
 
 Make sure that the USB receiver is running with:
 ```

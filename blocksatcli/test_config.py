@@ -84,20 +84,21 @@ class TestConfigHelpers(TestCase):
         info['setup']['netdev'] = 'en0'
         self.assertEqual(config.get_net_if(info), 'en0')
 
-        # USB type but adapter number not cached
-        info['setup'] = defs.demods[1]
-        self.assertEqual(config.get_net_if(info), 'dvb0_0')
+        # USB types but adapter number not cached
+        for demod in [1, 2]:
+            info['setup'] = defs.demods[demod]
+            self.assertEqual(config.get_net_if(info), 'dvb0_0')
 
-        # USB type with adapter number cached
-        info['setup']['adapter'] = 2
-        self.assertEqual(config.get_net_if(info), 'dvb2_0')
+            # USB type with adapter number cached
+            info['setup']['adapter'] = 2
+            self.assertEqual(config.get_net_if(info), 'dvb2_0')
 
         # SDR
-        info['setup'] = defs.demods[2]
+        info['setup'] = defs.demods[3]
         self.assertEqual(config.get_net_if(info), 'lo')
 
         # Sat-IP
-        info['setup'] = defs.demods[3]
+        info['setup'] = defs.demods[4]
         self.assertEqual(config.get_net_if(info), 'lo')
 
     def test_rx_model_and_marketing_name(self):
@@ -114,11 +115,16 @@ class TestConfigHelpers(TestCase):
                          'TBS 5927 (basic kit)')
 
         info['setup'] = defs.demods[2]
+        self.assertEqual(config.get_rx_model(info), 'TBS 5520SE')
+        self.assertEqual(config._get_rx_marketing_name(info['setup']),
+                         'TBS 5520SE')
+
+        info['setup'] = defs.demods[3]
         self.assertEqual(config.get_rx_model(info), 'RTL-SDR')
         self.assertEqual(config._get_rx_marketing_name(info['setup']),
                          'RTL-SDR software-defined')
 
-        info['setup'] = defs.demods[3]
+        info['setup'] = defs.demods[4]
         self.assertEqual(config.get_rx_model(info), 'Selfsat IP22')
         self.assertEqual(config._get_rx_marketing_name(info['setup']),
                          'Blockstream Base Station')

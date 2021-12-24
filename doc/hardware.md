@@ -95,20 +95,20 @@ software-defined radio (SDR) receiver with just under $100.
 The following table summarizes the different features offered by each of the
 satellite receiver options:
 
-|                                       | SDR                | Basic Kit          | [Pro Kit](https://store.blockstream.com/product/blockstream-satellite-pro-kit/) | [Base Station](https://store.blockstream.com/product/blockstream-satellite-base-station/) |
-|---------------------------------------|:------------------:|:------------------:|:------------------:|:------------------:|
-| Blockstream Kit Available             |                    |                    | :heavy_check_mark: | :heavy_check_mark: |
-| USB Interface                         | :heavy_check_mark: | :heavy_check_mark: |                    |                    |
-| Ethernet Interface                    |                    |                    | :heavy_check_mark: | :heavy_check_mark: |
-| Requires LNB Power Supply             | :heavy_check_mark: |                    |                    |                    |
-| Support for Universal LNB<sup>1</sup> |                    | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
-| Dual-Satellite Capable<sup>2</sup>    |                    |                    | :heavy_check_mark: |                    |
-| CPU Utilization<sup>3</sup>           | High               | Low                | None               | None               |
-| Multiple Host Connections<sup>4</sup> |                    |                    | :heavy_check_mark: | :heavy_check_mark: |
-| Optional Rack Mountable               |                    |                    | :heavy_check_mark: |                    |
-| Compatible with C-band<sup>5</sup>    | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |                    |
-| Performance<sup>6</sup>               | Limited            | Excellent          | Excellent          | Excellent          |
-| Budget                                | Low (< $100)       | Medium             | High (> $900)      | Medium ($500)      |
+|                                       |        SDR         |     Basic Kit      | [Pro Kit](https://store.blockstream.com/product/blockstream-satellite-pro-kit/) | [Base Station](https://store.blockstream.com/product/blockstream-satellite-base-station/) |
+| ------------------------------------- | :----------------: | :----------------: | :-----------------------------------------------------------------------------: | :---------------------------------------------------------------------------------------: |
+| Blockstream Kit Available             |                    |                    |                               :heavy_check_mark:                                |                                    :heavy_check_mark:                                     |
+| USB Interface                         | :heavy_check_mark: | :heavy_check_mark: |                                                                                 |                                                                                           |
+| Ethernet Interface                    |                    |                    |                               :heavy_check_mark:                                |                                    :heavy_check_mark:                                     |
+| Requires LNB Power Supply             | :heavy_check_mark: |                    |                                                                                 |                                                                                           |
+| Support for Universal LNB<sup>1</sup> |                    | :heavy_check_mark: |                               :heavy_check_mark:                                |                                    :heavy_check_mark:                                     |
+| Dual-Satellite Capable<sup>2</sup>    |                    |                    |                               :heavy_check_mark:                                |                                                                                           |
+| CPU Utilization<sup>3</sup>           |        High        |        Low         |                                      None                                       |                                           None                                            |
+| Multiple Host Connections<sup>4</sup> |                    |                    |                               :heavy_check_mark:                                |                                    :heavy_check_mark:                                     |
+| Optional Rack Mountable               |                    |                    |                               :heavy_check_mark:                                |                                                                                           |
+| Compatible with C-band<sup>5</sup>    | :heavy_check_mark: | :heavy_check_mark: |                               :heavy_check_mark:                                |                                                                                           |
+| Performance<sup>6</sup>               |      Limited       |     Excellent      |                                    Excellent                                    |                                         Excellent                                         |
+| Budget                                |    Low (< $100)    |       Medium       |                                  High (> $900)                                  |                                       Medium ($500)                                       |
 
 <sup>1</sup> Support means that the interface provides a 22 kHz signal for
 switching the Universal LNB between Ku low and Ku high bands. This feature is
@@ -152,7 +152,7 @@ by the [Satellite Base Station](#blockstream-satellite-base-station).
 
 Components:
 
-- TBS 5927 DVB-S2 Tuner.
+- TBS 5927 DVB-S2 Tuner (see the note below).
 - GEOSATpro UL1PLL Universal Ku Band PLL LNB.
 - Titanium C1-PLL C Band PLL LNB.
 - Titanium CS1 Conical Scalar Kit.
@@ -161,12 +161,17 @@ Components:
 - 32 cm flat, bendable flat coaxial TV extension cable used to pass through
   window and door frames.
 
-> Note: the kit includes two LNBs so that it works in C and Ku band. You can
-> purchase only the LNB that you need in your location. If you are in a C band
-> location (Telstar 18V C Asia-Pacific region), you will need the Titanium
-> C1-PLL LNB or similar, as well as the optional CS1 Conical Scalar Kit or
-> similar if using an offset dish. Otherwise (in all other regions), you can
-> purchase the GEOSATpro UL1PLL Universal LNB or similar.
+> Note 1: The TBS 5520SE tuner model is now also supported. You can replace the
+> TBS 5927 with the 5520SE model.
+
+> Note 2: the kit includes two LNBs so that it works in the C and Ku bands.
+> However, you can purchase only the LNB required for your location. If you are
+> in a C band location (Telstar 18V C Asia-Pacific region), you will need the
+> Titanium C1-PLL LNB or similar, as well as the optional CS1 Conical Scalar
+> Kit or similar if using an
+> [offset dish](https://en.wikipedia.org/wiki/Offset_dish_antenna). Otherwise
+> (in all other regions), you can purchase the GEOSATpro UL1PLL Universal LNB or
+> similar.
 
 The above list does not include the antenna nor the required coaxial cables.
 Please refer to the requirements for [antennas](#satellite-antenna) and [coaxial
@@ -187,12 +192,14 @@ Components:
 - 32 cm flat, bendable flat coaxial TV extension cable used to pass through
   window and door frames.
 
-> Note: the kit includes two LNBs so that it works in C and Ku band. You can
-> purchase only the LNB that you need in your location. If you are in a C band
-> location (Telstar 18V C Asia-Pacific region), you will need the Titanium
-> C1-PLL LNB or similar, as well as the optional CS1 Conical Scalar Kit or
-> similar if using an offset dish. Otherwise (in all other regions), you can
-> purchase the GEOSATpro UL1PLL Universal LNB or similar.
+> Note: the kit includes two LNBs so that it works in the C and Ku bands.
+> However, you can purchase only the LNB required for your location. If you are
+> in a C band location (Telstar 18V C Asia-Pacific region), you will need the
+> Titanium C1-PLL LNB or similar, as well as the optional CS1 Conical Scalar
+> Kit or similar if using an
+> [offset dish](https://en.wikipedia.org/wiki/Offset_dish_antenna). Otherwise
+> (in all other regions), you can purchase the GEOSATpro UL1PLL Universal LNB or
+> similar.
 
 Note the kit does not include the antenna nor the required coaxial cables.
 Please refer to the requirements for [antennas](#satellite-antenna) and [coaxial
@@ -240,10 +247,10 @@ The receiver options are summarized below:
   USB. Hence, unlike the SDR receiver, the Linux USB receiver is not
   CPU-intensive. With this option, you will need to install specific drivers and
   Linux DVB-S2 apps on the host to configure the external receiver and get the
-  data from it. Overall, this option is expected to perform exceptionally and
+  data from it. Overall, this option is expected to perform greatly and
   with negligible CPU usage. On the other hand, it can require a time-consuming
   initial setup due to the driver installation. You can try the
-  [driver installation](tbs.md#tbs-5927-drivers) on your intended host before
+  [driver installation](tbs.md#tbs-drivers) on your intended host before
   committing to this receiver option.
 
 - **Standalone Receiver**: this is also a hardware-based setup, with the
@@ -422,12 +429,12 @@ setup, according to the receiver choice.
 
 #### Software-defined Radio (SDR) Setup
 
-| Component        | Requirement                            |
-|------------------|----------------------------------------|
-| SDR interface    | RTL-SDR dongle model RTL2832U w/ TCXO  |
-| LNB Power Supply | SWM Power Supply                       |
-| SMA Cable        | Male to Male                           |
-| SMA to F adapter | SMA Female, F Male                     |
+| Component        | Requirement                           |
+| ---------------- | ------------------------------------- |
+| SDR interface    | RTL-SDR dongle model RTL2832U w/ TCXO |
+| LNB Power Supply | SWM Power Supply                      |
+| SMA Cable        | Male to Male                          |
+| SMA to F adapter | SMA Female, F Male                    |
 
 The supported **SDR interface** is the RTL-SDR, which is a low-cost USB
 dongle. More specifically, an RTL-SDR of model RTL2832U.
@@ -447,7 +454,7 @@ location. The two recommended tuners are the R820T2 and the E4000. The table
 below summarizes which tuner to pick for each satellite:
 
 | Satellite          | RTL-SDR Tuner |
-|--------------------|---------------|
+| ------------------ | ------------- |
 | Galaxy 18          | R820T2        |
 | Eutelsat 113       | R820T2        |
 | Telstar 11N Africa | E4000         |
@@ -516,17 +523,21 @@ IRD”) of the SWM power supply.
 #### Linux USB Receiver Setup
 
 The only specific component in this setup is the external USB-based DVB-S2
-receiver. The supported receiver is the [TBS5927 Professional DVB-S2 TV Tuner
-USB](https://www.tbsdtv.com/products/tbs5927-dvb-s2-tv-tuner-usb.html), which
-connects to the Linux PC via a USB2.0 connection. The LNB, in turn, connects
-directly to the *LNB IN* interface of the TBS5927. The TBS5927 package includes
-both the USB cable and a power supply for the receiver.
+receiver. The supported receivers are the
+[TBS 5927](https://www.tbsdtv.com/products/tbs5927-dvb-s2-tv-tuner-usb.html) and
+the
+[TBS 5520SE](https://www.tbsdtv.com/products/tbs5520se_multi-standard_tv_tuner_usb_box.html)
+models, which connect to the Linux PC via a USB2.0 connection. In this case,
+the LNB is connected directly to the *LNB IN* interface of the TBS receiver.
+Also, the TBS device is powered up either directly by the host via USB (TBS
+5520SE) or with a dedicated power supply that comes with it (TBS 5927).
 
 ![Linux USB receiver connections](img/usb_connections.png?raw=true "Linux USB
 receiver connections")
 
-> NOTE: although the TBS5927 receiver offers Windows support, we currently do
-> not support Windows as an operating system for a Blockstream Satellite setup.
+> NOTE: although the TBS 5927 and 5520SE receivers offer Windows support, we
+> currently do not support Windows as an operating system for a Blockstream
+> Satellite setup.
 
 #### Standalone Receiver Setup
 

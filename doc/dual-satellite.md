@@ -11,7 +11,7 @@ nav_order: 7
     - [Required Hardware](#required-hardware)
     - [Host Configuration](#host-configuration)
         - [Novra S400 Standalone Receiver](#novra-s400-standalone-receiver)
-        - [TBS5927 USB Receiver](#tbs5927-usb-receiver)
+        - [TBS 5927/5520SE USB Receiver](#tbs-usb-receiver)
         - [Blockstream Base Station Sat-IP Receiver](#blockstream-base-station-sat-ip-receiver)
         - [SDR Receiver](#sdr-receiver)
 
@@ -126,11 +126,11 @@ second satellite stream. You can do so by running:
 blocksat-cli --cfg rx2 btc --concat
 ```
 
-### TBS5927 USB Receiver
+### TBS USB Receiver
 
 
-With a TBS5927 USB receiver, you would ordinarily run the following sequence
-of commands:
+With a TBS 5927 or 5520SE USB receiver, you would ordinarily run the following
+sequence of commands:
 
 1. Initial configurations:
 ```
@@ -152,8 +152,8 @@ blocksat-cli usb config
 blocksat-cli usb launch
 ```
 
-To use a second TBS5927 unit as the second receiver of a dual-satellite setup,
-you only need to repeat steps 3 and 4 while including argument `--cfg rx2`, as
+To use a second TBS unit as the second receiver of a dual-satellite setup, you
+only need to repeat steps 3 and 4 while including argument `--cfg rx2`, as
 follows:
 
 ```
@@ -162,10 +162,10 @@ blocksat-cli --cfg rx2 usb config
 blocksat-cli --cfg rx2 usb launch
 ```
 
-Make sure to select the second TBS5927 unit on both steps.
+Make sure to select the second TBS 5927/5520SE unit on both steps.
 
 Lastly, you need to configure [Bitcoin Satellite](bitcoin.md) to receive from
-the second TBS5927 device. You can do so by running:
+the second TBS device. You can do so by running:
 
 ```
 blocksat-cli --cfg rx2 btc --concat

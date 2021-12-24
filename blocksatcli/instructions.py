@@ -103,11 +103,14 @@ def _print_usb_rx_instructions(info):
     util.print_header(name)
 
     _print("""
-    The {0} is a USB receiver, which will receive data from satellite and will
-    output data to the host over USB. The host, in turn, is responsible for
-    configuring the receiver using specific DVB-S2 tools. Hence, next, you need
-    to prepare the host for driving the {0}.
+    The {0} is a USB-based DVB-S2 receiver. It receives the satellite signal
+    fed via a coaxial interface and outputs data to the host over USB. It is
+    also configured directly via USB, and the host is responsible for setting
+    such configurations using specific Linux tools.
     """.format(name))
+
+    _print("The instructions that follow prepare the host for driving the "
+           "{0} receiver.".format(name))
 
     util.print_sub_header("Hardware Connections")
 
@@ -118,36 +121,38 @@ def _print_usb_rx_instructions(info):
 
     _item("Connect the LNB directly to \"LNB IN\" of the {} using a coaxial"
           " cable (an RG6 cable is recommended).".format(name))
-    _item("Connect the {}'s USB interface to your computer.".format(name))
+    _item("Connect the {}'s USB2.0 interface to your computer.".format(name))
+    if (info['setup']['model'] == "5520SE"):
+        power_up_str = "Connect both male connectors of the dual-male " + \
+            "USB Y cable to your host."
+    else:
+        power_up_str = "Connect the 12V DC power supply."
+    _item("Power up the {} device. {} ".format(name, power_up_str))
 
     util.prompt_for_enter()
 
     util.print_sub_header("Drivers")
 
     _print("""
-    Before anything else, note that specific device drivers are required in
-    order to use the {0}. Please, do note that driver installation can cause
-    corruptions and, therefore, it is safer and **strongly recommended** to use
-    a virtual machine for running the {0}. If you do so, please note that all
-    commands recommended in the remainder of this page are supposed to be
-    executed in the virtual machine.
+    Next, you will need to install specific device drivers to use the {0}.
+    These are installed by rebuilding and rewriting the Linux Media drivers.
+    Hence, if you are not setting up a dedicated machine to host the {0}, it
+    would be safer and recommended to use a virtual machine (VM) as the
+    receiver host so that the drivers can be installed directly on the VM
+    instead of your main machine.
     """.format(name))
 
     _print("Next, install the drivers for the {0} by running:".format(name))
 
-    print("""
-    blocksat-cli deps tbs-drivers
-    """)
+    print("    blocksat-cli deps tbs-drivers\n")
 
-    print("Once the script completes the installation, reboot the virtual "
-          "machine.")
+    print("Once the script completes the installation, reboot the machine.")
 
     util.prompt_for_enter()
 
     util.print_sub_header("Host Requirements")
 
-    print(
-        "Now, install all pre-requisites (in the virtual machine) by running:")
+    print("Next, install all the software pre-requisites by running:")
 
     print("""
     blocksat-cli deps install
@@ -162,28 +167,26 @@ def _print_usb_rx_instructions(info):
 
     util.print_sub_header("Configure the Host")
 
-    _print(
-        """Next, you need to create and configure the network interfaces that
-    will output the IP traffic received via the TBS5927. You can apply all
-    configurations by running the following command:""")
+    _print("""Next, you need to create and configure the network interface that
+    will output the IP traffic received via the {} device. You can apply all
+    configurations by running the following command:""".format(name))
 
     print("\n    blocksat-cli usb config\n")
 
-    _print("""If you would like to review the changes that will be made before
-    applying them, first run the command in dry-run mode:
+    _print("""If you would like to review the changes before applying them,
+    first run the command in dry-run mode:
     """)
 
     print("\n    blocksat-cli usb config --dry-run\n")
 
     _print("""
-    Note this command will define arbitrary IP addresses to the interfaces. If
-    you need (or want) to define specific IP addresses instead, for example to
-    avoid IP address conflicts, use command-line argument `--ip`.
+    Note this command will define an arbitrary IP address to the interface. If
+    you would like to set a specific IP address, for example, to avoid
+    address conflicts, use the option \"--ip\".
     """)
 
-    _print(
-        """Furthermore, note that this configuration is not persistent across
-    reboots. After a reboot, you need to run `blocksat-cli usb config`
+    _print("""Furthermore, note this configuration is not persistent across
+    reboots. After a reboot, you need to run \"blocksat-cli usb config\"
     again.""")
 
     util.prompt_for_enter()
@@ -405,15 +408,16 @@ def _print_next_steps():
           "Satellite using:")
     print("\n    blocksat-cli btc\n")
 
-    _print("Next, if you are running Ubuntu, Fedora, or CentOS, you can "
-           "install bitcoin-satellite by running:")
+    _print("Next, if you are running a supported Linux distribution "
+           "(Ubuntu, Debian, Fedora, CentOS, or Raspberry Pi OS), you can "
+           "install Bitcoin Satellite by running:")
     print("    blocksat-cli deps install --btc\n")
 
-    _print("Note that bitcoin-satellite is a fork of bitcoin core, and, "
+    _print("Note that Bitcoin Satellite is a fork of Bitcoin Core, and, "
            "as such, it installs applications with the same name (bitcoind, "
            "bitcoin-cli, bitcoin-qt, and bitcoin-tx). Hence, the "
-           "bitcoin-satellite installation will fail if you already have "
-           "bitcoin core installed.")
+           "Bitcoin Satellite installation will fail if you already have "
+           "Bitcoin Core installed.")
 
     print("For further information, refer to:\n")
     print(defs.user_guide_url + "doc/bitcoin.html\n")

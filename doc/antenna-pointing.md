@@ -115,7 +115,7 @@ the antenna and one to monitor the computer.
 To start, make sure that your receiver is running. Depending on your type of
 receiver, this step involves one of the following commands:
 
-- For the TBS 5927 USB receiver: `blocksat-cli usb launch`.
+- For the TBS 5927 or 5520SE USB receivers: `blocksat-cli usb launch`.
 
 - For the Novra S400 Standalone ([Pro
 Kit](https://store.blockstream.com/product/blockstream-satellite-pro-kit/))
@@ -174,7 +174,7 @@ minimum and maximum signal levels are summarized below:
 | Novra S400 | -65 dBm              | -25 dBm              |
 
 In the end, note that the antenna pointing procedure is entirely based on the
-locking indicator printed to the console. Once you find the signal and the
+locking indicator printed on the console. Once you find the signal and the
 receiver locks, the only remaining step is to [optimize the
 SNR](#optimize-the-snr).
 
@@ -189,8 +189,9 @@ receiver-specific instructions for the pointing process, listed below:
   instructions](#pointing-with-an-sdr-based-receiver).
 
 Alternatively, you can try to point the antenna using a satellite finder. This
-approach is generally more useful for the Linux USB (TBS 5927), standalone
-(Novra S400), and Sat-IP receivers. In contrast, for SDR-based receivers, the
+approach is generally more helpful for the Linux USB (TBS 5927 or 5520SE),
+standalone (Novra S400), and Sat-IP receivers. In contrast, for SDR-based
+receivers, the
 [SDR signal visualization tools](#pointing-with-an-sdr-based-receiver) are
 usually better. Refer to the instructions in the
 [satellite finder section](#pointing-with-a-satellite-finder).
@@ -454,13 +455,13 @@ receiver. For example:
 ### Pointing with a Satellite Finder
 
 The antenna alignment procedure can be challenging when using a receiver other
-than the SDR receiver. The main limitation is that the Linux USB (TBS 5927),
-Novra S400, and Sat-IP receivers indicate the lock status as a true or false
-metric. As a result, you will often see the lock status as false until you
-suddenly get the correct antenna direction and the lock status changes to true.
-In contrast, you can observe the received power spectrum in real-time with an
-SDR receiver and notice the satellite carrier (or beacon) even before the
-receiver locks. Hence, the alignment process is significantly more
+than the SDR receiver. The main limitation is that the Linux USB (TBS 5927 or
+5520SE), Novra S400, and Sat-IP receivers indicate the lock status as a true or
+false metric. As a result, you will often see the lock status as false until
+you suddenly get the correct antenna direction and the lock status changes to
+true. In contrast, you can observe the received power spectrum in real-time
+with an SDR receiver and notice the satellite carrier (or beacon) even before
+the receiver locks. Hence, the alignment process is significantly more
 straightforward with an SDR receiver.
 
 Other than using an SDR receiver, the alternative solution to obtain a gradual
@@ -603,4 +604,4 @@ too by following the
 
 ---
 
-Prev: [Novra S400 Setup](s400.md) | [TBS5927 Setup](tbs.md) | [SDR Setup](sdr.md) | [Sat-IP Setup](sat-ip.md)
+Prev: [Novra S400 Setup](s400.md) | [TBS Setup](tbs.md) | [SDR Setup](sdr.md) | [Sat-IP Setup](sat-ip.md)

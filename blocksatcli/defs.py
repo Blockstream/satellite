@@ -84,6 +84,12 @@ demods = [
         'tun_range': (950.0, 2150.0)
     },
     {
+        'vendor': "TBS",
+        'model': "5520SE",
+        'type': linux_usb_setup_type,
+        'tun_range': (950.0, 2150.0)
+    },
+    {
         'vendor': "",
         'model': "RTL-SDR",
         'type': sdr_setup_type,

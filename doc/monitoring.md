@@ -15,7 +15,7 @@ communications service and worldwide coverage.
 The `--report` option can be appended to all supported receiver types, as
 follows:
 
-TBS 5927 USB receiver:
+TBS 5927 or 5520SE USB receiver:
 
 ```
 blocksat-cli usb launch --report

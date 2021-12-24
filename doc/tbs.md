@@ -3,19 +3,21 @@ parent: Receiver Setup
 nav_order: 2
 ---
 
-# TBS5927 Receiver
+# TBS Linux USB Receiver
 
-The TBS 5927 is a USB receiver, which receives a satellite signal and outputs
-data to the host over USB. The host, in turn, is responsible for configuring the
-receiver using specific DVB-S2 tools. Hence, next, you need to prepare the host
-for driving the TBS 5927.
+The TBS 5927 and TBS 5520SE devices are USB-based DVB-S2 receivers. They
+receive the satellite signal fed via a coaxial interface and output data to the
+host over USB. They are also configured directly over USB, and the host is
+responsible for setting such configurations using specific Linux tools.
+
+The instructions that follow prepare the host for driving the TBS receiver.
 
 <!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-generate-toc again -->
 **Table of Contents**
 
-- [TBS5927 Professional DVB-S2 TV Tuner USB](#tbs5927-professional-dvb-s2-tv-tuner-usb)
+- [TBS Linux USB Receiver](#tbs-linux-usb-receiver)
     - [Hardware Connections](#hardware-connections)
-    - [TBS 5927 Drivers](#tbs-5927-drivers)
+    - [TBS Drivers](#tbs-drivers)
     - [Setup Configuration Helper](#setup-configuration-helper)
     - [Software Requirements](#software-requirements)
     - [Configure the Host](#configure-the-host)
@@ -31,31 +33,32 @@ for driving the TBS 5927.
 
 ## Hardware Connections
 
-The TBS 5927 should be connected as follows:
+The TBS 5927/5520SE should be connected as follows:
 
 ![TBS5927 connections](img/usb_connections.png?raw=true "TBS5927 connections")
 
-- Connect the LNB directly to "LNB IN" of the TBS 5927 using a coaxial cable (an
-  RG6 cable is recommended).
-- Connect the TBS 5927's USB interface to your computer.
+- Connect the LNB directly to "LNB IN" interface of the TBS 5927/5520SE using a
+  coaxial cable (an RG6 cable is recommended).
+- Connect the TBS's USB2.0 interface to your computer.
+- Power up the TBS device. For the TBS 5927 model, connect the 12V DC power
+  supply. For the TBS 5520SE, connect both male connectors of the dual-male USB
+  Y cable to your host.
 
-## TBS 5927 Drivers
 
-Before anything else, note that specific device drivers are required to use the
-TBS5927. Please, note that, due to the driver installation process, it is safer
-and **strongly recommended** to use a virtual machine for running the
-TBS5927. If you do so, please note that all commands recommended in the
-remainder of this page shall be executed in the virtual machine.
+## TBS Drivers
 
-Next, install the drivers for the TBS 5927 by running:
+Next, you will need to install specific device drivers to use the TBS 5927 or
+5520SE receivers. These are installed by rebuilding and rewriting the Linux
+Media drivers. Hence, if you are not setting up a dedicated machine to host the
+TBS receiver, it would be safer and **recommended** to use a virtual machine
+(VM) as the receiver host so that the drivers can be installed directly on the
+VM instead of your main machine.
+
+To install the drivers, run the following command:
 
 ```
 blocksat-cli deps tbs-drivers
 ```
-
-> Note: this command requires CLI version 0.2.5 or higher. Please
-> [upgrade blocksat-cli](quick-reference.md#cli-installation-and-upgrade) if
-> necessary.
 
 Once the script completes the installation, reboot the virtual machine.
 
@@ -86,23 +89,23 @@ blocksat-cli deps install
 ## Configure the Host
 
 Next, you need to create and configure a network interface to output the IP
-traffic received via the TBS5927. You can apply all configurations by running
-the following command:
+traffic received via the TBS 5927/5520SE unit. You can do so by running the
+following command:
 
 ```
 blocksat-cli usb config
 ```
 
-If you would like to review the changes that will be made before applying them,
-first run the command in dry-run mode:
+If you would like to review the changes before applying them, first run the
+command in dry-run mode:
 
 ```
 blocksat-cli usb config --dry-run
 ```
 
 Note this command will define an arbitrary IP address to the interface. If you
-would like to define a specific IP address instead, for example, to avoid
-address conflicts, use the command-line argument `--ip`.
+would like to set a specific IP address instead, for example, to avoid address
+conflicts, use the command-line argument `--ip`.
 
 Furthermore, note that this configuration is not persistent across
 reboots. After a reboot, you need to run `blocksat-cli usb config` again.
@@ -131,7 +134,8 @@ container. Please refer to the instructions in the [Docker guide](docker.md).
 
 ### Useful Resources
 
-- [TBS 5927 Datasheet](https://www.tbsiptv.com/download/tbs5927/tbs5927_professtional_dvb-S2_TV_Tuner_USB_data_sheet.pdf)
+- [TBS 5927 Datasheet](https://www.tbsiptv.com/download/tbs5927/tbs5927_professtional_dvb-S2_TV_Tuner_USB_data_sheet.pdf).
+- [TBS 5520SE Datasheet](https://www.tbsiptv.com/download/tbs5520se/tbs5520se_multi_standard_universal_tv_tuner_box_data_sheet.pdf).
 - [TBS Drivers Wiki](https://github.com/tbsdtv/linux_media/wiki).
 
 ### Install Binary Packages Manually
