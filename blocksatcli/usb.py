@@ -159,7 +159,9 @@ def _find_adapter(list_only=False, target_model=None):
     dvb_s2_adapters = [a for a in adapters if ("DVB-S/S2" in a["support"])]
     logger.debug(dvb_s2_adapters)
 
-    assert (len(dvb_s2_adapters) > 0), "No DVB-S2 adapters found"
+    if (len(dvb_s2_adapters) == 0):
+        logger.error("No DVB-S2 adapters found")
+        sys.exit(1)
 
     chosen_adapter = None
     if (target_model is not None):
