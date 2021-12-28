@@ -6,6 +6,7 @@ import textwrap
 
 
 class Cfg:
+
     def __init__(self, cfg=None):
         self.cfg = {} if cfg is None else cfg
 

@@ -52,6 +52,7 @@ def tearDownModule():
 
 
 class TestApiListener(TestCase):
+
     def setUp(self):
         # Gpg
         self.gpg = Gpg(gpghome)

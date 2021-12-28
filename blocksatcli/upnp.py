@@ -93,6 +93,7 @@ def _device_description_required(func):
     device.
 
     """
+
     @wraps(func)
     def wrapper(device, *args, **kwargs):
         if device.description is None:
@@ -123,6 +124,7 @@ class SSDPDevice:
     :type response: str
 
     """
+
     def __init__(self, address, response):
         self.address = address
         self.host = address[0]
@@ -199,6 +201,7 @@ class SSDPDevice:
 
 
 class SSDPHeader:
+
     def __init__(self, **headers):
         """
         Example M-SEARCH header:
@@ -251,6 +254,7 @@ class SSDPRequest(SSDPHeader):
     :param method: SSDP request method [M-SEARCH]
 
     """
+
     def __init__(self,
                  ssdp_mcast_addr='239.255.255.250',
                  ssdp_port=1900,
@@ -372,6 +376,7 @@ class UPnP:
     A UPnP object used for device discovery
 
     """
+
     def __init__(self, src_port=None, interface=None):
         self.ssdp = SSDPRequest(src_port=src_port, interface=interface)
         self.discovered_devices = []

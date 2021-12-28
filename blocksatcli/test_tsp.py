@@ -5,6 +5,7 @@ from . import tsp
 
 
 class TestTsp(TestCase):
+
     def setUp(self):
         self.parser = argparse.ArgumentParser()
         tsp.add_to_parser(self.parser)

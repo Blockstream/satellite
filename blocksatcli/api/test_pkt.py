@@ -7,6 +7,7 @@ from . import pkt
 
 
 class TestOrder(unittest.TestCase):
+
     def _rnd_string(self, n_bytes):
         """Generate random string with given number of bytes"""
         return ''.join(

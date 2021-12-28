@@ -21,6 +21,7 @@ MAX_SEQ_NUM = 2**31  # Maximum transmission sequence number
 class DemoRx():
     """Demo receiver
     """
+
     def __init__(self,
                  server,
                  socks,

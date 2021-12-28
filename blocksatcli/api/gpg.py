@@ -12,6 +12,7 @@ logger = logging.getLogger(__name__)
 
 
 class Gpg():
+
     def __init__(self, gpghome, verbose=False, interactive=False):
         """Create GnuPG instance"""
         if (not os.path.exists(gpghome)):

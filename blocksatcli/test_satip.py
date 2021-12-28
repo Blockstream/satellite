@@ -16,6 +16,7 @@ def _gen_ssdp_dev(addr, friendly_name):
 
 class MockResponse():
     """Mock requests response"""
+
     def __init__(self, text="", json={}):
         self.text = text
         self._json = json
@@ -28,6 +29,7 @@ class MockResponse():
 
 
 class TestApi(TestCase):
+
     @patch('blocksatcli.util.ask_multiple_choice')
     @patch('blocksatcli.upnp.UPnP.discover')
     def test_discover(self, mock_upnp_discover, mock_ask_multi_choice):

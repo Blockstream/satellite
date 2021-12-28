@@ -72,6 +72,7 @@ class Tsp():
     process.
 
     """
+
     def __init__(self):
         self.cmd = []
         self.proc = None

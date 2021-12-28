@@ -20,6 +20,7 @@ class ApiOrder:
         tls_cert : API client certificate
 
     """
+
     def __init__(self, server, seq_num=None, tls_cert=None, tls_key=None):
         self.uuid = None
         self.auth_token = None

@@ -13,6 +13,7 @@ MAX_READ = 2048
 
 
 class UdpSock():
+
     def __init__(self, sock_addr, ifname, mcast_rx=True):
         """Instantiate UDP socket
 

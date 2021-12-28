@@ -35,6 +35,7 @@ class Reporter():
     Sends receiver metrics to a remote server.
 
     """
+
     def __init__(self,
                  cfg,
                  cfg_dir,
@@ -169,6 +170,7 @@ class Monitor():
     file, and reports to a server.
 
     """
+
     def __init__(self,
                  cfg_dir,
                  logfile=False,

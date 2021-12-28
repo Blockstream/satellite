@@ -9,6 +9,7 @@ class Cache():
     notation to get and set dictionary fields.
 
     """
+
     def __init__(self, cfg_dir, filename=".cache"):
         """Cache constructor
 

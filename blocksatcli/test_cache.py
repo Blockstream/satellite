@@ -4,6 +4,7 @@ from . import cache
 
 
 class TestCache(unittest.TestCase):
+
     def setUp(self):
         self.test_dir = "/tmp/"
 

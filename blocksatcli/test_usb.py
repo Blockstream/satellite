@@ -3,6 +3,7 @@ from . import usb
 
 
 class TestApi(unittest.TestCase):
+
     def test_log_parser(self):
         """Test parsing of receiver logs"""
         logs = """

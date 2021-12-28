@@ -6,6 +6,7 @@ from .gpg import Gpg
 
 
 class TestGpg(unittest.TestCase):
+
     def setUp(self):
         self.gpghome = "/tmp/.gnupg-" + str(uuid.uuid4())
 

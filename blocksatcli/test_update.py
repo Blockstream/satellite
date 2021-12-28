@@ -5,6 +5,7 @@ from . import update
 
 
 class TestUpdate(unittest.TestCase):
+
     def tearDown(self):
         os.remove("/tmp/.update")
 

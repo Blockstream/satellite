@@ -6,6 +6,7 @@ from . import fec, pkt
 
 
 class TestFec(unittest.TestCase):
+
     def _rnd_string(self, n_bytes):
         """Generate a random string with the given number of bytes"""
         return ''.join(

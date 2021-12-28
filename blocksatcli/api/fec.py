@@ -68,6 +68,7 @@ class Fec:
     the BlocksatPkt structure (see pkt.py).
 
     """
+
     def __init__(self, overhead=0.1):
         """Constructor
 

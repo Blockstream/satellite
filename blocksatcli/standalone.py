@@ -59,6 +59,7 @@ snmp_row_status_table = {
 
 class SnmpClient():
     """SNMP Client"""
+
     def __init__(self, address, port, mib, dry=False):
         """Constructor
 
@@ -242,6 +243,7 @@ class SnmpClient():
 
 class S400Client(SnmpClient):
     """Novra S400 SNMP Client"""
+
     def __init__(self, demod, address, port, dry=False):
         super().__init__(address, port, mib='NOVRA-s400-MIB', dry=dry)
         self.demod = demod

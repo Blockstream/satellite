@@ -215,6 +215,7 @@ def get_home_dir():
 
 
 class ProcessRunner():
+
     def __init__(self, logger=None, dry=False):
         self.logger = logger
         self.dry = dry
@@ -335,6 +336,7 @@ class ProcessRunner():
 
 class Pipe():
     """Unnamed pipe wrapper"""
+
     def __init__(self):
         """Create unnamed pipe"""
         r_fd, w_fd = os.pipe()

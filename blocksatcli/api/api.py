@@ -320,6 +320,7 @@ def demo_rx(args):
 
 def subparser(subparsers):
     """Subparser for usb command"""
+
     def channel_number(value):
         ivalue = int(value)
         if ivalue < 0 or ivalue > 255:

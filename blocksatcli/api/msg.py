@@ -32,6 +32,7 @@ class ApiMsg:
     over the lossy satellite link.
 
     """
+
     def __init__(self, data, msg_format="original", filename=None):
         """ApiMsg Constructor
 

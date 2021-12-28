@@ -9,6 +9,7 @@ from . import defs
 
 
 class TestConfigDir(TestCase):
+
     def setUp(self):
         self.cfg_name = str(uuid.uuid4())
         self.cfg_dir = "/tmp/test-blocksat-cli-config"
@@ -76,6 +77,7 @@ class TestConfigDir(TestCase):
 
 
 class TestConfigHelpers(TestCase):
+
     def test_net_if(self):
         info = {}
 

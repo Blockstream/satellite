@@ -59,6 +59,7 @@ class BlocksatPkt:
     the contents of a packet into the corresponding header and payload fields.
 
     """
+
     def __init__(self,
                  seq_num=None,
                  frag_num=None,
@@ -127,6 +128,7 @@ class BlocksatPktHandler:
     ApiMsg, it generates multiple Blocksat Packets.
 
     """
+
     def __init__(self, timeout=7200):
         """BlocksatPktHandler Constructor
 

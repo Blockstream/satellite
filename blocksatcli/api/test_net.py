@@ -3,6 +3,7 @@ from . import net
 
 
 class TestApi(unittest.TestCase):
+
     def test_send_rcv(self):
         """Test transmission and reception of data"""
         ip = "239.0.0.2"

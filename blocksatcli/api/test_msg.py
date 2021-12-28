@@ -9,6 +9,7 @@ from .gpg import Gpg
 
 
 class TestApi(unittest.TestCase):
+
     def test_encapsulation(self):
         """Test custom application-layer encapsulation/decapsulation"""
         # Original message

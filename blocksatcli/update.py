@@ -19,6 +19,7 @@ class UpdateCache(Cache):
     before checking pip for updates, as it provides a faster interface.
 
     """
+
     def __init__(self, cfg_dir):
         """UpdateCache constructor
 

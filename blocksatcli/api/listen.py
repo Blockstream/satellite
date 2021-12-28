@@ -13,6 +13,7 @@ logger = logging.getLogger(__name__)
 
 class ApiListener():
     """Infinite loop for listening to API messages"""
+
     def __init__(self, recv_once=False, recv_queue=None):
         """Constructor
 

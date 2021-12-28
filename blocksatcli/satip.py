@@ -33,6 +33,7 @@ class SatIp():
     DVB-S2 frontend metrics.
 
     """
+
     def __init__(self, ip_addr=None, port=8000):
         """Constructor
 
@@ -236,6 +237,7 @@ class SatIp():
         given function. Subsequently, it is restored to the original level.
 
         """
+
         def inner(*args, **kwargs):
             urllib3_logger = logging.getLogger('urllib3')
             urllib3_logging_level = urllib3_logger.level

@@ -4,6 +4,7 @@ from . import bidding
 
 
 class TestBidding(unittest.TestCase):
+
     def test_suggested_bid(self):
         # The suggested bid should always respect the minimum bid per byte
         data_size = 1000

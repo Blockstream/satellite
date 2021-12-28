@@ -4,6 +4,7 @@ from . import order, pkt
 
 
 class TestOrder(unittest.TestCase):
+
     def setUp(self):
         server = "https://api.blockstream.space/testnet"
         self.order = order.ApiOrder(server)

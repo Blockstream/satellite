@@ -3,6 +3,7 @@ from . import bitcoin, defs, config
 
 
 class TestBitcoinConfGen(unittest.TestCase):
+
     def gen_text_dict(self):
         """Generate configurations in text and dictionary formats"""
         # Text version

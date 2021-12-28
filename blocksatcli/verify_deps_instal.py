@@ -5,6 +5,7 @@ from . import dependencies
 
 
 class TestDependencies(unittest.TestCase):
+
     def gen_args(self, target, btc=False):
         """Mock command-line argument"""
         logging.basicConfig(level=logging.DEBUG)

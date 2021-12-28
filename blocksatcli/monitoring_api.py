@@ -109,6 +109,7 @@ class BsMonitoring():
     file, this class proceeds with metric reporting right away.
 
     """
+
     def __init__(self, cfg, cfg_dir, gnupghome, passphrase=None):
         self.cfg = cfg
         self.cfg_dir = cfg_dir
@@ -377,7 +378,7 @@ class BsMonitoring():
                 break
 
         if (attempts == 0):
-            logger.error("Maximum number of registration attempts " "reached")
+            logger.error("Maximum number of registration attempts reached")
             logger.error("Please check if your receiver is running properly "
                          "and restart the application to try again")
             failure = True
