@@ -33,15 +33,14 @@ class DemoRx():
         """ DemoRx Constructor
 
         Args:
-            server   : API server address where the order lives
+            server   : API server address where the order lives.
             socks    : Instances of UdpSock over which to send the packets
-            kbps     : Target bit rate in kbps
-            tx_event : SSE event to use as trigger for transmissions
-            channel  : API channel number
-            regions  : Regions covered by the transmission (for Tx
-                       confirmation)
-            tls_key  : API client key (for Tx confirmation)
-            tls_cer  : API client certificate (for Tx confirmation)
+            kbps     : Target bit rate in kbps.
+            tx_event : SSE event to use as trigger for transmissions.
+            channel  : API channel number.
+            regions  : Regions to process and potentially confirm Tx.
+            tls_key  : API client key (for Tx confirmation).
+            tls_cer  : API client certificate (for Tx confirmation).
 
 
         """
@@ -58,9 +57,6 @@ class DemoRx():
         self.regions = regions
         self.tls_cert = tls_cert
         self.tls_key = tls_key
-
-        # State
-        self.last_seq_num = None
 
     def _send_pkts(self, pkts):
         """Transmit Blocksat packets of the API message over all sockets
@@ -106,62 +102,41 @@ class DemoRx():
         if (order["status"] != self.tx_event):
             return
 
-        # Sequence number
+        # And ensure the order includes a region covered by this instance
+        if (self.regions is not None and 'regions' in order
+                and set(order['regions']) & set(self.regions) == set()):
+            logger.debug("Demo-Rx region(s) not covered by this order")
+            return
+
         seq_num = order["tx_seq_num"]
 
-        # If the sequence number has rolled back, maybe it is because the
-        # server has restarted the sequence numbers (not uncommon on test
-        # environments). In this case, restart the sequence.
-        if (self.last_seq_num is not None and seq_num < self.last_seq_num):
-            logger.warning("Tx sequence number rolled back from {} to "
-                           "{}".format(self.last_seq_num, seq_num))
-            self.last_seq_num = None
+        logger.info("Message %-5d\tSize: %d bytes\t" %
+                    (seq_num, order["message_size"]))
 
-        rx_pending = True
-        while (rx_pending):
-            # Receive all messages until caught up
-            if (self.last_seq_num is None):
-                next_seq_num = seq_num
-            else:
-                next_seq_num = self.last_seq_num + 1
+        # Get the API message data
+        order = ApiOrder(self.server,
+                         seq_num=seq_num,
+                         tls_cert=self.tls_cert,
+                         tls_key=self.tls_key)
+        data = order.get_data()
 
-            # Keep track of the last processed sequence number
-            self.last_seq_num = next_seq_num
+        if (data is None):
+            logger.debug("Empty message. Skipping...")
+            return
 
-            # Is this an interation to catch up with a sequence
-            # number gap or a normal transmission iteration?
-            if (seq_num == next_seq_num):
-                rx_pending = False
-            else:
-                logger.info("Catch up with transmission %d" % (next_seq_num))
+        # Split API message data into Blocksat packet(s)
+        tx_handler = BlocksatPktHandler()
+        tx_handler.split(data, seq_num, self.channel)
+        pkts = tx_handler.get_frags(seq_num)
 
-            logger.info("Message %-5d\tSize: %d bytes\t" %
-                        (next_seq_num, order["message_size"]))
+        logger.debug("Transmission is going to take: "
+                     "{:6.2f} sec".format(len(data) * 8 / (self.kbps)))
 
-            # Get the API message data
-            order = ApiOrder(self.server,
-                             seq_num=next_seq_num,
-                             tls_cert=self.tls_cert,
-                             tls_key=self.tls_key)
-            data = order.get_data()
+        # Send the packet(s)
+        self._send_pkts(pkts)
 
-            if (data is None):
-                # Empty message. There is nothing else to do.
-                continue
-
-            # Split API message data into Blocksat packet(s)
-            tx_handler = BlocksatPktHandler()
-            tx_handler.split(data, next_seq_num, self.channel)
-            pkts = tx_handler.get_frags(next_seq_num)
-
-            logger.debug("Transmission is going to take: "
-                         "{:6.2f} sec".format(len(data) * 8 / (self.kbps)))
-
-            # Send the packet(s)
-            self._send_pkts(pkts)
-
-            # Send transmission confirmation to the server
-            order.confirm_tx(self.regions)
+        # Send transmission confirmation to the server
+        order.confirm_tx(self.regions)
 
     def run(self):
         """Run the demo-rx transmission loop"""

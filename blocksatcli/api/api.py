@@ -654,11 +654,11 @@ def subparser(subparsers):
         description=textwrap.dedent('''\
 
         Demo Blockstream Satellite Receiver, used to test the API data listener
-        application without an actual satellite receiver. The satellite
+        application without an actual satellite receiver. A real satellite
         receiver receives UDP packets sent over satellite and relays these
         packets to a host PC, where the API data listener application runs.
-        This application, in turn, produces equivalent UDP packets, just like
-        the satellite receiver would. The difference is that it fetches the
+        This application imitates this behavior and produces equivalent UDP
+        packets to the API data listener. The difference is that it fetches the
         data through the internet, rather than receiving via satellite.
 
         '''),
@@ -682,12 +682,15 @@ def subparser(subparsers):
                     default=ApiChannel.USER.value,
                     type=channel_number,
                     help="Target API transmission channel")
-    p6.add_argument('-r',
-                    '--regions',
-                    nargs="+",
-                    choices=range(0, 6),
-                    type=int,
-                    help="Coverage region for Tx confirmations")
+    p6.add_argument(
+        '-r',
+        '--regions',
+        nargs="+",
+        choices=range(0, 6),
+        type=int,
+        help="Coverage region of the demo receiver. Optionally define "
+        "multiple arguments to simulate reception from multiple satellite "
+        "beams simultaneously. An empty list implies all regions.")
     p6.add_argument('--ttl',
                     type=int,
                     default=1,
