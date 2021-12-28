@@ -189,23 +189,27 @@ class ApiOrder:
             'sent': False,
             'received': False,
             'cancelled': False,
-            'expired': False
+            'expired': False,
+            'confirming': False
         }
         msg = {
             'pending': "- Waiting for payment confirmation...",
             'paid': "- Payment confirmed. Ready to launch transmission...",
-            'transmitting': "- Order in transmission...",
+            'transmitting': "- Transmission started...",
             'sent': "- Order successfully transmitted",
             'received': "- Reception confirmed by the ground station",
             'cancelled': "- Transmission cancelled",
-            'expired': "- Order expired"
+            'expired': "- Order expired",
+            'confirming': "- Confirming transmission...",
         }
         requires = {
             'pending': [],
             'paid': ['pending'],
             'transmitting': ['pending', 'paid'],
-            'sent': ['pending', 'paid', 'transmitting'],
-            'received': ['pending', 'paid', 'transmitting', 'sent'],
+            'confirming': ['pending', 'paid', 'transmitting'],
+            'sent': ['pending', 'paid', 'transmitting', 'confirming'],
+            'received':
+            ['pending', 'paid', 'transmitting', 'confirming', 'sent'],
             'cancelled': ['pending'],
             'expired': ['pending']
         }
@@ -218,7 +222,8 @@ class ApiOrder:
         while (True):
             self._fetch()
 
-            if (not state_seen[self.order['status']]):
+            if (self.order['status'] in state_seen
+                    and not state_seen[self.order['status']]):
                 state_seen[self.order['status']] = True
 
                 # If the status is not polled fast enough, some intermediate
