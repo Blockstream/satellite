@@ -1,8 +1,20 @@
-test:
-  image: python:3.8.6
+.test:
+  stage: test
   script:
-    - pip3 install tox
-    - tox
+    - make && make install
+    - python -m unittest discover -b
+
+test-py37:
+  extends: .test
+  image: python:3.7
+
+test-py38:
+  extends: .test
+  image: python:3.8
+
+test-py39:
+  extends: .test
+  image: python:3.9
 
 lint:
   image: python:3.9
