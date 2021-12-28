@@ -79,11 +79,12 @@ class DemoRx():
                 logger.debug("Send packet %d - %d bytes" % (i, len(pkt)))
 
             # Throttle
-            tx_delay = len(pkt) / byte_rate
-            next_tx += tx_delay
-            sleep = next_tx - time.time()
-            if (sleep > 0):
-                time.sleep(sleep)
+            if (byte_rate > 0):
+                tx_delay = len(pkt) / byte_rate
+                next_tx += tx_delay
+                sleep = next_tx - time.time()
+                if (sleep > 0):
+                    time.sleep(sleep)
 
     def _handle_event(self, event):
         """Handle event broadcast by the SSE server
@@ -129,8 +130,9 @@ class DemoRx():
         tx_handler.split(data, seq_num, self.channel)
         pkts = tx_handler.get_frags(seq_num)
 
-        logger.debug("Transmission is going to take: "
-                     "{:6.2f} sec".format(len(data) * 8 / (self.kbps)))
+        if (self.kbps > 0):
+            logger.debug("Transmission is going to take: "
+                         "{:g} sec".format(len(data) * 8 / (self.kbps * 1e3)))
 
         # Send the packet(s)
         self._send_pkts(pkts)

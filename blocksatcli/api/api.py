@@ -705,7 +705,8 @@ def subparser(subparsers):
         '--bitrate',
         type=float,
         default=1000,
-        help="Maximum bit rate in kbps of the output packet stream")
+        help="Maximum bit rate of the output packet stream in kbps. "
+        "Set 0 to transmit as fast as the socket(s) can handle.")
     p6.add_argument('-e',
                     '--event',
                     choices=["transmitting", "sent"],
