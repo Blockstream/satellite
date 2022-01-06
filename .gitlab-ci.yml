@@ -36,7 +36,7 @@ test-make-install-apt:
     - make && make install
   parallel:
     matrix:
-      - IMAGE: ["ubuntu:bionic", "ubuntu:focal", "debian:stretch", "debian:buster"]
+      - IMAGE: ["ubuntu:bionic", "ubuntu:focal", "debian:buster", "debian:bullseye"]
 
 test-make-install-dnf:
   image: $IMAGE
@@ -50,7 +50,7 @@ test-make-install-dnf:
     - make && make install
   parallel:
     matrix:
-      - IMAGE: ["fedora:32", "fedora:33", "centos:8"]
+      - IMAGE: ["fedora:33", "fedora:34", "centos:8"]
 
 test-make-install-yum:
   image: $IMAGE
@@ -82,7 +82,7 @@ test-deb-dependencies:
     - make && make install
   parallel:
     matrix:
-      - IMAGE: ["ubuntu:bionic", "ubuntu:focal", "debian:stretch", "debian:buster"]
+      - IMAGE: ["ubuntu:bionic", "ubuntu:focal", "debian:buster", "debian:bullseye"]
 
 test-rpm-dependencies:
   image: $IMAGE
@@ -95,7 +95,7 @@ test-rpm-dependencies:
     - make && make install
   parallel:
     matrix:
-      - IMAGE: ["fedora:32", "fedora:33"]
+      - IMAGE: ["fedora:33", "fedora:34"]
 
 pypi-upload:
   image: python
