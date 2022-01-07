@@ -112,7 +112,7 @@ def send(args):
 
     # API transmission order
     order = ApiOrder(server_addr, tls_cert=args.tls_cert, tls_key=args.tls_key)
-    res = order.send(msg.get_data(), bid)
+    res = order.send(msg.get_data(), bid, args.regions)
     print()
 
     # The API servers (except the gossip and btc-src instances) should return a
@@ -412,6 +412,19 @@ def subparser(subparsers):
                     default=None,
                     type=int,
                     help="Bid (in millisatoshis) for the message transmission")
+    p2.add_argument(
+        '--regions',
+        nargs="+",
+        choices=range(0, len(defs.satellites)),
+        type=int,
+        help="Satellites beams over which to send the message. Select "
+        "one or multiple beams by numbers from 0 to 5 according to the "
+        "following mapping: {}. Do not specify any region if the goal is "
+        "to broadcast the message worldwide through all beams.".format(
+            ", ".join([
+                "{} for {}".format(i, x['alias'])
+                for i, x in enumerate(defs.satellites)
+            ])))
     p2.add_argument(
         '-r',
         '--recipient',

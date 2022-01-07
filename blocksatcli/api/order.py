@@ -60,6 +60,8 @@ class ApiOrder:
             if "errors" in r.json():
                 for error in r.json()["errors"]:
                     self._print_error(error)
+            else:
+                logger.error(r.json())
         except ValueError:
             logger.error(r.text)
 
@@ -107,12 +109,13 @@ class ApiOrder:
         self.auth_token = auth_token
         self._fetch()
 
-    def send(self, data, bid):
+    def send(self, data, bid, regions=None):
         """Send the transmission order
 
         Args:
             data : Data as bytes array to broadcast over satellite
             bid  : Bid in msats
+            regions : List of regions over which to send the order.
 
         Returns:
             Dictionary with order metadata
@@ -120,15 +123,19 @@ class ApiOrder:
         """
         assert (isinstance(data, bytes))
 
+        req_data = {'bid': bid}
+
+        if (regions is not None and len(regions) > 0):
+            req_data['regions'] = json.dumps(regions)
+
         # Post request to the API
         r = requests.post(self.server + '/order',
-                          data={'bid': bid},
+                          data=req_data,
                           files={'file': data},
                           cert=(self.tls_cert, self.tls_key))
 
         # In case of failure, check the API error message
-        if (r.status_code != requests.codes.ok
-                and r.headers['content-type'] == "application/json"):
+        if (r.status_code != requests.codes.ok):
             self._print_errors(r)
 
         # Raise error if response status indicates failure
