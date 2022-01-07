@@ -9,7 +9,7 @@
 
 ## 0.4.2
 
-Unreleased
+Release Date: 2022-01-06
 
 ### Added
 - Support for the TBS 5520SE USB receiver.
