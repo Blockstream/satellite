@@ -274,11 +274,20 @@ class S400Client(SnmpClient):
 
         # Parse
         signal_lock = (signal_lock_raw == 'locked')
+
+        # NOTE: the S400 could have unlocked while the SNMP requests were still
+        # being served (the _get request is not an atomic snapshot). As a
+        # result, s400SignalLockStatus could be True while some or all of the
+        # succeeding metrics (s400SignalStrength to s400BER) could be empty if
+        # the S400 unlocked in this interim. In this case, assume the S400 is
+        # actually unlocked to prevent parsing of empty metrics.
+        raw_metrics = [signal_raw, c_to_n_raw, ber_raw, uncorr_raw]
+        if any([x == '' for x in raw_metrics]):
+            signal_lock = False
+
         stats = {'lock': (signal_lock, None)}
 
         # Metrics that require locking
-        #
-        # NOTE: the S400 does not return the signal level if unlocked.
         if (signal_lock):
             level = float('nan') if (signal_raw
                                      == '< 70') else float(signal_raw)
