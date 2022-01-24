@@ -289,11 +289,17 @@ class S400Client(SnmpClient):
 
         # Metrics that require locking
         if (signal_lock):
-            level = float('nan') if (signal_raw
-                                     == '< 70') else float(signal_raw)
-            cnr = float('nan') if (c_to_n_raw == '< 3') else float(c_to_n_raw)
-            stats['snr'] = (cnr, "dB")
-            stats['level'] = (level, "dBm")
+            if (signal_raw == '< 70'):
+                logger.warning(
+                    "Signal level not accurately measured (below -70 dBm)")
+            else:
+                stats['level'] = (float(signal_raw), "dBm")
+
+            if (c_to_n_raw == '< 3'):
+                logger.warning("SNR not accurately measured (below 3 dB)")
+            else:
+                stats['snr'] = (float(c_to_n_raw), "dB")
+
             stats['ber'] = (float(ber_raw), None)
             stats['pkt_err'] = (int(uncorr_raw), None)
 
