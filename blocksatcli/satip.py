@@ -282,11 +282,11 @@ class SatIp():
         """
         self._assert_addr()
 
+        logger.info("Upgrading the Sat-IP receiver's firmware.")
+
         if (interactive and not util.ask_yes_or_no("Proceed?")):
             logger.info("Aborting")
             return False
-
-        logger.info("Upgrading the Sat-IP receiver's firmware.")
 
         # Initialize the upgrade procedure
         resp = self._gmifu_req(params={'cmd': 'fu_cmd_init'})
@@ -689,6 +689,10 @@ def subparser(subparsers):
         action='store_true',
         help="Immediately retry the connection if an HTTP error occurs while "
         "reading the MPEG transport stream from the Sat-IP server")
+    p.add_argument('--force-fw-upgrade',
+                   default=False,
+                   action='store_true',
+                   help="Force upgrade of the Sat-IP server's firmware")
     tsp.add_to_parser(p)
     monitoring.add_to_parser(p)
     p.set_defaults(func=launch)
@@ -733,7 +737,11 @@ def launch(args):
 
     # Check if the Sat-IP device has the minimum required firmware version
     min_fw_version = "3.1.18" if args.fe_monitoring else "2.2.19"
-    fw_version_ok = sat_ip.check_fw_version(min_fw_version)
+
+    if (args.force_fw_upgrade):
+        fw_version_ok = False
+    else:
+        fw_version_ok = sat_ip.check_fw_version(min_fw_version)
 
     # Try to upgrade the firmware if necessary
     if (fw_version_ok is False):
