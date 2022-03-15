@@ -381,13 +381,19 @@ class S400Client(SnmpClient):
                     print("- {}: {}".format(label, val))
         return True
 
-    def configure(self, info):
-        """Configure the S400"""
+    def configure(self, info, freq_corr):
+        """Configure the S400
+
+        Args:
+            info (dict): User info dictionary.
+            freq_corr (float): Frequency correction in MHz.
+
+        """
         logger.info("Configuring the S400 receiver at {} via SNMP".format(
             self.address))
 
         # Local parameters
-        l_band_freq = int(info['freqs']['l_band'] * 1e6)
+        l_band_freq = int((info['freqs']['l_band'] + freq_corr) * 1e6)
         lo_freq = int(info['freqs']['lo'] * 1e6)
         sym_rate = defs.sym_rate[info['sat']['alias']]
         if (info['lnb']['pol'].lower() == "dual"
@@ -519,6 +525,10 @@ def subparser(subparsers):
                     action='store_true',
                     default=False,
                     help="Print all commands but do not execute them")
+    p1.add_argument('--freq-corr',
+                    default=0,
+                    type=float,
+                    help='Carrier frequency offset correction in kHz')
     p1.set_defaults(func=cfg_standalone)
 
     # Monitoring
@@ -588,7 +598,8 @@ def cfg_standalone(args):
     if (not args.host_only):
         util.print_header("Receiver Configuration")
         s400 = S400Client(args.demod, rx_ip_addr, args.port, dry=args.dry_run)
-        s400.configure(user_info)
+        freq_corr_mhz = args.freq_corr / 1e3
+        s400.configure(user_info, freq_corr_mhz)
 
 
 def monitor(args):

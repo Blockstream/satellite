@@ -80,14 +80,20 @@ class SatIp():
             raise RuntimeError("Sat-IP device address must be discovered or "
                                "informed first")
 
-    def set_dvbs2_params(self, info, target_modcod):
-        """Set the DVB-S2 and MPEG TS parameters of the target stream"""
+    def set_dvbs2_params(self, info, target_modcod, freq_corr):
+        """Set the DVB-S2 and MPEG TS parameters of the target stream
+
+        Args:
+            info (dict): User info dictionary.
+            target_modcod (str): Target MODCOD.
+            freq_corr (float): Frequency correction in MHz.
+        """
         modcod = _parse_modcod(target_modcod)
         pilots = 'on' if defs.pilots else 'off'
         sym_rate = defs.sym_rate[info['sat']['alias']]
         self.params = {
             'src': 1,
-            'freq': info['sat']['dl_freq'],
+            'freq': info['sat']['dl_freq'] + freq_corr,
             'pol': info['sat']['pol'].lower(),
             'ro': defs.rolloff,
             'msys': 'dvbs2',
@@ -452,7 +458,8 @@ class SatIp():
             except ValueError:
                 continue
 
-            if fe_freq == self.params['freq'] and fe_pol == self.params['pol']:
+            if fe_freq == round(self.params['freq'], 2) and \
+                    fe_pol == self.params['pol']:
                 candidate_frontends.append(fe)
 
         # If there is only one matching frontend, it's got to be ours.
@@ -659,6 +666,10 @@ def subparser(subparsers):
                    metavar='',
                    help="DVB-S2 modulation and coding (MODCOD) scheme. "
                    "Choose from: " + ", ".join(defs.modcods.keys()))
+    p.add_argument('--freq-corr',
+                   default=0,
+                   type=float,
+                   help='Carrier frequency offset correction in kHz')
     p.add_argument('-u',
                    '--username',
                    default=DEFAULT_USERNAME,
@@ -761,7 +772,8 @@ def launch(args):
             return
 
     # Tuning parameters
-    sat_ip.set_dvbs2_params(info, args.modcod)
+    freq_corr_mhz = args.freq_corr / 1e3
+    sat_ip.set_dvbs2_params(info, args.modcod, freq_corr_mhz)
     url = "http://" + sat_ip.host + "/?" + urlencode(sat_ip.params)
 
     # Run tsp
