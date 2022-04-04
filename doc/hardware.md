@@ -39,8 +39,8 @@ approaches.
             - [Standalone Receiver Setup](#standalone-receiver-setup)
             - [Sat-IP Receiver Setup](#sat-ip-receiver-setup)
     - [Further Notes](#further-notes)
-        - [Universal LNB:](#universal-lnb)
-        - [LNB vs. LNBF:](#lnb-vs-lnbf)
+        - [Universal LNB](#universal-lnb)
+        - [LNB vs. LNBF](#lnb-vs-lnbf)
 
 <!-- markdown-toc end -->
 
@@ -403,8 +403,8 @@ make sure to use a compatible LNB. If necessary, attach a flat or conical scalar
 ring to change the F/D characteristics of the LNB.
 
 Lastly, to avoid confusion, please note that *LNBF* and *LNB* often refer to the
-same thing. You can find further information [later in this
-guide](#lnb-vs.-lnbf).
+same thing. You can find further information
+[later in this guide](#lnb-vs-lnbf).
 
 #### LNB Mounting Bracket
 
@@ -561,7 +561,7 @@ support PoE.
 
 ## Further Notes
 
-### Universal LNB:
+### Universal LNB
 
 A Universal LNB, also known as Universal Ku band LNB, is an LNB that supports
 both [Ku low and Ku high bands](frequency.md#signal-bands). With such an LNB,
@@ -600,7 +600,7 @@ single connector, as they are not intended to be used inline. Furthermore, be
 aware that most finders do not include a 22 kHz generator. You must pick a
 satellite finder that supports the generation of a 22 kHz tone.
 
-### LNB vs. LNBF:
+### LNB vs. LNBF
 
 The feedhorn is the horn antenna that attaches to the LNB. It collects the
 signals reflected by the satellite dish and feeds them into the LNB towards the

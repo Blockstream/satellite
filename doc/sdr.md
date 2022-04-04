@@ -8,7 +8,7 @@ nav_order: 4
 <!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-generate-toc again -->
 **Table of Contents**
 
-- [SDR Setup](#sdr-setup)
+- [SDR Receiver](#sdr-receiver)
     - [Connections](#connections)
     - [Software Requirements](#software-requirements)
     - [Configuration](#configuration)
