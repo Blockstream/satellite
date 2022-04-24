@@ -52,9 +52,9 @@ from scratch using the satellite connection only.
 You can also send your own encrypted messages worldwide through the satellite
 network using our [Satellite API](doc/api.md) while paying for each transmission
 through the Lightning Network. Moreover, if you run a Lightning node, you can
-sync it faster through [Lightning gossip
-snapshots](doc/api.md#lightning-gossip-snapshots) sent over satellite. You can
-even [download the Bitcoin source code](doc/api.md#bitcoin-source-code-messages)
+sync it faster through [Lightning gossip snapshots](doc/api.md#lightning-gossip-snapshots)
+sent over satellite. You can even
+[download the Bitcoin source code](doc/api.md#bitcoin-source-code-messages)
 over satellite and bootstrap the node without ever touching the internet.
 
 The remainder of this guide covers the essential steps to get you started. In
