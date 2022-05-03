@@ -40,7 +40,7 @@ test-make-install-apt:
     - make && make install
   parallel:
     matrix:
-      - IMAGE: ["ubuntu:bionic", "ubuntu:focal", "debian:buster", "debian:bullseye"]
+      - IMAGE: ["ubuntu:bionic", "ubuntu:focal", "ubuntu:jammy", "debian:buster", "debian:bullseye"]
 
 test-make-install-fedora:
   image: $IMAGE
@@ -89,7 +89,7 @@ test-deb-dependencies:
     - make && make install
   parallel:
     matrix:
-      - IMAGE: ["ubuntu:bionic", "ubuntu:focal", "debian:buster", "debian:bullseye"]
+      - IMAGE: ["ubuntu:bionic", "ubuntu:focal", "ubuntu:jammy", "debian:buster", "debian:bullseye"]
 
 test-fedora-dependencies:
   image: $IMAGE
