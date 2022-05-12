@@ -1,11 +1,24 @@
 # Changelog
 
+## Releases
+- [0.4.3](#043)
 - [0.4.2](#042)
 - [0.4.1](#041)
 - [0.4.0](#040)
 - [0.3.2](#032)
 - [0.3.1](#031)
 - [0.3.0](#030)
+
+## 0.4.3
+
+Release Date: 2022-05-13
+
+### Added
+- Option to change the API listener download directory.
+- Option to select the regions over which an API order is broadcast.
+
+### Fixed
+- Parsing of Novra S400 lock status and NaN metrics read via SNMP.
 
 ## 0.4.2
 
