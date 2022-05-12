@@ -38,7 +38,7 @@ test-make-install-apt:
     matrix:
       - IMAGE: ["ubuntu:bionic", "ubuntu:focal", "debian:buster", "debian:bullseye"]
 
-test-make-install-dnf:
+test-make-install-fedora:
   image: $IMAGE
   stage: build
   only:
@@ -50,21 +50,24 @@ test-make-install-dnf:
     - make && make install
   parallel:
     matrix:
-      - IMAGE: ["fedora:33", "fedora:34", "centos:8"]
+      - IMAGE: ["fedora:34", "fedora:35"]
 
-test-make-install-yum:
+test-make-install-centos:
   image: $IMAGE
   stage: build
   only:
     - tags
     - web
   before_script:
-    - yum update -y && yum install -y make python3 python3-setuptools python3-pip
+    - find /etc/yum.repos.d/ -type f -exec sed -i 's/mirrorlist=/#mirrorlist=/g' {} +
+    - find /etc/yum.repos.d/ -type f -exec sed -i 's/#baseurl=/baseurl=/g' {} +
+    - find /etc/yum.repos.d/ -type f -exec sed -i 's/mirror.centos.org/vault.centos.org/g' {} +
+    - dnf update -y && dnf install -y epel-release make python3 python3-setuptools python3-pip gcc python3-devel
   script:
     - make && make install
   parallel:
     matrix:
-      - IMAGE: ["centos:7"]
+      - IMAGE: ["centos:8"]
 
 .test-dependencies:
   stage: test
@@ -84,7 +87,7 @@ test-deb-dependencies:
     matrix:
       - IMAGE: ["ubuntu:bionic", "ubuntu:focal", "debian:buster", "debian:bullseye"]
 
-test-rpm-dependencies:
+test-fedora-dependencies:
   image: $IMAGE
   extends: .test-dependencies
   only:
@@ -95,7 +98,7 @@ test-rpm-dependencies:
     - make && make install
   parallel:
     matrix:
-      - IMAGE: ["fedora:33", "fedora:34"]
+      - IMAGE: ["fedora:34", "fedora:35"]
 
 pypi-upload:
   image: python
