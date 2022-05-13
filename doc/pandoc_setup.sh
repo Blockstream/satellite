@@ -15,6 +15,7 @@ tlmgr install adjustbox \
 	  footnotebackref \
 	  framed \
 	  fvextra \
+	  koma-script \
 	  letltxmacro \
 	  ly1 \
 	  mdframed \
