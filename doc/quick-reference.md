@@ -4,9 +4,7 @@ nav_order: 12
 
 # Quick Reference Guide
 
-This page contains a quick reference guide for the Blockstream Satellite
-receiver setup and its general usage. Please refer to the [main
-guide](../index.md) for detailed explanations on all steps.
+This page contains a quick reference guide for the Blockstream Satellite receiver setup and its general usage. Please refer to the [main guide](../index.md) for detailed explanations on all steps.
 
 <!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-refresh-toc -->
 
@@ -50,8 +48,7 @@ blocksat-cli -v
 
 ## Common Steps
 
-These are the commands that are applicable to all the supported types of
-receivers.
+These are the commands that are applicable to all the supported types of receivers.
 
 Set initial configurations:
 
@@ -130,11 +127,9 @@ blocksat-cli sdr
 
 ## Receiver-specific Antenna Alignment Steps
 
-This is the most time-consuming part of the process and has detailed guidance on
-the [antenna alignment guide](antenna-pointing.md#find-the-satellite-and-lock-the-signal).
+This is the most time-consuming part of the process and has detailed guidance on the [antenna alignment guide](antenna-pointing.md#find-the-satellite-and-lock-the-signal).
 
-In summary, you will try to point your antenna until you get a signal lock on
-your receiver.
+In summary, you will try to point your antenna until you get a signal lock on your receiver.
 
 ### Novra S400 standalone receiver
 
@@ -143,9 +138,7 @@ Monitor the S400 receiver by running:
 blocksat-cli standalone monitor
 ```
 
-While pointing the antenna, check the logs on the terminal until the receiver
-logs a `Lock`. Alternatively, check the lock indicator on the S400's web UI or
-front panel until it becomes green (locked).
+While pointing the antenna, check the logs on the terminal until the receiver logs a `Lock`. Alternatively, check the lock indicator on the S400's web UI or front panel until it becomes green (locked).
 
 ### TBS USB receiver
 
@@ -154,8 +147,7 @@ Make sure that the USB receiver is running with:
 blocksat-cli usb launch
 ```
 
-While pointing the antenna, check the logs on the terminal until the receiver
-logs a `Lock`.
+While pointing the antenna, check the logs on the terminal until the receiver logs a `Lock`.
 
 ### Sat-IP receiver
 
@@ -164,8 +156,7 @@ Launch the Sat-IP client:
 blocksat-cli sat-ip
 ```
 
-While pointing the antenna, check the logs on the terminal until the receiver
-logs a `Lock`.
+While pointing the antenna, check the logs on the terminal until the receiver logs a `Lock`.
 
 ### SDR receiver
 
@@ -174,9 +165,7 @@ Run gqrx:
 gqrx
 ```
 
-Point the antenna until you can visualize the Blockstream Satellite signal
-spanning 1.2 MHz. Take note of the offset between the observed signal's center
-frequency and the nominal center frequency (at the center of the gqrx plot).
+Point the antenna until you can visualize the Blockstream Satellite signal spanning 1.2 MHz. Take note of the offset between the observed signal's center frequency and the nominal center frequency (at the center of the gqrx plot).
 
 Run the receiver with the GUI enabled and in debug mode:
 
@@ -184,11 +173,9 @@ Run the receiver with the GUI enabled and in debug mode:
 blocksat-cli sdr --gui -d --derotate freq_offset
 ```
 
-where `freq_offset` is the offset (in units of kHz) you observed on the `gqrx`
-step.
+where `freq_offset` is the offset (in units of kHz) you observed on the `gqrx` step.
 
-On the plots that open up, confirm the presence of the signal. Then, wait until
-the receiver prints `LOCKED` on the terminal.
+On the plots that open up, confirm the presence of the signal. Then, wait until the receiver prints `LOCKED` on the terminal.
 
 ## Bitcoin-satellite Setup
 
