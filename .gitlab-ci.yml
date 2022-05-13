@@ -16,6 +16,10 @@ test-py39:
   extends: .test
   image: python:3.9
 
+test-py310:
+  extends: .test
+  image: python:3.10
+
 lint:
   image: python:3.9
   before_script:
