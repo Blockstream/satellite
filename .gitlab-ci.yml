@@ -133,7 +133,7 @@ docker-upload:
 
 pandoc:
   image:
-    name: pandoc/latex
+    name: pandoc/latex:2.16
     entrypoint: [""]
   only:
     refs:
