@@ -1,6 +1,7 @@
 # Changelog
 
 ## Releases
+- [0.4.4](#044)
 - [0.4.3](#043)
 - [0.4.2](#042)
 - [0.4.1](#041)
@@ -8,6 +9,17 @@
 - [0.3.2](#032)
 - [0.3.1](#031)
 - [0.3.0](#030)
+
+## 0.4.4
+
+Release Date: 2022-05-31
+
+### Added
+- Option `--freq-corr` on the `sat-ip` and `standalone cfg` commands for tuning
+  with a fixed frequency offset correction.
+
+### Changed
+- Downlink frequencies used in the T11N Africa and Europe regions.
 
 ## 0.4.3
 
