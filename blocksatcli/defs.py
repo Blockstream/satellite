@@ -38,14 +38,14 @@ satellites = [{
 }, {
     'name': "Telstar 11N Africa",
     'alias': "T11N AFR",
-    'dl_freq': 11480.7,
+    'dl_freq': 11452.1,
     'band': "Ku",
     'pol': "H",
     'ip': "172.16.235.17"
 }, {
     'name': "Telstar 11N Europe",
     'alias': "T11N EU",
-    'dl_freq': 11484.3,
+    'dl_freq': 11505.4,
     'band': "Ku",
     'pol': "V",
     'ip': "172.16.235.25"

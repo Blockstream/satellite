@@ -34,8 +34,8 @@ The following table summarizes the transmission bands and frequencies of the sig
 | ------------------ | ------- | ------------ |
 | Galaxy 18          | Ku High | 12016.4 MHz  |
 | Eutelsat 113       | Ku High | 12066.9 MHz  |
-| Telstar 11N Africa | Ku Low  | 11480.7 MHz  |
-| Telstar 11N Europe | Ku Low  | 11484.3 MHz  |
+| Telstar 11N Africa | Ku Low  | 11452.1 MHz  |
+| Telstar 11N Europe | Ku Low  | 11505.4 MHz  |
 | Telstar 18V Ku     | Ku Low  | 11506.75 MHz |
 | Telstar 18V C      | C       | 4053.83 MHz  |
 
@@ -43,12 +43,12 @@ The following table summarizes the transmission bands and frequencies of the sig
 
 Next, the following table summarizes the L-band frequencies to be used in each region based on the typical LNB local oscillator (LO) frequencies:
 
-| LO Frequency        | 5150 MHz    | 9750 MHz    | 10600 MHz   | 10750 MHz   |
-| ------------------- | ----------- | ----------- | ----------- | ----------- |
-| Galaxy 18           |             |             | 1416.40 MHz | 1266.40 MHz |
-| Eutelsat 113        |             |             | 1466.90 MHz | 1316.90 MHz |
-| Telstar 11N Africa  |             | 1730.70 MHz |             |             |
-| Telstar 11N Europe  |             | 1734.30 MHz |             |             |
-| Telstar 18V Ku Band |             | 1756.75 MHz |             |             |
-| Telstar 18V C Band  | 1096.17 MHz |             |             |             |
+| LO Frequency        | 5150 MHz    | 9750 MHz    | 10600 MHz  | 10750 MHz  |
+| ------------------- | ----------- | ----------- | ---------- | ---------- |
+| Galaxy 18           |             |             | 1416.4 MHz | 1266.4 MHz |
+| Eutelsat 113        |             |             | 1466.9 MHz | 1316.9 MHz |
+| Telstar 11N Africa  |             | 1702.1 MHz  |            |            |
+| Telstar 11N Europe  |             | 1755.4 MHz  |            |            |
+| Telstar 18V Ku Band |             | 1756.75 MHz |            |            |
+| Telstar 18V C Band  | 1096.17 MHz |             |            |            |
 

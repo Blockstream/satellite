@@ -37,6 +37,84 @@ class TestConfigDir(TestCase):
         self.assertEqual(user_info, test_info)
 
     @patch('blocksatcli.util.ask_yes_or_no')
+    def test_cfg_patching(self, mock_yes_or_no):
+        mock_yes_or_no.return_value = False
+
+        # Configuration based on T11N AFR before the update on May 31st 2022:
+        test_info = {
+            "sat": {
+                "name": "Telstar 11N Africa",
+                "alias": "T11N AFR",
+                "dl_freq": 11480.7,
+                "band": "Ku",
+                "pol": "H",
+                "ip": "172.16.235.17"
+            },
+            "freqs": {
+                "dl": 11480.7,
+                "lo": 9750.0,
+                "l_band": 1730.7
+            }
+        }
+        config.write_cfg_file(self.cfg_name, self.cfg_dir, test_info)
+
+        # Check patching
+        user_info = config.read_cfg_file(self.cfg_name, self.cfg_dir)
+        self.assertEqual(user_info['sat']['dl_freq'], 11452.1)
+        self.assertEqual(user_info['freqs']['dl'], 11452.1)
+        self.assertEqual(user_info['freqs']['l_band'], 1702.1)
+
+        # Configuration based on T11N EU before the update on May 31st 2022:
+        test_info = {
+            "sat": {
+                "name": "Telstar 11N Europe",
+                "alias": "T11N EU",
+                "dl_freq": 11484.3,
+                "band": "Ku",
+                "pol": "V",
+                "ip": "172.16.235.25"
+            },
+            "freqs": {
+                "dl": 11484.3,
+                "lo": 9750.0,
+                "l_band": 1734.3
+            }
+        }
+        config.write_cfg_file(self.cfg_name, self.cfg_dir, test_info)
+
+        # Check patching
+        user_info = config.read_cfg_file(self.cfg_name, self.cfg_dir)
+        self.assertEqual(user_info['sat']['dl_freq'], 11505.4)
+        self.assertEqual(user_info['freqs']['dl'], 11505.4)
+        self.assertEqual(user_info['freqs']['l_band'], 1755.4)
+
+        # Configuration based on a satellite that is not patched
+        test_info = {
+            "sat": {
+                "name": "Eutelsat 113",
+                "alias": "E113",
+                "dl_freq": 12066.9,
+                "band": "Ku",
+                "pol": "V",
+                "ip": "172.16.235.9"
+            },
+            "freqs": {
+                "dl": 12066.9,
+                "lo": 10600.0,
+                "l_band": 1466.9
+            }
+        }
+        config.write_cfg_file(self.cfg_name, self.cfg_dir, test_info)
+
+        # Check that patching yields no effect
+        user_info = config.read_cfg_file(self.cfg_name, self.cfg_dir)
+        self.assertEqual(user_info['sat']['dl_freq'],
+                         test_info['sat']['dl_freq'])
+        self.assertEqual(user_info['freqs']['dl'], test_info['freqs']['dl'])
+        self.assertEqual(user_info['freqs']['l_band'],
+                         test_info['freqs']['l_band'])
+
+    @patch('blocksatcli.util.ask_yes_or_no')
     @patch('blocksatcli.defs.pids', defs.pids)
     def test_chan_conf(self, mock_yes_or_no):
         mock_yes_or_no.return_value = True

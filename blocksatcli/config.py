@@ -535,6 +535,32 @@ def _write_cfg_file(cfg_file, user_info):
         json.dump(user_info, fd)
 
 
+def _patch_cfg_file(cfg_file, info):
+    """Apply changes/updates to the configuration file"""
+    updated = False
+    if 'sat' in info:
+        new_dl_freq = None
+        if info['sat']['alias'] == "T11N AFR" and \
+                info['sat']['dl_freq'] == 11480.7:
+            new_dl_freq = 11452.1
+        if info['sat']['alias'] == "T11N EU" and \
+                info['sat']['dl_freq'] == 11484.3:
+            new_dl_freq = 11505.4
+
+        if new_dl_freq is not None:
+            logger.info(
+                "Updating the {} DL frequency from {} MHz to {} MHz".format(
+                    info['sat']['alias'], info['sat']['dl_freq'], new_dl_freq))
+            info['sat']['dl_freq'] = new_dl_freq
+            info['freqs']['dl'] = new_dl_freq
+            info['freqs']['l_band'] = round(new_dl_freq - info['freqs']['lo'],
+                                            2)
+            updated = True
+
+    if updated:
+        _write_cfg_file(cfg_file, info)
+
+
 def _rst_cfg_file(cfg_file):
     """Reset a previous configuration file in case it exists"""
     info = _read_cfg_file(cfg_file)
@@ -558,6 +584,9 @@ def read_cfg_file(cfg_name, directory):
     """
     cfg_file = _cfg_file_name(cfg_name, directory)
     info = _read_cfg_file(cfg_file)
+
+    if (info is not None):
+        _patch_cfg_file(cfg_file, info)
 
     while (info is None):
         print("Missing {} configuration file".format(cfg_file))
