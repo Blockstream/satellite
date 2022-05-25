@@ -618,17 +618,10 @@ def drivers(args):
         runner.run(
             ["sed", "-i", "-r", "s/(^CONFIG.*_IR.*=)./\1n/g", "v4l/.config"],
             cwd=media_build_dir)
-        runner.run([
-            "sed", "-i", "s/CONFIG_DVB_MN88436=m/CONFIG_DVB_MN88436=n/g",
-            "v4l/.config"
-        ],
-                   cwd=media_build_dir)
-        runner.run([
-            "sed", "-i",
-            "s/CONFIG_VIDEO_SAA7146_VV=m/CONFIG_VIDEO_SAA7146_VV=n/g",
-            "v4l/.config"
-        ],
-                   cwd=media_build_dir)
+        for module in ["CONFIG_DVB_MN88436"]:
+            runner.run(
+                ["sed", "-i", "s/{0}=m/{0}=n/g".format(module), "v4l/.config"],
+                cwd=media_build_dir)
 
     runner.run(["make", nproc_arg], cwd=media_build_dir)
 

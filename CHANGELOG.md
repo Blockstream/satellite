@@ -29,6 +29,7 @@ Release Date: TBD
 ### Fixed
 - Gracefully exit the GPG passphrase or keyring creation prompts when
   interrupted.
+- TBS driver compilation failing on RPi OS Bullseye due to disabled SAA7146.
 
 ## 0.4.4
 
