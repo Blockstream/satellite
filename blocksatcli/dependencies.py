@@ -394,6 +394,9 @@ def subparser(subparsers):
         action='store_true',
         default=False,
         help="Clean a previous build before rebuilding the drivers")
+    p3.add_argument("--disable",
+                    nargs='+',
+                    help="Linux media module to disable on compilation")
     p3.set_defaults(func=drivers)
 
     return p
@@ -592,7 +595,11 @@ def drivers(args):
         runner.run(["make", "cleanall"], cwd=media_build_dir)
 
     runner.run(["make", "dir", "DIR=../media"], cwd=media_build_dir)
+
+    # Enable all modules but set up a list with some distro-specific and
+    # user-requested modules to be disabled
     runner.run(["make", "allyesconfig"], cwd=media_build_dir)
+    disable_list = []
 
     # FIXME: Temporary workaround for error "modpost: "__devm_regmap_init_sccb"
     # ov9650.ko undefined!": disable ov9650 from the build. The problem was
@@ -600,11 +607,7 @@ def drivers(args):
     # version < 5.8.
     if (distro_id == "fedora"
             and LooseVersion(linux_release) < LooseVersion('5.8')):
-        runner.run([
-            "sed", "-i", "s/CONFIG_VIDEO_OV9650=m/CONFIG_VIDEO_OV9650=n/g",
-            "v4l/.config"
-        ],
-                   cwd=media_build_dir)
+        disable_list.append("VIDEO_OV9650")
 
     # On Raspbian, disable RC/IR support and disable the MN88436 drivers to
     # avoid the __aeabi_ldivmod/__aeabi_uldivmod undefined errors. Also,
@@ -618,10 +621,18 @@ def drivers(args):
         runner.run(
             ["sed", "-i", "-r", "s/(^CONFIG.*_IR.*=)./\1n/g", "v4l/.config"],
             cwd=media_build_dir)
-        for module in ["CONFIG_DVB_MN88436"]:
-            runner.run(
-                ["sed", "-i", "s/{0}=m/{0}=n/g".format(module), "v4l/.config"],
-                cwd=media_build_dir)
+        disable_list.append("DVB_MN88436")
+
+    if args.disable is not None:
+        disable_list.extend(args.disable)
+
+    for module in disable_list:
+        logger.debug("Disabling module {}".format(module))
+        runner.run([
+            "sed", "-i", "s/CONFIG_{0}=m/CONFIG_{0}=n/g".format(module),
+            "v4l/.config"
+        ],
+                   cwd=media_build_dir)
 
     runner.run(["make", nproc_arg], cwd=media_build_dir)
 

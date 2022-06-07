@@ -21,6 +21,8 @@ Release Date: TBD
   password.
 - Support for SDR-based reception using the gr-dvbs2rx implementation selected
   with the new `--impl` option.
+- Option `--disable` to disable selected Linux media modules when building the
+  TBS drivers with the `deps tbs-drivers` command.
 
 ### Changed
 - Explainer printed on initial registration with the monitoring API, with
