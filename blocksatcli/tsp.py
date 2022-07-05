@@ -63,6 +63,7 @@ def add_to_parser(parser):
                    help='Analyze MPEG transport stream and save report on '
                    'program termination. Specify the analysis file name to '
                    'override the default name of \"%(const)s\"')
+    return p
 
 
 class Tsp():
@@ -79,6 +80,7 @@ class Tsp():
         self.dump_proc = None
         self.ts_dump = False
         self.ts_dump_opts = []
+        self.ts_dump_pipe = None
 
     def gen_cmd(self, args, in_plugin=None):
         """Generate the tsp command
@@ -144,7 +146,6 @@ class Tsp():
         """Run tsp
 
         Args:
-            in_plugin : List with input plugin command to be used by tsp.
             stdin : Stdin to attach to the tsp process.
 
         Rerturns:
@@ -158,8 +159,8 @@ class Tsp():
         # When tsdump is enabled, hook tsp and tspdump through a pipe file (tsp
         # on the write side and tsdump on the read side)
         if (self.ts_dump):
-            info_pipe = util.Pipe()
-            stdout = info_pipe.w_fo
+            self.ts_dump_pipe = util.Pipe()
+            stdout = self.ts_dump_pipe.w_fo
         else:
             stdout = None
 
@@ -168,7 +169,8 @@ class Tsp():
         if (self.ts_dump):
             tsdump_cmd = ['tsdump']
             tsdump_cmd.extend(self.ts_dump_opts)
-            self.dump_proc = subprocess.Popen(tsdump_cmd, stdin=info_pipe.r_fo)
+            self.dump_proc = subprocess.Popen(tsdump_cmd,
+                                              stdin=self.ts_dump_pipe.r_fo)
 
 
 def prints_to_stdout(args):

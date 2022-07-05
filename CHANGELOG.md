@@ -17,7 +17,10 @@ Release Date: TBD
 
 ### Added
 - Support for password-based mechanism on reports sent to the Blockstream
-  Satellite Monitoring API with option `--bs-mon-reset-pwd` to reset it.
+  Satellite Monitoring API with option `--bs-mon-reset-pwd` to reset the
+  password.
+- Support for SDR-based reception using the gr-dvbs2rx implementation selected
+  with the new `--impl` option.
 
 ### Changed
 - Explainer printed on initial registration with the monitoring API, with
