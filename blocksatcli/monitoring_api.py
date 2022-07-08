@@ -3,6 +3,7 @@ import json
 import logging
 import os
 import queue
+import sys
 import threading
 import time
 
@@ -165,7 +166,8 @@ class BsMonitoring():
                 self._delete_credentials()
                 self._register()
             else:
-                raise RuntimeError("Monitoring configuration failed")
+                print("Aborting")
+                sys.exit(1)
 
             # Return regardless. If the key is not available, don't bother
             # about the password.
