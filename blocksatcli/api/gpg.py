@@ -212,9 +212,10 @@ def config_keyring(gpg, log_if_configured=False):
 
     # Generate new keypair
     logger.info("Generating a GPG keypair to encrypt and decrypt API messages")
-    name = input("User name represented by the key: ")
-    email = input("E-mail address: ")
-    comment = input("Comment to attach to the user ID: ")
+    name = util.string_input("User name represented by the key")
+    email = util.string_input("E-mail address")
+    comment = util.string_input("Comment to attach to the user ID",
+                                optional=True)
     gpg.create_keys(name, email, comment)
 
     # Import Blockstream's public key

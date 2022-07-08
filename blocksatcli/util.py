@@ -56,15 +56,26 @@ def typed_input(msg, hint=None, in_type=int, default=None):
     return res
 
 
-def string_input(msg, default=None):
-    """Ask for a non-null string input with an optional default value"""
-    res = ""
-    while (len(res) == 0):
+def string_input(msg, default=None, optional=False):
+    """Ask for a non-null string input with an optional default value
+
+    Args:
+        msg (str): Prompt message.
+        default (str, optional): Default value for the user response. Defaults
+            to None.
+        optional (bool, optional): Whether the user can provide an empty
+            response. Defaults to False.
+    """
+    optional_label = " (optional)" if optional else ""
+    while (True):
         if (default is not None):
             assert (isinstance(default, str))
-            res = _input(msg + ": [{}] ".format(default)) or default
+            res = _input(
+                msg + "{}: [{}] ".format(optional_label, default)) or default
         else:
-            res = _input(msg + ": ")
+            res = _input(msg + "{}: ".format(optional_label))
+        if len(res) > 0 or optional:
+            break
     return res
 
 
