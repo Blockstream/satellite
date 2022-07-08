@@ -25,6 +25,73 @@ account_pwd_endpoint = os.path.join(account_endpoint, "password")
 metric_endpoint = os.path.join(base_url, "metrics")
 
 
+def _privacy_explainer():
+    util.print_sub_header("Reported Metrics")
+
+    util.fill_print("The reported metrics vary according to the receiver type "
+                    "and consist of a subset of the following:")
+    print("  - Demodulator lock status.")
+    print("  - Signal level.")
+    print("  - Signal-to-noise ratio (SNR).")
+    print("  - Bit error ratio (BER).")
+    print("  - Signal quality.")
+    print("  - Packet error count.")
+
+    util.prompt_for_enter()
+    util.print_sub_header("Registration Procedure")
+
+    util.fill_print(
+        "An initial registration procedure is necessary to confirm \
+    you are running a functional satellite receiver. Our server will send you \
+    a verification code over satellite and wait for reception \
+    confirmation. This application, in turn, will wait for the \
+    verification code and, upon successful reception, will \
+    confirm it to the server (over the internet).")
+
+    util.prompt_for_enter()
+    util.print_sub_header("Collected Information")
+
+    util.fill_print("In addition to the receiver metrics reported \
+    periodically by the CLI, we collect the following information on the \
+    initial registration:")
+
+    print("  1) Your location (city, country, and state).")
+    print("  2) Your public GPG key, created and used by the Satellite API "
+          "apps.\n")
+
+    util.fill_print("Note that any identification information held by the \
+    GPG public key will be included in the data sent to Blockstream. For \
+    instance, the username, e-mail address, and the optional comment \
+    attached to the key on its creation.")
+
+    util.fill_print("Additionally, the CLI will automatically send some \
+    hardware information during registration. More specifically, it will \
+    communicate the adopted receiver type, the antenna model or size, and \
+    the LNB specifications. No other personal data is required nor collected.")
+
+    util.prompt_for_enter()
+
+    util.print_sub_header("Why We Collect The Information")
+
+    util.fill_print("The location information (city, country, and state) \
+    collected on registration allows us to analyze the receiver performances \
+    worldwide and continuously improve the service. For example, it enables \
+    the identification of weak coverage spots. By reporting it, you will help \
+    us improve the Blockstream Satellite service. Besides, note we do not \
+    need the receiver's exact geolocation, only the coarse city/state \
+    coordinates.")
+
+    util.fill_print("The public GPG key collected on registration is used for \
+    the initial registration procedure and, subsequently, for authenticating \
+    your requests to the monitoring API.")
+
+    util.fill_print("Please refer to further information at:")
+
+    print(defs.user_guide_url + "doc/monitoring.html\n")
+
+    util.prompt_for_enter()
+
+
 def _register_explainer():
     os.system('clear')
     util.print_header("Receiver Monitoring")
@@ -34,61 +101,25 @@ def _register_explainer():
     is sent over the internet and is used to help us improve the satellite \
     communications service.")
 
-    util.prompt_for_enter()
-    util.print_sub_header("Reported Metrics")
-
-    util.fill_print("The reported metrics vary according to the receiver type "
-                    "and consist of a subset of the following:")
-    print("  - Demodulator lock status.")
-    print("  - Signal level.")
-    print("  - Signal-to-noise ratio (SNR).")
-    print("  - Bit error ratio (BER).")
-    print("  - Signal quality (%).")
-    print("  - Packet error count.")
-
-    util.prompt_for_enter()
-    util.print_sub_header("Registration Procedure")
-
-    util.fill_print(
-        "An initial registration procedure is necessary to confirm \
-    you are running a functional satellite receiver. Our server will send you \
-    a verification code over satellite and will wait for reception \
-    confirmation. This application, in turn, will wait for the \
-    verification code and, upon successful reception, will \
-    confirm it to the server (over the internet).")
-
-    util.prompt_for_enter()
-    util.print_sub_header("Collected Information")
-
     util.fill_print("For registration, we require the following information:")
 
     print("  1) Your location (city, country, and state, if applicable).")
     print("  2) Your public GPG key, created and used by the Satellite API "
           "apps.\n")
 
-    util.fill_print("The location information is essential for us to improve \
-    the service worldwide. Meanwhile, the public key is used for the initial \
-    registration procedure and, subsequently, to authenticate your receiver \
-    status reports. Refer to further information at:")
-
-    print(defs.user_guide_url + "doc/monitoring.html\n")
-
-    util.fill_print("Note that any identification information held by the \
-    public key will be included in the data sent to Blockstream. For \
-    instance, the username, e-mail address, and the optional comment \
-    attached to the public key on its creation.")
-
-    util.fill_print("Additionally, the CLI will automatically send some \
-    hardware information during the registration step. More specifically, it \
-    will communicate the adopted receiver, antenna, and LNB model. No other \
-    personal data is required nor collected.")
-
     util.fill_print(
         "If you have never used the Satellite API before, you will \
     be prompted to create a new GPG keypair next. Otherwise, you will be \
     prompted for your GPG passphrase and location.")
 
-    util.prompt_for_enter()
+    print_privacy_info = util.ask_yes_or_no(
+        "See more info about the collected data and registration procedure?",
+        default='n')
+
+    os.system('clear')
+
+    if (print_privacy_info):
+        _privacy_explainer()
 
 
 class BsMonitoring():
