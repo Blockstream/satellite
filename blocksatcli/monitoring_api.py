@@ -320,10 +320,18 @@ class BsMonitoring():
 
         os.system('clear')
 
-        # Get the user's location
-        util.fill_print(
-            "Please inform you city, state (if applicable), and country:")
         confirmed = False
+        cached_address = cache.get(self.cfg + '.monitoring.location')
+        if cached_address is not None:
+            confirmed = util.ask_yes_or_no(
+                "Reporting from \"{}\"?".format(cached_address))
+
+        if confirmed:
+            address = cached_address
+        else:
+            util.fill_print(
+                "Please inform you city, state (if applicable), and country:")
+
         while (not confirmed):
             # City (required)
             city = util.string_input("City")
@@ -341,6 +349,8 @@ class BsMonitoring():
             # Wait until the user confirms the full address
             address += ", {}".format(country)
             confirmed = util.ask_yes_or_no("\"{}\"?".format(address))
+            cache.set(self.cfg + '.monitoring.location', address)
+            cache.save()
 
         os.system('clear')
 
