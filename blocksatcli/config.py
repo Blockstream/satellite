@@ -153,7 +153,7 @@ def _cfg_rx_setup(sat):
     return setup
 
 
-def _ask_lnb_freq_range():
+def _ask_lnb_freq_range(sat):
     """Prompt the user for the LNB's input frequency range"""
     in_range = []
     while (True):
@@ -175,6 +175,13 @@ def _ask_lnb_freq_range():
         if (in_range[0] < 3000 or in_range[1] < 3000):
             in_range = []
             print("Please, provide the frequencies in MHz.")
+            continue
+
+        if not _sat_freq_in_lnb_range(sat, {'in_range': in_range}):
+            print(
+                f"Please, choose a frequency range covering the {sat['name']} "
+                f"downlink frequency of {sat['dl_freq']} MHz")
+            in_range = []
             continue
 
         break
@@ -255,7 +262,7 @@ def _cfg_custom_lnb(sat):
                                    "from 10.7 to 12.75 GHz?")):
                 custom_lnb_in_range = [10700.0, 12750.0]
             else:
-                custom_lnb_in_range = _ask_lnb_freq_range()
+                custom_lnb_in_range = _ask_lnb_freq_range(sat)
 
             # LO
             print()
@@ -269,12 +276,12 @@ def _cfg_custom_lnb(sat):
                 custom_lnb_lo_freq = _ask_lnb_lo(single_lo=False)
         else:
             # Non-universal Ku-band LNB
-            custom_lnb_in_range = _ask_lnb_freq_range()
+            custom_lnb_in_range = _ask_lnb_freq_range(sat)
             custom_lnb_lo_freq = _ask_lnb_lo()
     else:
         # C-band LNB
         custom_lnb_universal = False
-        custom_lnb_in_range = _ask_lnb_freq_range()
+        custom_lnb_in_range = _ask_lnb_freq_range(sat)
         custom_lnb_lo_freq = _ask_lnb_lo()
 
     # Polarization
