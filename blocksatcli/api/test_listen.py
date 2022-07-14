@@ -4,7 +4,8 @@ import random
 import shutil
 import string
 import time
-from unittest import TestCase, mock
+from unittest import TestCase, mock, skipIf
+from sys import platform
 from threading import Thread
 
 from . import msg
@@ -51,6 +52,7 @@ def tearDownModule():
     shutil.rmtree(gpghome, ignore_errors=True)
 
 
+@skipIf(platform != 'linux', "Linux-only test suite")
 class TestApiListener(TestCase):
 
     def setUp(self):

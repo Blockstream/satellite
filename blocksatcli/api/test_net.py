@@ -1,9 +1,12 @@
 import unittest
+from sys import platform
+
 from . import net
 
 
 class TestApi(unittest.TestCase):
 
+    @unittest.skipIf(platform != 'linux', "Linux-only test")
     def test_send_rcv(self):
         """Test transmission and reception of data"""
         ip = "239.0.0.2"
