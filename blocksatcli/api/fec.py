@@ -147,7 +147,7 @@ class Fec:
         # chunks, whereas the overhead chunks should occupy "(overhead *
         # 256)/(1 + overhead)" chunks. Also, the overhead cannot be greater
         # than 255, otherwise the original data has zero chunks per object.
-        assert(self.overhead <= MAX_OVERHEAD), \
+        assert (self.overhead <= MAX_OVERHEAD), \
             "FEC overhead exceeds the maximum of {}".format(MAX_OVERHEAD)
 
         max_obj_size = floor(MAX_FEC_CHUNKS / (1 + self.overhead)) * CHUNK_SIZE

@@ -131,7 +131,7 @@ def _add_iptables_rule(net_if, cmd):
 
 
 def _configure_iptables(net_if, ports, igmp=False, prompt=True):
-    """Configure iptables rules to accept blocksat traffic on a DVB-S2 interface
+    """Configure iptables rules on DVB-S2 interface
 
     Args:
         net_if : DVB network interface name

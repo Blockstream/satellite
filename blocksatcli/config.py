@@ -413,9 +413,9 @@ def _cfg_frequencies(sat, lnb, setup):
 
     if (sat['band'].lower() == "ku"):
         if (lnb['universal']):
-            assert(isinstance(lnb['lo_freq'], list)), \
+            assert (isinstance(lnb['lo_freq'], list)), \
                 "A Universal LNB must have a list with two LO frequencies"
-            assert(len(lnb['lo_freq']) == 2), \
+            assert (len(lnb['lo_freq']) == 2), \
                 "A Universal LNB must have two LO frequencies"
 
             if (sat['dl_freq'] > defs.ku_band_thresh):

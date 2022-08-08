@@ -493,7 +493,7 @@ def run(args):
     sym_rate = defs.sym_rate[info['sat']['alias']]
     samp_rate = args.sps * sym_rate
 
-    assert(samp_rate < 2.4e6), \
+    assert (samp_rate < 2.4e6), \
         "Sample rate of {} exceeds the RTL-SDR limit".format(samp_rate)
 
     # Derotate up to the CFO recovery range on leandvb. If the desired

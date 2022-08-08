@@ -576,7 +576,7 @@ def cfg_standalone(args):
 
     if (not args.rx_only):
         if 'netdev' not in user_info['setup']:
-            assert(args.interface is not None), \
+            assert (args.interface is not None), \
                 ("Please specify the network interface through option "
                  "\"-i/--interface\"")
 

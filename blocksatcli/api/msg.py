@@ -558,7 +558,7 @@ def generate(data,
         # not defined.
         if (recipient is None):
             recipient = gpg.get_default_public_key()["fingerprint"]
-            assert(recipient != defs.blocksat_pubkey), \
+            assert (recipient != defs.blocksat_pubkey), \
                 "Defaul public key is not the user's public key"
         else:
             # Make sure the key exists

@@ -61,7 +61,7 @@ def main():
 
     # Filter commands that are Linux-only
     if (args.subcommand not in ["cfg", "instructions", "api", "btc"]):
-        assert(platform.system() == 'Linux'), \
+        assert (platform.system() == 'Linux'), \
             "Command {} is currently Linux-only".format(args.subcommand)
 
     # Logging

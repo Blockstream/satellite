@@ -119,7 +119,7 @@ class Gpg():
 
         """
         key_map = self.gpg.list_keys().key_map
-        assert(fingerprint in key_map), \
+        assert (fingerprint in key_map), \
             "Could not find public key {}".format(fingerprint)
         return key_map[fingerprint]
 
@@ -131,7 +131,7 @@ class Gpg():
             'uids'.
         """
         key_map = self.gpg.list_keys(True).key_map
-        assert(fingerprint in key_map), \
+        assert (fingerprint in key_map), \
             "Could not find private key {}".format(fingerprint)
         return key_map[fingerprint]
 
@@ -153,7 +153,7 @@ class Gpg():
 
     def sign(self, data, keyid, clearsign=True, detach=False):
         """Sign a given data array"""
-        assert(not (clearsign and detach)), \
+        assert (not (clearsign and detach)), \
             "clearsign and detach options are mutually exclusive"
 
         if (not self.interactive and self.passphrase is None):

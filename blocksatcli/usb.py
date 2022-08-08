@@ -288,7 +288,7 @@ def _dvbnet(adapter, ifnames, pids, ule=False):
     """
     assert (isinstance(ifnames, list))
     assert (isinstance(pids, list))
-    assert(len(ifnames) == len(pids)), \
+    assert (len(ifnames) == len(pids)), \
         "Interface names and PID number must be vectors of the same length"
 
     # Find the dvbnet interfaces that already exist for the chosen adapter
@@ -433,7 +433,7 @@ def zap(adapter,
         cmd = cmd + ["-t", timeout]
 
     if (monitor):
-        assert(output is None), \
+        assert (output is None), \
             "Monitor mode does not work if recording (i.e. w/ -r flag)"
         cmd.append("-m")
 
@@ -662,7 +662,7 @@ def usb_config(args):
     assert (all(["/" in x
                  for x in ips])), "Please provide IPs in CIDR notation"
 
-    assert(len(args.pid) == len(ips)), \
+    assert (len(args.pid) == len(ips)), \
         "Please define one IP address for each PID."
 
     # dvbnet interfaces of interest

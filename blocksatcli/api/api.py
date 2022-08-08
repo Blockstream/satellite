@@ -87,7 +87,7 @@ def send(args):
         with open(args.file, 'rb') as f:
             data = f.read()
 
-    assert(len(data) > 0), \
+    assert (len(data) > 0), \
         "Empty {}".format("file" if args.file else "message")
 
     # Put file or text within an API message

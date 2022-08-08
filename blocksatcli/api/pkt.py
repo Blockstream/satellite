@@ -67,7 +67,7 @@ class BlocksatPkt:
                  more_frags=None,
                  payload=None):
         if (chan_num is not None):
-            assert(chan_num >= 0 and chan_num < 256), \
+            assert (chan_num >= 0 and chan_num < 256), \
                 "Channel number must be >=0 && < 256"
         self.seq_num = seq_num
         self.frag_num = frag_num
