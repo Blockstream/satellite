@@ -720,6 +720,10 @@ def subparser(subparsers):  # pragma: no cover
         description="Display the local configuration",
         help='Display the local configuration',
         formatter_class=ArgumentDefaultsHelpFormatter)
+    p2.add_argument('--json',
+                    default=False,
+                    action='store_true',
+                    help='Print results in JSON format')
     p2.set_defaults(func=show)
 
     p3 = subsubparsers.add_parser(
@@ -820,6 +824,11 @@ def show(args):
         return
 
     pr_cfgs = get_readable_cfg(info)
+
+    if args.json:
+        print(json.dumps(pr_cfgs, indent=4))
+        return
+
     box_size = 62
     box_line = "-" * box_size
 

@@ -25,6 +25,8 @@ Release Date: TBD
 - Option `--disable` to disable selected Linux media modules when building the
   TBS drivers with the `deps tbs-drivers` command.
 - Non-interactive modes for the `gqrx` and `sdr` commands.
+- Option to return a JSON-formatted string with the `blocksat-cli cfg show`
+  command.
 
 ### Changed
 - Explainer printed on initial registration with the monitoring API, with
