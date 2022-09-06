@@ -13,6 +13,41 @@ from . import defs, config, monitoring_api
 
 logger = logging.getLogger(__name__)
 sats = [x['alias'] for x in defs.satellites]
+# Supported receiver metrics, with their labels and printing formats
+rx_metrics = {
+    'lock': {
+        'label': 'Lock',
+        'format_str': ''
+    },
+    'level': {
+        'label': 'Level',
+        'format_str': '.2f'
+    },
+    'snr': {
+        'label': 'SNR',
+        'format_str': '.2f'
+    },
+    'ber': {
+        'label': 'BER',
+        'format_str': '.2e'
+    },
+    'fer': {
+        'label': 'FER',
+        'format_str': '.2e'
+    },
+    'per': {
+        'label': 'PER',
+        'format_str': '.2e'
+    },
+    'quality': {
+        'label': 'Signal Quality',
+        'format_str': '.1f'
+    },
+    'pkt_err': {
+        'label': 'Packet Errors',
+        'format_str': 'd'
+    }
+}
 
 
 def get_report_opts(args):
@@ -220,41 +255,6 @@ class Monitor():
         if (logfile):
             self._setup_logfile()
 
-        # Supported receiver metrics, with their labels and printing formats
-        self._metrics = {
-            'lock': {
-                'label': 'Lock',
-                'format_str': ''
-            },
-            'level': {
-                'label': 'Level',
-                'format_str': '.2f'
-            },
-            'snr': {
-                'label': 'SNR',
-                'format_str': '.2f'
-            },
-            'ber': {
-                'label': 'BER',
-                'format_str': '.2e'
-            },
-            'fer': {
-                'label': 'FER',
-                'format_str': '.2e'
-            },
-            'per': {
-                'label': 'PER',
-                'format_str': '.2e'
-            },
-            'quality': {
-                'label': 'Signal Quality',
-                'format_str': '.1f'
-            },
-            'pkt_err': {
-                'label': 'Packet Errors',
-                'format_str': 'd'
-            }
-        }
         self.stats = {}
 
         # Reporter sessions
@@ -288,14 +288,14 @@ class Monitor():
 
         string = "{} ".format(t_now)
 
-        for key in self._metrics.keys():
+        for key in rx_metrics.keys():
             if key in self.stats:
                 val = self.stats[key]
                 # Label=Value
                 string += " {} = {:{fmt_str}}".format(
-                    self._metrics[key]['label'],
+                    rx_metrics[key]['label'],
                     val[0],
-                    fmt_str=self._metrics[key]['format_str'],
+                    fmt_str=rx_metrics[key]['format_str'],
                 )
                 # Unit
                 if (not math.isnan(val[0]) and val[1]):
@@ -346,7 +346,7 @@ class Monitor():
         assert (all([isinstance(x, tuple) for x in data.values()]))
 
         # All keys in the input dictionary must be supported receiver metrics
-        assert (all([k in self._metrics for k in data.keys()]))
+        assert (all([k in rx_metrics for k in data.keys()]))
 
         # Copy all the data
         self.stats = data
