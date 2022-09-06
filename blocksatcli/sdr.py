@@ -318,6 +318,8 @@ def _record_iq_samples(args, l_band_freq, samp_rate):
 
 def subparser(subparsers):
     """Parser for sdr command"""
+    default_impl = 'leandvb' if which('dvbs2-rx') is None else 'gr-dvbs2rx'
+
     p = subparsers.add_parser('sdr',
                               description="Launch SDR receiver",
                               help='Launch SDR receiver',
@@ -351,7 +353,7 @@ def subparser(subparsers):
     demod_p.add_argument('--implementation',
                          '--impl',
                          choices=['leandvb', 'gr-dvbs2rx'],
-                         default='leandvb',
+                         default=default_impl,
                          help='Software-defined demodulator implementation')
     demod_p.add_argument(
         '-d',

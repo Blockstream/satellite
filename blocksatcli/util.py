@@ -344,6 +344,9 @@ class ProcessRunner():
         if (not self.dry):
             self.logger.info("Appended to file {}".format(path))
 
+    def create_dir(self, new_dir, **kwargs):
+        self.run(['mkdir', '-p', new_dir], **kwargs)
+
 
 class Pipe():
     """Unnamed pipe wrapper"""

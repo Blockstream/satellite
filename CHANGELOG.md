@@ -19,8 +19,9 @@ Release Date: TBD
 - Support for password-based mechanism on reports sent to the Blockstream
   Satellite Monitoring API with option `--bs-mon-reset-pwd` to reset the
   password.
-- Support for SDR-based reception using the gr-dvbs2rx implementation selected
-  with the new `--impl` option.
+- Support for the gr-dvbs2rx SDR receiver implementation selected with the new
+  `--impl` option on the `blocksat-cli sdr` command.
+- Support for the installation of gr-dvbs2rx on Ubuntu 22.04+ and Fedora 36+.
 - Option `--disable` to disable selected Linux media modules when building the
   TBS drivers with the `deps tbs-drivers` command.
 

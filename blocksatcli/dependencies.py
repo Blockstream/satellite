@@ -15,6 +15,8 @@ import distro
 
 from . import config, defs, util
 
+GR_DVBS2RX_VERSION = '1.0.0'
+
 logger = logging.getLogger(__name__)
 runner = util.ProcessRunner(logger)
 
@@ -25,6 +27,50 @@ target_map = {
     "sat-ip": defs.sat_ip_setup_type
 }
 supported_distros = ["ubuntu", "debian", "raspbian", "fedora", "centos"]
+
+
+def _is_package_installed(package, required_version):
+    """Check if the package is installed and its version meets the minimum"""
+    distro_id = distro.id()
+
+    if distro_id == 'ubuntu':
+        cmd = ['apt', 'list', '--installed', package]
+    elif distro_id == 'fedora':
+        cmd = ['dnf', 'list', '--installed', package]
+    else:
+        raise ValueError('Unsupported distribution')
+
+    res = runner.run(cmd, capture_output=True, nocheck=True)
+    if (res.returncode != 0):
+        return False
+
+    lines = res.stdout.decode().splitlines()
+
+    installed_version = None
+    if distro_id == 'ubuntu':
+        for line in lines:
+            if package in line:
+                version_release = line.split(' ')[1]
+                installed_version = version_release.split('-')[0]
+                break
+    elif distro_id == 'fedora':
+        if len(lines) > 1:
+            installed_version = lines[1].split()[1].split('-')[0]
+
+    if installed_version is None:
+        return False
+
+    if (LooseVersion(installed_version) < LooseVersion(required_version)):
+        return False
+
+    return True
+
+
+def _create_cmd(cmd: list, interactive: bool):
+    new_cmd = cmd.copy()
+    if not interactive:
+        new_cmd.append('-y')
+    return new_cmd
 
 
 def _check_distro(setup_type):
@@ -197,7 +243,8 @@ def _install_packages(apt_list,
                       dnf_list,
                       yum_list,
                       interactive=True,
-                      update=False):
+                      update=False,
+                      cwd=None):
     """Install binary packages
 
     Args:
@@ -206,7 +253,7 @@ def _install_packages(apt_list,
         dnf_list    : List of package names for installation via yum
         interactive : Whether to run an interactive install (w/ user prompting)
         update      : Whether to update pre-installed packages instead
-
+        cwd         : Directory from which to run the install command
 
     """
     if (which("apt")):
@@ -239,7 +286,7 @@ def _install_packages(apt_list,
             env = os.environ.copy()
             env["DEBIAN_FRONTEND"] = "noninteractive"
 
-    runner.run(cmd, root=True, env=env)
+    runner.run(cmd, root=True, env=env, cwd=cwd)
 
 
 def _install_common(interactive=True, update=False, btc=False):
@@ -292,7 +339,11 @@ def _install_common(interactive=True, update=False, btc=False):
                               update)
 
 
-def _install_specific(target, interactive=True, update=False):
+def _install_specific(cfg_dir,
+                      target,
+                      interactive=True,
+                      update=False,
+                      grdvbs2rx=False):
     """Install setup-specific dependencies"""
     key = next(key for key, val in target_map.items() if val == target)
     pkg_map = {
@@ -327,6 +378,124 @@ def _install_specific(target, interactive=True, update=False):
     util.print_header("Installing {} Receiver Dependencies".format(target))
     _install_packages(pkg_map[key]['apt'], pkg_map[key]['dnf'],
                       pkg_map[key]['yum'], interactive, update)
+
+    # On Fedora >= 36 or Ubuntu >= 22.04, both of which have GNU Radio 3.10
+    # available on the main package repo, install gr-dvbs2rx for SDR receivers
+    # if so desired:
+    if target == defs.sdr_setup_type and grdvbs2rx:
+        _install_dvbs2rx(cfg_dir, interactive, update)
+
+
+def _install_dvbs2rx(cfg_dir, interactive, update):
+    """Install gr-dvbs2rx by building the binary package from source"""
+    src_dir = os.path.join(cfg_dir, "src")
+    proj_dir = os.path.join(src_dir, "gr-dvbs2rx")
+
+    util.print_header(
+        "{} gr-dvbs2rx".format("Updating" if update else "Installing"))
+
+    distro_id = distro.id()
+    distro_ver = distro.version()
+
+    fc36_or_higher = distro_id == 'fedora' and int(distro_ver) >= 36
+    ubuntu22_or_higher = distro_id == 'ubuntu' and LooseVersion(
+        distro_ver) >= '22.04'
+    if not (fc36_or_higher or ubuntu22_or_higher):
+        logger.error("gr-dvbs2rx is only supported on Fedora >= 36 "
+                     "and Ubuntu >= 22.04")
+        return
+
+    if _is_package_installed('gr-dvbs2rx', GR_DVBS2RX_VERSION):
+        logger.info(f"gr-dvbs2rx {GR_DVBS2RX_VERSION} is already installed")
+        return
+
+    pkg_map = {
+        'apt': [
+            # gr-dvbs2rx build deps
+            'cmake',
+            'doxygen',
+            'g++',
+            'git',
+            'gnuradio-dev',
+            'graphviz',
+            'libsndfile1-dev',
+            'libspdlog-dev',
+            'pkg-config',
+            'pybind11-dev',
+            'python3-packaging',
+            # debian packaging deps
+            'debhelper',
+            'devscripts',
+            'dh-python'
+        ],
+        'dnf': [
+            # gr-dvbs2rx build deps
+            'cmake',
+            'doxygen',
+            'fftw-devel',
+            'gcc-c++',
+            'git',
+            'gmp-devel',
+            'gnuradio-devel',
+            'graphviz',
+            'libsndfile-devel',
+            'pybind11-devel',
+            'python3-packaging',
+            'spdlog-devel',
+            # rpm packaging deps
+            'coreutils',
+            'dnf-utils',
+            'rpm-build',
+            'rpm-devel',
+            'rpmdevtools'
+        ],
+        'yum': []  # no distro with yum support GR 3.10
+    }
+
+    _install_packages(pkg_map['apt'], pkg_map['dnf'], pkg_map['yum'],
+                      interactive, update)
+
+    runner.create_dir('src', cwd=cfg_dir)
+
+    if os.path.exists(proj_dir):
+        runner.run(['git', 'checkout', GR_DVBS2RX_VERSION], cwd=proj_dir)
+    else:
+        runner.run([
+            'git', 'clone', '--recursive',
+            'https://github.com/igorauad/gr-dvbs2rx/', '-b', GR_DVBS2RX_VERSION
+        ],
+                   cwd=src_dir)
+
+    # Build the gr-dvbs2rx package from source
+    if distro_id == 'ubuntu':
+        arch = runner.run(['dpkg', '--print-architecture'],
+                          capture_output=True).stdout.decode().replace(
+                              "\n", "")
+        dist = runner.run(['lsb_release', '-s', '-c'],
+                          capture_output=True).stdout.decode().replace(
+                              "\n", "")
+        res_dir = None
+        pkg_name = os.path.join(
+            proj_dir, '.packaging/build/' + dist + '-' + arch,
+            "gr-dvbs2rx_" + GR_DVBS2RX_VERSION + '-1_' + arch + '.deb')
+        runner.run(['.packaging/scripts/pkg-debian.sh'], cwd=proj_dir)
+    else:
+        arch = runner.run(['rpmbuild', '--eval', '%{_arch}'],
+                          capture_output=True).stdout.decode().replace(
+                              "\n", "")
+        dist = runner.run(['rpmbuild', '--eval', '%{dist}'],
+                          capture_output=True).stdout.decode().replace(
+                              "\n", "")
+        pkg_name = "gr-dvbs2rx-" + GR_DVBS2RX_VERSION + '-1' + dist + '.' + \
+            arch + '.rpm'
+        res_dir = os.path.join(util.get_home_dir(), 'rpmbuild/RPMS/', arch)
+        runner.run(['.packaging/scripts/pkg-rpm.sh'], cwd=proj_dir)
+
+    # Install the gr-dvbs2r package that was just built
+    _install_packages([pkg_name], [pkg_name], [],
+                      interactive,
+                      update,
+                      cwd=res_dir)
 
 
 def _print_help(args):
@@ -370,6 +539,10 @@ def subparser(subparsers):
                     action='store_true',
                     default=False,
                     help="Install bitcoin-satellite")
+    p1.add_argument("--gr-dvbs2rx",
+                    action='store_true',
+                    default=False,
+                    help="Install gr-dvbs2rx")
     p1.set_defaults(func=run, update=False)
 
     p2 = subsubp.add_parser('update',
@@ -384,6 +557,10 @@ def subparser(subparsers):
                     action='store_true',
                     default=False,
                     help="Update bitcoin-satellite")
+    p2.add_argument("--gr-dvbs2rx",
+                    action='store_true',
+                    default=False,
+                    help="Update gr-dvbs2rx")
     p2.set_defaults(func=run, update=True)
 
     p3 = subsubp.add_parser('tbs-drivers',
@@ -435,7 +612,11 @@ def run(args):
     _install_common(interactive=interactive, update=args.update, btc=args.btc)
 
     # Install setup-specific dependencies
-    _install_specific(target, interactive=interactive, update=args.update)
+    _install_specific(args.cfg_dir,
+                      target,
+                      interactive=interactive,
+                      update=args.update,
+                      grdvbs2rx=args.gr_dvbs2rx)
 
 
 def drivers(args):
