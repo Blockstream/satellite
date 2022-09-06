@@ -320,6 +320,16 @@ modcods = {
 
 lnb_options = [x['alias'] for x in v4l_lnbs]
 
+supported_metrics_per_receiver = {
+    "standalone": ["level", "lock", "snr", "ber", "pkt_err"],
+    "sdr": {
+        'leandvb': ["level", "lock", "snr", "ber"],
+        'gr-dvbs2rx': ["lock", "snr", "fer", "per", "pkt_err"]
+    },
+    "usb": ["level", "lock", "snr", "ber"],
+    "sat-ip": ["level", "lock", "quality"]
+}
+
 
 def get_satellite_def(alias):
     for satellite in satellites:
