@@ -29,6 +29,7 @@ Release Date: TBD
 ### Changed
 - Explainer printed on initial registration with the monitoring API, with
   privacy and detailed registration info made optional.
+- Organization of results on the `blocksat-cli cfg show` command.
 
 ### Fixed
 - Gracefully exit the GPG passphrase or keyring creation prompts when

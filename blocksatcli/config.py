@@ -782,37 +782,53 @@ def configure(args):
     """)
 
 
+def get_readable_cfg(info):
+    assert (info is not None), "Empty receiver configuration"
+
+    setup = info['setup']
+    sat = info['sat']
+    freqs = info['freqs']
+
+    return {
+        'Setup': {
+            'Receiver': _get_rx_marketing_name(setup),
+            'Tuning range':
+            f"From {setup['tun_range'][0]} to {setup['tun_range'][1]} MHz ",
+            'LNB': get_lnb_model(info),
+            'Antenna': get_antenna_model(info),
+        },
+        'Satellite': {
+            'Satellite name':
+            get_satellite_name(sat),
+            'Signal band':
+            sat['band'],
+            'Signal polarization':
+            "Horizontal" if sat['pol'] == "H" else "Vertical"
+        },
+        'Frequencies': {
+            'Downlink frequency': f"{freqs['dl']} MHz",
+            'LNB LO frequency': f"{freqs['dl']} MHz",
+            'Receiver L-band frequency': f"{freqs['l_band']} MHz"
+        }
+    }
+
+
 def show(args):
     """Print the local configuration"""
     info = read_cfg_file(args.cfg, args.cfg_dir)
     if (info is None):
         return
-    print("| {:30s} | {:25s} |".format("Receiver",
-                                       _get_rx_marketing_name(info['setup'])))
-    print("| {:30s} | {:25s} |".format("LNB", get_lnb_model(info)))
-    print("| {:30s} | {:25s} |".format("Antenna", get_antenna_model(info)))
-    pr_cfgs = {
-        'freqs': {
-            'dl': ("Downlink frequency", "MHz", None),
-            'lo': ("LNB LO frequency", "MHz", None),
-            'l_band': ("Receiver L-band frequency", "MHz", None)
-        },
-        'sat': {
-            'name': ("Satellite name", "", None),
-            'band': ("Signal band", "", None),
-            'pol': ("Signal polarization", "", lambda x: "Horizontal"
-                    if x == "H" else "vertical"),
-        }
-    }
+
+    pr_cfgs = get_readable_cfg(info)
+    box_size = 62
+    box_line = "-" * box_size
+
     for category in pr_cfgs:
+        print(f"\n{category}")
+        print(box_line)
         for key, pr_cfg in pr_cfgs[category].items():
-            label = pr_cfg[0]
-            unit = pr_cfg[1]
-            val = info[category][key]
-            # Transform the value if a callback is defined
-            if (pr_cfg[2] is not None):
-                val = pr_cfg[2](val)
-            print("| {:30s} | {:25s} |".format(label, str(val) + " " + unit))
+            print("| {:30s} | {:25s} |".format(key, pr_cfg))
+        print(box_line)
 
 
 def channel(args):
