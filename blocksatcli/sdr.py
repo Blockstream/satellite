@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 runner = util.ProcessRunner(logger)
 
 
-def _tune_max_pipe_size(pipesize):
+def _tune_max_pipe_size(pipesize, interactive=True):
     """Tune the maximum size of pipes"""
     if (not which("sysctl")):
         logging.error("Couldn't tune max-pipe-size. Please check how to tune "
@@ -38,7 +38,7 @@ def _tune_max_pipe_size(pipesize):
                           width=80))
         print("\n" + " ".join(cmd) + "\n")
 
-        if (not util.ask_yes_or_no("Is that OK?", default="y")):
+        if (interactive and not util.ask_yes_or_no("Proceed?", default="y")):
             print("Abort")
             return False
 
@@ -297,13 +297,13 @@ def _get_grdvbs2rx_app_cmd(args, l_band_freq, samp_rate, sym_rate,
     return _stringify_cmd(cmd), out_pipe
 
 
-def _record_iq_samples(args, l_band_freq, samp_rate):
+def _record_iq_samples(args, l_band_freq, samp_rate, interactive):
     mb_per_sec = (2 * samp_rate) / (2**20)
     logger.info("IQ recording will be saved on file {}".format(args.iq_file))
     logger.info(
         "The file will grow by approximately {:.2f} MB per second.".format(
             mb_per_sec))
-    if (not util.ask_yes_or_no("Proceed?", default="y")):
+    if (interactive and not util.ask_yes_or_no("Proceed?", default="y")):
         return
 
     rtl_cmd = _get_rtl_sdr_cmd(args, l_band_freq, samp_rate, args.iq_file)
@@ -324,6 +324,13 @@ def subparser(subparsers):  # pragma: no cover
                               description="Launch SDR receiver",
                               help='Launch SDR receiver',
                               formatter_class=ArgumentDefaultsHelpFormatter)
+    p.add_argument(
+        '-y',
+        '--yes',
+        default=False,
+        action='store_true',
+        help="Non-interactive mode. Automatically answers \"Yes\" to "
+        "configuration prompts")
 
     # Monitoring options
     monitoring.add_to_parser(p)
@@ -465,6 +472,8 @@ def subparser(subparsers):  # pragma: no cover
 
 
 def run(args):
+    interactive = not args.yes
+
     info = config.read_cfg_file(args.cfg, args.cfg_dir)
 
     if (info is None):
@@ -474,7 +483,7 @@ def run(args):
 
     if args.implementation == 'leandvb':
         pipe_size_bytes = int(args.pipe_size * (2**20))
-        if (not _tune_max_pipe_size(pipe_size_bytes)):
+        if (not _tune_max_pipe_size(pipe_size_bytes, interactive)):
             return
 
     # Check if all dependencies are installed
@@ -512,7 +521,7 @@ def run(args):
 
     # If recording IQ samples, run the rtl_sdr only
     if (args.record):
-        _record_iq_samples(args, l_band_freq, samp_rate)
+        _record_iq_samples(args, l_band_freq, samp_rate, interactive)
         return
 
     # Prepare and validate the tsp command

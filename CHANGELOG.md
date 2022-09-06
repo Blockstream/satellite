@@ -24,6 +24,7 @@ Release Date: TBD
 - Support for the installation of gr-dvbs2rx on Ubuntu 22.04+ and Fedora 36+.
 - Option `--disable` to disable selected Linux media modules when building the
   TBS drivers with the `deps tbs-drivers` command.
+- Non-interactive modes for the `gqrx` and `sdr` commands.
 
 ### Changed
 - Explainer printed on initial registration with the monitoring API, with
