@@ -54,13 +54,19 @@ def _get_antenna_name(x):
     return s
 
 
-def _ask_antenna():
+def _ask_antenna(sat):
     """Configure antenna"""
     os.system('clear')
     util.print_header("Antenna")
 
     question = "What kind of antenna are you using?"
-    antenna = util.ask_multiple_choice(defs.antennas,
+
+    # The flat-panel antenna models do not work in the C band
+    antenna_options = [
+        x for x in defs.antennas
+        if not (sat["band"] == "C" and x["type"] in ["flat", "sat-ip"])
+    ]
+    antenna = util.ask_multiple_choice(antenna_options,
                                        question,
                                        "Antenna",
                                        _get_antenna_name,
@@ -76,16 +82,30 @@ def _ask_antenna():
     return antenna
 
 
-def _cfg_rx_setup():
+def _ask_demod(sat):
+    """Ask the receiver/demodulator model"""
+    question = "Select your DVB-S2 receiver:"
+
+    rx_options = [
+        rx for rx in defs.demods
+        # If band C, remove Blockstrem Base Station from option list
+        if not (sat["band"] == "C" and rx["vendor"] == "Selfsat")
+    ]
+
+    setup = util.ask_multiple_choice(
+        rx_options, question, "Receiver",
+        lambda x: '{} receiver'.format(_get_rx_marketing_name(x)))
+
+    return setup
+
+
+def _cfg_rx_setup(sat):
     """Configure Rx setup - which receiver user is using """
     os.system('clear')
     util.print_header("Receiver")
 
-    # Receiver
-    question = "Select your DVB-S2 receiver:"
-    setup = util.ask_multiple_choice(
-        defs.demods, question, "Receiver",
-        lambda x: '{} receiver'.format(_get_rx_marketing_name(x)))
+    # The setup includes the demodulator info, the antenna, and extra fields
+    setup = _ask_demod(sat)
 
     # Network interface connected to the standalone receiver
     if (setup['type'] == defs.standalone_setup_type):
@@ -128,7 +148,7 @@ def _cfg_rx_setup():
             defs.sat_ip_setup_type))
 
     # Antenna
-    setup['antenna'] = _ask_antenna()
+    setup['antenna'] = _ask_antenna(sat)
 
     return setup
 
@@ -714,7 +734,7 @@ def configure(args):
 
     try:
         user_sat = _cfg_satellite()
-        user_setup = _cfg_rx_setup()
+        user_setup = _cfg_rx_setup(user_sat)
         user_lnb = _cfg_lnb(user_sat, user_setup)
         user_freqs = _cfg_frequencies(user_sat, user_lnb, user_setup)
     except KeyboardInterrupt:

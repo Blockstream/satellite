@@ -33,6 +33,8 @@ Release Date: TBD
 - Gracefully exit the GPG passphrase or keyring creation prompts when
   interrupted.
 - TBS driver compilation failing on RPi OS Bullseye due to disabled SAA7146.
+- Flat panel and Sat-IP antenna/receiver options on the configuration menu
+  after C-band satellite selection.
 
 ## 0.4.4
 
