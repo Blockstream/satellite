@@ -465,7 +465,7 @@ def _cfg_frequencies(sat, lnb, setup):
     return {'dl': sat['dl_freq'], 'lo': lo_freq, 'l_band': if_freq}
 
 
-def _cfg_chan_conf(info, chan_file):
+def _cfg_chan_conf(info, chan_file, yes=False):
     """Generate the channels.conf file"""
 
     util.print_header("Channel Configuration")
@@ -478,11 +478,11 @@ def _cfg_chan_conf(info, chan_file):
     if (os.path.isfile(chan_file)):
         print("Found previous %s file:" % (chan_file))
 
-        if (not util.ask_yes_or_no("Remove and regenerate file?")):
+        if (yes or util.ask_yes_or_no("Remove and regenerate file?")):
+            os.remove(chan_file)
+        else:
             print("Configuration aborted.")
             return
-        else:
-            os.remove(chan_file)
 
     with open(chan_file, 'w') as f:
         f.write('[blocksat-ch]\n')
