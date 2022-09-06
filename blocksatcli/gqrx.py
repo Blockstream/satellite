@@ -15,6 +15,12 @@ def subparser(subparsers):  # pragma: no cover
                    '--path',
                    default=None,
                    help='Path where gqrx configuration file should be saved')
+    p.add_argument('-y',
+                   '--yes',
+                   action='store_true',
+                   default=False,
+                   help='Non-interactive mode. Answers \"yes\" automatically \
+                   to configuration prompts"')
 
     p.set_defaults(func=configure)
 
@@ -23,6 +29,7 @@ def subparser(subparsers):  # pragma: no cover
 
 def configure(args):
     """Configure GQRX"""
+    interactive = not args.yes
     info = config.read_cfg_file(args.cfg, args.cfg_dir)
 
     if (info is None):
@@ -70,7 +77,7 @@ def configure(args):
 
     print("Save {} at {}/".format(conf_file, path))
 
-    if (not util.ask_yes_or_no("Proceed?")):
+    if (interactive and not util.ask_yes_or_no("Proceed?")):
         print("Aborted")
         return
 
@@ -78,7 +85,8 @@ def configure(args):
         os.makedirs(path)
 
     if os.path.exists(abs_path):
-        if (not util.ask_yes_or_no("File already exists. Overwrite?")):
+        if (interactive
+                and not util.ask_yes_or_no("File already exists. Overwrite?")):
             print("Aborted")
             return
 

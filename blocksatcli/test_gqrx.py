@@ -47,7 +47,8 @@ class TestGqrx(TestCase):
 
         self.args = argparse.Namespace(cfg=self.cfg_name,
                                        cfg_dir=self.cfg_dir,
-                                       path=self.gqrx_dir)
+                                       path=self.gqrx_dir,
+                                       yes=False)
 
         if not os.path.exists(self.cfg_dir):
             os.makedirs(self.cfg_dir)
