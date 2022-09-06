@@ -1,3 +1,5 @@
+import copy
+
 # Constants
 user_guide_url = "https://blockstream.github.io/satellite/"
 blocksat_pubkey = '87D07253F69E4CD8629B0A21A94A007EC9D4458C'
@@ -76,31 +78,31 @@ demods = [
         'vendor': "Novra",
         'model': "S400",
         'type': standalone_setup_type,
-        'tun_range': (950.0, 2150.0)
+        'tun_range': [950.0, 2150.0]
     },
     {
         'vendor': "TBS",
         'model': "5927",
         'type': linux_usb_setup_type,
-        'tun_range': (950.0, 2150.0)
+        'tun_range': [950.0, 2150.0]
     },
     {
         'vendor': "TBS",
         'model': "5520SE",
         'type': linux_usb_setup_type,
-        'tun_range': (950.0, 2150.0)
+        'tun_range': [950.0, 2150.0]
     },
     {
         'vendor': "",
         'model': "RTL-SDR",
         'type': sdr_setup_type,
-        'tun_range': (24.0, 1766.0)  # assuming R820T2
+        'tun_range': [24.0, 1766.0]  # assuming R820T2
     },
     {
         'vendor': "Selfsat",
         'model': "IP22",
         'type': sat_ip_setup_type,
-        'tun_range': (950, 2150)
+        'tun_range': [950, 2150]
     }
 ]
 
@@ -317,3 +319,31 @@ modcods = {
 }
 
 lnb_options = [x['alias'] for x in v4l_lnbs]
+
+
+def get_satellite_def(alias):
+    for satellite in satellites:
+        if satellite['alias'] == alias:
+            return copy.deepcopy(satellite)
+    raise ValueError(f"Invalid satellite alias {alias}")
+
+
+def get_demod_def(vendor, model):
+    for demod in demods:
+        if demod['vendor'] == vendor and demod['model'] == model:
+            return copy.deepcopy(demod)
+    raise ValueError(f"Invalid demodulator {vendor} {model}")
+
+
+def get_antenna_def(label):
+    for antenna in antennas:
+        if label in antenna['label']:
+            return copy.deepcopy(antenna)
+    raise ValueError(f"Invalid antenna {label}")
+
+
+def get_lnb_def(vendor, model):
+    for lnb in lnbs:
+        if lnb['vendor'] == vendor and lnb['model'] == model:
+            return copy.deepcopy(lnb)
+    raise ValueError(f"Invalid LNB {vendor} {model}")
