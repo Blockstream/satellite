@@ -427,7 +427,7 @@ def _print_next_steps():
     print(defs.user_guide_url + "doc/antenna-pointing.html\n")
 
 
-def subparser(subparsers):
+def subparser(subparsers):  # pragma: no cover
     """Argument parser of instructions command"""
     p = subparsers.add_parser('instructions',
                               description="Instructions for Blocksat Rx setup",

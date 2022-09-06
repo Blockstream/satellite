@@ -506,7 +506,7 @@ def _print_help(args):
     print(parser.format_help())
 
 
-def subparser(subparsers):
+def subparser(subparsers):  # pragma: no cover
     """Parser for install command"""
     p = subparsers.add_parser('dependencies',
                               aliases=['deps'],

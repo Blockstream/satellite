@@ -9,7 +9,7 @@ from . import util
 logger = logging.getLogger(__name__)
 
 
-def add_to_parser(parser):
+def add_to_parser(parser):  # pragma: no cover
     p = parser.add_argument_group('tsduck options')
     p.add_argument('-l',
                    '--local-address',

@@ -457,7 +457,7 @@ def zap(adapter,
     return ps
 
 
-def subparser(subparsers):
+def subparser(subparsers):  # pragma: no cover
     """Subparser for usb command"""
     p = subparsers.add_parser('usb',
                               description="USB DVB-S2 receiver manager",

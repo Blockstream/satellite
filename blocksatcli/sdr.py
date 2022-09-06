@@ -316,7 +316,7 @@ def _record_iq_samples(args, l_band_freq, samp_rate):
         p1.kill()
 
 
-def subparser(subparsers):
+def subparser(subparsers):  # pragma: no cover
     """Parser for sdr command"""
     default_impl = 'leandvb' if which('dvbs2-rx') is None else 'gr-dvbs2rx'
 

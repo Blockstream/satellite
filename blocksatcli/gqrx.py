@@ -5,7 +5,7 @@ from . import config, util
 import textwrap
 
 
-def subparser(subparsers):
+def subparser(subparsers):  # pragma: no cover
     p = subparsers.add_parser('gqrx-conf',
                               aliases=['gqrx'],
                               description="Generate gqrx configurations",

@@ -652,7 +652,7 @@ def _monitoring_thread(sat_ip, handler):
         handler.update(status)
 
 
-def subparser(subparsers):
+def subparser(subparsers):  # pragma: no cover
     """Parser for sdr command"""
     p = subparsers.add_parser('sat-ip',
                               description="Launch a Sat-IP receiver",

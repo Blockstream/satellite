@@ -702,7 +702,7 @@ def get_net_if(user_info):
     return interface
 
 
-def subparser(subparsers):
+def subparser(subparsers):  # pragma: no cover
     """Argument parser of config command"""
     p = subparsers.add_parser('config',
                               aliases=['cfg'],

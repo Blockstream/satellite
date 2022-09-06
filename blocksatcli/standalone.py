@@ -474,7 +474,7 @@ def _parse_address(user_info, arg_addr):
     return str(validated_addr)
 
 
-def subparser(subparsers):
+def subparser(subparsers):  # pragma: no cover
     p = subparsers.add_parser('standalone',
                               description="Standalone DVB-S2 receiver manager",
                               help='Manage the standalone DVB-S2 receiver',

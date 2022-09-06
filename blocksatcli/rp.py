@@ -139,7 +139,7 @@ def set_filters(dvb_ifs, prompt=True, dry=False):
         print("RP filtering configuration cancelled")
 
 
-def subparser(subparsers):
+def subparser(subparsers):  # pragma: no cover
     """Parser for rp command"""
     p = subparsers.add_parser('reverse-path',
                               aliases=['rp'],

@@ -325,7 +325,7 @@ def demo_rx(args):
     rx.run()
 
 
-def subparser(subparsers):
+def subparser(subparsers):  # pragma: no cover
     """Subparser for usb command"""
 
     def channel_number(value):

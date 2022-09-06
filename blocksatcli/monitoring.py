@@ -394,7 +394,7 @@ class Monitor():
             print(str(self), end=print_end)
 
 
-def add_to_parser(parser):
+def add_to_parser(parser):  # pragma: no cover
     """Add receiver monitoring options to parser"""
     m_p = parser.add_argument_group('receiver logging options')
     m_p.add_argument(

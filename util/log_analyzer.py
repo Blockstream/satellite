@@ -133,7 +133,7 @@ def _read_log_file(filename):
     return logs.splitlines()
 
 
-def parser():
+def parser():  # pragma: no cover
     parser = ArgumentParser(prog="log_analyzer",
                             description="Analyze receiver logs",
                             formatter_class=ArgumentDefaultsHelpFormatter)

@@ -89,7 +89,7 @@ def _gen_cfgs(info, interface):
     return cfg
 
 
-def subparser(subparsers):
+def subparser(subparsers):  # pragma: no cover
     """Argument parser of bitcoin-conf command"""
     p = subparsers.add_parser(
         'bitcoin-conf',

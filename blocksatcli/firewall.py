@@ -325,7 +325,7 @@ def configure(net_ifs, ports, src_ip, igmp=False, prompt=True, dry=False):
             print("")
 
 
-def subparser(subparsers):
+def subparser(subparsers):  # pragma: no cover
     """Parser for firewall command"""
     p = subparsers.add_parser('firewall',
                               description="Set firewall rules",

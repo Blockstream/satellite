@@ -13,7 +13,7 @@ from . import config, util, instructions, gqrx, bitcoin, sdr, rp, \
 from .api import api
 
 
-def main():
+def main():  # pragma: no cover
     """Main - parse command-line arguments and call subcommands
     """
     default_cfg_dir = os.path.join(util.get_home_dir(), ".blocksat")
