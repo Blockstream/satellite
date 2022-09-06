@@ -13,9 +13,7 @@ from . import config, util, instructions, gqrx, bitcoin, sdr, rp, \
 from .api import api
 
 
-def main():  # pragma: no cover
-    """Main - parse command-line arguments and call subcommands
-    """
+def get_parser():  # pragma: no cover
     default_cfg_dir = os.path.join(util.get_home_dir(), ".blocksat")
 
     parser = ArgumentParser(
@@ -57,6 +55,13 @@ def main():  # pragma: no cover
     api.subparser(subparsers)
     satip.subparser(subparsers)
 
+    return parser
+
+
+def main():  # pragma: no cover
+    """Main - parse command-line arguments and call subcommands
+    """
+    parser = get_parser()
     args = parser.parse_args()
 
     # Filter commands that are Linux-only
