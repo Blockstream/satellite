@@ -434,3 +434,13 @@ def check_configured_setup_type(info, setup_type, logger):
         logger.error("Setup not configured for a {} receiver".format(type_str))
         logger.info("Run \"blocksat-cli cfg\" to reconfigure your setup")
         sys.exit(1)
+
+
+def get_network_interfaces():
+    """Get list of network interfaces"""
+    try:
+        devices = os.listdir('/sys/class/net/')
+    except FileNotFoundError:
+        devices = None
+
+    return devices

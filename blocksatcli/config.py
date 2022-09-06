@@ -109,12 +109,8 @@ def _cfg_rx_setup(sat):
 
     # Network interface connected to the standalone receiver
     if (setup['type'] == defs.standalone_setup_type):
-        try:
-            devices = os.listdir('/sys/class/net/')
-        except FileNotFoundError:
-            devices = None
-            pass
-
+        devices = util.get_network_interfaces()
+        
         question = "Which network interface is connected to the receiver?"
         if (devices is not None):
             netdev = util.ask_multiple_choice(devices, question, "Interface",
