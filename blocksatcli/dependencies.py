@@ -27,6 +27,28 @@ target_map = {
     "sat-ip": defs.sat_ip_setup_type
 }
 supported_distros = ["ubuntu", "debian", "raspbian", "fedora", "centos"]
+pkg_map = {
+    'sdr': {
+        'apt': ["gqrx-sdr", "rtl-sdr", "leandvb", "tsduck"],
+        'dnf': ["gqrx", "rtl-sdr", "leandvb", "tsduck"],
+        'yum': ["rtl-sdr", "leandvb", "tsduck"]
+    },
+    'usb': {
+        'apt': ["iproute2", "iptables", "dvb-apps", "dvb-tools"],
+        'dnf': ["iproute", "iptables", "dvb-apps", "v4l-utils"],
+        'yum': ["iproute", "iptables", "dvb-apps", "v4l-utils"]
+    },
+    'standalone': {
+        'apt': ["iproute2", "iptables"],
+        'dnf': ["iproute", "iptables"],
+        'yum': ["iproute", "iptables"]
+    },
+    'sat-ip': {
+        'apt': ["iproute2", "tsduck"],
+        'dnf': ["iproute", "tsduck"],
+        'yum': ["iproute", "tsduck"]
+    }
+}
 
 
 def _is_package_installed(package, required_version):
@@ -346,28 +368,7 @@ def _install_specific(cfg_dir,
                       grdvbs2rx=False):
     """Install setup-specific dependencies"""
     key = next(key for key, val in target_map.items() if val == target)
-    pkg_map = {
-        'sdr': {
-            'apt': ["gqrx-sdr", "rtl-sdr", "leandvb", "tsduck"],
-            'dnf': ["gqrx", "rtl-sdr", "leandvb", "tsduck"],
-            'yum': ["rtl-sdr", "leandvb", "tsduck"]
-        },
-        'usb': {
-            'apt': ["iproute2", "iptables", "dvb-apps", "dvb-tools"],
-            'dnf': ["iproute", "iptables", "dvb-apps", "v4l-utils"],
-            'yum': ["iproute", "iptables", "dvb-apps", "v4l-utils"]
-        },
-        'standalone': {
-            'apt': ["iproute2", "iptables"],
-            'dnf': ["iproute", "iptables"],
-            'yum': ["iproute", "iptables"]
-        },
-        'sat-ip': {
-            'apt': ["iproute2", "tsduck"],
-            'dnf': ["iproute", "tsduck"],
-            'yum': ["iproute", "tsduck"]
-        }
-    }
+
     # NOTE:
     # - leandvb and tsduck come from our repository. Also, note gqrx is not
     #   available on CentOS (hence not included on the yum list).
@@ -409,7 +410,7 @@ def _install_dvbs2rx(cfg_dir, interactive, update):
         logger.info(f"gr-dvbs2rx {GR_DVBS2RX_VERSION} is already installed")
         return
 
-    pkg_map = {
+    gr_dvbs2rx_pkg_map = {
         'apt': [
             # gr-dvbs2rx build deps
             'cmake',
@@ -452,8 +453,8 @@ def _install_dvbs2rx(cfg_dir, interactive, update):
         'yum': []  # no distro with yum support GR 3.10
     }
 
-    _install_packages(pkg_map['apt'], pkg_map['dnf'], pkg_map['yum'],
-                      interactive, update)
+    _install_packages(gr_dvbs2rx_pkg_map['apt'], gr_dvbs2rx_pkg_map['dnf'],
+                      gr_dvbs2rx_pkg_map['yum'], interactive, update)
 
     runner.create_dir('src', cwd=cfg_dir)
 
