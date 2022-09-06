@@ -23,9 +23,9 @@ def _cfg_satellite():
                "https://blockstream.com/satellite/#satellite_network-coverage"
 
     question = "Which satellite below covers your location?"
-    sat = util.ask_multiple_choice(
-        defs.satellites, question, "Satellite",
-        lambda sat: '{} ({})'.format(sat['name'], sat['alias']), help_msg)
+    sat = util.ask_multiple_choice(defs.satellites, question, "Satellite",
+                                   lambda sat: get_satellite_name(sat),
+                                   help_msg)
     return sat
 
 
@@ -110,7 +110,7 @@ def _cfg_rx_setup(sat):
     # Network interface connected to the standalone receiver
     if (setup['type'] == defs.standalone_setup_type):
         devices = util.get_network_interfaces()
-        
+
         question = "Which network interface is connected to the receiver?"
         if (devices is not None):
             netdev = util.ask_multiple_choice(devices, question, "Interface",
@@ -640,6 +640,11 @@ def get_rx_model(user_info):
     """
     return (user_info['setup']['vendor'] + " " +
             user_info['setup']['model']).strip()
+
+
+def get_satellite_name(sat):
+    """Return string with satellite name"""
+    return f"{sat['name']} ({sat['alias']})"
 
 
 def get_antenna_model(user_info):
