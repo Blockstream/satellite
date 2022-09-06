@@ -137,7 +137,7 @@ class Reporter():
         # contrast, when reporting to a general-purpose server, do include the
         # satellite and hostname information if defined.
         if (self.bs_monitoring is None):
-            data["satellite"] = self.satellite,
+            data["satellite"] = self.satellite
             if (self.hostname):
                 data['hostname'] = self.hostname
         else:

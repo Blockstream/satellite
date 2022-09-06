@@ -194,6 +194,36 @@ def _is_gpg_keyring_set(gnupghome):
     return True
 
 
+def import_bs_pubkey(gpg):
+    """Import Blockstream's public key from the package directory
+
+    Args:
+        gpg (Gpg): Gpg object.
+
+    Raises:
+        RuntimeError: If the GPG keyring is not properly configured before
+        calling this function.
+    """
+    pkg_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    key_path = os.path.join(pkg_dir, 'gpg', defs.blocksat_pubkey + ".gpg")
+
+    with open(key_path) as fd:
+        key_data = fd.read()
+
+    import_result = gpg.gpg.import_keys(key_data)
+
+    if (len(import_result.fingerprints) == 0):
+        logger.warning("Failed to import key {}".format(defs.blocksat_pubkey))
+        return
+
+    logger.info("Imported key {}".format(import_result.fingerprints[0]))
+
+    gpg.gpg.trust_keys(defs.blocksat_pubkey, 'TRUST_ULTIMATE')
+
+    if (not _is_gpg_keyring_set(gpg.gpghome)):
+        raise RuntimeError("GPG keyring configuration failed")
+
+
 def config_keyring(gpg, log_if_configured=False):
     """Configure the local keyring
 
@@ -223,21 +253,4 @@ def config_keyring(gpg, log_if_configured=False):
     # NOTE: the order is important here. Add Blockstream's public key only
     # after adding the user key. With that, the user key becomes the first key
     # on the keyring, which is used by default.
-    pkg_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    key_path = os.path.join(pkg_dir, 'gpg', defs.blocksat_pubkey + ".gpg")
-
-    with open(key_path) as fd:
-        key_data = fd.read()
-
-    import_result = gpg.gpg.import_keys(key_data)
-
-    if (len(import_result.fingerprints) == 0):
-        logger.warning("Failed to import key {}".format(defs.blocksat_pubkey))
-        return
-
-    logger.info("Imported key {}".format(import_result.fingerprints[0]))
-
-    gpg.gpg.trust_keys(defs.blocksat_pubkey, 'TRUST_ULTIMATE')
-
-    if (not _is_gpg_keyring_set(gpg.gpghome)):
-        raise RuntimeError("GPG keyring configuration failed")
+    import_bs_pubkey(gpg)
