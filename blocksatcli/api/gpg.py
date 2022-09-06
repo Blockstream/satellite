@@ -167,7 +167,7 @@ class Gpg():
                              passphrase=self.passphrase)
 
 
-def _is_gpg_keyring_set(gnupghome):
+def is_gpg_keyring_set(gnupghome):
     """Check if the keyring is already configured
 
     It is configured when:
@@ -220,7 +220,7 @@ def import_bs_pubkey(gpg):
 
     gpg.gpg.trust_keys(defs.blocksat_pubkey, 'TRUST_ULTIMATE')
 
-    if (not _is_gpg_keyring_set(gpg.gpghome)):
+    if (not is_gpg_keyring_set(gpg.gpghome)):
         raise RuntimeError("GPG keyring configuration failed")
 
 
@@ -235,7 +235,7 @@ def config_keyring(gpg, log_if_configured=False):
 
     """
     assert (isinstance(gpg, Gpg))
-    if _is_gpg_keyring_set(gpg.gpghome):
+    if is_gpg_keyring_set(gpg.gpghome):
         if (log_if_configured):
             logger.info("Keyring already configured")
         return
