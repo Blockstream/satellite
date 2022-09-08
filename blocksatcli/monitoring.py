@@ -3,15 +3,18 @@ import json
 import logging
 import math
 import os
-import requests
 import sys
 import threading
 import time
+from enum import Enum
 from http.server import HTTPServer, BaseHTTPRequestHandler
+
+import requests
 
 from . import defs, config, monitoring_api
 
 logger = logging.getLogger(__name__)
+
 sats = [x['alias'] for x in defs.satellites]
 # Supported receiver metrics, with their labels and printing formats
 rx_metrics = {
@@ -67,6 +70,12 @@ def get_report_opts(args):
         'passphrase': args.report_passphrase,
         'reset_api_pwd': args.bs_mon_reset_pwd
     }
+
+
+class ReportStatus(Enum):
+    REGISTRATION_RUNNING = 1
+    REGISTRATION_FAILED = 2
+    CONNECTION_ERROR = 3
 
 
 class Reporter():
@@ -134,6 +143,11 @@ class Reporter():
 
         Args:
             metrics : Dictionary with receiver metrics to send over the report
+
+        Returns:
+            int: The HTTP request status code when the request is processed
+            (even on HTTP error), or the ReportStatus value on other failures.
+
         """
         # When the receiver is not registered with the monitoring API, the
         # sign-up procedure runs. However, this procedure can only work if the
@@ -153,10 +167,13 @@ class Reporter():
                 print()
                 logger.error("Report failed: registration incomplete "
                              "(relaunch receiver and try again)")
+                status = ReportStatus.REGISTRATION_FAILED.value
+            else:
+                status = ReportStatus.REGISTRATION_RUNNING.value
 
             # Don't send reports to the monitoring API until the receiver is
             # properly registered and verified
-            return
+            return status
 
         data = {}
         data.update(metrics)
@@ -185,9 +202,13 @@ class Reporter():
             if (r.status_code != requests.codes.ok):
                 print()
                 logger.error("Report failed: " + r.text)
+            post_status = r.status_code
         except requests.exceptions.ConnectionError as e:
             print()
             logger.error("Report failed: " + str(e))
+            post_status = ReportStatus.CONNECTION_ERROR.value
+
+        return post_status
 
 
 class Server(BaseHTTPRequestHandler):
@@ -225,7 +246,8 @@ class Monitor():
                  port=defs.monitor_port,
                  report=False,
                  report_opts={},
-                 utc=True):
+                 utc=True,
+                 callback=None):
         """Monitor Constructor
 
         Args:
@@ -243,6 +265,10 @@ class Monitor():
                            a remote address.
             report_opts  : Reporter options.
             utc          : Whether to print logs in UTC time.
+            callback     : Callback to process the monitoring updates. It
+                must be a callable with two arguments, the first expecting the
+                receiver status dictionary, the second expecting the report
+                status, if any.
 
         """
         self.cfg_dir = cfg_dir
@@ -252,6 +278,8 @@ class Monitor():
         self.min_interval = min_interval
         self.report = report
         self.utc = utc
+        self.callback = callback
+
         if (logfile):
             self._setup_logfile()
 
@@ -364,8 +392,10 @@ class Monitor():
                 fd.write(str(self) + "\n")
 
         # Report over HTTP to a remote address
+        report_status = None
+        disable_echo = False  # whether to temporarily disable echoing
         if (self.report):
-            self.reporter.send(self.get_stats())
+            report_status = self.reporter.send(self.get_stats())
             # If the reporter object is configured to report to the Monitoring
             # API but, at this point, it is still waiting for registration to
             # complete, don't log the status to the console yet. Otherwise, the
@@ -384,14 +414,19 @@ class Monitor():
             if (self.reporter.bs_monitoring is not None
                     and not self.reporter.bs_monitoring.registered
                     and self.reporter.bs_monitoring.registration_running):
-                return
+                disable_echo = True
+            else:
+                disable_echo = False
 
         # Print to console
-        if (self.echo):
+        if (self.echo and not disable_echo):
             print_end = '\n' if self.scroll else '\r'
             if (not self.scroll):
                 sys.stdout.write("\033[K")
             print(str(self), end=print_end)
+
+        if self.callback:
+            self.callback(self.get_stats(), report_status)
 
 
 def add_to_parser(parser):  # pragma: no cover
