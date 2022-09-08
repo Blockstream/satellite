@@ -13,8 +13,8 @@ from . import rp, firewall, defs, config, dependencies, util, monitoring
 logger = logging.getLogger(__name__)
 runner = util.ProcessRunner(logger)
 
-standard_snmp_table = {'both': 0, 'dvbs': 1, 'dvbs2': 2}
-modcod_snmp_table = {
+STANDARD_SNMP_TABLE = {'both': 0, 'dvbs': 1, 'dvbs2': 2}
+MODCOD_SNMP_TABLE = {
     'auto': 0,
     'oneQuarterQPSK': 1,
     'oneThirdQPSK': 2,
@@ -47,7 +47,7 @@ modcod_snmp_table = {
     'oneThirdBPSK': 29,
     'oneQuarterBPSK': 30,
 }
-snmp_row_status_table = {
+SNMP_ROW_STATUS_TABLE = {
     'active': 1,
     'notInService': 2,
     'notReady': 3,
@@ -55,6 +55,10 @@ snmp_row_status_table = {
     'createAndWait': 5,
     'destroy': 6
 }
+
+
+def _tuple_to_dotted_str(in_tuple):
+    return ".".join([str(x) for x in in_tuple])
 
 
 class SnmpClient():
@@ -92,6 +96,40 @@ class SnmpClient():
         cmd = ["mibdump.py", "--mib-source={}".format(mib_path), self.mib]
         runner.run(cmd)
 
+    def _translate_to_snmpset_val_type(self, key, val):
+        """Translate SNMP param to a value-type pair that snmpset understands
+        """
+        # TODO: Fix s400LOFrequency.0, which is not writable due to being a
+        # Counter64 object.
+        new_val = val
+        if ("s400ModulationStandard" in key):
+            if (val in STANDARD_SNMP_TABLE):
+                new_val = STANDARD_SNMP_TABLE[val]
+        if ("s400Modcod" in key):
+            if (val in MODCOD_SNMP_TABLE):
+                new_val = MODCOD_SNMP_TABLE[val]
+        if ("RowStatus" in key):
+            if (val in SNMP_ROW_STATUS_TABLE):
+                new_val = SNMP_ROW_STATUS_TABLE[val]
+        if (val in ["disable", "enable"]):
+            new_val = int(val == "enable")
+        if (val in ["disabled", "enabled"]):
+            new_val = int(val == "enabled")
+        if (val in ["vertical", "horizontal"]):
+            new_val = int(val == "horizontal")
+
+        # Value type
+        if isinstance(val, str):
+            val_type = "s"
+        elif (("LBandFrequency" in key)
+              or ("SymbolRate" in key and "SymbolRateAuto" not in key)
+              or ("s400MpePid1Pid" in key)):
+            val_type = "u"
+        else:
+            val_type = "i"
+
+        return new_val, val_type
+
     def _get(self, *variables):
         """Get one or more variables via SNMP
 
@@ -104,14 +142,10 @@ class SnmpClient():
         """
         obj_types = []
         for var in variables:
-            if isinstance(var, tuple):
-                obj = ObjectType(
-                    ObjectIdentity(self.mib, var[0],
-                                   var[1]).addMibSource(self.mib_dir))
-            else:
-                obj = ObjectType(
-                    ObjectIdentity(self.mib, var,
-                                   0).addMibSource(self.mib_dir))
+            oid_args = (self.mib, var[0], var[1]) if isinstance(var, tuple) \
+                else (self.mib, var, 0)
+            obj = ObjectType(
+                ObjectIdentity(*oid_args).addMibSource(self.mib_dir))
             obj_types.append(obj)
 
         errorIndication, errorStatus, errorIndex, varBinds = next(
@@ -149,50 +183,20 @@ class SnmpClient():
             for key, val in key_vals:
                 # SNMP OID
                 if (isinstance(key, tuple)):
-                    key = ".".join([str(x) for x in key])
+                    key = _tuple_to_dotted_str(key)
                 else:
                     key += ".0"  # scalar values must have a .0 suffix
-                # Translate values
-                # TODO: Fix s400LOFrequency.0, which is not writable due to
-                # being a Counter64 object.
-                if ("s400ModulationStandard" in key):
-                    if (val in standard_snmp_table):
-                        val = standard_snmp_table[val]
-                if ("s400Modcod" in key):
-                    if (val in modcod_snmp_table):
-                        val = modcod_snmp_table[val]
-                if ("RowStatus" in key):
-                    if (val in snmp_row_status_table):
-                        val = snmp_row_status_table[val]
-                if (val in ["disable", "enable"]):
-                    val = int(val == "enable")
-                if (val in ["disabled", "enabled"]):
-                    val = int(val == "enabled")
-                if (val in ["vertical", "horizontal"]):
-                    val = int(val == "horizontal")
-                # Value type
-                if isinstance(val, str):
-                    val_type = "s"
-                elif (("LBandFrequency" in key)
-                      or ("SymbolRate" in key and "SymbolRateAuto" not in key)
-                      or ("s400MpePid1Pid" in key)):
-                    val_type = "u"
-                else:
-                    val_type = "i"
+                val, val_type = self._translate_to_snmpset_val_type(key, val)
                 print("> snmpset -v 2c -c private {}:{} {}::{} {} {}".format(
                     self.address, self.port, self.mib, key, val_type, val))
             return True
 
         obj_types = []
         for key, val in key_vals:
-            if isinstance(key, tuple):
-                obj = ObjectType(
-                    ObjectIdentity(self.mib, key[0],
-                                   key[1]).addMibSource(self.mib_dir), val)
-            else:
-                obj = ObjectType(
-                    ObjectIdentity(self.mib, key,
-                                   0).addMibSource(self.mib_dir), val)
+            oid_args = (self.mib, key[0], key[1]) if isinstance(key, tuple) \
+                else (self.mib, key, 0)
+            obj = ObjectType(
+                ObjectIdentity(*oid_args).addMibSource(self.mib_dir), val)
             obj_types.append(obj)
 
         errorIndication, errorStatus, errorIndex, varBinds = next(
@@ -318,65 +322,38 @@ class S400Client(SnmpClient):
             successfully.
 
         """
-        res = self._get(
-            's400FirmwareVersion',
-            # Demodulator
-            's400ModulationStandard' + self.demod,
-            's400LBandFrequency' + self.demod,
-            's400SymbolRate' + self.demod,
-            's400Modcod' + self.demod,
-            # LNB
-            's400LNBSupply',
-            's400LOFrequency',
-            's400Polarization',
-            's400Enable22KHzTone',
-            's400LongLineCompensation',
-            # MPE
-            ('s400MpePid1Pid', 0),
-            ('s400MpePid1Pid', 1),
-            ('s400MpePid1RowStatus', 0),
-            ('s400MpePid1RowStatus', 1))
-
-        if (res is None):
+        cfg = self._walk()
+        if not cfg:
             return False
 
-        # Form dictionary with the S400 configs
-        cfg = {}
-        for res in res:
-            key = res[0].replace('NOVRA-s400-MIB::s400', '')
-            val = res[1]
-            cfg[key] = val
-
-        # Map dictionary to more informative labels
-        demod_label_map = {
-            'ModulationStandard' + self.demod + '.0': "Standard",
-            'LBandFrequency' + self.demod + '.0': "L-band Frequency",
-            'SymbolRate' + self.demod + '.0': "Symbol Rate",
-            'Modcod' + self.demod + '.0': "MODCOD",
-        }
-        lnb_label_map = {
-            'LNBSupply.0': "LNB Power Supply",
-            'LOFrequency.0': "LO Frequency",
-            'Polarization.0': "Polarization",
-            'Enable22KHzTone.0': "22 kHz Tone",
-            'LongLineCompensation.0': "Long Line Compensation"
-        }
-        mpe_label_map = {
-            'MpePid1Pid.0': "MPE PID",
-            'MpePid1RowStatus.0': "MPE PID Status"
-        }
+        # Map dictionary to more informative labels organized in sections
         label_map = {
-            "Demodulator": demod_label_map,
-            "LNB Options": lnb_label_map,
-            "MPE Options": mpe_label_map
+            "Demodulator": {
+                's400ModulationStandard' + self.demod + '.0': "Standard",
+                's400LBandFrequency' + self.demod + '.0': "L-band Frequency",
+                's400SymbolRate' + self.demod + '.0': "Symbol Rate",
+                's400Modcod' + self.demod + '.0': "MODCOD"
+            },
+            "LNB Options": {
+                's400LNBSupply.0': "LNB Power Supply",
+                's400LOFrequency.0': "LO Frequency",
+                's400Polarization.0': "Polarization",
+                's400Enable22KHzTone.0': "22 kHz Tone",
+                's400LongLineCompensation.0': "Long Line Compensation"
+            },
+            "MPE Options": {
+                's400MpePid1Pid.0': "MPE PID",
+                's400MpePid1RowStatus.0': "MPE PID Status"
+            }
         }
 
-        print("Firmware Version: {}".format(cfg['FirmwareVersion.0']))
-        for map_key in label_map:
-            print("{}:".format(map_key))
+        print("Firmware Version: {}".format(cfg['s400FirmwareVersion.0']))
+        for section in label_map:
+            print("{}:".format(section))
             for key in cfg:
-                if key in label_map[map_key]:
-                    label = label_map[map_key][key]
+                if key in label_map[section]:
+                    label = label_map[section][key]
+                    # Post-process the value on special cases
                     if (label == "MODCOD"):
                         val = "VCM" if cfg[key] == "31" else cfg[key]
                     elif (label == "Standard"):
@@ -397,7 +374,6 @@ class S400Client(SnmpClient):
         logger.info("Configuring the S400 receiver at {} via SNMP".format(
             self.address))
 
-        # Local parameters
         l_band_freq = int((info['freqs']['l_band'] + freq_corr) * 1e6)
         lo_freq = int(info['freqs']['lo'] * 1e6)
         sym_rate = defs.sym_rate[info['sat']['alias']]
@@ -413,21 +389,11 @@ class S400Client(SnmpClient):
         else:
             tone = 'disable'
 
-        # Fetch and delete the current MPE PIDs
+        # Organize the target SNMP configs in the order in which they should be
+        # applied to the S400 and by section. Ultimately, these are only
+        # applied if not already set in the current config.
         current_cfg = self._walk()
-        mpe_prefix = 's400MpePid' + self.demod
-        has_mpe_table = any(
-            [mpe_prefix + "RowStatus" in key for key in current_cfg])
-        if (has_mpe_table):
-            logger.info("Resetting MPE PIDs")
-        for key in current_cfg:
-            mpe_row_status = mpe_prefix + "RowStatus"
-            if mpe_row_status in key:
-                self._set((tuple(key.split(".")), 'destroy'))
-
-        # Configure via SNMP
-        logger.info("Configuring interface RF{}".format(self.demod))
-        snmp_config = {
+        target_cfg = {
             'Interface RF{}'.format(self.demod): [
                 ('s400ModulationStandard' + self.demod, 'dvbs2'),
                 ('s400LBandFrequency' + self.demod, l_band_freq),
@@ -445,27 +411,79 @@ class S400Client(SnmpClient):
             ]
         }
 
-        # Set the target PIDs
+        # The MPE PIDs are kept on a table, on which three steps are required
+        # to set a value (1 - set the row status to createAndWait; 2 - set the
+        # target value; 3 - set the row status to active). If another PID is
+        # already set, we must destroy its row first.
+        mpe_section = "MPE PIDs"
+        target_cfg[mpe_section] = []
+        no_skip = set()
         for i_pid, pid in enumerate(defs.pids):
-            snmp_config["MPE PID {}".format(pid)] = [
-                (('s400MpePid' + self.demod + 'RowStatus', i_pid),
-                 'createAndWait'),
-                (('s400MpePid' + self.demod + 'Pid', i_pid), pid),
-                (('s400MpePid' + self.demod + 'RowStatus', i_pid), 'active'),
-            ]
+            val_oid = ('s400MpePid' + self.demod + 'Pid', i_pid)
+            status_oid = ('s400MpePid' + self.demod + 'RowStatus', i_pid)
+            val_oid_str = _tuple_to_dotted_str(val_oid)
+            status_oid_str = _tuple_to_dotted_str(status_oid)
+            if val_oid_str in current_cfg and status_oid_str in current_cfg:
+                if current_cfg[val_oid_str] == str(pid) and \
+                        current_cfg[status_oid_str] == 'active':
+                    continue  # already set
+                else:
+                    target_cfg[mpe_section].append((status_oid, 'destroy'))
+            target_cfg[mpe_section].append((status_oid, 'createAndWait'))
+            target_cfg[mpe_section].append((val_oid, pid))
+            target_cfg[mpe_section].append((status_oid, 'active'))
+            # If we detected that we need to change the MPE row here, do not
+            # skip its columns later. This prevents a scenario like the
+            # following. Suppose the RowStatus column is already set to active,
+            # but the PID is wrong. In this case, the logic that follows would
+            # want to change the PID only, and not the RowStatus, whereas, in
+            # reality, we need to change both. The RowStatus must go over two
+            # or three states in a row (destroy -> createAndWait -> active).
+            no_skip.add(val_oid_str)
+            no_skip.add(status_oid_str)
 
-        snmp_config["LNB power"] = [
+        target_cfg["LNB power"] = [
             ('s400LNBSupply', 'enabled'),
             ('s400Enable22KHzTone', tone),
         ]
 
-        for section in snmp_config.keys():
-            logger.info("Configuring {}".format(section))
-            for config_tuple in snmp_config[section]:
+        for section in target_cfg.keys():
+            set_calls = 0
+            if self.dry:
+                logger.info(section)
+            else:
+                logger.info("Configuring {}".format(section))
+
+            for config_tuple in target_cfg[section]:
+                key, val = config_tuple
+                if isinstance(key, tuple):
+                    key = _tuple_to_dotted_str(key)
+                else:
+                    key += '.0'
+
+                # Apply the configuration only if not set yet
+                if key in current_cfg:
+                    current_val = current_cfg[key]
+
+                    # Convert to int in case the value is an int
+                    try:
+                        current_val = int(current_val)
+                    except ValueError:
+                        pass
+
+                    if val == current_val and key not in no_skip:
+                        logger.debug("Option {} already set to {}".format(
+                            key, val))
+                        continue  # already set
+
+                set_calls += 1
                 if not self._set(config_tuple):
                     if (not self.dry):
                         logger.error("SNMP configuration error")
                     return
+
+            if self.dry and set_calls == 0:
+                logger.info("- Already configured")
 
         if (not self.dry):
             logger.info("Receiver configured successfully")
