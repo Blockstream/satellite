@@ -140,6 +140,9 @@ class SnmpClient():
             variable : variable to set via SNMP.
             value    : value to set on the given variable.
 
+        Returns:
+            bool: Whether the request was successful.
+
         """
         if (self.dry):
             # Convert to the corresponding net-snmp command
@@ -178,7 +181,7 @@ class SnmpClient():
                     val_type = "i"
                 print("> snmpset -v 2c -c private {}:{} {}::{} {} {}".format(
                     self.address, self.port, self.mib, key, val_type, val))
-            return
+            return True
 
         obj_types = []
         for key, val in key_vals:
@@ -207,6 +210,8 @@ class SnmpClient():
         else:
             for varBind in varBinds:
                 logger.debug(' = '.join([x.prettyPrint() for x in varBind]))
+
+        return errorIndication is None and errorStatus == 0
 
     def _walk(self):
         """SNMP Walk
@@ -422,34 +427,45 @@ class S400Client(SnmpClient):
 
         # Configure via SNMP
         logger.info("Configuring interface RF{}".format(self.demod))
-        self._set(('s400ModulationStandard' + self.demod, 'dvbs2'))
-        self._set(('s400LBandFrequency' + self.demod, l_band_freq))
-        self._set(('s400SymbolRate' + self.demod, sym_rate))
-        self._set(('s400SymbolRateAuto' + self.demod, 'disable'))
-
-        logger.info("Setting LNB parameters")
-        self._set(('s400LOFrequency', lo_freq))
-        self._set(('s400Polarization', pol))
-        self._set(('s400LongLineCompensation', 'disable'))
-
-        logger.info("Configuring the RF{} service".format(self.demod))
-        self._set(('s400Modcod' + self.demod, 'auto'))
-        self._set(('s400ForwardEntireStream' + self.demod, 'disable'))
+        snmp_config = {
+            'Interface RF{}'.format(self.demod): [
+                ('s400ModulationStandard' + self.demod, 'dvbs2'),
+                ('s400LBandFrequency' + self.demod, l_band_freq),
+                ('s400SymbolRate' + self.demod, sym_rate),
+                ('s400SymbolRateAuto' + self.demod, 'disable'),
+            ],
+            'LNB parameters': [
+                ('s400LOFrequency', lo_freq),
+                ('s400Polarization', pol),
+                ('s400LongLineCompensation', 'disable'),
+            ],
+            'RF{} service'.format(self.demod): [
+                ('s400Modcod' + self.demod, 'auto'),
+                ('s400ForwardEntireStream' + self.demod, 'disable'),
+            ]
+        }
 
         # Set the target PIDs
         for i_pid, pid in enumerate(defs.pids):
-            logger.info("Adding MPE PID {}".format(pid))
-            self._set((('s400MpePid' + self.demod + 'RowStatus', i_pid),
-                       'createAndWait'))
-            self._set((('s400MpePid' + self.demod + 'Pid', i_pid), pid))
-            self._set(
-                (('s400MpePid' + self.demod + 'RowStatus', i_pid), 'active'))
+            snmp_config["MPE PID {}".format(pid)] = [
+                (('s400MpePid' + self.demod + 'RowStatus', i_pid),
+                 'createAndWait'),
+                (('s400MpePid' + self.demod + 'Pid', i_pid), pid),
+                (('s400MpePid' + self.demod + 'RowStatus', i_pid), 'active'),
+            ]
 
-        logger.info("Turning on the LNB power")
-        self._set(('s400LNBSupply', 'enabled'))
-        if (tone == 'enable'):
-            logger.info("Enabling the LNB 22kHz tone")
-        self._set(('s400Enable22KHzTone', tone))
+        snmp_config["LNB power"] = [
+            ('s400LNBSupply', 'enabled'),
+            ('s400Enable22KHzTone', tone),
+        ]
+
+        for section in snmp_config.keys():
+            logger.info("Configuring {}".format(section))
+            for config_tuple in snmp_config[section]:
+                if not self._set(config_tuple):
+                    if (not self.dry):
+                        logger.error("SNMP configuration error")
+                    return
 
         if (not self.dry):
             logger.info("Receiver configured successfully")
