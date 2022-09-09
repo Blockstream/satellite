@@ -759,13 +759,30 @@ def _parse_log(line):
     return d
 
 
-def launch(args):
+def _get_monitor(args):
+    """Create an object of the Monitor class
+
+    Args:
+        args : Parser arguments.
+
+    """
+    return monitoring.Monitor(cfg_dir=args.cfg_dir,
+                              logfile=args.log_file,
+                              scroll=args.log_scrolling,
+                              min_interval=args.log_interval,
+                              server=args.monitoring_server,
+                              port=args.monitoring_port,
+                              report=args.report,
+                              report_opts=monitoring.get_report_opts(args),
+                              utc=args.utc)
+
+
+def launch(args, monitor: monitoring.Monitor = None):
     """Launch the DVB interface from scratch
 
     Handles the launch subcommand
 
     """
-
     common_params = _common(args)
     if (common_params is None):
         return
@@ -781,16 +798,8 @@ def launch(args):
         raise ValueError("Logging options are disabled when running with "
                          "-m/--monitor or -r/--record-file")
 
-    # Log Monitoring
-    monitor = monitoring.Monitor(args.cfg_dir,
-                                 logfile=args.log_file,
-                                 scroll=args.log_scrolling,
-                                 min_interval=args.log_interval,
-                                 server=args.monitoring_server,
-                                 port=args.monitoring_port,
-                                 report=args.report,
-                                 report_opts=monitoring.get_report_opts(args),
-                                 utc=args.utc)
+    if monitor is None:
+        monitor = _get_monitor(args)
 
     # Channel configuration file
     chan_conf = user_info['setup']['channel']
@@ -821,7 +830,7 @@ def launch(args):
     if (args.monitor or args.record_file):
         zap_ps.wait()
     else:
-        while (zap_ps.poll() is None):
+        while (zap_ps.poll() is None and not monitor.disable_event.is_set()):
             line = zap_ps.stderr.readline()
             metrics = _parse_log(line)
             if (metrics is None):

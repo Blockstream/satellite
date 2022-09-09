@@ -602,9 +602,26 @@ def cfg_standalone(args):
         s400.configure(user_info, freq_corr_mhz)
 
 
-def monitor(args):
-    """Monitor the standalone DVB-S2 receiver"""
+def _get_monitor(args):
+    """Create an object of the Monitor class
 
+    Args:
+        args : Parser arguments.
+
+    """
+    return monitoring.Monitor(args.cfg_dir,
+                              logfile=args.log_file,
+                              scroll=args.log_scrolling,
+                              min_interval=args.log_interval,
+                              server=args.monitoring_server,
+                              port=args.monitoring_port,
+                              report=args.report,
+                              report_opts=monitoring.get_report_opts(args),
+                              utc=args.utc)
+
+
+def monitor(args, monitor: monitoring.Monitor = None):
+    """Monitor the standalone DVB-S2 receiver"""
     # User info
     user_info = _common(args)
     if (user_info is None):
@@ -623,21 +640,14 @@ def monitor(args):
         return
 
     # Log Monitoring
-    monitor = monitoring.Monitor(args.cfg_dir,
-                                 logfile=args.log_file,
-                                 scroll=args.log_scrolling,
-                                 min_interval=args.log_interval,
-                                 server=args.monitoring_server,
-                                 port=args.monitoring_port,
-                                 report=args.report,
-                                 report_opts=monitoring.get_report_opts(args),
-                                 utc=args.utc)
+    if monitor is None:
+        monitor = _get_monitor(args)
 
     util.print_header("Receiver Monitoring")
 
     # Fetch the receiver stats periodically
     c_time = time.time()
-    while (True):
+    while (not monitor.disable_event.is_set()):
         try:
             stats = s400.get_stats()
 

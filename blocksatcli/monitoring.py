@@ -271,6 +271,7 @@ class Monitor():
                 status, if any.
 
         """
+        self.disable_event = threading.Event()
         self.cfg_dir = cfg_dir
         self.logfile = None
         self.scroll = scroll
@@ -427,6 +428,10 @@ class Monitor():
 
         if self.callback:
             self.callback(self.get_stats(), report_status)
+
+    def stop(self):
+        """Stop the monitoring activity"""
+        self.disable_event.set()
 
 
 def add_to_parser(parser):  # pragma: no cover

@@ -69,8 +69,7 @@ def _get_monitor(args):
     """Create an object of the Monitor class
 
     Args:
-        args      : SDR parser arguments
-        sat_name  : Satellite name
+        args : Parser arguments.
 
     """
     # If debugging the demodulator, don't echo the logs to stdout, otherwise
@@ -94,7 +93,7 @@ def _get_monitor(args):
                               utc=args.utc)
 
 
-def _monitor_leandvb(info_pipe, monitor):
+def _monitor_leandvb(info_pipe, monitor: monitoring.Monitor):
     """Monitor leandvb's demodulator information
 
     Continuously read the demodulator information printed by leandvb into the
@@ -113,7 +112,7 @@ def _monitor_leandvb(info_pipe, monitor):
     # "Standard" status format accepted by the Monitor class
     status = {'lock': (False, None), 'level': None, 'snr': None, 'ber': None}
 
-    while True:
+    while not monitor.disable_event.is_set():
         line = info_pipe.readline()
 
         if "FRAMELOCK" in line:
@@ -145,7 +144,7 @@ def _monitor_leandvb(info_pipe, monitor):
         monitor.update(status)
 
 
-def _monitor_grdvbs2rx(monitor):
+def _monitor_grdvbs2rx(monitor: monitoring.Monitor):
     """Monitor gr-dvbs2rx's demodulator information
 
     Args:
@@ -154,7 +153,7 @@ def _monitor_grdvbs2rx(monitor):
 
     """
     mon_server_url = "http://localhost:9004"
-    while True:
+    while not monitor.disable_event.is_set():
         time.sleep(1)
 
         try:
@@ -192,7 +191,7 @@ def _get_rtl_sdr_cmd(args, l_band_freq, samp_rate, output='-'):
 
 
 def _get_leandvb_cmd(args, samp_rate, sym_rate, pipe_size_bytes, derotate,
-                     spec_inversion):
+                     spec_inversion, monitor):
     if spec_inversion:
         logger.warning("Leandvb does not support spectrum inversion")
 
@@ -237,7 +236,6 @@ def _get_leandvb_cmd(args, samp_rate, sym_rate, pipe_size_bytes, derotate,
     if (args.iq_file is None):
         info_pipe = util.Pipe()
         cmd.extend(["--fd-info", info_pipe.w_fd])
-        monitor = _get_monitor(args)
         t = threading.Thread(target=_monitor_leandvb,
                              args=(info_pipe, monitor),
                              daemon=True)
@@ -249,7 +247,7 @@ def _get_leandvb_cmd(args, samp_rate, sym_rate, pipe_size_bytes, derotate,
 
 
 def _get_grdvbs2rx_app_cmd(args, l_band_freq, samp_rate, sym_rate,
-                           spec_inversion):
+                           spec_inversion, monitor):
     cmd = ['dvbs2-rx']
 
     if args.iq_file is not None:
@@ -288,7 +286,6 @@ def _get_grdvbs2rx_app_cmd(args, l_band_freq, samp_rate, sym_rate,
 
     if (args.iq_file is None):
         cmd.append('--mon-server')
-        monitor = _get_monitor(args)
         t = threading.Thread(target=_monitor_grdvbs2rx,
                              args=(monitor, ),
                              daemon=True)
@@ -471,7 +468,7 @@ def subparser(subparsers):  # pragma: no cover
     return p
 
 
-def run(args):
+def run(args, monitor: monitoring.Monitor = None):
     interactive = not args.yes
 
     info = config.read_cfg_file(args.cfg, args.cfg_dir)
@@ -497,6 +494,9 @@ def run(args):
         apps.append("tsp")
     if (not dependencies.check_apps(apps)):
         return
+
+    if monitor is None:
+        monitor = _get_monitor(args)
 
     # Receiver configs
     spec_inversion = info['freqs']['lo'] > info['freqs']['dl']
@@ -534,7 +534,7 @@ def run(args):
     if args.implementation == 'leandvb':
         ldvb_cmd, info_pipe, ldvb_cmd_for_print = _get_leandvb_cmd(
             args, samp_rate, sym_rate, pipe_size_bytes, derotate,
-            spec_inversion)
+            spec_inversion, monitor)
         ldvb_stdout = None if args.no_tsp else subprocess.PIPE
         ldvb_stderr = None if (args.debug_demod > 0) else subprocess.DEVNULL
         if (args.iq_file is None):
@@ -567,7 +567,7 @@ def run(args):
     else:
         dvbs2rx_cmd, out_pipe = _get_grdvbs2rx_app_cmd(args, l_band_freq,
                                                        samp_rate, sym_rate,
-                                                       spec_inversion)
+                                                       spec_inversion, monitor)
         full_cmd = "> " + " ".join(dvbs2rx_cmd) + " {}>&1 1>&2".format(
             out_pipe.w_fd)
         # The MPEG-TS output from gr-dvbs2rx is always redirected to the

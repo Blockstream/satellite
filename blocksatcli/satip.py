@@ -617,8 +617,7 @@ def _get_monitor(args):
     """Create an object of the Monitor class
 
     Args:
-        args      : SDR parser arguments
-        sat_name  : Satellite name
+        args : Parser arguments.
 
     """
     # Force scrolling logs if tsp is configured to print to stdout or if
@@ -636,9 +635,9 @@ def _get_monitor(args):
                               utc=args.utc)
 
 
-def _monitoring_thread(sat_ip, handler):
+def _monitoring_thread(sat_ip, handler: monitoring.Monitor):
     """Loop used to monitor the DVB-S2 frontend on a thread"""
-    while (True):
+    while (not handler.disable_event.is_set()):
         time.sleep(1)
 
         status = sat_ip.fe_stats()
@@ -706,7 +705,7 @@ def subparser(subparsers):  # pragma: no cover
     return p
 
 
-def launch(args):
+def launch(args, monitor: monitoring.Monitor = None):
     info = config.read_cfg_file(args.cfg, args.cfg_dir)
     if (info is None):
         return
@@ -790,7 +789,8 @@ def launch(args):
 
     # Launch the monitoring thread
     if (args.fe_monitoring):
-        monitor = _get_monitor(args)
+        if monitor is None:
+            monitor = _get_monitor(args)
         t = threading.Thread(target=_monitoring_thread,
                              args=(sat_ip, monitor),
                              daemon=True)
