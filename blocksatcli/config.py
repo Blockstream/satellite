@@ -225,6 +225,22 @@ def _ask_lnb_lo(single_lo=True):
     return lo_freq
 
 
+def _ask_lnb_polarization():
+    question = "Choose the LNB polarization:"
+    options = [{
+        'id': "Dual",
+        'text': "Dual polarization (horizontal and vertical)"
+    }, {
+        'id': "H",
+        'text': "Horizontal"
+    }, {
+        'id': "V",
+        'text': "Vertical"
+    }]
+    return util.ask_multiple_choice(options, question, "Polarization",
+                                    lambda x: '{}'.format(x['text']))
+
+
 def _cfg_custom_lnb(sat):
     """Configure custom LNB based on user-entered specs
 
@@ -281,19 +297,7 @@ def _cfg_custom_lnb(sat):
         custom_lnb_lo_freq = _ask_lnb_lo()
 
     # Polarization
-    question = "Choose the LNB polarization:"
-    options = [{
-        'id': "Dual",
-        'text': "Dual polarization (horizontal and vertical)"
-    }, {
-        'id': "H",
-        'text': "Horizontal"
-    }, {
-        'id': "V",
-        'text': "Vertical"
-    }]
-    pol = util.ask_multiple_choice(options, question, "Polarization",
-                                   lambda x: '{}'.format(x['text']))
+    pol = _ask_lnb_polarization()
 
     return {
         'vendor': "",
