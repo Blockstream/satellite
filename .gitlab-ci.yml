@@ -132,6 +132,7 @@ docker-upload:
     - make buildx-push
 
 pandoc:
+  stage: build
   image:
     name: pandoc/latex:2.16
     entrypoint: [""]
