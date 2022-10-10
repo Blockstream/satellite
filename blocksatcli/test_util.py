@@ -1,6 +1,7 @@
+import os
 import subprocess
 from ipaddress import IPv4Address
-from unittest import TestCase
+from unittest import TestCase, skipIf
 from unittest.mock import patch
 
 from . import util
@@ -65,8 +66,9 @@ class TestUserInputs(TestCase):
 
 class TestRunner(TestCase):
 
+    @skipIf(os.geteuid() == 0, "Must be executed by a non-root user")
     @patch('subprocess.run')
-    def test_process_runner_run_cmd(self, mock_subprocess):
+    def test_process_runner_run_root_cmd(self, mock_subprocess):
         # Run process runner with sudo
         runner = util.ProcessRunner()
         runner.run(cmd=['echo', 'test'], root=True)
@@ -81,6 +83,28 @@ class TestRunner(TestCase):
         runner = util.ProcessRunner()
         runner.run(cmd=['echo', 'test'], root=True, capture_output=True)
         mock_subprocess.assert_called_with(['sudo', 'echo', 'test'],
+                                           cwd=None,
+                                           env=None,
+                                           stdout=subprocess.PIPE,
+                                           stderr=subprocess.PIPE,
+                                           check=True)
+
+    @patch('subprocess.run')
+    def test_process_runner_run_cmd(self, mock_subprocess):
+        # Run process runner
+        runner = util.ProcessRunner()
+        runner.run(cmd=['echo', 'test'])
+        mock_subprocess.assert_called_with(['echo', 'test'],
+                                           cwd=None,
+                                           env=None,
+                                           stdout=None,
+                                           stderr=None,
+                                           check=True)
+
+        # Run process runner with sudo and capture the output
+        runner = util.ProcessRunner()
+        runner.run(cmd=['echo', 'test'], capture_output=True)
+        mock_subprocess.assert_called_with(['echo', 'test'],
                                            cwd=None,
                                            env=None,
                                            stdout=subprocess.PIPE,
