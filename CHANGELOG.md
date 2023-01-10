@@ -33,7 +33,8 @@ Release Date: TBD
 ### Changed
 - Explainer printed on initial registration with the monitoring API, with
   privacy and detailed registration info made optional.
-- Organization of results on the `blocksat-cli cfg show` command.
+- Information and organization of results on the `blocksat-cli cfg show`
+  command.
 - Efficiency of the `standalone cfg` command by reading the current
   configuration before attempting to apply a new one.
 

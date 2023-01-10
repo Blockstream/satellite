@@ -807,7 +807,7 @@ def get_readable_cfg(info):
     sat = info['sat']
     freqs = info['freqs']
 
-    return {
+    cfg = {
         'Setup': {
             'Receiver': _get_rx_marketing_name(setup),
             'Tuning range':
@@ -829,6 +829,14 @@ def get_readable_cfg(info):
             'Receiver L-band frequency': f"{freqs['l_band']} MHz"
         }
     }
+
+    if (setup['type'] == defs.standalone_setup_type and 'rx_ip' in setup):
+        cfg['Setup']['IP Address'] = setup['rx_ip']
+
+    if (setup['type'] == defs.sat_ip_setup_type and 'ip_addr' in setup):
+        cfg['Setup']['IP Address'] = setup['ip_addr']
+
+    return cfg
 
 
 def show(args):
