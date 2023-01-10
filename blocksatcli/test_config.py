@@ -379,11 +379,36 @@ class TestReceiversSetupConfig(TestCase):
         # User Input:
         mock_user_input.side_effect = [
             0,  # Satellite: G18
-            4  # DVB-S2 receiver: Blockstream Base Station
+            4,  # DVB-S2 receiver: Blockstream Base Station
+            'N'  # No static IP
         ]
 
         self.expected_config["setup"] = defs.get_demod_def('Selfsat', 'IP22')
         self.expected_config['setup']['antenna'] = defs.get_antenna_def('IP22')
+        self.expected_config["lnb"] = defs.get_lnb_def('Selfsat',
+                                                       'Integrated LNB')
+        self.expected_config['lnb']['v1_pointed'] = False
+
+        config.configure(self.args)
+        cfg_info = config.read_cfg_file(self.cfg_name, self.cfg_dir)
+        self.assertEqual(cfg_info, self.expected_config)
+
+    @patch('builtins.input')
+    def test_sat_ip_setup_with_static_address(self, mock_user_input):
+        """Test the Satellite Base Station Setup (Sat-IP Receiver)
+        """
+        # User Input:
+        static_ip = '192.168.10.3'
+        mock_user_input.side_effect = [
+            0,  # Satellite: G18
+            4,  # DVB-S2 receiver: Blockstream Base Station
+            'Y',  # No static IP
+            static_ip
+        ]
+
+        self.expected_config["setup"] = defs.get_demod_def('Selfsat', 'IP22')
+        self.expected_config['setup']['antenna'] = defs.get_antenna_def('IP22')
+        self.expected_config['setup']['ip_addr'] = static_ip
         self.expected_config["lnb"] = defs.get_lnb_def('Selfsat',
                                                        'Integrated LNB')
         self.expected_config['lnb']['v1_pointed'] = False

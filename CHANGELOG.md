@@ -27,6 +27,8 @@ Release Date: TBD
 - Non-interactive modes for the `gqrx` and `sdr` commands.
 - Option to return a JSON-formatted string with the `blocksat-cli cfg show`
   command.
+- Option to save the static IP address associated with an IP22 (if any) and
+  automatic usage of the address when launching the Sat-IP client.
 
 ### Changed
 - Explainer printed on initial registration with the monitoring API, with

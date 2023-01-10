@@ -717,7 +717,7 @@ def launch(args, monitor: monitoring.Monitor = None):
 
     # Discover or define the IP address to communicate with the Sat-IP server
     sat_ip = SatIp()
-    if args.addr is None:
+    if args.addr is None and 'ip_addr' not in info['setup']:
         sat_ip.discover(src_port=args.ssdp_src_port,
                         interface=args.ssdp_net_if)
         if (sat_ip.host is None):
@@ -726,7 +726,7 @@ def launch(args, monitor: monitoring.Monitor = None):
                         "through option -a/--addr")
             sys.exit(1)
     else:
-        addr = args.addr
+        addr = args.addr if args.addr is not None else info['setup']['ip_addr']
         try:
             ip_address(addr)
         except ValueError as e:

@@ -138,10 +138,20 @@ def _cfg_rx_setup(sat):
         for antenna in defs.antennas:
             if antenna['type'] == 'sat-ip':
                 setup['antenna'] = antenna
-                return setup
-        # We should have returned in the preceding line.
-        raise RuntimeError("Failed to find antenna of {} receiver".format(
-            defs.sat_ip_setup_type))
+                break
+        if 'antenna' not in setup:
+            raise RuntimeError("Failed to find antenna of {} receiver".format(
+                defs.sat_ip_setup_type))
+
+        custom_ip = util.ask_yes_or_no(
+            "Does the {} have a static IP address?".format(
+                _get_rx_marketing_name(setup)),
+            default="n")
+        if (custom_ip):
+            ipv4_addr = util.typed_input("Which IPv4 address?",
+                                         in_type=IPv4Address)
+            setup["ip_addr"] = str(ipv4_addr)
+        return setup
 
     # Antenna
     setup['antenna'] = _ask_antenna(sat)
