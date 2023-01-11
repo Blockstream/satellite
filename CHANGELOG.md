@@ -29,6 +29,8 @@ Release Date: TBD
   command.
 - Option to save the static IP address associated with an IP22 (if any) and
   automatic usage of the address when launching the Sat-IP client.
+- Explicit verification of the S400's reachability before attempting to
+  configure or monitor the receiver.
 
 ### Changed
 - Explainer printed on initial registration with the monitoring API, with

@@ -1,6 +1,7 @@
 """Standalone Receiver"""
 import logging
 import os
+import sys
 import time
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 from ipaddress import ip_address
@@ -256,6 +257,15 @@ class S400Client(SnmpClient):
     def __init__(self, demod, address, port, dry=False):
         super().__init__(address, port, mib='NOVRA-s400-MIB', dry=dry)
         self.demod = demod
+
+    def check_reachable(self):
+        if self.dry:
+            return
+        cfg = self._get('s400FirmwareVersion')
+        if not cfg:
+            logger.error("s400 receiver at {} is unreachable".format(
+                self.address))
+            sys.exit(1)
 
     def get_stats(self):
         """Get demodulator statistics
@@ -633,6 +643,7 @@ def cfg_standalone(args):
         util.print_header("Receiver Configuration")
         s400 = S400Client(args.demod, rx_ip_addr, args.port, dry=args.dry_run)
         freq_corr_mhz = args.freq_corr / 1e3
+        s400.check_reachable()
         s400.configure(user_info, freq_corr_mhz)
 
 
@@ -668,10 +679,8 @@ def monitor(args, monitor: monitoring.Monitor = None):
     s400 = S400Client(args.demod, rx_ip_addr, args.port)
 
     util.print_header("Novra S400 Receiver")
-
-    if (not s400.print_demod_config()):
-        logger.error("s400 receiver at {} is unreachable".format(s400.address))
-        return
+    s400.check_reachable()
+    s400.print_demod_config()
 
     # Log Monitoring
     if monitor is None:
