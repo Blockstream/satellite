@@ -49,6 +49,7 @@ Release Date: TBD
   after C-band satellite selection.
 - Standalone demodulator configuration not stopping on SNMP error.
 - Error catching on POST HTTP requests reporting the receiver status.
+- Pulling of media build repo on TBS driver build from a preexisting directory.
 
 ## 0.4.4
 

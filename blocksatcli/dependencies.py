@@ -753,7 +753,7 @@ def drivers(args):
         os.makedirs(driver_src_dir)
 
     if os.path.exists(media_build_dir):
-        runner.run(["git", "pull", "origin", "master"], cwd=media_build_dir)
+        runner.run(["git", "pull", "origin"], cwd=media_build_dir)
     else:
         runner.run(
             ["git", "clone", "https://github.com/tbsdtv/media_build.git"],
