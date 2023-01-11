@@ -31,6 +31,7 @@ Release Date: TBD
   automatic usage of the address when launching the Sat-IP client.
 - Explicit verification of the S400's reachability before attempting to
   configure or monitor the receiver.
+- Validation of the frequency correction parameter passed to the S400.
 
 ### Changed
 - Explainer printed on initial registration with the monitoring API, with

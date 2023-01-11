@@ -384,7 +384,7 @@ class S400Client(SnmpClient):
         logger.info("Configuring the S400 receiver at {} via SNMP".format(
             self.address))
 
-        l_band_freq = int((info['freqs']['l_band'] + freq_corr) * 1e6)
+        l_band_freq = int(round(info['freqs']['l_band'] + freq_corr, 2) * 1e6)
         lo_freq = int(info['freqs']['lo'] * 1e6)
         sym_rate = defs.sym_rate[info['sat']['alias']]
         if (info['lnb']['pol'].lower() == "dual"
@@ -612,6 +612,14 @@ def cfg_standalone(args):
     if (user_info is None):
         return
 
+    if (not args.host_only):
+        freq_corr_mhz = args.freq_corr / 1e3
+        if round(freq_corr_mhz, 2) != freq_corr_mhz:
+            logger.error(
+                "Please specify the frequency correction parameter as "
+                "a multiple of 10 kHz")
+            sys.exit(1)
+
     # Configure the subprocess runner
     runner.set_dry(args.dry_run)
 
@@ -642,7 +650,6 @@ def cfg_standalone(args):
     if (not args.host_only):
         util.print_header("Receiver Configuration")
         s400 = S400Client(args.demod, rx_ip_addr, args.port, dry=args.dry_run)
-        freq_corr_mhz = args.freq_corr / 1e3
         s400.check_reachable()
         s400.configure(user_info, freq_corr_mhz)
 
