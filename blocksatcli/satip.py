@@ -712,7 +712,7 @@ def launch(args, monitor: monitoring.Monitor = None):
 
     util.check_configured_setup_type(info, defs.sat_ip_setup_type, logger)
 
-    if (not dependencies.check_apps(['tsp', 'ip'])):
+    if (not dependencies.check_dependencies('sat-ip')):
         return
 
     # Discover or define the IP address to communicate with the Sat-IP server

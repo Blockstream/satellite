@@ -49,6 +49,12 @@ pkg_map = {
         'yum': ["iproute", "tsduck"]
     }
 }
+app_map = {
+    'sdr': ["rtl_sdr", "leandvb", "ldpc_tool", "tsp"],
+    'usb': ["dvbv5-zap", "dvbnet", "dvb-fe-tool", "ip", "iptables"],
+    'standalone': ["iptables"],
+    'sat-ip': ["tsp", "ip"]
+}
 supported_pkg_managers = ["apt", "dnf", "yum"]
 
 
@@ -873,3 +879,17 @@ def get_pkg_list(target):
     assert (target in pkg_map.keys()), f"Unsupported target {target}"
     manager = _get_pkg_manager()
     return pkg_map[target][manager]
+
+
+def check_dependencies(target):
+    """Check if the package dependency list is already installed
+
+    Args:
+        target: DVB-S2 receiver
+
+    Returns:
+        True if all dependencies are installed or False otherwise.
+
+    """
+    assert (target in app_map.keys())
+    return check_apps(app_map[target])
