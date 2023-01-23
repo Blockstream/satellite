@@ -56,7 +56,7 @@ class TestFec(unittest.TestCase):
         n_pkts = len(data) // fec.PKT_SIZE
         n_drop = math.ceil(fraction * n_pkts)
         chunk_ids = set(range(n_pkts))
-        drop_ids = set(random.sample(chunk_ids, n_drop))
+        drop_ids = set(random.sample(list(chunk_ids), n_drop))
         remaining_ids = chunk_ids - drop_ids
 
         res = b""
