@@ -23,7 +23,9 @@ Aligning a satellite antenna is a precise procedure. Remember that the satellite
 
 ## Mount the Antenna
 
-First of all, you should obtain the pointing angles required for your specific location using our [dish alignment tool](https://blockstream.com/satellite/#satellite_network-coverage).
+First, you should obtain the pointing angles required for your specific location using our [dish alignment tool](https://blockstream.com/satellite/#satellite_network-coverage).
+
+> NOTE: If your location is covered by two satellites and you only want to point to one of them, we recommend checking which of the two has the strongest signal in your location. For that, check the [Link Analyzer](https://satellite.blockstream.space/link-analyzer/) tool. After inputting your coordinates and obtaining the link analysis, choose the satellite with the highest expected carrier-to-noise ratio (CNR) for your chosen antenna.
 
 After entering your address or latitude/longitude, the tool will give you the following parameters:
 

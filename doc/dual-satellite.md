@@ -18,9 +18,9 @@ nav_order: 7
 <!-- markdown-toc end -->
 
 
-Some regions worldwide are covered by two satellites at the same time. For example, most of the US has coverage from both Galaxy 18 and Eutelsat 113. In Asia, there is extensive overlapping coverage from Telstar 18V C and Telstar 18V Ku. If you are in such a region with overlapping coverage, you can simultaneously connect to two satellites and double the Bitcoin block transfer speed. This page describes the hardware and host configurations required to run such a dual-satellite setup.
+Some regions worldwide are covered by two satellites at the same time. For example, most of the US has coverage from both Galaxy 18 and Eutelsat 113. In Asia, there is extensive overlapping coverage from Telstar 18V C and Telstar 18V Ku. If you are in such a region with overlapping coverage, you can connect to two satellites simultaneously and double the Bitcoin block transfer speed. This page describes the hardware and host configurations required to run such a dual-satellite setup.
 
-Before continuing, however, you should check if your location has overlapping coverage from two satellites using our [Coverage Map](https://blockstream.com/satellite/#satellite_network-coverage).
+Before continuing, however, you should check if your location has overlapping coverage from two satellites using our [Coverage Map](https://blockstream.com/satellite/#satellite_network-coverage). Also, note distinct signal strengths are expected from each satellite, given that the distance and viewing angles from your station to each satellite are different. Hence, we also recommend checking the [Link Analyzer](https://satellite.blockstream.space/link-analyzer/) tool for more specific antenna recommendations for each satellite.
 
 ## Required Hardware
 
