@@ -49,6 +49,16 @@ pkg_map = {
         'yum': ["iproute", "tsduck"]
     }
 }
+supported_pkg_managers = ["apt", "dnf", "yum"]
+
+
+def _get_pkg_manager():
+    """Check the package manager installed on the system"""
+    for manager in supported_pkg_managers:
+        if which(manager):
+            return manager
+
+    raise RuntimeError("Could not find a supported package manager")
 
 
 def _is_package_installed(package, required_version):
@@ -139,7 +149,8 @@ def _check_pkg_repo(distro_id):
 
     """
     found = False
-    if (which("apt")):
+    manager = _get_pkg_manager()
+    if (manager == 'apt'):
         apt_repo = _get_apt_repo(distro_id)
         grep_str = apt_repo.replace("ppa:", "")
         apt_sources = glob.glob("/etc/apt/sources.list.d/*")
@@ -148,20 +159,18 @@ def _check_pkg_repo(distro_id):
         cmd.extend(apt_sources)
         res = runner.run(cmd, stdout=subprocess.DEVNULL, nocheck=True)
         found = (res.returncode == 0)
-    elif (which("dnf")):
+    elif (manager == 'dnf'):
         res = runner.run(["dnf", "copr", "list", "--enabled"],
                          root=True,
                          capture_output=True)
         pkgs = res.stdout.decode().splitlines()
         found = ("copr.fedorainfracloud.org/blockstream/satellite" in pkgs)
-    elif (which("yum")):
+    elif (manager == 'yum'):
         yum_sources = glob.glob("/etc/yum.repos.d/*")
         cmd = ["grep", "blockstream/satellite"]
         cmd.extend(yum_sources)
         res = runner.run(cmd, stdout=subprocess.DEVNULL, nocheck=True)
         found = (res.returncode == 0)
-    else:
-        raise RuntimeError("Could not find a supported package manager")
 
     if (found):
         logger.debug("blockstream/satellite repository already enabled")
@@ -178,7 +187,8 @@ def _enable_pkg_repo(distro_id, interactive):
 
     """
     cmds = list()
-    if (which("apt")):
+    manager = _get_pkg_manager()
+    if (manager == 'apt'):
         apt_repo = _get_apt_repo(distro_id)
 
         # On debian, add the apt repository through "add-apt-repository". On
@@ -225,18 +235,16 @@ def _enable_pkg_repo(distro_id, interactive):
         if (not interactive):
             cmd.append("-y")
         cmds.append(cmd)
-    elif (which("dnf")):
+    elif (manager == 'dnf'):
         cmd = ["dnf", "copr", "enable", "blockstream/satellite"]
         if (not interactive):
             cmd.append("-y")
         cmds.append(cmd)
-    elif (which("yum")):
+    elif (manager == 'yum'):
         cmd = ["yum", "copr", "enable", "blockstream/satellite"]
         if (not interactive):
             cmd.append("-y")
         cmds.append(cmd)
-    else:
-        raise RuntimeError("Could not find a supported package manager")
 
     for cmd in cmds:
         runner.run(cmd, root=True)
@@ -250,8 +258,8 @@ def _update_pkg_repo(interactive):
     automatically when an install/upgrade command is called.
 
     """
-
-    if (not which("apt")):
+    manager = _get_pkg_manager()
+    if (manager != 'apt'):
         return
 
     cmd = ["apt", "update"]
@@ -278,28 +286,24 @@ def _install_packages(apt_list,
         cwd         : Directory from which to run the install command
 
     """
-    if (which("apt")):
-        manager = "apt"
+    manager = _get_pkg_manager()
+    if (manager == 'apt'):
         cmd = ["apt-get", "install"]
         if (update):
             cmd.append("--only-upgrade")
         cmd.extend(apt_list)
-    elif (which("dnf")):
-        manager = "dnf"
+    elif (manager == 'dnf'):
         if (update):
             cmd = ["dnf", "upgrade"]
         else:
             cmd = ["dnf", "install"]
         cmd.extend(dnf_list)
-    elif (which("yum")):
-        manager = "yum"
+    elif (manager == 'yum'):
         if (update):
             cmd = ["yum", "upgrade"]
         else:
             cmd = ["yum", "install"]
         cmd.extend(yum_list)
-    else:
-        raise RuntimeError("Could not find a supported package manager")
 
     env = None
     if (not interactive):
@@ -657,7 +661,8 @@ def drivers(args):
     # On dnf, not always the kernel-devel/headers package will be available for
     # the same version as the current kernel. Check:
     dnf_update_required = False
-    if (which("dnf")):
+    pkg_manager = _get_pkg_manager()
+    if (pkg_manager == 'dnf'):
         res_d = runner.run(["dnf", "list", kernel_devel],
                            stdout=subprocess.DEVNULL,
                            stderr=subprocess.DEVNULL,
@@ -853,3 +858,18 @@ def check_apps(apps):
             return False
     # All apps are installed
     return True
+
+
+def get_pkg_list(target):
+    """Get the list of package dependencies for a specific receiver and OS
+
+    Args:
+        target (str): DVB-S2 receiver ('sdr', 'usb', 'standalone' or 'sat-ip')
+
+    Returns:
+        pkg_list (list): Package list
+
+    """
+    assert (target in pkg_map.keys()), f"Unsupported target {target}"
+    manager = _get_pkg_manager()
+    return pkg_map[target][manager]
