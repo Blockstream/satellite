@@ -294,7 +294,7 @@ def _install_packages(apt_list,
     """
     manager = _get_pkg_manager()
     if (manager == 'apt'):
-        cmd = ["apt-get", "install"]
+        cmd = ["apt", "install"]
         if (update):
             cmd.append("--only-upgrade")
         cmd.extend(apt_list)
