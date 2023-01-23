@@ -75,7 +75,6 @@ def get_report_opts(args):
 class ReportStatus(Enum):
     REGISTRATION_RUNNING = 1
     REGISTRATION_FAILED = 2
-    CONNECTION_ERROR = 3
 
 
 class Reporter():
@@ -203,10 +202,18 @@ class Reporter():
                 print()
                 logger.error("Report failed: " + r.text)
             post_status = r.status_code
-        except requests.exceptions.ConnectionError as e:
+        except requests.exceptions.HTTPError as errh:
+            post_status = errh
+        except requests.exceptions.ConnectionError as errc:
+            post_status = errc
+        except requests.exceptions.Timeout as errt:
+            post_status = errt
+        except requests.exceptions.RequestException as err:
+            post_status = err
+
+        if isinstance(post_status, requests.exceptions.RequestException):
             print()
-            logger.error("Report failed: " + str(e))
-            post_status = ReportStatus.CONNECTION_ERROR.value
+            logger.error("Report failed: " + str(post_status))
 
         return post_status
 

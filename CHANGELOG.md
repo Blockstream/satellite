@@ -36,12 +36,13 @@ Release Date: TBD
   configuration before attempting to apply a new one.
 
 ### Fixed
-- Gracefully exit the GPG passphrase or keyring creation prompts when
-  interrupted.
+- Graceful exiting when interrupted at a prompt to create a GPG passphrase or
+  keyring.
 - TBS driver compilation failing on RPi OS Bullseye due to disabled SAA7146.
 - Flat panel and Sat-IP antenna/receiver options on the configuration menu
   after C-band satellite selection.
 - Standalone demodulator configuration not stopping on SNMP error.
+- Error catching on POST HTTP requests reporting the receiver status.
 
 ## 0.4.4
 
