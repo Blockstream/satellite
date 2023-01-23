@@ -893,3 +893,38 @@ def check_dependencies(target):
     """
     assert (target in app_map.keys())
     return check_apps(app_map[target])
+
+
+def check_drivers(model=None):
+    """Check if the USB driver is already installed
+
+    Args:
+        model: USB receiver model.
+
+    Returns:
+        True if the drivers are installed or False otherwise.
+
+    """
+    module_map = {
+        "5927": "dvb-usb-tbs5927.ko",
+        "5520SE": "dvb-usb-tbs5520se.ko"
+    }
+    if model is None:
+        models = list(module_map.keys())
+    else:
+        assert (model in module_map.keys())
+        models = [model]
+
+    release = platform.release()
+    for model in models:
+        modules_file = f"/lib/modules/{release}/modules.dep"
+        if not os.path.exists(modules_file):
+            logger.warning(
+                f"Unable to check USB drivers. {modules_file} is missing.")
+            return False
+
+    # Look for the USB modules in the modules.dep file.
+    with open(modules_file, "r") as f:
+        kernel_modules = f.read()
+
+    return module_map[model] in kernel_modules

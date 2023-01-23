@@ -32,6 +32,7 @@ Release Date: TBD
 - Explicit verification of the S400's reachability before attempting to
   configure or monitor the receiver.
 - Validation of the frequency correction parameter passed to the S400.
+- Verification of the TBS USB drivers before USB configuration or launching.
 
 ### Changed
 - Explainer printed on initial registration with the monitoring API, with

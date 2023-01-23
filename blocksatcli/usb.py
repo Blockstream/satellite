@@ -654,6 +654,11 @@ def usb_config(args):
     # Configure the subprocess runner
     runner.set_dry(args.dry_run)
 
+    # Confirm the drivers are installed
+    if not args.dry_run and not dependencies.check_drivers(
+            user_info['setup']['model']):
+        return
+
     if args.ip is None:
         ips = ip.compute_rx_ips(user_info['sat']['ip'], len(args.pid))
     else:
@@ -789,7 +794,11 @@ def launch(args, monitor: monitoring.Monitor = None):
     user_info, adapter, frontend = common_params
 
     # Check if all dependencies are installed
-    if (not dependencies.check_apps(["dvbv5-zap"])):
+    if not dependencies.check_apps(["dvbv5-zap"]):
+        return
+
+    # Confirm the drivers are installed
+    if not dependencies.check_drivers(user_info['setup']['model']):
         return
 
     # Check conflicting logging options
