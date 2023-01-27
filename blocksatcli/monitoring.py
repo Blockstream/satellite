@@ -144,6 +144,10 @@ class Reporter():
         except requests.exceptions.ConnectionError as e:
             print()
             logger.error("Report failed: " + str(e))
+        except Exception as e:
+            print()
+            logger.error("Report failed: " + str(e))
+
 
 
 class Server(BaseHTTPRequestHandler):
