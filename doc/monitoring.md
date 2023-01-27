@@ -34,7 +34,7 @@ blocksat-cli sat-ip --report
 
 > NOTE: This feature was introduced in blocksat-cli version v0.4.0. Please, refer to the [upgrade instructions](quick-reference.md#cli-installation-and-upgrade) if you are running an older version.
 
-When using this option for the first time, the CLI explains the reporting process and runs an initial registration procedure to confirm you are running a functional satellite receiver. The latter involves a two-factor authentication mechanism over satellite, described next.
+When using this option for the first time, the CLI runs an initial registration procedure to confirm you are running a functional satellite receiver. The procedure involves a two-factor authentication mechanism over satellite, described next.
 
 ## Authentication over Satellite
 
@@ -49,11 +49,13 @@ The registration procedure is as illustrated below and involves the following st
 
 In the end, this process confirms that the user owns the private key associated with the informed public key, as this is a pre-requisite to decrypt the verification code. Furthermore, it verifies the user is running a functional satellite receiver, given that the encrypted verification code is sent exclusively over the satellite network.
 
-## Signed Reports
+## Authenticated Reports
 
-After the initial registration, the CLI enables periodic reporting of the receiver status. While doing so, it automatically appends a [detached GPG signature](https://www.gnupg.org/gph/en/manual/x135.html) to every set of reported metrics. With that, the monitoring server validates the authenticity of each report.
+After the initial registration, the CLI enables periodic reporting of the receiver status. While doing so, it automatically appends a [detached GPG signature](https://www.gnupg.org/gph/en/manual/x135.html) to every reported metric set. With that, the monitoring server validates the authenticity of each report.
 
-Note that because reports are GPG-signed, every time you launch the receiver with option `--report`, the CLI will ask for the passphrase to your local private GPG key used for signing. You can observe the underlying process in action by running the CLI in debug mode. For example, with the USB receiver, you can execute the following command:
+Since version 0.4.5 of the CLI, reports can also be authenticated using a lightweight password-based mechanism as an alternative to GPG detached signatures. The CLI will create the password automatically and save it in ciphertext (encrypted) on your local configuration directory (`~/.blocksat/` by default). From this point on, it will load the password and use it every time you launch the receiver with reporting enabled.
+
+Note that because reports are GPG-signed, or because the CLI needs to decrypt the local password (since v0.4.5), every time you launch the receiver with option `--report`, the CLI will ask for the passphrase to your local private GPG key. You can observe the underlying process by running the CLI in debug mode. For example, with the USB receiver, you can execute the following command:
 
 ```
 blocksat-cli --debug usb launch --report --log-scrolling

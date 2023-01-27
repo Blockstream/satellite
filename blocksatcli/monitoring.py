@@ -17,6 +17,10 @@ sats = [x['alias'] for x in defs.satellites]
 
 def get_report_opts(args):
     """Extract the parser fields needed to construct a Reporter object"""
+    if args.bs_mon_reset_pwd and \
+            args.report_dest != monitoring_api.metric_endpoint:
+        logger.warning("Option --bs-mon-reset-pwd has no effect with a custom "
+                       "--report-dest")
     return {
         'cfg': args.cfg,
         'cfg_dir': args.cfg_dir,
@@ -25,7 +29,8 @@ def get_report_opts(args):
         'tls_cert': args.report_cert,
         'tls_key': args.report_key,
         'gnupghome': args.report_gnupghome,
-        'passphrase': args.report_passphrase
+        'passphrase': args.report_passphrase,
+        'reset_api_pwd': args.bs_mon_reset_pwd
     }
 
 
@@ -44,7 +49,8 @@ class Reporter():
                  tls_cert=None,
                  tls_key=None,
                  gnupghome=None,
-                 passphrase=None):
+                 passphrase=None,
+                 reset_api_pwd=False):
         """Reporter Constructor
 
         Args:
@@ -59,6 +65,7 @@ class Reporter():
             passphrase : Passphrase to the private key used when reporting to
                          Blockstream's monitoring API. If None, it will be
                          obtained by prompting the user.
+            reset_api_pwd : Reset password for the monitoring API.
 
         """
         info = config.read_cfg_file(cfg, cfg_dir)
@@ -81,7 +88,7 @@ class Reporter():
         # interaction with this API (e.g., registration).
         if (dest_addr == monitoring_api.metric_endpoint):
             self.bs_monitoring = monitoring_api.BsMonitoring(
-                cfg, cfg_dir, gnupghome, passphrase)
+                cfg, cfg_dir, gnupghome, passphrase, reset_api_pwd)
         else:
             self.bs_monitoring = None
 
@@ -119,8 +126,12 @@ class Reporter():
         data = {}
         data.update(metrics)
 
-        # When reporting to Blockstream's Monitoring API, sign every set of
-        # reported data using the local GPG key and don't send the satellite
+        logger.debug("Report {} to {}".format(data, self.dest_addr))
+
+        # When reporting to Blockstream's Monitoring API, there are two
+        # possibilities to validate the report: using the receiver monitoring
+        # password or signing the reported data with the local GPG key.
+        # Also, if reporting to Blockstream's API, don't send the satellite
         # nor the hostname on the requests. This information is already
         # associated with the account registered with the Monitoring API. In
         # contrast, when reporting to a general-purpose server, do include the
@@ -130,9 +141,7 @@ class Reporter():
             if (self.hostname):
                 data['hostname'] = self.hostname
         else:
-            self.bs_monitoring.sign_report(data)
-
-        logger.debug("Report {} to {}".format(data, self.dest_addr))
+            self.bs_monitoring.sign_request(data, password_allowed=True)
 
         try:
             r = requests.post(self.dest_addr,
@@ -414,7 +423,7 @@ def add_to_parser(parser):
         '--report-dest',
         default=monitoring_api.metric_endpoint,
         help='Destination address in http://ip:port format. By default, '
-        'report to Blockstream\'s Satellite Monitoring API')
+        'report to the Blockstream Satellite Monitoring API')
     r_p.add_argument('--report-hostname', help='Reporter\'s hostname')
     r_p.add_argument(
         '--report-cert',
@@ -429,8 +438,8 @@ def add_to_parser(parser):
         default=".gnupg",
         help="GnuPG home directory, by default created inside the config "
         "directory specified via --cfg-dir option. This option is used when "
-        "reporting to Blockstream's Satellite Monitoring API only, where it "
-        "determines the name of the directory (inside --cfg-dir) that holds "
+        "reporting to the Blockstream Satellite Monitoring API only, where it "
+        "determines the name of the directory (inside --cfg-dir) holding "
         "the key for authentication with the API")
     r_p.add_argument(
         '--report-passphrase',
@@ -439,3 +448,5 @@ def add_to_parser(parser):
         "status reports sent to Blockstream's Satellite Monitoring API. If "
         "undefined (default), the program prompts for this passphrase instead."
     )
+
+    monitoring_api.add_to_parser(parser)

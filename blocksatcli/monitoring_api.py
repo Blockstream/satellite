@@ -20,6 +20,7 @@ from .api.listen import ApiListener
 logger = logging.getLogger(__name__)
 base_url = "https://satellite.blockstream.space/monitoring"
 account_endpoint = os.path.join(base_url, 'accounts')
+account_pwd_endpoint = os.path.join(account_endpoint, "password")
 metric_endpoint = os.path.join(base_url, "metrics")
 
 
@@ -110,13 +111,21 @@ class BsMonitoring():
 
     """
 
-    def __init__(self, cfg, cfg_dir, gnupghome, passphrase=None):
+    def __init__(self,
+                 cfg,
+                 cfg_dir,
+                 gnupghome,
+                 passphrase=None,
+                 reset_api_pwd=False):
         self.cfg = cfg
         self.cfg_dir = cfg_dir
         self.gpg = Gpg(os.path.join(cfg_dir, gnupghome))
 
         if (passphrase is not None):
             self.gpg.set_passphrase(passphrase)
+
+        self.api_pwd = None
+        self.api_cfg_dir = os.path.join(self.cfg_dir, 'monitoring_api')
 
         # Check if this receiver setup is already registered
         self.user_info = config.read_cfg_file(cfg, cfg_dir)
@@ -128,14 +137,19 @@ class BsMonitoring():
         if (not self.registered):
             self._register()
         else:
-            self._setup_registered()
+            self._setup_registered(reset_api_pwd)
 
-    def _setup_registered(self):
+    def _setup_registered(self, reset_api_pwd):
         """Setup for a receiver that is already registered
 
         If already registered, confirm that the registered GPG key is available
         in the keyring and prompt for the GPG private key passphrase required
-        to sign report data
+        to sign report data. Load also the non-GPG password from the local
+        encrypted password file.
+
+        Args:
+            reset_api_pwd (bool): Whether to reset the non-gpg API password if
+                already defined.
 
         """
         fingerprint = self.user_info['monitoring']['fingerprint']
@@ -159,21 +173,105 @@ class BsMonitoring():
         self.gpg.prompt_passphrase('Please enter your GPG passphrase to '
                                    'sign receiver reports: ')
 
+        password_not_set = ('monitoring' not in self.user_info) or \
+            ('has_password' not in self.user_info['monitoring']) or \
+            (not self.user_info['monitoring']['has_password'])
+
+        if reset_api_pwd or password_not_set:
+            self._gen_api_password(reset_api_pwd)
+            return
+
+        self._load_api_password()
+
     def _delete_credentials(self):
         """Remove the registration info from the local config file"""
         self.user_info.pop('monitoring')
         config.write_cfg_file(self.cfg, self.cfg_dir, self.user_info)
         self.registered = False
 
-    def _save_credentials(self, uuid, fingerprint):
+    def _save_credentials(self, uuid, fingerprint, has_password=False):
         """Record the successful registration locally on the JSON config"""
         self.user_info['monitoring'] = {
             'registered': True,
             'uuid': uuid,
-            'fingerprint': fingerprint
+            'fingerprint': fingerprint,
+            'has_password': has_password
         }
         config.write_cfg_file(self.cfg, self.cfg_dir, self.user_info)
         self.registered = True
+
+    def _save_api_password(self, password):
+        """Encrypt and save the monitoring password locally
+
+        Args:
+            password (str): Monitoring password
+        """
+        if not os.path.exists(self.api_cfg_dir):
+            os.mkdir(self.api_cfg_dir)
+
+        # Encrypt the password using the user's public key
+        recipient = self.user_info['monitoring']['fingerprint']
+        enc_password = self.gpg.encrypt(password, recipient).data
+        api_pwd_file = os.path.join(self.api_cfg_dir, f'{recipient}_pwd.gpg')
+        with open(api_pwd_file, 'wb') as fd:
+            fd.write(enc_password)
+
+        logger.debug(f"Encrypted password saved at {api_pwd_file}")
+
+        # Flag the password availability on the user configuration file
+        self.user_info['monitoring']['has_password'] = True
+        config.write_cfg_file(self.cfg, self.cfg_dir, self.user_info)
+
+    def _load_api_password(self):
+        """Load the password used for non-GPG authentication
+
+        When already defined, the password is available locally on an encrypted
+        file. This function decrypts it and loads the password.
+
+        """
+        fingerprint = self.user_info['monitoring']['fingerprint']
+        api_pwd_file = os.path.join(self.api_cfg_dir, f'{fingerprint}_pwd.gpg')
+        if not os.path.exists(api_pwd_file):
+            logger.error(f"Password file {api_pwd_file} does not exist")
+            return
+
+        with open(api_pwd_file, 'rb') as fd:
+            enc_password = fd.read()
+
+        self.api_pwd = self.gpg.decrypt(enc_password).data.decode()
+
+    def _gen_api_password(self, reset_pwd=False):
+        """Generate password for non-GPG-authenticated requests
+
+        This is the password used as a lightweight authentication mechanism in
+        specific endpoints that accept it as an alternative to the main
+        authentication approach based on a detached GPG signature.
+
+        Args:
+            reset_pwd (bool): Whether to reset an existing password.
+
+        """
+        request_payload = {}
+        self.sign_request(request_payload)
+
+        # If the password already exists, ask if the user wants to reset it.
+        # Also, if the resetting was requested via the command line argument,
+        # just reset it without asking.
+        if self.api_pwd is not None and not reset_pwd:
+            logger.info(
+                "Your password for the Monitoring API is already defined.")
+            reset_pwd = util.ask_yes_or_no("Reset it?", default='n')
+            if not reset_pwd:
+                return
+
+        rv = requests.post(account_pwd_endpoint, json=request_payload)
+        if (rv.status_code != requests.codes.ok):
+            logger.error("Password generation failed")
+            logger.error("{} ({})".format(rv.reason, rv.status_code))
+        else:
+            logger.debug("Password successfully created")
+            self.api_pwd = rv.json()['new_password']
+            self._save_api_password(self.api_pwd)
 
     def _register(self):
         """Run the registration procedure
@@ -346,6 +444,12 @@ class BsMonitoring():
             if (verified):
                 logger.info("Receiver already registered and verified")
                 self._save_credentials(uuid, fingerprint)
+                # If we are trying to register an account that already exists,
+                # chances are that the config dir already has its non-GPG
+                # password file. If not, try to redefine the password.
+                self._load_api_password()
+                if self.api_pwd is None:
+                    self._gen_api_password()
                 break
 
             try:
@@ -375,6 +479,9 @@ class BsMonitoring():
                 logger.info("Ready to report Rx metrics to the monitoring "
                             "server")
                 self._save_credentials(uuid, fingerprint)
+                # Now that the account is verified, we can generate the
+                # password for non-GPG-authenticated requests
+                self._gen_api_password()
                 break
 
         if (attempts == 0):
@@ -390,27 +497,54 @@ class BsMonitoring():
         listen_loop.stop()
         listen_thread.join()
 
-    def sign_report(self, data):
+    def sign_request(self, data, password_allowed=False):
         """Sign a dictionary of metrics to be reported to the monitoring API
 
-        First, add the monitored receiver's UUID to the dictionary of
-        metrics. Then, use the default local GPG privkey to generate a detached
-        signature corresponding to the JSON-dumped version of the dictionary
-        (including the UUID). Lastly, append the detached signature. The
-        resulting dictionary (including both the UUID and the signature) is
-        ready to be sent to the API.
+        This function signs a request sent to the monitoring API. Two
+        possibilities exist for signing: with a detached GPG signature of the
+        payload or the account's password generated by the monitoring API.
+
+        When using the GPG signature, this function first adds the accounts's
+        UUID to the payload. Then, it uses the default local GPG privkey to
+        generate a detached signature of the JSON-dumped payload data including
+        the UUID. Lastly, it appends the detached signature to the request.
+
+        When using the password, it first checks if the password is allowed for
+        the given request and if the account has already generated such a
+        password. In the positive case, it includes the receiver's UUID and the
+        password in the request payload.
 
         Args:
-            data : Dictionary with receiver data to be reported
+            data : Dictionary with the request payload data.
+            password_allowed (bool, optional): Whether a non-GPG password-based
+                authentication is allowed for this request. Defaults to False.
 
         """
         assert (self.registered)
         data['uuid'] = self.user_info['monitoring']['uuid']
-        fingerprint = self.user_info['monitoring']['fingerprint']
-        data['signature'] = str(
-            self.gpg.sign(json.dumps(data),
-                          fingerprint,
-                          clearsign=False,
-                          detach=True))
-        if (data['signature'] == ''):
-            logger.error('GPG signature failed')
+
+        if password_allowed and self.api_pwd:
+            data['password'] = self.api_pwd
+        else:
+            fingerprint = self.user_info['monitoring']['fingerprint']
+            data['signature'] = str(
+                self.gpg.sign(json.dumps(data),
+                              fingerprint,
+                              clearsign=False,
+                              detach=True))
+            if (data['signature'] == ''):
+                logger.error('GPG signature failed')
+
+
+def add_to_parser(parser):
+    """Add monitoring API options to parser"""
+    p = parser.add_argument_group('Blockstream Monitoring API options')
+    p.add_argument(
+        '--bs-mon-reset-pwd',
+        action='store_true',
+        default=False,
+        help="Reset the password used for reporting to the Blockstream "
+        "Satellite Monitoring API. "
+        "This is the password used for non-GPG authentication when "
+        "applicable, which should not be confused with the passphrase of "
+        "the private key used on GPG-based authentication.")
