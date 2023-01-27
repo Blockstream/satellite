@@ -1,6 +1,7 @@
 # Changelog
 
 ## Releases
+- [0.4.5](#045)
 - [0.4.4](#044)
 - [0.4.3](#043)
 - [0.4.2](#042)
@@ -9,6 +10,22 @@
 - [0.3.2](#032)
 - [0.3.1](#031)
 - [0.3.0](#030)
+
+## 0.4.5
+
+Release Date: TBD
+
+### Added
+- Support for password-based mechanism on reports sent to the Blockstream
+  Satellite Monitoring API with option `--bs-mon-reset-pwd` to reset it.
+
+### Changed
+- Explainer printed on initial registration with the monitoring API, with
+  privacy and detailed registration info made optional.
+
+### Fixed
+- Gracefully exit the GPG passphrase or keyring creation prompts when
+  interrupted.
 
 ## 0.4.4
 
