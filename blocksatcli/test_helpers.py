@@ -75,7 +75,8 @@ def create_test_setup(cfg_name,
             os.mkdir(api_cfg_dir)
 
         enc_password = gpg.encrypt("test-password", fingerprint).data
-        enc_pwd_file = os.path.join(api_cfg_dir, f'{fingerprint}_pwd.gpg')
+        enc_pwd_file = os.path.join(api_cfg_dir,
+                                    f'{fingerprint}_{cfg_name}_pwd.gpg')
         with open(enc_pwd_file, 'wb') as fd:
             fd.write(enc_password)
 

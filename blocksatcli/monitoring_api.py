@@ -245,7 +245,8 @@ class BsMonitoring():
         # Encrypt the password using the user's public key
         recipient = self.user_info['monitoring']['fingerprint']
         enc_password = self.gpg.encrypt(password, recipient).data
-        api_pwd_file = os.path.join(self.api_cfg_dir, f'{recipient}_pwd.gpg')
+        api_pwd_file = os.path.join(self.api_cfg_dir,
+                                    f'{recipient}_{self.cfg}_pwd.gpg')
         with open(api_pwd_file, 'wb') as fd:
             fd.write(enc_password)
 
@@ -263,7 +264,8 @@ class BsMonitoring():
 
         """
         fingerprint = self.user_info['monitoring']['fingerprint']
-        api_pwd_file = os.path.join(self.api_cfg_dir, f'{fingerprint}_pwd.gpg')
+        api_pwd_file = os.path.join(self.api_cfg_dir,
+                                    f'{fingerprint}_{self.cfg}_pwd.gpg')
         if not os.path.exists(api_pwd_file):
             logger.error(f"Password file {api_pwd_file} does not exist")
             return
