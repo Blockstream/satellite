@@ -20,6 +20,10 @@ test-py310:
   extends: .test
   image: python:3.10
 
+test-py311:
+  extends: .test
+  image: python:3.11
+
 lint:
   image: python:3.9
   before_script:
@@ -40,7 +44,14 @@ test-make-install-apt:
     - make && make install
   parallel:
     matrix:
-      - IMAGE: ["ubuntu:bionic", "ubuntu:focal", "ubuntu:jammy", "debian:buster", "debian:bullseye"]
+      - IMAGE:
+          [
+            "ubuntu:bionic",
+            "ubuntu:focal",
+            "ubuntu:jammy",
+            "debian:buster",
+            "debian:bullseye",
+          ]
 
 test-make-install-fedora:
   image: $IMAGE
@@ -89,7 +100,14 @@ test-deb-dependencies:
     - make && make install
   parallel:
     matrix:
-      - IMAGE: ["ubuntu:bionic", "ubuntu:focal", "ubuntu:jammy", "debian:buster", "debian:bullseye"]
+      - IMAGE:
+          [
+            "ubuntu:bionic",
+            "ubuntu:focal",
+            "ubuntu:jammy",
+            "debian:buster",
+            "debian:bullseye",
+          ]
 
 test-fedora-dependencies:
   image: $IMAGE
