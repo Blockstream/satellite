@@ -65,7 +65,7 @@ test-make-install-fedora:
     - make && make install
   parallel:
     matrix:
-      - IMAGE: ["fedora:34", "fedora:35"]
+      - IMAGE: ["fedora:36", "fedora:37"]
 
 test-make-install-centos:
   image: $IMAGE
@@ -120,7 +120,7 @@ test-fedora-dependencies:
     - make && make install
   parallel:
     matrix:
-      - IMAGE: ["fedora:34", "fedora:35"]
+      - IMAGE: ["fedora:36", "fedora:37"]
 
 pypi-upload:
   image: python
