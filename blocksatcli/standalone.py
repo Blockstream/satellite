@@ -701,10 +701,8 @@ def monitor(args, monitor: monitoring.Monitor = None):
         try:
             stats = s400.get_stats()
 
-            if (stats is None):
-                return
-
-            monitor.update(stats)
+            if (stats is not None):
+                monitor.update(stats)
 
             next_print = c_time + args.log_interval
             if (next_print > c_time):
