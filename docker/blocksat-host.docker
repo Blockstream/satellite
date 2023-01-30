@@ -1,4 +1,4 @@
-ARG distro=ubuntu:focal
+ARG distro=ubuntu:jammy
 FROM $distro
 ARG distro
 MAINTAINER Blockstream Satellite
