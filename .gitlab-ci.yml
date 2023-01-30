@@ -161,6 +161,7 @@ pandoc:
     refs:
       - master
       - web
+      - tags
   before_script:
     - apk add python3
     - cd doc && ./pandoc_setup.sh
@@ -169,6 +170,16 @@ pandoc:
   artifacts:
     paths:
       - doc/blocksat_manual_*.pdf
+
+pandoc-upload:
+  image: google/cloud-sdk
+  stage: deploy
+  when: manual
+  dependencies:
+    - pandoc
+  script:
+    - gcloud auth
+    - gsutil cp  doc/blocksat_manual_*.pdf gs://blocksat-bucket
 
 check-markdown-links:
   image:
