@@ -1,7 +1,8 @@
 import argparse
 import logging
 import unittest
-from . import dependencies
+import os
+from . import dependencies, util
 
 
 class TestDependencies(unittest.TestCase):
@@ -9,7 +10,11 @@ class TestDependencies(unittest.TestCase):
     def gen_args(self, target, btc=False):
         """Mock command-line argument"""
         logging.basicConfig(level=logging.DEBUG)
+        default_cfg_dir = os.path.join(util.get_home_dir(), ".blocksat")
         parser = argparse.ArgumentParser()
+        parser.add_argument('--cfg-dir',
+                            default=default_cfg_dir,
+                            help="Directory to use for configuration files")
         subparsers = parser.add_subparsers()
         dependencies.subparser(subparsers)
         args = ["deps", "-y", "install", "--target", target]
