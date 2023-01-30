@@ -165,7 +165,7 @@ pandoc:
     - python3 pandoc.py
   artifacts:
     paths:
-      - doc/blocksat_manual.pdf
+      - doc/blocksat_manual_*.pdf
 
 check-markdown-links:
   image:

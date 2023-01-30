@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import datetime
+import os
 import re
 import subprocess
 import tempfile
@@ -112,6 +113,11 @@ def fix_links(concat_text, docs, title_map, absent_docs):
 
 
 def main():
+    root_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+    version = re.search(
+        r'^__version__\s*=\s*"(.*)"',
+        open(os.path.join(root_dir, 'blocksatcli', 'main.py')).read(),
+        re.M).group(1)
     docs = [
         "../index.md", "hardware.md", "software.md", "s400.md", "tbs.md",
         "sat-ip.md", "sdr.md", "antenna-pointing.md", "bitcoin.md",
@@ -187,12 +193,14 @@ def main():
         fp.write(concat.encode())
         subprocess.run([
             "pandoc", fp.name, "-f", "markdown", "--pdf-engine=xelatex", "-o",
-            "blocksat_manual.pdf", "-V", "title=Blockstream Satellite", "-V",
-            "subtitle=User Guide", "-V", "date=" + today.strftime("%B %d, %Y"),
-            "-V", "colorlinks", "--number-sections", "--toc", "--template",
-            "eisvogel", "--listings", "-V", "titlepage", "-V",
-            "logo=img/blockstream.png", "-V", "table-use-row-colors", "-V",
-            "titlepage-rule-color=3577F8", "-V", "footnotes-pretty"
+            "blocksat_manual_{}.pdf".format(version), "-V",
+            "title=Blockstream Satellite", "-V",
+            "subtitle=User Guide (v{})".format(version), "-V",
+            "date=" + today.strftime("%B %d, %Y"), "-V", "colorlinks",
+            "--number-sections", "--toc", "--template", "eisvogel",
+            "--listings", "-V", "titlepage", "-V", "logo=img/blockstream.png",
+            "-V", "table-use-row-colors", "-V", "titlepage-rule-color=3577F8",
+            "-V", "footnotes-pretty"
         ])
 
 
