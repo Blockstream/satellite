@@ -53,6 +53,7 @@ test-make-install-apt:
             "debian:bullseye",
           ]
 
+# TODO Remove the gcc/python3-devel installation when zfec ships py3.11 wheels
 test-make-install-fedora:
   image: $IMAGE
   stage: build
@@ -61,6 +62,7 @@ test-make-install-fedora:
     - web
   before_script:
     - dnf update -y && dnf install -y make python3 python3-setuptools python3-pip
+    - dnf install -y gcc python3-devel
   script:
     - make && make install
   parallel:
@@ -117,6 +119,7 @@ test-fedora-dependencies:
     - web
   before_script:
     - dnf update -y && dnf install -y make python3 python3-setuptools python3-pip
+    - dnf install -y gcc python3-devel
     - make && make install
   parallel:
     matrix:
