@@ -8,19 +8,17 @@ nav_order: 4
 <!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-generate-toc again -->
 **Table of Contents**
 
-- [SDR Receiver](#sdr-receiver)
-    - [Connections](#connections)
-    - [Software Requirements](#software-requirements)
-    - [Configuration](#configuration)
-    - [Running](#running)
-    - [Next Steps](#next-steps)
-    - [Further Information](#further-information)
-        - [Software Updates](#software-updates)
-        - [Docker](#docker)
-        - [Manual Installation of SDR Software](#manual-installation-of-sdr-software)
-        - [Manual Compilation of SDR Software](#manual-compilation-of-sdr-software)
-            - [Leandvb from source](#leandvb-from-source)
-            - [TSDuck from source](#tsduck-from-source)
+- [Connections](#connections)
+- [Software Requirements](#software-requirements)
+- [Configuration](#configuration)
+- [Running](#running)
+- [Next Steps](#next-steps)
+- [Further Information](#further-information)
+  - [Software Updates](#software-updates)
+  - [Docker](#docker)
+  - [gr-dvbs2rx Receiver](#gr-dvbs2rx-receiver)
+  - [Manual Installation of SDR Software](#manual-installation-of-sdr-software)
+  - [Manual Compilation of SDR Software](#manual-compilation-of-sdr-software)
 
 <!-- markdown-toc end -->
 
@@ -45,7 +43,7 @@ The SDR-based setup relies on the applications listed below:
 - [TSDuck](https://tsduck.io/): unpacks the output of leandvb and produces IP packets to be fed to [Bitcoin Satellite](bitcoin.md).
 - [Gqrx](https://gqrx.dk): useful for spectrum visualization during antenna pointing.
 
-To install them all at once, run:
+To install them all at once, run the following:
 
 ```
 blocksat-cli deps install
@@ -53,7 +51,7 @@ blocksat-cli deps install
 
 > Note: this command supports the two most recent releases of Ubuntu LTS, Fedora, CentOS, Debian, and Raspbian. In case you are using another Linux distribution or version, please refer to the [manual compilation and installation instructions](#manual-compilation-of-sdr-software).
 
-If you prefer to install all software components manually, please refer to the [manual installation section](#manual-installation-of-sdr-software).
+If you prefer to install all software components manually, please refer to the [manual installation section](#manual-installation-of-sdr-software). Also, if you would like to try the alternative receiver application based on the [GNU Radio](https://www.gnuradio.org) framework, see the [gr-dvbs2rx section](#gr-dvbs2rx-receiver).
 
 ## Configuration
 
@@ -98,6 +96,22 @@ blocksat-cli deps update
 ### Docker
 
 A Docker image is available for running the SDR host on a container. Please refer to the instructions in the [Docker guide](docker.md).
+
+### gr-dvbs2rx Receiver
+
+An alternative software-defined DVB-S2 receiver implementation named gr-dvbs2rx is available on the CLI starting from version 0.4.5. This alternative application is based on the [GNU Radio](https://www.gnuradio.org) framework for software-defined radio.
+
+To try gr-dvbs2rx, first, run the command below to install it. The installation is supported on Fedora 36 and Ubuntu 22.04 or later versions.
+
+```
+blocksat-cli deps install --gr-dvbs2rx
+```
+
+Then, use the `--impl gr-dvbs2rx` option when launching the receiver, as follows:
+
+```
+blocksat-cli sdr --impl gr-dvbs2rx
+```
 
 ### Manual Installation of SDR Software
 
