@@ -1,4 +1,5 @@
 """Blocksat API"""
+import json
 import logging
 import os
 import shlex
@@ -270,6 +271,16 @@ def bump(args):
     qr = qrcode.QRCode()
     qr.add_data(res["lightning_invoice"]["payreq"])
     qr.print_ascii()
+
+
+def get(args):
+    """Get an API order"""
+    server_addr = _get_server_addr(args.net, args.server)
+
+    # Fetch the ApiOrder
+    order = ApiOrder(server_addr, tls_cert=args.tls_cert, tls_key=args.tls_key)
+    order.get(args.uuid, args.auth_token)
+    print(json.dumps(order.order, indent=4))
 
 
 def delete(args):
@@ -709,6 +720,22 @@ def subparser(subparsers):  # pragma: no cover
                     default="sent",
                     help='SSE event that should trigger packet transmissions')
     p6.set_defaults(func=demo_rx)
+
+    # Get message
+    p7 = subsubparsers.add_parser(
+        'get',
+        description="Get an API message order",
+        help="Get an API message order",
+        formatter_class=ArgumentDefaultsHelpFormatter)
+    p7.add_argument('-u',
+                    '--uuid',
+                    default=None,
+                    help="Universally unique identifier (UUID)")
+    p7.add_argument('-a',
+                    '--auth-token',
+                    default=None,
+                    help="Authentication token")
+    p7.set_defaults(func=get)
 
     return p
 
