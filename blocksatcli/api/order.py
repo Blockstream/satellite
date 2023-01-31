@@ -13,13 +13,18 @@ logger = logging.getLogger(__name__)
 class ApiChannel(Enum):
     ALL = 0
     USER = 1
-    CTRL = 2
     AUTH = 3
     GOSSIP = 4
     BTC_SRC = 5
 
 
 API_CHANNELS = [x.value for x in ApiChannel]
+API_CHANNEL_SSE_NAME = {
+    ApiChannel.USER.value: 'transmissions',
+    ApiChannel.AUTH.value: 'auth',
+    ApiChannel.GOSSIP.value: 'gossip',
+    ApiChannel.BTC_SRC.value: 'btc-src',
+}
 SENDABLE_API_CHANNELS = [x for x in API_CHANNELS if x != ApiChannel.ALL.value]
 PAID_API_CHANNELS = [ApiChannel.USER.value]
 

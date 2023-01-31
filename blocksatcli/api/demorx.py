@@ -11,7 +11,7 @@ import requests
 import sseclient
 
 from . import net
-from .order import ApiOrder
+from .order import ApiOrder, API_CHANNEL_SSE_NAME
 from .pkt import BlocksatPkt, BlocksatPktHandler
 
 logger = logging.getLogger(__name__)
@@ -153,8 +153,9 @@ class DemoRx():
                     sleep = False
 
                 # Server-sent Events (SSE) Client
+                sse_channel = API_CHANNEL_SSE_NAME[self.channel]
                 endpoint = '/admin/subscribe/' if self.admin else '/subscribe/'
-                r = requests.get(self.server + f"{endpoint}transmissions",
+                r = requests.get(self.server + f"{endpoint}{sse_channel}",
                                  stream=True,
                                  cert=(self.tls_cert, self.tls_key))
                 r.raise_for_status()

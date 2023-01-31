@@ -44,6 +44,8 @@ Release Date: TBD
   configuration before attempting to apply a new one.
 - Satellite API endpoints used when the TLS key/cert parameters are defined.
 - Satellite API servers used for LN gossip and Bitcoin Source code messages.
+- Satellite API SSE channel subscribed by the `api demo-rx` application for LN
+  gossip and Bitcoin Source code messages.
 
 ### Fixed
 - Graceful exiting when interrupted at a prompt to create a GPG passphrase or

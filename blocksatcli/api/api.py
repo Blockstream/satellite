@@ -692,8 +692,9 @@ def subparser(subparsers):  # pragma: no cover
         default=["lo"])
     p6.add_argument('-c',
                     '--channel',
+                    type=int,
                     default=ApiChannel.USER.value,
-                    choices=API_CHANNELS,
+                    choices=SENDABLE_API_CHANNELS,
                     help="Target API transmission channel")
     p6.add_argument(
         '-r',
