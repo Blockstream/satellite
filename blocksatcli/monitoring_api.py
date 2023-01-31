@@ -14,9 +14,9 @@ from . import defs
 from . import config
 from .cache import Cache
 from .api import api
-from .api.pkt import ApiChannel
 from .api.gpg import Gpg
 from .api.listen import ApiListener
+from .api.order import ApiChannel
 
 logger = logging.getLogger(__name__)
 base_url = "https://satellite.blockstream.space/monitoring"

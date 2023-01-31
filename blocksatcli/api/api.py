@@ -4,8 +4,7 @@ import os
 import shlex
 import subprocess
 import textwrap
-from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter, \
-    ArgumentTypeError
+from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 from shutil import which
 
 import qrcode
@@ -17,8 +16,8 @@ from .. import defs
 from .demorx import DemoRx
 from .gpg import Gpg, config_keyring
 from .listen import ApiListener
-from .order import ApiOrder
-from .pkt import calc_ota_msg_len, ApiChannel
+from .order import ApiOrder, ApiChannel, API_CHANNELS, SENDABLE_API_CHANNELS
+from .pkt import calc_ota_msg_len
 
 logger = logging.getLogger(__name__)
 server_map = {
@@ -112,7 +111,7 @@ def send(args):
 
     # API transmission order
     order = ApiOrder(server_addr, tls_cert=args.tls_cert, tls_key=args.tls_key)
-    res = order.send(msg.get_data(), bid, args.regions)
+    res = order.send(msg.get_data(), bid, args.regions, args.channel)
     print()
 
     # The API servers (except the gossip and btc-src instances) should return a
@@ -327,15 +326,6 @@ def demo_rx(args):
 
 def subparser(subparsers):  # pragma: no cover
     """Subparser for usb command"""
-
-    def channel_number(value):
-        ivalue = int(value)
-        if ivalue < 0 or ivalue > 255:
-            raise ArgumentTypeError(
-                "Invalid API channel number {}. "
-                "Choose number within [0, 256)".format(value))
-        return ivalue
-
     p = subparsers.add_parser('api',
                               description="Blockstream Satellite API",
                               help='Blockstream Satellite API',
@@ -412,6 +402,13 @@ def subparser(subparsers):  # pragma: no cover
                     default=None,
                     type=int,
                     help="Bid (in millisatoshis) for the message transmission")
+    p2.add_argument(
+        '-c',
+        '--channel',
+        type=int,
+        default=ApiChannel.USER.value,
+        choices=SENDABLE_API_CHANNELS,
+        help="API transmission channel over which the message should be sent.")
     p2.add_argument(
         '--regions',
         nargs="+",
@@ -521,8 +518,9 @@ def subparser(subparsers):  # pragma: no cover
     p3.add_argument(
         '-c',
         '--channel',
+        type=int,
         default=ApiChannel.USER.value,
-        type=channel_number,
+        choices=API_CHANNELS,
         help="Listen to a specific API transmission channel. If set to 0, "
         "listen to all channels. By default, listen to user transmissions, "
         "which are sent on channel 1")
@@ -705,7 +703,7 @@ def subparser(subparsers):  # pragma: no cover
     p6.add_argument('-c',
                     '--channel',
                     default=ApiChannel.USER.value,
-                    type=channel_number,
+                    choices=API_CHANNELS,
                     help="Target API transmission channel")
     p6.add_argument(
         '-r',

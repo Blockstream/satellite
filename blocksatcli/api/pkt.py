@@ -2,7 +2,6 @@
 import logging
 import struct
 import time
-from enum import Enum
 from math import ceil
 
 logger = logging.getLogger(__name__)
@@ -25,15 +24,6 @@ API_TYPE_MORE_FRAG = b'\x81'  # Type=1 (API), MF=1
 # a layer-2 MTU of 1500 bytes. See the explanation on calc_ota_msg_len().
 UDP_IP_HEADER = 20 + 8
 MAX_PAYLOAD = 1500 - (UDP_IP_HEADER + HEADER_LEN)
-
-
-class ApiChannel(Enum):
-    ALL = 0
-    USER = 1
-    CTRL = 2
-    AUTH = 3
-    GOSSIP = 4
-    BTC_SRC = 5
 
 
 class BlocksatPkt:

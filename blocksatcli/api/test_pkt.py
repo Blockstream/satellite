@@ -3,7 +3,9 @@ import string
 import struct
 import time
 import unittest
+
 from . import pkt
+from .order import ApiChannel
 
 
 class TestOrder(unittest.TestCase):
@@ -16,7 +18,7 @@ class TestOrder(unittest.TestCase):
 
     def test_pack_unpack(self):
         """Test packing and unpacking to/from Blocksat Packet"""
-        chan_num = pkt.ApiChannel.USER.value
+        chan_num = ApiChannel.USER.value
         seq_num = 1
         frag_num = 10
         more_frags = False
@@ -220,7 +222,7 @@ class TestOrder(unittest.TestCase):
 
     def test_chan_number_backwards_compatibility(self):
         """Unpack the new header format using the previous unpacking format"""
-        chan_num = pkt.ApiChannel.USER.value
+        chan_num = ApiChannel.USER.value
         seq_num = 1
         frag_num = 10
         more_frags = True

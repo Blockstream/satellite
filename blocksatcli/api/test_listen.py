@@ -11,7 +11,8 @@ from . import msg
 from .gpg import Gpg
 from .listen import ApiListener
 from .net import UdpSock
-from .pkt import BlocksatPktHandler, ApiChannel
+from .order import ApiChannel
+from .pkt import BlocksatPktHandler
 from ..test_helpers import TestEnv
 
 gpgpassphrase = "test"

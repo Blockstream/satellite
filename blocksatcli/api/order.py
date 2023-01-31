@@ -3,9 +3,24 @@ import logging
 import requests
 import textwrap
 import time
+from enum import Enum
+
 from . import bidding, pkt
 
 logger = logging.getLogger(__name__)
+
+
+class ApiChannel(Enum):
+    ALL = 0
+    USER = 1
+    CTRL = 2
+    AUTH = 3
+    GOSSIP = 4
+    BTC_SRC = 5
+
+
+API_CHANNELS = [x.value for x in ApiChannel]
+SENDABLE_API_CHANNELS = [x for x in API_CHANNELS if x != ApiChannel.ALL.value]
 
 
 class ApiOrder:
@@ -109,7 +124,7 @@ class ApiOrder:
         self.auth_token = auth_token
         self._fetch()
 
-    def send(self, data, bid, regions=None):
+    def send(self, data, bid, regions=None, channel=None):
         """Send the transmission order
 
         Args:
@@ -127,6 +142,8 @@ class ApiOrder:
 
         if (regions is not None and len(regions) > 0):
             req_data['regions'] = json.dumps(regions)
+        if (channel is not None):
+            req_data['channel'] = channel
 
         # Post request to the API
         r = requests.post(self.server + '/order',

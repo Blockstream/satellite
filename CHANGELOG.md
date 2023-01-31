@@ -33,6 +33,7 @@ Release Date: TBD
   configure or monitor the receiver.
 - Validation of the frequency correction parameter passed to the S400.
 - Verification of the TBS USB drivers before USB configuration or launching.
+- Support for specification of channel number on the `api send` command.
 
 ### Changed
 - Explainer printed on initial registration with the monitoring API, with
