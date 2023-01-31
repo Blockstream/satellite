@@ -36,17 +36,6 @@ def _get_server_addr(net, server):
         return server_map[net]
 
 
-def _warn_common_overrides(args):
-    """Warn options overridden by arguments --gossip and --btc-src"""
-    if (not (args.gossip or args.btc_src)):
-        return
-
-    opt = "--gossip" if args.gossip else "--btc-src"
-
-    if (args.channel != ApiChannel.USER.value):
-        logger.warning("Option {} overrides --channel".format(opt))
-
-
 def config(args):
     """API config command"""
     gnupghome = os.path.join(args.cfg_dir, args.gnupghome)
@@ -166,6 +155,11 @@ def listen(args):
     else:
         channel = args.channel
 
+    if (args.gossip or args.btc_src):
+        if (args.channel != ApiChannel.USER.value):
+            logger.warning("Option {} overrides --channel".format(
+                "--gossip" if args.gossip else "--btc-src"))
+
     server_addr = _get_server_addr(args.net, args.server)
     historian_cli = os.path.join(args.historian_path, 'historian-cli') \
         if (args.historian_path) else 'historian-cli'
@@ -192,8 +186,6 @@ def listen(args):
         }
     else:
         gossip_opts = None
-
-    _warn_common_overrides(args)  # warn args overridden by --gossip/--btc-src
 
     if (args.exec):
         # Do not support the option in plaintext mode
@@ -291,20 +283,7 @@ def delete(args):
 
 def demo_rx(args):
     """Demo satellite receiver"""
-
-    # Override some options based on the mutual exclusive --gossip and
-    # --btc-src arguments, if present
-    if (args.gossip):
-        channel = ApiChannel.GOSSIP.value
-    elif (args.btc_src):
-        channel = ApiChannel.BTC_SRC.value
-    else:
-        channel = args.channel
-
     server_addr = _get_server_addr(args.net, args.server)
-
-    # Argument validation and special cases
-    _warn_common_overrides(args)  # warn args overridden by --gossip/--btc-src
 
     # Open one socket for each interface:
     socks = list()
@@ -313,7 +292,7 @@ def demo_rx(args):
         sock.set_mcast_tx_opts(args.ttl, args.dscp)
         socks.append(sock)
 
-    rx = DemoRx(server_addr, socks, args.bitrate, args.event, channel,
+    rx = DemoRx(server_addr, socks, args.bitrate, args.event, args.channel,
                 args.regions, args.tls_cert, args.tls_key)
     rx.run()
 
@@ -726,22 +705,6 @@ def subparser(subparsers):  # pragma: no cover
                     choices=["transmitting", "sent"],
                     default="sent",
                     help='SSE event that should trigger packet transmissions')
-    btc_src_gossip_arg_group2 = p6.add_mutually_exclusive_group()
-    btc_src_gossip_arg_group2.add_argument(
-        '--gossip',
-        default=False,
-        action="store_true",
-        help="Configure the application to fetch and relay Lightning gossip "
-        "messages. This argument overrides option --channel (set to {}).".
-        format(ApiChannel.GOSSIP.value))
-    btc_src_gossip_arg_group2.add_argument(
-        '--btc-src',
-        default=False,
-        action="store_true",
-        help="Configure the application to fetch and relay messages carrying "
-        "the Bitcoin Satellite and Bitcoin Core source codes. This argument "
-        "overrides option --channel (set to {}).".format(
-            ApiChannel.BTC_SRC.value))
     p6.set_defaults(func=demo_rx)
 
     return p

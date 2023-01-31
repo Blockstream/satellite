@@ -57,6 +57,9 @@ Release Date: TBD
 - Error catching on POST HTTP requests reporting the receiver status.
 - Pulling of media build repo on TBS driver build from a preexisting directory.
 
+### Removed
+- `--gossip` and `--btc-src` options from the `api demo-rx` application.
+
 ## 0.4.4
 
 Release Date: 2022-05-31
