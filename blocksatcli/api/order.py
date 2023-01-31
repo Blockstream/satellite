@@ -21,6 +21,7 @@ class ApiChannel(Enum):
 
 API_CHANNELS = [x.value for x in ApiChannel]
 SENDABLE_API_CHANNELS = [x for x in API_CHANNELS if x != ApiChannel.ALL.value]
+PAID_API_CHANNELS = [ApiChannel.USER.value]
 
 
 class ApiOrder:

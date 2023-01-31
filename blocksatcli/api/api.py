@@ -16,15 +16,16 @@ from .. import defs
 from .demorx import DemoRx
 from .gpg import Gpg, config_keyring
 from .listen import ApiListener
-from .order import ApiOrder, ApiChannel, API_CHANNELS, SENDABLE_API_CHANNELS
+from .order import ApiOrder, ApiChannel, \
+    API_CHANNELS,\
+    SENDABLE_API_CHANNELS,\
+    PAID_API_CHANNELS
 from .pkt import calc_ota_msg_len
 
 logger = logging.getLogger(__name__)
 server_map = {
     'main': "https://api.blockstream.space",
-    'test': "https://api.blockstream.space/testnet",
-    'gossip': "https://api.blockstream.space/gossip",
-    'btc-src': "https://api.blockstream.space/btc-src"
+    'test': "https://api.blockstream.space/testnet"
 }
 
 
@@ -44,9 +45,6 @@ def _warn_common_overrides(args):
 
     if (args.channel != ApiChannel.USER.value):
         logger.warning("Option {} overrides --channel".format(opt))
-
-    if (args.server != server_map['main'] or args.net is not None):
-        logger.warning("Option {} overrides --net and --server".format(opt))
 
 
 def config(args):
@@ -114,10 +112,9 @@ def send(args):
     res = order.send(msg.get_data(), bid, args.regions, args.channel)
     print()
 
-    # The API servers (except the gossip and btc-src instances) should return a
-    # Lightning invoice for the transmission order
-    if (server_addr != server_map['gossip']
-            and server_addr != server_map['btc-src']):
+    # Only the paid API channels return a Lightning invoice for the
+    # transmission order
+    if (args.channel in PAID_API_CHANNELS):
         payreq = res["lightning_invoice"]["payreq"]
 
         # Print QR code
@@ -162,16 +159,14 @@ def listen(args):
     # --btc-src arguments, if present
     if (args.gossip):
         channel = ApiChannel.GOSSIP.value
-        server_addr = server_map['gossip']
         args.plaintext = True
     elif (args.btc_src):
         channel = ApiChannel.BTC_SRC.value
-        server_addr = server_map['btc-src']
         args.plaintext = True
     else:
         channel = args.channel
-        server_addr = _get_server_addr(args.net, args.server)
 
+    server_addr = _get_server_addr(args.net, args.server)
     historian_cli = os.path.join(args.historian_path, 'historian-cli') \
         if (args.historian_path) else 'historian-cli'
 
@@ -300,14 +295,13 @@ def demo_rx(args):
     # Override some options based on the mutual exclusive --gossip and
     # --btc-src arguments, if present
     if (args.gossip):
-        server_addr = server_map['gossip']
         channel = ApiChannel.GOSSIP.value
     elif (args.btc_src):
-        server_addr = server_map['btc-src']
         channel = ApiChannel.BTC_SRC.value
     else:
-        server_addr = _get_server_addr(args.net, args.server)
         channel = args.channel
+
+    server_addr = _get_server_addr(args.net, args.server)
 
     # Argument validation and special cases
     _warn_common_overrides(args)  # warn args overridden by --gossip/--btc-src
@@ -343,10 +337,8 @@ def subparser(subparsers):  # pragma: no cover
         '--net',
         choices=server_map.keys(),
         default=None,
-        help="Choose between the Mainnet API server (main), the Testnet API \
-        server (test), the receive-only server used for Lightning gossip \
-        messages (gossip), or the receive-only server used for messages \
-        carrying the Bitcoin source code (btc-src)")
+        help="Choose between the Mainnet API server (main) or the Testnet API \
+        server (test)")
     server_addr.add_argument('-s',
                              '--server',
                              default=server_map['main'],
@@ -600,18 +592,16 @@ def subparser(subparsers):  # pragma: no cover
         action="store_true",
         help="Configure the application to receive Lightning gossip snapshots "
         "and load them using the historian-cli application. This argument "
-        "overrides the following options: 1) --plaintext (enabled); 2) "
-        "--channel (set to {}); and 3) --server/--net (set to {})".format(
-            ApiChannel.GOSSIP.value, server_map['gossip']))
+        "overrides the following options: 1) --plaintext (enabled); and 2) "
+        "--channel (set to {}).".format(ApiChannel.GOSSIP.value))
     btc_src_gossip_arg_group1.add_argument(
         '--btc-src',
         default=False,
         action="store_true",
         help="Configure the application to receive API messages carrying the "
         "Bitcoin Satellite and Bitcoin Core source codes. This argument "
-        "overrides the following options: 1) --plaintext (enabled); 2) "
-        "--channel (set to {}); and 3) --server/--net (set to {})".format(
-            ApiChannel.BTC_SRC.value, server_map['btc-src']))
+        "overrides the following options: 1) --plaintext (enabled); and 2) "
+        "--channel (set to {}).".format(ApiChannel.BTC_SRC.value))
     p3.add_argument(
         '--historian-path',
         default=None,
@@ -741,17 +731,16 @@ def subparser(subparsers):  # pragma: no cover
         default=False,
         action="store_true",
         help="Configure the application to fetch and relay Lightning gossip "
-        "messages. This argument overrides option --channel (set to {}) and "
-        "options --server/--net (set to {})".format(ApiChannel.GOSSIP.value,
-                                                    server_map['gossip']))
+        "messages. This argument overrides option --channel (set to {}).".
+        format(ApiChannel.GOSSIP.value))
     btc_src_gossip_arg_group2.add_argument(
         '--btc-src',
         default=False,
         action="store_true",
         help="Configure the application to fetch and relay messages carrying "
         "the Bitcoin Satellite and Bitcoin Core source codes. This argument "
-        "overrides option --channel (set to {}) and options --server/--net "
-        "(set to {})".format(ApiChannel.BTC_SRC.value, server_map['btc-src']))
+        "overrides option --channel (set to {}).".format(
+            ApiChannel.BTC_SRC.value))
     p6.set_defaults(func=demo_rx)
 
     return p
