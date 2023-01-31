@@ -94,7 +94,10 @@ def send(args):
     logger.info("Satellite transmission will use %d bytes" % (tx_len))
 
     # Ask user for bid or take it from argument
-    bid = args.bid if args.bid else bidding.ask_bid(tx_len)
+    if (args.channel in PAID_API_CHANNELS):
+        bid = args.bid if args.bid else bidding.ask_bid(tx_len)
+    else:
+        bid = None
 
     # API transmission order
     order = ApiOrder(server_addr, tls_cert=args.tls_cert, tls_key=args.tls_key)

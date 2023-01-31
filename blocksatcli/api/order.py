@@ -146,8 +146,10 @@ class ApiOrder:
         """
         assert (isinstance(data, bytes))
 
-        req_data = {'bid': bid}
+        req_data = {}
 
+        if bid is not None:
+            req_data['bid'] = bid
         if (regions is not None and len(regions) > 0):
             req_data['regions'] = json.dumps(regions)
         if (channel is not None):
