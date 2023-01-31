@@ -166,6 +166,10 @@ class DemoRx():
                 for event in client.events():
                     self._handle_event(event)
 
+            except requests.exceptions.HTTPError as e:
+                logger.error(e)
+                break
+
             except requests.exceptions.ChunkedEncodingError as e:
                 logger.debug(e)
                 pass
