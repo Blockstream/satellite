@@ -47,6 +47,7 @@ class ApiOrder:
         # TLS key/cert
         self.tls_cert = tls_cert
         self.tls_key = tls_key
+        self.admin = tls_cert is not None and tls_key is not None
 
         # Transmission sequence number, if defined
         self.seq_num = seq_num
@@ -97,7 +98,8 @@ class ApiOrder:
         assert (self.uuid is not None)
         assert (self.auth_token is not None)
 
-        r = requests.get(self.server + '/order/' + self.uuid,
+        endpoint = '/admin/order/' if self.admin else '/order/'
+        r = requests.get(self.server + endpoint + self.uuid,
                          headers={'X-Auth-Token': self.auth_token},
                          cert=(self.tls_cert, self.tls_key))
 
@@ -146,7 +148,8 @@ class ApiOrder:
             req_data['channel'] = channel
 
         # Post request to the API
-        r = requests.post(self.server + '/order',
+        endpoint = '/admin/order' if self.admin else '/order'
+        r = requests.post(self.server + endpoint,
                           data=req_data,
                           files={'file': data},
                           cert=(self.tls_cert, self.tls_key))
@@ -183,7 +186,8 @@ class ApiOrder:
         """Get data content sent over an API order"""
         logger.debug("Fetch message #%s from API" % (self.seq_num))
 
-        r = requests.get(self.server + '/message/' + str(self.seq_num),
+        endpoint = '/admin/message/' if self.admin else '/message/'
+        r = requests.get(self.server + endpoint + str(self.seq_num),
                          cert=(self.tls_cert, self.tls_key))
 
         r.raise_for_status()
@@ -416,7 +420,8 @@ class ApiOrder:
             self._fetch()
 
         # Post delete request
-        r = requests.delete(self.server + '/order/' + self.uuid,
+        endpoint = '/admin/order/' if self.admin else '/order/'
+        r = requests.delete(self.server + endpoint + self.uuid,
                             headers={'X-Auth-Token': self.auth_token},
                             cert=(self.tls_cert, self.tls_key))
 

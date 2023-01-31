@@ -58,6 +58,7 @@ class DemoRx():
         self.regions = regions
         self.tls_cert = tls_cert
         self.tls_key = tls_key
+        self.admin = tls_cert is not None and tls_key is not None
 
     def _send_pkts(self, pkts):
         """Transmit Blocksat packets of the API message over all sockets
@@ -152,7 +153,8 @@ class DemoRx():
                     sleep = False
 
                 # Server-sent Events (SSE) Client
-                r = requests.get(self.server + "/subscribe/transmissions",
+                endpoint = '/admin/subscribe/' if self.admin else '/subscribe/'
+                r = requests.get(self.server + f"{endpoint}transmissions",
                                  stream=True,
                                  cert=(self.tls_cert, self.tls_key))
                 r.raise_for_status()

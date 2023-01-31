@@ -42,6 +42,7 @@ Release Date: TBD
   command.
 - Efficiency of the `standalone cfg` command by reading the current
   configuration before attempting to apply a new one.
+- Satellite API endpoints used when the TLS key/cert parameters are defined.
 
 ### Fixed
 - Graceful exiting when interrupted at a prompt to create a GPG passphrase or
