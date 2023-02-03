@@ -1,29 +1,14 @@
 import os
-import shutil
-import unittest
 from unittest.mock import patch, call
 
 from requests.exceptions import ConnectionError
 
 from . import monitoring
 from .monitoring_api import metric_endpoint
-from .test_helpers import create_test_setup
-
-gpghome = "/tmp/.gnupg-test-monitoring"
-cfg_dir = "/tmp/.config-test-monitoring"
+from .test_helpers import create_test_setup, TestEnv
 
 
-class TestReceiverReporter(unittest.TestCase):
-
-    def setUp(self):
-        for directory in [cfg_dir, gpghome]:
-            if not os.path.exists(directory):
-                os.makedirs(directory)
-
-    def tearDown(self):
-        for directory in [cfg_dir, gpghome]:
-            if os.path.exists(directory):
-                shutil.rmtree(directory, ignore_errors=True)
+class TestReceiverReporter(TestEnv):
 
     def configure_reporter_setup(self,
                                  cfg_name="test_config",
@@ -40,17 +25,17 @@ class TestReceiverReporter(unittest.TestCase):
 
         """
         test_info = create_test_setup(cfg_name=cfg_name,
-                                      cfg_dir=cfg_dir,
-                                      gpghome=gpghome,
+                                      cfg_dir=self.cfg_dir,
+                                      gpghome=self.gpghome,
                                       gen_gpg_key=gen_gpg_key,
                                       mon_api_registered=mon_api_registered,
                                       mon_api_gen_password=mon_api_gen_pwd)
 
         reporter = monitoring.Reporter(cfg=cfg_name,
-                                       cfg_dir=cfg_dir,
+                                       cfg_dir=self.cfg_dir,
                                        dest_addr=report_endpoint,
                                        hostname='hostname-test',
-                                       gnupghome=gpghome,
+                                       gnupghome=self.gpghome,
                                        passphrase='test',
                                        reset_api_pwd=mon_api_reset_pwd)
 
@@ -186,12 +171,10 @@ class TestReceiverReporter(unittest.TestCase):
             reporter.send(metrics)
 
 
-class TestReceiverMonitor(unittest.TestCase):
+class TestReceiverMonitor(TestEnv):
 
     def setUp(self):
-        for directory in [cfg_dir, gpghome]:
-            if not os.path.exists(directory):
-                os.makedirs(directory)
+        super().setUp()
 
         # Set stats with and without units
         self.stats = {
@@ -212,11 +195,6 @@ class TestReceiverMonitor(unittest.TestCase):
             'pkt_err': 0
         }
 
-    def tearDown(self):
-        for directory in [cfg_dir, gpghome]:
-            if os.path.exists(directory):
-                shutil.rmtree(directory, ignore_errors=True)
-
     def configure_monitor_setup(self, only_receiver_config=False):
         """Configure monitor setup
 
@@ -225,23 +203,23 @@ class TestReceiverMonitor(unittest.TestCase):
 
         """
         create_test_setup(cfg_name="test_config",
-                          cfg_dir=cfg_dir,
-                          gpghome=gpghome,
+                          cfg_dir=self.cfg_dir,
+                          gpghome=self.gpghome,
                           mon_api_registered=True,
                           gen_gpg_key=True)
 
         if only_receiver_config:
             return
 
-        monitor = monitoring.Monitor(cfg_dir,
+        monitor = monitoring.Monitor(self.cfg_dir,
                                      report=True,
                                      echo=True,
                                      min_interval=0,
                                      report_opts={
                                          'cfg': 'test_config',
-                                         'cfg_dir': cfg_dir,
+                                         'cfg_dir': self.cfg_dir,
                                          'dest_addr': metric_endpoint,
-                                         'gnupghome': gpghome,
+                                         'gnupghome': self.gpghome,
                                          'passphrase': 'test'
                                      })
 
@@ -274,11 +252,11 @@ class TestReceiverMonitor(unittest.TestCase):
         mock_time.return_value = test_time
 
         # Create a monitor instance UTC timezone
-        monitor = monitoring.Monitor(cfg_dir, utc=True, min_interval=0)
+        monitor = monitoring.Monitor(self.cfg_dir, utc=True, min_interval=0)
         self.assertEqual(str(monitor), f"{test_time} ")
 
         # Create a monitor instance local timezone
-        monitor = monitoring.Monitor(cfg_dir, utc=False, min_interval=0)
+        monitor = monitoring.Monitor(self.cfg_dir, utc=False, min_interval=0)
         self.assertEqual(str(monitor), f"{test_time} ")
 
         # Check monitor print with updated metrics
@@ -313,10 +291,12 @@ class TestReceiverMonitor(unittest.TestCase):
         mock_time.return_value = test_time
 
         # Create a monitor instance with logfile equal to true
-        monitor = monitoring.Monitor(cfg_dir, logfile=True, min_interval=0)
+        monitor = monitoring.Monitor(self.cfg_dir,
+                                     logfile=True,
+                                     min_interval=0)
 
         # Make sure the logs folder has been created
-        log_dir = os.path.join(cfg_dir, 'logs')
+        log_dir = os.path.join(self.cfg_dir, 'logs')
         self.assertTrue(os.path.exists(log_dir))
 
         # Change time format
@@ -345,7 +325,9 @@ class TestReceiverMonitor(unittest.TestCase):
         self.configure_monitor_setup(only_receiver_config=True)
 
         # Create a monitor instance with minimum interval equals to 10s
-        monitor = monitoring.Monitor(cfg_dir, logfile=True, min_interval=10)
+        monitor = monitoring.Monitor(self.cfg_dir,
+                                     logfile=True,
+                                     min_interval=10)
 
         # Update without waiting the minimum interval
         monitor.update({'lock': (True, None)})
@@ -355,7 +337,9 @@ class TestReceiverMonitor(unittest.TestCase):
         self.assertFalse(os.path.exists(monitor.logfile))
 
         # Create a new instance with minimum interval equals to 0s
-        monitor = monitoring.Monitor(cfg_dir, logfile=True, min_interval=0)
+        monitor = monitoring.Monitor(self.cfg_dir,
+                                     logfile=True,
+                                     min_interval=0)
         monitor.update({'lock': (True, None)})
 
         # The log file should have been created with only the last update

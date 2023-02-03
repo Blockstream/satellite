@@ -1,17 +1,10 @@
 import os
-import shutil
-import unittest
-import uuid
 from .gpg import Gpg
 
+from ..test_helpers import TestEnv
 
-class TestGpg(unittest.TestCase):
 
-    def setUp(self):
-        self.gpghome = "/tmp/.gnupg-" + str(uuid.uuid4())
-
-    def tearDown(self):
-        shutil.rmtree(self.gpghome, ignore_errors=True)
+class TestGpg(TestEnv):
 
     def test_key_creation(self):
         """Test creation of GPG keys"""

@@ -1,13 +1,12 @@
 import argparse
 import os
-import shutil
-import unittest
 from unittest.mock import patch
 
 from . import bitcoin, defs, config
+from .test_helpers import TestEnv
 
 
-class TestBitcoinConfGen(unittest.TestCase):
+class TestBitcoinConfGen(TestEnv):
 
     def gen_text_dict(self):
         """Generate configurations in text and dictionary formats"""
@@ -109,29 +108,23 @@ class TestBitcoinConfGen(unittest.TestCase):
     def test_complete_bitcoin_cfg_gen(self, mock_ask_yes_or_no):
         mock_ask_yes_or_no.return_value = True
 
-        # Create test folder
-        cfg_dir = '/tmp/test-bitcoin-cfg/'
-        cfg = 'config'
-        if not os.path.exists(cfg_dir):
-            os.makedirs(cfg_dir)
-
         # Set argparse
-        args = argparse.Namespace(cfg=cfg,
-                                  cfg_dir=cfg_dir,
-                                  datadir=cfg_dir,
+        args = argparse.Namespace(cfg=self.cfg_name,
+                                  cfg_dir=self.cfg_dir,
+                                  datadir=self.cfg_dir,
                                   stdout=None,
                                   concat=True)
 
         # Create receiver configuration
         info = {'sat': defs.satellites[0], 'setup': defs.demods[0]}
         info['setup']['netdev'] = 'en0'
-        config.write_cfg_file(cfg, cfg_dir, info)
+        config.write_cfg_file(self.cfg_name, self.cfg_dir, info)
 
         # Run bitcoin configuration
         bitcoin.configure(args)
 
         # Read generated config
-        with open(os.path.join(cfg_dir, 'bitcoin.conf'), 'r') as fd:
+        with open(os.path.join(self.cfg_dir, 'bitcoin.conf'), 'r') as fd:
             bitcoin_cfg = fd.read()
 
         expected_cfg = (
@@ -141,7 +134,3 @@ class TestBitcoinConfGen(unittest.TestCase):
             "udpmulticast=en0,239.0.0.2:4434,172.16.235.1,1,blocksat-s400\n")
 
         self.assertEqual(bitcoin_cfg, expected_cfg)
-
-        # Remove test folder
-        if os.path.exists(cfg_dir):
-            shutil.rmtree(cfg_dir, ignore_errors=True)

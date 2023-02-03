@@ -1,25 +1,14 @@
 import os
-import uuid
-import shutil
 import argparse
 from unittest import TestCase
 from unittest.mock import patch
 
 from . import config
 from . import defs
+from .test_helpers import TestEnv
 
 
-class TestConfigDir(TestCase):
-
-    def setUp(self):
-        self.cfg_name = str(uuid.uuid4())
-        self.cfg_dir = "/tmp/test-blocksat-cli-config"
-
-        if not os.path.exists(self.cfg_dir):
-            os.makedirs(self.cfg_dir)
-
-    def tearDown(self):
-        shutil.rmtree(self.cfg_dir, ignore_errors=True)
+class TestConfigDir(TestEnv):
 
     @patch('blocksatcli.util.ask_yes_or_no')
     def test_read_write(self, mock_yes_or_no):
@@ -273,15 +262,11 @@ class TestConfigHelpers(TestCase):
         self.assertEqual(config.get_lnb_model(info), 'Custom C-band LNB')
 
 
-class TestReceiversSetupConfig(TestCase):
+class TestReceiversSetupConfig(TestEnv):
 
     def setUp(self):
-        self.cfg_name = str(uuid.uuid4())
-        self.cfg_dir = "/tmp/test-blocksat-cli-config"
+        super().setUp()
         self.args = argparse.Namespace(cfg=self.cfg_name, cfg_dir=self.cfg_dir)
-
-        if not os.path.exists(self.cfg_dir):
-            os.makedirs(self.cfg_dir)
 
         # Expected configuration
         self.expected_config = {
@@ -298,9 +283,6 @@ class TestReceiversSetupConfig(TestCase):
         self.expected_config['setup']['rx_ip'] = '192.168.1.2'
         self.expected_config['setup']['antenna'] = defs.get_antenna_def('45cm')
         self.expected_config['lnb']['v1_pointed'] = False
-
-    def tearDown(self):
-        shutil.rmtree(self.cfg_dir, ignore_errors=True)
 
     @patch('os.listdir')
     @patch('builtins.input')

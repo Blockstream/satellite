@@ -1,7 +1,6 @@
 import os
 import queue
 import random
-import shutil
 import string
 import time
 from unittest import TestCase, mock, skipIf
@@ -13,9 +12,10 @@ from .gpg import Gpg
 from .listen import ApiListener
 from .net import UdpSock
 from .pkt import BlocksatPktHandler, ApiChannel
+from ..test_helpers import TestEnv
 
-gpghome = "/tmp/.gnupg-test"
 gpgpassphrase = "test"
+test_env = TestEnv()
 
 
 def rnd_string(n_bytes=1000):
@@ -41,15 +41,16 @@ def send_pkts(sock, pkts):
 
 def setUpModule():
     """Create a test gpg directory with a keypair"""
+    test_env.setUp()
     name = "Test"
     email = "test@test.com"
     comment = "comment"
-    gpg = Gpg(gpghome)
+    gpg = Gpg(test_env.gpghome)
     gpg.create_keys(name, email, comment, gpgpassphrase)
 
 
 def tearDownModule():
-    shutil.rmtree(gpghome, ignore_errors=True)
+    test_env.tearDown()
 
 
 @skipIf(platform != 'linux', "Linux-only test suite")
@@ -57,11 +58,11 @@ class TestApiListener(TestCase):
 
     def setUp(self):
         # Gpg
-        self.gpg = Gpg(gpghome)
+        self.gpg = Gpg(test_env.gpghome)
         self.gpg.set_passphrase(gpgpassphrase)
 
         # Listener parameters
-        self.download_dir = "/tmp/test-download-dir"
+        self.download_dir = os.path.join(test_env.cfg_dir, "api", "downloads")
         self.sock_addr = "239.0.0.254:4433"
         # NOTE: sock_addr does not use the default multicast IP (239.0.0.2) to
         # avoid conflicts with production apps
@@ -76,9 +77,6 @@ class TestApiListener(TestCase):
         self.rx_queue = queue.Queue()
         self.listen_loop = ApiListener(recv_once=True,
                                        recv_queue=self.rx_queue)
-
-    def tearDown(self):
-        shutil.rmtree(self.download_dir, ignore_errors=True)
 
     def loopback_test(self,
                       filename=None,

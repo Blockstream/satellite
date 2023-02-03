@@ -2,14 +2,14 @@ import os
 import shutil
 import argparse
 import textwrap
-from unittest import TestCase
 from unittest.mock import patch
 
 from . import config
 from . import gqrx
+from .test_helpers import TestEnv
 
 
-class TestGqrx(TestCase):
+class TestGqrx(TestEnv):
 
     def _assert_gqrx_config(self, gqrx_config, user_info):
         freq_hz = int(user_info['freqs']['dl'] * 1e6)
@@ -40,8 +40,7 @@ class TestGqrx(TestCase):
         self.assertEqual(gqrx_config, expected_config)
 
     def setUp(self):
-        self.cfg_dir = "/tmp/test-gqrx-config"
-        self.cfg_name = "test-config"
+        super().setUp()
         self.gqrx_dir = os.path.join(self.cfg_dir, "gqrx")
         self.gqrx_cfg = os.path.join(self.gqrx_dir, "default.conf")
 
@@ -54,6 +53,7 @@ class TestGqrx(TestCase):
             os.makedirs(self.cfg_dir)
 
     def tearDown(self):
+        super().tearDown()
         shutil.rmtree(self.gqrx_dir, ignore_errors=True)
 
     @patch("blocksatcli.util.ask_yes_or_no")

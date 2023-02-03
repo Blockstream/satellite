@@ -1,8 +1,30 @@
 import os
+import shutil
+import unittest
+import uuid
 
 from . import config
 from . import defs
 from .api.gpg import Gpg, import_bs_pubkey
+
+
+class TestEnv(unittest.TestCase):
+    """Test Environment"""
+
+    def setUp(self):
+        self.cfg_name = str(uuid.uuid4())
+        self.cfg_dir = os.path.join('/tmp', '.blocksat-test-' + self.cfg_name)
+
+        if not os.path.exists(self.cfg_dir):
+            os.makedirs(self.cfg_dir)
+
+        self.gpghome = gpghome = os.path.join(self.cfg_dir, '.gnupg')
+        self.gpg = Gpg(gpghome=gpghome)
+
+    def tearDown(self):
+        for directory in [self.cfg_dir, self.gpg.gpghome]:
+            if os.path.exists(directory):
+                shutil.rmtree(directory, ignore_errors=True)
 
 
 def create_test_setup(cfg_name,

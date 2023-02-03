@@ -1,14 +1,14 @@
 import math
 import os
 import random
-import shutil
 import string
-import unittest
 from . import msg, pkt, fec
 from .gpg import Gpg
 
+from ..test_helpers import TestEnv
 
-class TestApi(unittest.TestCase):
+
+class TestApi(TestEnv):
 
     def test_encapsulation(self):
         """Test custom application-layer encapsulation/decapsulation"""
@@ -100,17 +100,10 @@ class TestApi(unittest.TestCase):
         name = "Test"
         email = "test@test.com"
         comment = "comment"
-        gpghome = "/tmp/.gnupg-test"
         passphrase = "test"
-        gpg = Gpg(gpghome)
+        gpg = Gpg(self.gpghome)
         gpg.create_keys(name, email, comment, passphrase)
         return gpg
-
-    def _teardown_gpg(self):
-        """Teardown test gpg directory"""
-        gpghome = "/tmp/.gnupg-test"
-        # Delete test gpg directory
-        shutil.rmtree(gpghome, ignore_errors=True)
 
     def test_encryption(self):
         """Test encryption/decryption of API message"""
@@ -161,8 +154,6 @@ class TestApi(unittest.TestCase):
         # Check that the decrypted data matches the original
         self.assertEqual(rx_msg.data['original'], data)
 
-        self._teardown_gpg()
-
     def test_decryption_of_unencrypted_data(self):
         """Try to decrypt a non-encrypt data object"""
         data = bytes([0, 1, 2, 3])
@@ -174,8 +165,6 @@ class TestApi(unittest.TestCase):
 
         # Decrypt should fail
         self.assertFalse(rx_msg.decrypt(gpg))
-
-        self._teardown_gpg()
 
     def test_decryption_of_signed_data(self):
         """Test decryption of a signed message with a signer filter"""
@@ -216,8 +205,6 @@ class TestApi(unittest.TestCase):
         self.assertTrue(rx_msg2.decrypt(gpg, signer))
         self.assertFalse(rx_msg3.decrypt(gpg, signer))
 
-        self._teardown_gpg()
-
     def test_encapsulation_and_encryption(self):
         """Test encapsulation+encryption, then decryption+decapsulation"""
         data = bytes([0, 1, 2, 3])
@@ -250,8 +237,6 @@ class TestApi(unittest.TestCase):
 
         # Check that the decrypted data matches the original
         self.assertEqual(rx_msg.data['original'], data)
-
-        self._teardown_gpg()
 
     def test_clearsign_verification(self):
         """Test signing and verification of plaintext message"""
@@ -287,8 +272,6 @@ class TestApi(unittest.TestCase):
         # The verifiction step should remove the signature and leave the
         # original data only
         self.assertEqual(rx_msg2.data['original'], data)
-
-        self._teardown_gpg()
 
     def test_fec_encoding_decoding(self):
         """Test FEC encoding and decoding"""
@@ -341,7 +324,7 @@ class TestApi(unittest.TestCase):
 
     def test_save(self):
         """Test saving of API msg data"""
-        dst_dir = "/tmp/test-api-downloads/"
+        dst_dir = os.path.join(self.cfg_dir, "api", "downloads")
         data = bytes([0, 1, 2, 3])
 
         # Instantiate ApiMsg object and save the data to file

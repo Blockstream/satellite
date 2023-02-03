@@ -1,31 +1,11 @@
-import os
-import shutil
-import unittest
 from unittest.mock import patch
 
 from . import monitoring_api
 from . import config
-from .api.gpg import Gpg
-from .test_helpers import create_test_setup
+from .test_helpers import create_test_setup, TestEnv
 
 
-class TestMonitoringApi(unittest.TestCase):
-
-    def setUp(self):
-        self.gpghome = "/tmp/.gnupg-test-monitoring-api"
-        self.cfg_dir = "/tmp/.config-test-monitoring-api"
-        self.cfg_name = "test-file"
-
-        for directory in [self.cfg_dir, self.gpghome]:
-            if not os.path.exists(directory):
-                os.makedirs(directory)
-
-        self.gpg = Gpg(gpghome=self.gpghome)
-
-    def tearDown(self):
-        for directory in [self.cfg_dir, self.gpghome]:
-            if os.path.exists(directory):
-                shutil.rmtree(directory, ignore_errors=True)
+class TestMonitoringApi(TestEnv):
 
     @patch('blocksatcli.util.prompt_for_enter')
     @patch('blocksatcli.monitoring_api.requests.post')
