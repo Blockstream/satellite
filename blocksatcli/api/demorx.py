@@ -144,8 +144,13 @@ class DemoRx():
     def run(self):
         """Run the demo-rx transmission loop"""
         logger.info("Connecting with Satellite API server...")
+        sleep = False
         while (True):
             try:
+                if sleep:
+                    time.sleep(2)
+                    sleep = False
+
                 # Server-sent Events (SSE) Client
                 r = requests.get(self.server + "/subscribe/transmissions",
                                  stream=True,
@@ -164,12 +169,12 @@ class DemoRx():
 
             except requests.exceptions.ConnectionError as e:
                 logger.debug(e)
-                time.sleep(2)
+                sleep = True
                 pass
 
             except requests.exceptions.RequestException as e:
                 logger.debug(e)
-                time.sleep(2)
+                sleep = True
                 pass
 
             except KeyboardInterrupt:
