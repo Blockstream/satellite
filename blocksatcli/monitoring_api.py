@@ -273,7 +273,15 @@ class BsMonitoring():
         with open(api_pwd_file, 'rb') as fd:
             enc_password = fd.read()
 
-        self.api_pwd = self.gpg.decrypt(enc_password).data.decode()
+        dec_password = self.gpg.decrypt(enc_password)
+
+        if not dec_password.ok:
+            logger.error(
+                "Unable to decrypt the password for report authentication ({})"
+                .format(dec_password.status))
+            return
+
+        self.api_pwd = dec_password.data.decode()
 
     def _gen_api_password(self, reset_pwd=False):
         """Generate password for non-GPG-authenticated requests
