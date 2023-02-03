@@ -1,3 +1,21 @@
+stages:
+  - test
+  - build
+  - deploy
+  - pandoc
+
+.pandoc_setup:
+  stage: pandoc
+  image: google/cloud-sdk
+  needs: []
+  tags:
+    - k8s
+  only:
+    refs:
+      - master
+      - web
+      - tags
+
 .test:
   stage: test
   script:
@@ -153,15 +171,10 @@ docker-upload:
     - make buildx-push
 
 pandoc:
-  stage: build
+  extends: .pandoc_setup
   image:
     name: pandoc/latex:2.16
     entrypoint: [""]
-  only:
-    refs:
-      - master
-      - web
-      - tags
   before_script:
     - apk add python3
     - cd doc && ./pandoc_setup.sh
@@ -171,15 +184,36 @@ pandoc:
     paths:
       - doc/blocksat_manual_*.pdf
 
-pandoc-upload:
-  image: google/cloud-sdk
-  stage: deploy
-  when: manual
-  dependencies:
-    - pandoc
+pandoc-gcp-auth:
+  extends: .pandoc_setup
+  variables:
+    POOL_ID: gitlab-2f4bb583
+    PROVIDER_ID: gitlab
+    SERVICE_ACCOUNT_EMAIL: gcs-blocksat-docs@satellite-api.iam.gserviceaccount.com
   script:
-    - gcloud auth
-    - gsutil cp  doc/blocksat_manual_*.pdf gs://blocksat-bucket
+    - echo ${CI_JOB_JWT_V2} > .ci_job_jwt_file
+    - gcloud iam workload-identity-pools create-cred-config "projects/697214616889/locations/global/workloadIdentityPools/${POOL_ID}/providers/${PROVIDER_ID}"
+      --service-account="${SERVICE_ACCOUNT_EMAIL}"
+      --output-file=.gcp_temp_cred.json
+      --credential-source-file=.ci_job_jwt_file
+    - gcloud auth login --cred-file=.gcp_temp_cred.json --update-adc
+    - CLOUDSDK_AUTH_ACCESS_TOKEN=$(gcloud auth application-default print-access-token)
+    - echo "GOOGLE_OAUTH_ACCESS_TOKEN=$CLOUDSDK_AUTH_ACCESS_TOKEN" > vars.env
+  artifacts:
+    paths:
+      - .gcp_temp_cred.json
+      - .ci_job_jwt_file
+    reports:
+      dotenv: vars.env
+    expire_in: 1h
+
+pandoc-upload:
+  extends: .pandoc_setup
+  when: manual
+  needs: ["pandoc", "pandoc-gcp-auth"]
+  script:
+    - gcloud auth login --cred-file=.gcp_temp_cred.json --update-adc
+    - gsutil cp doc/blocksat_manual_*.pdf gs://blocksat-docs
 
 check-markdown-links:
   image:
