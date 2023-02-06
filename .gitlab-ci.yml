@@ -1,3 +1,9 @@
+variables:
+  DOCKER_DRIVER: overlay2
+  DOCKER_HOST: tcp://localhost:2375
+  DOCKER_TLS_CERTDIR: ""
+  PANDOC_BUILDER_IMAGE: glregistry.blockstream.io/satellite/satellite/blocksat-pandoc-builder
+
 stages:
   - test
   - build
@@ -170,16 +176,35 @@ docker-upload:
     - echo $DOCKERHUB_PW | docker login -u $DOCKERHUB_USER --password-stdin
     - make buildx-push
 
+pandoc-docker-builder:
+  extends: .pandoc_setup
+  tags:
+    - k8s-docker
+  image: docker:20.10.12
+  services:
+    - docker:20.10.12-dind
+  needs: []
+  when: manual
+  script:
+    - cd doc/
+    - docker pull $PANDOC_BUILDER_IMAGE:latest || true
+    - >
+      docker build
+      -f pandoc_builder.docker
+      --network=host
+      --cache-from $PANDOC_BUILDER_IMAGE:latest
+      --build-arg BUILDKIT_INLINE_CACHE=1
+      -t $PANDOC_BUILDER_IMAGE:latest
+      .
+    - docker push $PANDOC_BUILDER_IMAGE:latest
+
 pandoc:
   extends: .pandoc_setup
   image:
-    name: pandoc/latex:2.16
+    name: $PANDOC_BUILDER_IMAGE:latest
     entrypoint: [""]
-  before_script:
-    - apk add python3
-    - cd doc && ./pandoc_setup.sh
   script:
-    - python3 pandoc.py
+    - cd doc/ && python3 pandoc.py
   artifacts:
     paths:
       - doc/blocksat_manual_*.pdf

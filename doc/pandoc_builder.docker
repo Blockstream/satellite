@@ -1,0 +1,35 @@
+FROM pandoc/latex:2.16
+RUN tlmgr update --self && \
+    tlmgr install adjustbox \
+    babel-german \
+    background \
+    bidi \
+    collectbox \
+    csquotes \
+    everypage \
+    filehook \
+    footmisc \
+    footnotebackref \
+    framed \
+    fvextra \
+    koma-script \
+    letltxmacro \
+    ly1 \
+    mdframed \
+    mweights \
+    needspace \
+    pagecolor \
+    sourcecodepro \
+    sourcesanspro \
+    titling \
+    ucharcat \
+    ulem \
+    unicode-math \
+    upquote \
+    xecjk \
+    xurl \
+    zref
+RUN apk add python3
+RUN mkdir -p /root/.local/share/pandoc/templates && \
+    wget https://github.com/Wandmalfarbe/pandoc-latex-template/releases/download/v2.0.0/Eisvogel-2.0.0.tar.gz -P /root/.local/share/pandoc/templates && \
+    tar -xzf /root/.local/share/pandoc/templates/Eisvogel-2.0.0.tar.gz -C /root/.local/share/pandoc/templates
