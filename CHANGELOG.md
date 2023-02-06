@@ -36,6 +36,7 @@ Release Date: TBD
 - Support for specification of channel number on the `api send` command.
 - Support for sending Satellite API message via `api send` to non-paid channel.
 - `api get` command to get information from a Satellite API transmission order.
+- Polling-based operation activated by option `--poll` on the `api demo-rx`.
 
 ### Changed
 - Explainer printed on initial registration with the monitoring API, with

@@ -307,7 +307,7 @@ def demo_rx(args):
         socks.append(sock)
 
     rx = DemoRx(server_addr, socks, args.bitrate, args.event, args.channel,
-                args.regions, args.tls_cert, args.tls_key)
+                args.regions, args.tls_cert, args.tls_key, args.poll)
     rx.run()
 
 
@@ -670,6 +670,12 @@ def subparser(subparsers):  # pragma: no cover
         '''),
         help='Run demo satellite receiver',
         formatter_class=ArgumentDefaultsHelpFormatter)
+    p6.add_argument(
+        '--poll',
+        action='store_true',
+        default=False,
+        help='Poll transmitting messages from the API queue instead of '
+        'listening to server-sent event notifications.')
     p6.add_argument(
         '-d',
         '--dest',

@@ -132,6 +132,44 @@ class ApiOrder:
         self.auth_token = auth_token
         self._fetch()
 
+    def get_orders(self, status, channel=1, queue='queued'):
+        """Get API orders with a target status
+
+        Args:
+            status : Target order status.
+            channel : Target channel. Defaults to channel 1.
+            queue : Queue from which the order can be fetched (pending, queued,
+                or sent orders). Defaults to the 'queued' queue.
+
+        Returns:
+            list: List with the filtered orders.
+
+        """
+        assert queue in ['pending', 'queued', 'sent']
+        assert status in [
+            'pending', 'paid', 'transmitting', 'sent', 'received', 'cancelled',
+            'expired', 'confirming'
+        ]
+        endpoint = '/admin/orders/' + queue if self.admin \
+            else '/orders/' + queue
+        r = requests.get(self.server + endpoint,
+                         params={'channel': channel},
+                         headers={'X-Auth-Token': self.auth_token},
+                         cert=(self.tls_cert, self.tls_key))
+
+        if (r.status_code != requests.codes.ok):
+            self._print_errors(r)
+
+        r.raise_for_status()
+
+        orders = r.json()
+        filtered_orders = []
+        for order in orders:
+            if order['status'] == status:
+                filtered_orders.append(order)
+
+        return filtered_orders
+
     def send(self, data, bid, regions=None, channel=None):
         """Send the transmission order
 

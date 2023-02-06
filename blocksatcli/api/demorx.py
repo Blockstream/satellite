@@ -30,7 +30,8 @@ class DemoRx():
                  channel,
                  regions=None,
                  tls_cert=None,
-                 tls_key=None):
+                 tls_key=None,
+                 poll=False):
         """ DemoRx Constructor
 
         Args:
@@ -42,6 +43,8 @@ class DemoRx():
             regions  : Regions to process and potentially confirm Tx.
             tls_key  : API client key (for Tx confirmation).
             tls_cer  : API client certificate (for Tx confirmation).
+            poll     : Poll messages directly from the Satellite API queue
+                instead of listening to server-sent events.
 
 
         """
@@ -58,6 +61,7 @@ class DemoRx():
         self.regions = regions
         self.tls_cert = tls_cert
         self.tls_key = tls_key
+        self.poll = poll
         self.admin = tls_cert is not None and tls_key is not None
 
     def _send_pkts(self, pkts):
@@ -111,10 +115,19 @@ class DemoRx():
             logger.debug("Demo-Rx region(s) not covered by this order")
             return
 
-        seq_num = order["tx_seq_num"]
+        self._handle_order(order)
 
+    def _handle_order(self, order_info):
+        """Fetch the order data and send it over UDP
+
+        Args:
+            order_info (dict): Dictionary with the order's Tx sequence number
+                and message size.
+
+        """
+        seq_num = order_info["tx_seq_num"]
         logger.info("Message %-5d\tSize: %d bytes\t" %
-                    (seq_num, order["message_size"]))
+                    (seq_num, order_info["message_size"]))
 
         # Get the API message data
         order = ApiOrder(self.server,
@@ -142,8 +155,8 @@ class DemoRx():
         # Send transmission confirmation to the server
         order.confirm_tx(self.regions)
 
-    def run(self):
-        """Run the demo-rx transmission loop"""
+    def run_sse_client(self):
+        """Server-sent Events (SSE) Client"""
         logger.info("Connecting with Satellite API server...")
         sleep = False
         while (True):
@@ -152,7 +165,6 @@ class DemoRx():
                     time.sleep(2)
                     sleep = False
 
-                # Server-sent Events (SSE) Client
                 sse_channel = API_CHANNEL_SSE_NAME[self.channel]
                 endpoint = '/admin/subscribe/' if self.admin else '/subscribe/'
                 r = requests.get(self.server + f"{endpoint}{sse_channel}",
@@ -188,3 +200,31 @@ class DemoRx():
                 exit()
 
             logger.info("Reconnecting...")
+
+    def run_poll_client(self):
+        """Polling-based client"""
+        order_mgr = ApiOrder(self.server,
+                             tls_cert=self.tls_cert,
+                             tls_key=self.tls_key)
+        while (True):
+            try:
+                tx_orders = order_mgr.get_orders('transmitting',
+                                                 self.channel,
+                                                 queue='queued')
+                if tx_orders:
+                    if len(tx_orders) > 1:
+                        logger.warning("More than one order in transmitting "
+                                       "state on channel {}".format(
+                                           self.channel))
+                    self._handle_order(tx_orders[0])
+                else:
+                    time.sleep(1)
+            except KeyboardInterrupt:
+                exit()
+
+    def run(self):
+        """Run the demo-rx transmission loop"""
+        if self.poll:
+            self.run_poll_client()
+        else:
+            self.run_sse_client()
