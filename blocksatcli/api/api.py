@@ -20,7 +20,9 @@ from .listen import ApiListener
 from .order import ApiOrder, ApiChannel, \
     API_CHANNELS,\
     SENDABLE_API_CHANNELS,\
-    PAID_API_CHANNELS
+    PAID_API_CHANNELS,\
+    ORDER_STATUS,\
+    ORDER_QUEUES
 from .pkt import calc_ota_msg_len
 
 logger = logging.getLogger(__name__)
@@ -281,6 +283,13 @@ def get(args):
     order = ApiOrder(server_addr, tls_cert=args.tls_cert, tls_key=args.tls_key)
     order.get(args.uuid, args.auth_token)
     print(json.dumps(order.order, indent=4))
+
+
+def list_orders(args):
+    server_addr = _get_server_addr(args.net, args.server)
+    order = ApiOrder(server_addr, tls_cert=args.tls_cert, tls_key=args.tls_key)
+    res = order.get_orders(args.status, args.channel, args.queue, args.limit)
+    print(json.dumps(res, indent=4))
 
 
 def delete(args):
@@ -742,6 +751,33 @@ def subparser(subparsers):  # pragma: no cover
                     default=None,
                     help="Authentication token")
     p7.set_defaults(func=get)
+
+    # List orders
+    p8 = subsubparsers.add_parser(
+        'list',
+        description="List transmission orders on the server queue",
+        help="List transmission orders on the server queue",
+        formatter_class=ArgumentDefaultsHelpFormatter)
+    p8.add_argument('-c',
+                    '--channel',
+                    type=int,
+                    default=ApiChannel.USER.value,
+                    choices=SENDABLE_API_CHANNELS,
+                    help="Order transmission channel")
+    p8.add_argument('--status',
+                    choices=ORDER_STATUS,
+                    default=None,
+                    nargs='+',
+                    help="Target order status")
+    p8.add_argument('--queue',
+                    choices=ORDER_QUEUES,
+                    default='queued',
+                    help="Target order queue")
+    p8.add_argument('--limit',
+                    type=int,
+                    default=20,
+                    help="Limit for the number of orders returned")
+    p8.set_defaults(func=list_orders)
 
     return p
 

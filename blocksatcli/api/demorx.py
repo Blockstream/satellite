@@ -208,7 +208,7 @@ class DemoRx():
                              tls_key=self.tls_key)
         while (True):
             try:
-                tx_orders = order_mgr.get_orders('transmitting',
+                tx_orders = order_mgr.get_orders(['transmitting'],
                                                  self.channel,
                                                  queue='queued')
                 if tx_orders:

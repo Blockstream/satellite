@@ -27,6 +27,11 @@ API_CHANNEL_SSE_NAME = {
 }
 SENDABLE_API_CHANNELS = [x for x in API_CHANNELS if x != ApiChannel.ALL.value]
 PAID_API_CHANNELS = [ApiChannel.USER.value]
+ORDER_STATUS = [
+    'pending', 'paid', 'transmitting', 'sent', 'received', 'cancelled',
+    'expired', 'confirming'
+]
+ORDER_QUEUES = ['pending', 'queued', 'sent']
 
 
 class ApiOrder:
@@ -132,28 +137,30 @@ class ApiOrder:
         self.auth_token = auth_token
         self._fetch()
 
-    def get_orders(self, status, channel=1, queue='queued'):
+    def get_orders(self, status: list, channel=1, queue='queued', limit=20):
         """Get API orders with a target status
 
         Args:
-            status : Target order status.
-            channel : Target channel. Defaults to channel 1.
-            queue : Queue from which the order can be fetched (pending, queued,
-                or sent orders). Defaults to the 'queued' queue.
+            status (list): Filter the list of orders to contain orders with the
+                the status in this list only.
+            channel (int): Target channel. Defaults to channel 1.
+            queue (str): Queue from which the order can be fetched (pending,
+                queued, or sent orders). Defaults to the 'queued' queue.
+            limit (int): Maximum number of orders on the result.
 
         Returns:
             list: List with the filtered orders.
 
         """
-        assert queue in ['pending', 'queued', 'sent']
-        assert status in [
-            'pending', 'paid', 'transmitting', 'sent', 'received', 'cancelled',
-            'expired', 'confirming'
-        ]
+        assert queue in ORDER_QUEUES
+        assert status is None or [x in ORDER_STATUS for x in status]
         endpoint = '/admin/orders/' + queue if self.admin \
             else '/orders/' + queue
         r = requests.get(self.server + endpoint,
-                         params={'channel': channel},
+                         params={
+                             'channel': channel,
+                             'limit': limit
+                         },
                          headers={'X-Auth-Token': self.auth_token},
                          cert=(self.tls_cert, self.tls_key))
 
@@ -163,9 +170,13 @@ class ApiOrder:
         r.raise_for_status()
 
         orders = r.json()
+
+        if status is None:
+            return orders
+
         filtered_orders = []
         for order in orders:
-            if order['status'] == status:
+            if order['status'] in status:
                 filtered_orders.append(order)
 
         return filtered_orders
