@@ -315,8 +315,16 @@ def demo_rx(args):
         sock.set_mcast_tx_opts(args.ttl, args.dscp)
         socks.append(sock)
 
-    rx = DemoRx(server_addr, socks, args.bitrate, args.event, args.channel,
-                args.regions, args.tls_cert, args.tls_key, args.poll)
+    rx = DemoRx(server_addr,
+                socks,
+                args.bitrate,
+                args.event,
+                args.channel,
+                args.regions,
+                args.tls_cert,
+                args.tls_key,
+                args.poll,
+                sock_by_region=args.if_by_region)
     rx.run()
 
 
@@ -708,11 +716,18 @@ def subparser(subparsers):  # pragma: no cover
         '-r',
         '--regions',
         nargs="+",
-        choices=range(0, 6),
+        choices=range(0, len(defs.satellites)),
         type=int,
         help="Coverage region of the demo receiver. Optionally define "
         "multiple arguments to simulate reception from multiple satellite "
         "beams simultaneously. An empty list implies all regions.")
+    p6.add_argument(
+        '--if-by-region',
+        action='store_true',
+        default=False,
+        help="Map each network interface to a single region. "
+        "Requires the same number of arguments on the -i/--interface "
+        "and -r/--regions options.")
     p6.add_argument('--ttl',
                     type=int,
                     default=1,

@@ -38,6 +38,7 @@ Release Date: TBD
 - `api get` command to get information from a Satellite API transmission order.
 - `api list` command to list the transmission orders on the Satellite API.
 - Polling-based operation activated by option `--poll` on the `api demo-rx`.
+- Option --if-by-region on `api demo-rx` for 1:1 interface-to-region mapping.
 
 ### Changed
 - Explainer printed on initial registration with the monitoring API, with

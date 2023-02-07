@@ -10,12 +10,14 @@ import time
 import requests
 import sseclient
 
+from .. import defs
 from . import net
 from .order import ApiOrder, API_CHANNEL_SSE_NAME
 from .pkt import BlocksatPkt, BlocksatPktHandler
 
 logger = logging.getLogger(__name__)
 MAX_SEQ_NUM = 2**31  # Maximum transmission sequence number
+DEFAULT_REGIONS = list(range(0, len(defs.satellites)))
 
 
 class DemoRx():
@@ -31,7 +33,8 @@ class DemoRx():
                  regions=None,
                  tls_cert=None,
                  tls_key=None,
-                 poll=False):
+                 poll=False,
+                 sock_by_region=False):
         """ DemoRx Constructor
 
         Args:
@@ -45,6 +48,9 @@ class DemoRx():
             tls_cer  : API client certificate (for Tx confirmation).
             poll     : Poll messages directly from the Satellite API queue
                 instead of listening to server-sent events.
+            sock_by_region : Map each UdpSock to a region so that each socket
+                serves messages on a single region only. Requires the socks
+                parameter to have the same length as the regions parameter.
 
 
         """
@@ -58,19 +64,26 @@ class DemoRx():
         self.kbps = kbps
         self.tx_event = tx_event
         self.channel = channel
-        self.regions = regions
+        self.regions_list = DEFAULT_REGIONS if not regions else regions
+        self.regions_set = set(self.regions_list)
         self.tls_cert = tls_cert
         self.tls_key = tls_key
         self.poll = poll
         self.admin = tls_cert is not None and tls_key is not None
 
-    def _send_pkts(self, pkts):
+        if sock_by_region and len(self.regions_list) != len(socks):
+            raise ValueError(
+                "Number of sockets must be equal to the number of regions")
+        self.sock_by_region = sock_by_region
+
+    def _send_pkts(self, pkts, socks):
         """Transmit Blocksat packets of the API message over all sockets
 
         Transmit and sleep (i.e., block) to guarantee the target bit rate.
 
         Args:
             pkts : List of BlocksatPkt objects to be send over sockets
+            socks : List of sockets over which to send packets.
 
         """
         assert (isinstance(pkts, list))
@@ -80,7 +93,7 @@ class DemoRx():
         next_tx = time.time()
         for i, pkt in enumerate(pkts):
             # Send the same packet on all sockets
-            for sock in self.socks:
+            for sock in socks:
                 sock.send(pkt.pack())
                 logger.debug("Send packet %d - %d bytes" % (i, len(pkt)))
 
@@ -109,12 +122,6 @@ class DemoRx():
         if (order["status"] != self.tx_event):
             return
 
-        # And ensure the order includes a region covered by this instance
-        if (self.regions is not None and 'regions' in order
-                and set(order['regions']) & set(self.regions) == set()):
-            logger.debug("Demo-Rx region(s) not covered by this order")
-            return
-
         self._handle_order(order)
 
     def _handle_order(self, order_info):
@@ -125,6 +132,14 @@ class DemoRx():
                 and message size.
 
         """
+
+        # Ensure the order includes a region covered by this instance
+        order_regions = set(order_info['regions'])
+        served_regions = order_regions & self.regions_set
+        if (served_regions == set()):
+            logger.debug("Demo-Rx region(s) not covered by this order")
+            return
+
         seq_num = order_info["tx_seq_num"]
         logger.info("Message %-5d\tSize: %d bytes\t" %
                     (seq_num, order_info["message_size"]))
@@ -140,6 +155,15 @@ class DemoRx():
             logger.debug("Empty message. Skipping...")
             return
 
+        # Define the sockets over which the order should be transmitted
+        tx_socks = []
+        if self.sock_by_region:
+            for region, sock in zip(self.regions_list, self.socks):
+                if region in order_regions:
+                    tx_socks.append(sock)
+        else:
+            tx_socks = self.socks
+
         # Split API message data into Blocksat packet(s)
         tx_handler = BlocksatPktHandler()
         tx_handler.split(data, seq_num, self.channel)
@@ -150,10 +174,10 @@ class DemoRx():
                          "{:g} sec".format(len(data) * 8 / (self.kbps * 1e3)))
 
         # Send the packet(s)
-        self._send_pkts(pkts)
+        self._send_pkts(pkts, tx_socks)
 
         # Send transmission confirmation to the server
-        order.confirm_tx(self.regions)
+        order.confirm_tx(list(served_regions))
 
     def run_sse_client(self):
         """Server-sent Events (SSE) Client"""
