@@ -243,6 +243,10 @@ class DemoRx():
                     self._handle_order(tx_orders[0])
                 else:
                     time.sleep(1)
+            except requests.exceptions.ConnectionError as e:
+                logger.debug(e)
+                time.sleep(1)
+                pass
             except KeyboardInterrupt:
                 exit()
 
