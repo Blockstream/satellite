@@ -178,7 +178,4 @@ check-markdown-links:
     changes:
       - "**/*.md"
   script:
-    - >
-      echo '{"ignorePatterns": [{"pattern": "^https://help.blockstream.com"}]}' \
-      > config.json
-    - find . -name \*.md | xargs -n1 /src/markdown-link-check -c config.json
+    - find . -name \*.md | xargs -n1 /src/markdown-link-check
