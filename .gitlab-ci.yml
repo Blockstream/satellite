@@ -238,7 +238,8 @@ pandoc-upload:
   needs: ["pandoc", "pandoc-gcp-auth"]
   script:
     - gcloud auth login --cred-file=.gcp_temp_cred.json --update-adc
-    - gsutil cp doc/blocksat_manual_*.pdf gs://blocksat-docs
+    - cp doc/blocksat_manual_*.pdf doc/blocksat_manual.pdf
+    - gsutil cp doc/blocksat_manual*.pdf gs://blocksat-docs
 
 check-markdown-links:
   image:
