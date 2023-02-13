@@ -209,8 +209,10 @@ pandoc:
     paths:
       - doc/blocksat_manual_*.pdf
 
-pandoc-gcp-auth:
+pandoc-upload:
   extends: .pandoc_setup
+  when: manual
+  needs: ["pandoc"]
   variables:
     POOL_ID: gitlab-2f4bb583
     PROVIDER_ID: gitlab
@@ -224,20 +226,6 @@ pandoc-gcp-auth:
     - gcloud auth login --cred-file=.gcp_temp_cred.json --update-adc
     - CLOUDSDK_AUTH_ACCESS_TOKEN=$(gcloud auth application-default print-access-token)
     - echo "GOOGLE_OAUTH_ACCESS_TOKEN=$CLOUDSDK_AUTH_ACCESS_TOKEN" > vars.env
-  artifacts:
-    paths:
-      - .gcp_temp_cred.json
-      - .ci_job_jwt_file
-    reports:
-      dotenv: vars.env
-    expire_in: 1h
-
-pandoc-upload:
-  extends: .pandoc_setup
-  when: manual
-  needs: ["pandoc", "pandoc-gcp-auth"]
-  script:
-    - gcloud auth login --cred-file=.gcp_temp_cred.json --update-adc
     - cp doc/blocksat_manual_*.pdf doc/blocksat_manual.pdf
     - gsutil cp doc/blocksat_manual*.pdf gs://blocksat-docs
 
