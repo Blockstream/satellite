@@ -154,6 +154,11 @@ def main():
             lines[2] = "# Overview"
             text = "\n".join(lines[2:])
             text = text.replace("doc/", "")
+            # Remove the link to the pdf guide
+            text = text.replace(
+                "Also, a [PDF version](https://satellite.blockstream.space/"
+                "docs/blocksat_manual.pdf) of the guide is available if you "
+                "prefer.", "")
 
         # Remove ToC
         text = re.sub(r'<!-- markdown-toc start [\s\S]+?markdown-toc end -->',
