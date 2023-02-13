@@ -6,6 +6,7 @@ import queue
 import sys
 import threading
 import time
+from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 
 import requests
 
@@ -143,12 +144,20 @@ class BsMonitoring():
 
     """
 
-    def __init__(self,
-                 cfg,
-                 cfg_dir,
-                 gnupghome,
-                 passphrase=None,
-                 reset_api_pwd=False):
+    def __init__(self, cfg, cfg_dir, gnupghome, passphrase=None, lazy=False):
+        """Construct the BsMonitoring object
+
+        Args:
+            cfg (str): User configuration.
+            cfg_dir (str): Configuration directory.
+            gnupghome (str):  GnuPG home directory.
+            passphrase (str, optional): GPG private key passphrase for
+                non-interactive mode. When not defined, the user is prompted
+                for the passphrase instead. Defaults to None.
+            lazy (bool, optional): When True, the constructor returns before
+                running the initial interactive setup. Defaults to False.
+
+        """
         self.cfg = cfg
         self.cfg_dir = cfg_dir
         self.gpg = Gpg(os.path.join(cfg_dir, gnupghome))
@@ -164,14 +173,26 @@ class BsMonitoring():
         self.registered = 'monitoring' in self.user_info and \
             self.user_info['monitoring']['registered']
 
+        if lazy:
+            return
+
         # Register with the Monitoring API if necessary
         self.rx_lock_event = threading.Event()
-        if (not self.registered):
+        if not self.registered:
             self._register()
         else:
-            self._setup_registered(reset_api_pwd)
+            self._setup_registered()
 
-    def _setup_registered(self, reset_api_pwd):
+    def _has_matching_keys(self):
+        """Check if the GPG key used for monitoring is available"""
+        fingerprint = self.user_info['monitoring']['fingerprint']
+        matching_keys = self.gpg.gpg.list_keys(True, keys=fingerprint)
+        if (len(matching_keys) == 0):
+            logger.error("Could not find key {} in the local "
+                         "keyring.".format(fingerprint))
+        return len(matching_keys) > 0
+
+    def _setup_registered(self):
         """Setup for a receiver that is already registered
 
         If already registered, confirm that the registered GPG key is available
@@ -179,16 +200,8 @@ class BsMonitoring():
         to sign report data. Load also the non-GPG password from the local
         encrypted password file.
 
-        Args:
-            reset_api_pwd (bool): Whether to reset the non-gpg API password if
-                already defined.
-
         """
-        fingerprint = self.user_info['monitoring']['fingerprint']
-        matching_keys = self.gpg.gpg.list_keys(True, keys=fingerprint)
-        if (len(matching_keys) == 0):
-            logger.error("Could not find key {} in the local "
-                         "keyring.".format(fingerprint))
+        if not self._has_matching_keys():
             try_again = util.ask_yes_or_no(
                 "Reset the Monitoring API credentials and try registering "
                 "with a new key?",
@@ -203,15 +216,12 @@ class BsMonitoring():
             # Return regardless. If the key is not available, don't bother
             # about the password.
             return
+
         self.gpg.prompt_passphrase('Please enter your GPG passphrase to '
                                    'sign receiver reports: ')
 
-        password_not_set = ('monitoring' not in self.user_info) or \
-            ('has_password' not in self.user_info['monitoring']) or \
-            (not self.user_info['monitoring']['has_password'])
-
-        if reset_api_pwd or password_not_set:
-            self._gen_api_password(reset_api_pwd)
+        if not self._has_password():
+            self._gen_api_password()
             return
 
         self._load_api_password()
@@ -233,6 +243,16 @@ class BsMonitoring():
         config.write_cfg_file(self.cfg, self.cfg_dir, self.user_info)
         self.registered = True
 
+    def _get_api_password_file_path(self):
+        fingerprint = self.user_info['monitoring']['fingerprint']
+        return os.path.join(self.api_cfg_dir,
+                            f'{fingerprint}_{self.cfg}_pwd.gpg')
+
+    def _has_password(self):
+        return ('monitoring' in self.user_info) and \
+            ('has_password' in self.user_info['monitoring']) and \
+            (self.user_info['monitoring']['has_password'])
+
     def _save_api_password(self, password):
         """Encrypt and save the monitoring password locally
 
@@ -245,12 +265,11 @@ class BsMonitoring():
         # Encrypt the password using the user's public key
         recipient = self.user_info['monitoring']['fingerprint']
         enc_password = self.gpg.encrypt(password, recipient).data
-        api_pwd_file = os.path.join(self.api_cfg_dir,
-                                    f'{recipient}_{self.cfg}_pwd.gpg')
+        api_pwd_file = self._get_api_password_file_path()
         with open(api_pwd_file, 'wb') as fd:
             fd.write(enc_password)
 
-        logger.debug(f"Encrypted password saved at {api_pwd_file}")
+        logger.info(f"Saved the encrypted password at {api_pwd_file}")
 
         # Flag the password availability on the user configuration file
         self.user_info['monitoring']['has_password'] = True
@@ -263,9 +282,7 @@ class BsMonitoring():
         file. This function decrypts it and loads the password.
 
         """
-        fingerprint = self.user_info['monitoring']['fingerprint']
-        api_pwd_file = os.path.join(self.api_cfg_dir,
-                                    f'{fingerprint}_{self.cfg}_pwd.gpg')
+        api_pwd_file = self._get_api_password_file_path()
         if not os.path.exists(api_pwd_file):
             logger.error(f"Password file {api_pwd_file} does not exist")
             return
@@ -283,36 +300,26 @@ class BsMonitoring():
 
         self.api_pwd = dec_password.data.decode()
 
-    def _gen_api_password(self, reset_pwd=False):
+    def _gen_api_password(self):
         """Generate password for non-GPG-authenticated requests
 
         This is the password used as a lightweight authentication mechanism in
         specific endpoints that accept it as an alternative to the main
         authentication approach based on a detached GPG signature.
 
-        Args:
-            reset_pwd (bool): Whether to reset an existing password.
-
         """
+        if self.api_pwd is not None:
+            return
+
         request_payload = {}
         self.sign_request(request_payload)
-
-        # If the password already exists, ask if the user wants to reset it.
-        # Also, if the resetting was requested via the command line argument,
-        # just reset it without asking.
-        if self.api_pwd is not None and not reset_pwd:
-            logger.info(
-                "Your password for the Monitoring API is already defined.")
-            reset_pwd = util.ask_yes_or_no("Reset it?", default='n')
-            if not reset_pwd:
-                return
-
         rv = requests.post(account_pwd_endpoint, json=request_payload)
+
         if (rv.status_code != requests.codes.ok):
             logger.error("Password generation failed")
             logger.error("{} ({})".format(rv.reason, rv.status_code))
         else:
-            logger.debug("Password successfully created")
+            logger.info("Created a new password to authenticate reports")
             self.api_pwd = rv.json()['new_password']
             self._save_api_password(self.api_pwd)
 
@@ -501,8 +508,7 @@ class BsMonitoring():
                 # chances are that the config dir already has its non-GPG
                 # password file. If not, try to redefine the password.
                 self._load_api_password()
-                if self.api_pwd is None:
-                    self._gen_api_password()
+                self._gen_api_password()  # will generate only if necessary
                 break
 
             try:
@@ -589,15 +595,130 @@ class BsMonitoring():
                 logger.error('GPG signature failed')
 
 
+def not_registered_error():
+    logger.error("This receiver is not registered with the Monitoring API yet")
+    logger.info("Run the receiver with option \'--report\' to sign up and "
+                "start reporting")
+
+
+def show_info(args):
+    user_info = config.read_cfg_file(args.cfg, args.cfg_dir)
+    if 'monitoring' not in user_info:
+        return not_registered_error()
+
+    if args.json:
+        print(json.dumps(user_info['monitoring'], indent=4))
+        return
+
+    print("| {:30s} | {:40s} |".format("Info", "Value"))
+    print("|{:32s}|{:42s}|".format(32 * "-", 42 * '-'))
+    for key, value in user_info['monitoring'].items():
+        if key == 'uuid':
+            key = key.upper()
+        else:
+            key = key.capitalize()
+        print("| {:30s} | {:40s} |".format(key.replace('_', ' '), str(value)))
+
+
+def set_password(args):
+    bs_monitoring = BsMonitoring(args.cfg,
+                                 args.cfg_dir,
+                                 args.gnupghome,
+                                 args.passphrase,
+                                 lazy=True)
+
+    if not bs_monitoring.registered:
+        return not_registered_error()
+
+    if not bs_monitoring._has_matching_keys():
+        logger.warning(
+            "Please confirm the GPG home (option \'--gnupghome\') is "
+            "set correctly")
+        return
+
+    bs_monitoring.gpg.prompt_passphrase('Please enter your GPG passphrase to '
+                                        'decrypt/encrypt the password: ')
+
+    if bs_monitoring._has_password():
+        bs_monitoring._load_api_password()
+
+    if bs_monitoring.api_pwd is not None:
+        logger.info("Found existing password at {}.".format(
+            bs_monitoring._get_api_password_file_path()))
+        if not util.ask_yes_or_no("Reset password?", default='n'):
+            print("Aborting")
+            return
+        # Let the password generation function generate a new one
+        bs_monitoring.api_pwd = None
+
+    bs_monitoring._gen_api_password()
+
+
 def add_to_parser(parser):
     """Add monitoring API options to parser"""
-    p = parser.add_argument_group('Blockstream Monitoring API options')
+    p = parser.add_argument_group(
+        'Blockstream Monitoring API reporting options')
     p.add_argument(
-        '--bs-mon-reset-pwd',
-        action='store_true',
-        default=False,
-        help="Reset the password used for reporting to the Blockstream "
-        "Satellite Monitoring API. "
-        "This is the password used for non-GPG authentication when "
-        "applicable, which should not be confused with the passphrase of "
-        "the private key used on GPG-based authentication.")
+        '--report-gnupghome',
+        default=".gnupg",
+        help="GPG home directory holding the keypair configured for "
+        "authentication with the Monitoring API, relative to the "
+        "config directory set by option --cfg-dir")
+    p.add_argument(
+        '--report-passphrase',
+        default=None,
+        help="Passphrase to the private GPG key used to authenticate with "
+        "the Monitoring API. When undefined (default), the program prompts "
+        "for the passphrase instead.")
+
+
+def subparser(subparsers):  # pragma: no cover
+    p = subparsers.add_parser(
+        'reporting',
+        description="Manage the reporting to the Monitoring API",
+        help='Manage the reporting to the Monitoring API',
+        formatter_class=ArgumentDefaultsHelpFormatter)
+    p.add_argument(
+        '--gnupghome',
+        '--gpghome',
+        default=".gnupg",
+        help="GPG home directory holding the keypair configured for "
+        "authentication with the Monitoring API, relative to the "
+        "config directory set by option --cfg-dir")
+    p.add_argument(
+        '--passphrase',
+        default=None,
+        help="Passphrase to the private GPG key used to authenticate with "
+        "the Monitoring API. When undefined (default), the program prompts "
+        "for the passphrase instead.")
+    p.set_defaults(func=print_help)
+
+    subsubparsers = p.add_subparsers(title='subcommands',
+                                     help='Target sub-command')
+    p1 = subsubparsers.add_parser(
+        'info',
+        description="Show current registration info",
+        help="Show current registration info",
+        formatter_class=ArgumentDefaultsHelpFormatter)
+    p1.add_argument('--json',
+                    default=False,
+                    action='store_true',
+                    help='Print results in JSON format')
+    p1.set_defaults(func=show_info)
+
+    p2 = subsubparsers.add_parser(
+        'password',
+        description="Set/reset the authentication password",
+        help="Set/reset the authentication password",
+        formatter_class=ArgumentDefaultsHelpFormatter)
+    p2.set_defaults(func=set_password)
+
+    return p
+
+
+def print_help(args):  # pragma: no cover
+    """Re-create argparse's help menu for the reporting command"""
+    parser = ArgumentParser()
+    subparsers = parser.add_subparsers(title='', help='')
+    parser = subparser(subparsers)
+    print(parser.format_help())

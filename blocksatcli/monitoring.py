@@ -55,10 +55,6 @@ rx_metrics = {
 
 def get_report_opts(args):
     """Extract the parser fields needed to construct a Reporter object"""
-    if args.bs_mon_reset_pwd and \
-            args.report_dest != monitoring_api.metric_endpoint:
-        logger.warning("Option --bs-mon-reset-pwd has no effect with a custom "
-                       "--report-dest")
     return {
         'cfg': args.cfg,
         'cfg_dir': args.cfg_dir,
@@ -67,8 +63,7 @@ def get_report_opts(args):
         'tls_cert': args.report_cert,
         'tls_key': args.report_key,
         'gnupghome': args.report_gnupghome,
-        'passphrase': args.report_passphrase,
-        'reset_api_pwd': args.bs_mon_reset_pwd
+        'passphrase': args.report_passphrase
     }
 
 
@@ -488,20 +483,5 @@ def add_to_parser(parser):  # pragma: no cover
         '--report-key',
         default=None,
         help="Private key for client-side authentication with the destination")
-    r_p.add_argument(
-        '--report-gnupghome',
-        default=".gnupg",
-        help="GnuPG home directory, by default created inside the config "
-        "directory specified via --cfg-dir option. This option is used when "
-        "reporting to the Blockstream Satellite Monitoring API only, where it "
-        "determines the name of the directory (inside --cfg-dir) holding "
-        "the key for authentication with the API")
-    r_p.add_argument(
-        '--report-passphrase',
-        default=None,
-        help="Passphrase to the private GnuPG key used to sign receiver "
-        "status reports sent to Blockstream's Satellite Monitoring API. If "
-        "undefined (default), the program prompts for this passphrase instead."
-    )
 
     monitoring_api.add_to_parser(parser)

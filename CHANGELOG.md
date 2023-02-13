@@ -16,9 +16,9 @@
 Release Date: TBD
 
 ### Added
-- Support for password-based mechanism on reports sent to the Blockstream
-  Satellite Monitoring API with option `--bs-mon-reset-pwd` to reset the
-  password.
+- Support for password-based authentication with the Satellite Monitoring API.
+- Command `reporting password` to set/reset the Monitoring API password.
+- Command `reporting info` to show the Monitoring API registration info.
 - Support for the gr-dvbs2rx SDR receiver implementation selected with the new
   `--impl` option on the `blocksat-cli sdr` command.
 - Support for the installation of gr-dvbs2rx on Ubuntu 22.04+ and Fedora 36+.

@@ -46,26 +46,6 @@ class TestMonitoringApi(TestEnv):
                                                    passphrase="test")
         self.assertEqual(monitor_api2.api_pwd, 'password1')
 
-        # Create a third BsMonitoring object requesting a password reset using
-        # option 'reset_api_pwd'
-        mock_api_post.return_value.status_code = 200
-        mock_api_post.return_value.json.return_value = {
-            'new_password': 'password2'
-        }
-        monitor_api3 = monitoring_api.BsMonitoring(self.cfg_name,
-                                                   self.cfg_dir,
-                                                   self.gpghome,
-                                                   passphrase="test",
-                                                   reset_api_pwd=True)
-        self.assertEqual(monitor_api3.api_pwd, 'password2')
-
-        # Any subsequent object should load the new password
-        monitor_api4 = monitoring_api.BsMonitoring(self.cfg_name,
-                                                   self.cfg_dir,
-                                                   self.gpghome,
-                                                   passphrase="test")
-        self.assertEqual(monitor_api4.api_pwd, 'password2')
-
     @patch('blocksatcli.monitoring_api.BsMonitoring._register')
     def test_save_credentials(self, mock_register):
         """Test saving receiver credentials in the configuration file

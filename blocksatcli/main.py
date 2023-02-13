@@ -9,7 +9,7 @@ import time
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 
 from . import config, util, instructions, gqrx, bitcoin, sdr, rp, \
-    firewall, standalone, usb, satip, dependencies, update
+    firewall, standalone, usb, satip, dependencies, update, monitoring_api
 from .api import api
 
 
@@ -54,6 +54,7 @@ def get_parser():  # pragma: no cover
     sdr.subparser(subparsers)
     api.subparser(subparsers)
     satip.subparser(subparsers)
+    monitoring_api.subparser(subparsers)
 
     return parser
 
