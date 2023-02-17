@@ -133,8 +133,21 @@ class DemoRx():
 
         """
 
-        # Ensure the order includes a region covered by this instance
+        # The 'regions' field of the order info has different contents in
+        # polling and SSE mode. In SSE mode, it contains the missing regions
+        # for transmission, whereas, in polling mode (reading from
+        # /order/:uuid), it contains all the original regions, regardless of
+        # whether or not the transmission is pending. Nevertheless, when
+        # operating in polling mode as admin (fetching from
+        # /admin/order/:uuid), the order info includes the "tx_confirmations"
+        # field, which can be used to adjust the regions field such that it
+        # contains the missing regions only.
         order_regions = set(order_info['regions'])
+        if 'tx_confirmations' in order_info:
+            confirmed_tx_regions = set(order_info['tx_confirmations'])
+            order_regions = order_regions - confirmed_tx_regions
+
+        # Ensure the order includes a region covered by this instance
         served_regions = order_regions & self.regions_set
         if (served_regions == set()):
             logger.debug("Demo-Rx region(s) not covered by this order")
@@ -230,19 +243,42 @@ class DemoRx():
         order_mgr = ApiOrder(self.server,
                              tls_cert=self.tls_cert,
                              tls_key=self.tls_key)
+        tx_set = set()
         while (True):
             try:
                 tx_orders = order_mgr.get_orders(['transmitting'],
                                                  self.channel,
                                                  queue='queued')
-                if tx_orders:
-                    if len(tx_orders) > 1:
-                        logger.warning("More than one order in transmitting "
-                                       "state on channel {}".format(
-                                           self.channel))
-                    self._handle_order(tx_orders[0])
+
+                # There can only be one order in transmitting state at a time
+                if len(tx_orders) > 1:
+                    logger.warning("More than one order in transmitting "
+                                   "state on channel {}".format(self.channel))
+
+                # Filter out any repeated orders (already transmitted), except
+                # for those the server is explicitly retransmitting.
+                new_orders = list()
+                for order_info in tx_orders:
+                    is_retransmission = 'retransmission' in order_info and \
+                        order_info['retransmission'] is not None and \
+                        'retry_count' in order_info['retransmission']
+                    tx_attempt = 0 if not is_retransmission else \
+                        order_info['retransmission']['retry_count']
+                    order_id = "{}-{}".format(order_info['tx_seq_num'],
+                                              tx_attempt)
+                    if order_id not in tx_set:
+                        tx_set.add(order_id)
+                        new_orders.append(order_info)
+
+                if new_orders:
+                    for order_info in new_orders:
+                        logger.debug(
+                            "Order: " +
+                            json.dumps(order_info, indent=4, sort_keys=True))
+                        self._handle_order(order_info)
                 else:
                     time.sleep(1)
+
             except requests.exceptions.ConnectionError as e:
                 logger.debug(e)
                 time.sleep(1)
