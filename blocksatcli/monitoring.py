@@ -129,8 +129,7 @@ class Reporter():
                 cfg, cfg_dir, gnupghome, passphrase, reset_api_pwd)
         else:
             self.bs_monitoring = None
-
-        logger.info("Reporting Rx status to {} ".format(self.dest_addr))
+            logger.info("Reporting Rx status to {} ".format(self.dest_addr))
 
     def send(self, metrics):
         """Save measurement on database
@@ -168,6 +167,9 @@ class Reporter():
             # Don't send reports to the monitoring API until the receiver is
             # properly registered and verified
             return status
+
+        if self.bs_monitoring and self.bs_monitoring.disabled:
+            return
 
         data = {}
         data.update(metrics)

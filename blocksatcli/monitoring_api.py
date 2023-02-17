@@ -172,6 +172,7 @@ class BsMonitoring():
         self.user_info = config.read_cfg_file(cfg, cfg_dir)
         self.registered = 'monitoring' in self.user_info and \
             self.user_info['monitoring']['registered']
+        self.disabled = False
 
         if lazy:
             return
@@ -201,6 +202,8 @@ class BsMonitoring():
         encrypted password file.
 
         """
+        logger.info("Loading the Monitoring API reporting credentials")
+
         if not self._has_matching_keys():
             try_again = util.ask_yes_or_no(
                 "Reset the Monitoring API credentials and try registering "
@@ -220,11 +223,22 @@ class BsMonitoring():
         self.gpg.prompt_passphrase('Please enter your GPG passphrase to '
                                    'sign receiver reports: ')
 
-        if not self._has_password():
-            self._gen_api_password()
+        # If the passphrase is wrong, it will not be possible decrypt an
+        # existing password nor generate a new encrypted one. Also, it will not
+        # be possible to sign reports with the private key, so there is nothing
+        # else to do. Disable the reporting.
+        if not self.gpg.test_passphrase(
+                self.user_info['monitoring']['fingerprint']):
+            logger.error("Disabling the Rx status reporting")
+            self.disabled = True
             return
 
-        self._load_api_password()
+        if not self._has_password():
+            self._gen_api_password()
+        else:
+            self._load_api_password()
+
+        logger.info("Ready to report the Rx status to the Monitoring API")
 
     def _delete_credentials(self):
         """Remove the registration info from the local config file"""
@@ -300,6 +314,12 @@ class BsMonitoring():
 
         self.api_pwd = dec_password.data.decode()
 
+        # The config file may indicate there is no password (if changing gpg
+        # home dirs), but now we know there is a password that can be decrypted
+        # with the given fingerprint. So update the info.
+        self.user_info['monitoring']['has_password'] = True
+        config.write_cfg_file(self.cfg, self.cfg_dir, self.user_info)
+
     def _gen_api_password(self):
         """Generate password for non-GPG-authenticated requests
 
@@ -342,6 +362,7 @@ class BsMonitoring():
         """
         self.registration_running = True
         self.registration_failure = False
+        logger.info("Initiating the registration with the Monitoring API")
 
         # Save some state on the local cache
         cache = Cache(self.cfg_dir)
@@ -362,9 +383,18 @@ class BsMonitoring():
         # collected on key creation for a new keyring. On the other hand, it
         # wouldn't be available yet at this point for a pre-existing keyring.
         if (self.gpg.passphrase is None):
+            print()
             util.fill_print("Please inform your GPG passphrase to decode the "
                             "encrypted verification code sent over satellite")
             self.gpg.prompt_passphrase("GPG passphrase: ")
+
+        # Make sure the passphrase works
+        fingerprint = self.gpg.get_default_priv_key()['fingerprint']
+        if not self.gpg.test_passphrase(fingerprint):
+            logger.error("Aborting the registration with the Monitoring API")
+            self.registration_running = False
+            self.registration_failure = True
+            return
 
         os.system('clear')
 
@@ -403,7 +433,6 @@ class BsMonitoring():
         os.system('clear')
 
         # Registration parameters
-        fingerprint = self.gpg.get_default_priv_key()['fingerprint']
         pubkey = self.gpg.gpg.export_keys(fingerprint)
         satellite = self.user_info['sat']['alias']
         rx_type = config.get_rx_model(self.user_info)
@@ -535,8 +564,8 @@ class BsMonitoring():
                     time.sleep(1)
             else:
                 logger.info("Functional receiver successfully validated")
-                logger.info("Ready to report Rx metrics to the monitoring "
-                            "server")
+                logger.info(
+                    "Ready to report the Rx status to the Monitoring API")
                 self._save_credentials(uuid, fingerprint)
                 # Now that the account is verified, we can generate the
                 # password for non-GPG-authenticated requests
@@ -638,6 +667,10 @@ def set_password(args):
 
     bs_monitoring.gpg.prompt_passphrase('Please enter your GPG passphrase to '
                                         'decrypt/encrypt the password: ')
+
+    if not bs_monitoring.gpg.test_passphrase(
+            bs_monitoring.user_info['monitoring']['fingerprint']):
+        return
 
     if bs_monitoring._has_password():
         bs_monitoring._load_api_password()
