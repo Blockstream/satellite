@@ -75,3 +75,20 @@ class TestGpg(TestEnv):
 
         # Check
         self.assertEqual(data, dec_data)
+
+    def test_passphrase_validation(self):
+        name = "Test"
+        email = "test@test.com"
+        comment = "comment"
+        passphrase = "test"
+        gpg = Gpg(self.gpghome)
+        gpg.create_keys(name, email, comment, passphrase)
+
+        fingerprint = gpg.get_default_priv_key()['fingerprint']
+        self.assertTrue(gpg.test_passphrase(fingerprint))
+
+        gpg.passphrase = 'wrong-passphrase'
+        self.assertFalse(gpg.test_passphrase(fingerprint))
+
+        gpg.passphrase = None
+        self.assertFalse(gpg.test_passphrase(fingerprint))

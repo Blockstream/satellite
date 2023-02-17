@@ -90,6 +90,28 @@ class Gpg():
             return
         self.passphrase = passphrase
 
+    def test_passphrase(self, fingerprint):
+        """Validate the defined key passphrase
+
+        Args:
+            fingerprint (str): Fingerprint of the private key associated with
+                the passphrase.
+
+        Returns:
+            bool: Whether the passphrase works for the given private key.
+
+        """
+        if self.passphrase is None:
+            return False
+        res = self.gpg.export_keys(
+            fingerprint,
+            True,  # private key
+            passphrase=self.passphrase)
+        success = res is not None and res != ''
+        if not success:
+            logger.error("Bad passphrase.")
+        return success
+
     def get_default_public_key(self):
         """Get info corresponding to the first public key on the keyring
 
