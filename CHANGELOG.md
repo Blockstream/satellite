@@ -16,40 +16,41 @@
 Release Date: 2023-02-17
 
 ### Added
-- Support for password-based authentication with the Satellite Monitoring API.
+- Support for password-based authentication with the Satellite Monitoring API,
+  enabled automatically with the `--report` option.
 - Command `reporting password` to set/reset the Monitoring API password.
 - Command `reporting info` to show the Monitoring API registration info.
 - Support for the gr-dvbs2rx SDR receiver implementation selected with the new
-  `--impl` option on the `blocksat-cli sdr` command.
-- Support for the installation of gr-dvbs2rx on Ubuntu 22.04+ and Fedora 36+.
+  `--impl` option on the `sdr` command and installed by command
+  `deps install --gr-dvbs2rx` on Ubuntu 22.04+ and Fedora 36+.
 - Option `--disable` to disable selected Linux media modules when building the
   TBS drivers with the `deps tbs-drivers` command.
 - Non-interactive modes for the `gqrx` and `sdr` commands.
 - Option to return a JSON-formatted string with the `blocksat-cli cfg show`
   command.
-- Option to save the static IP address associated with an IP22 (if any) and
-  automatic usage of the address when launching the Sat-IP client.
+- Option to save a static IP address associated with an IP22 and automatic
+  usage of the address when launching the Sat-IP client.
 - Explicit verification of the S400's reachability before attempting to
   configure or monitor the receiver.
-- Validation of the frequency correction parameter passed to the S400.
+- Validation of the frequency correction parameter passed to the S400 receiver.
 - Verification of the TBS USB drivers before USB configuration or launching.
 - Support for specification of channel number on the `api send` command.
-- Support for sending Satellite API message via `api send` to non-paid channel.
+- Support for sending Satellite API messages to non-paid channels.
 - `api get` command to get information from a Satellite API transmission order.
 - `api list` command to list the transmission orders on the Satellite API.
-- Polling-based operation activated by option `--poll` on the `api demo-rx`.
-- Option --if-by-region on `api demo-rx` for 1:1 interface-to-region mapping.
+- Polling-based operation activated by option `--poll` on the API demo-rx app.
+- Option `--if-by-region` on the demo-rx for 1:1 interface-to-region mapping.
 
 ### Changed
 - Explainer printed on initial registration with the monitoring API, with
   privacy and detailed registration info made optional.
 - Information and organization of results on the `blocksat-cli cfg show`
   command.
-- Efficiency of the `standalone cfg` command by reading the current
+- Improved efficiency of the `standalone cfg` command by reading the current
   configuration before attempting to apply a new one.
 - Satellite API endpoints used when the TLS key/cert parameters are defined.
 - Satellite API servers used for LN gossip and Bitcoin Source code messages.
-- Satellite API SSE channel subscribed by the `api demo-rx` application for LN
+- Satellite API SSE channel subscribed by the demo-rx application for LN
   gossip and Bitcoin Source code messages.
 
 ### Fixed
