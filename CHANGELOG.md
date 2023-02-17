@@ -13,7 +13,7 @@
 
 ## 0.4.5
 
-Release Date: TBD
+Release Date: 2023-02-17
 
 ### Added
 - Support for password-based authentication with the Satellite Monitoring API.
