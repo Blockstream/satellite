@@ -42,6 +42,7 @@ Release Date: 2023-02-17
 - Option `--if-by-region` on the demo-rx for 1:1 interface-to-region mapping.
 
 ### Changed
+- Galaxy 18 downlink frequency.
 - Explainer printed on initial registration with the monitoring API, with
   privacy and detailed registration info made optional.
 - Information and organization of results on the `blocksat-cli cfg show`

@@ -78,6 +78,30 @@ class TestConfigDir(TestEnv):
         self.assertEqual(user_info['freqs']['dl'], 11505.4)
         self.assertEqual(user_info['freqs']['l_band'], 1755.4)
 
+        # Configuration based on G18 before the update on March 3, 2023:
+        test_info = {
+            "sat": {
+                'name': "Galaxy 18",
+                'alias': "G18",
+                'dl_freq': 12016.4,
+                'band': "Ku",
+                'pol': "H",
+                'ip': "172.16.235.1"
+            },
+            "freqs": {
+                "dl": 12016.4,
+                "lo": 10750.0,
+                "l_band": 1266.4
+            }
+        }
+        config.write_cfg_file(self.cfg_name, self.cfg_dir, test_info)
+
+        # Check patching
+        user_info = config.read_cfg_file(self.cfg_name, self.cfg_dir)
+        self.assertEqual(user_info['sat']['dl_freq'], 11913.4)
+        self.assertEqual(user_info['freqs']['dl'], 11913.4)
+        self.assertEqual(user_info['freqs']['l_band'], 1163.4)
+
         # Configuration based on a satellite that is not patched
         test_info = {
             "sat": {
@@ -274,9 +298,9 @@ class TestReceiversSetupConfig(TestEnv):
             "setup": defs.get_demod_def('Novra', 'S400'),
             "lnb": defs.get_lnb_def('GEOSATpro', 'UL1PLL'),
             "freqs": {
-                "dl": 12016.4,
+                "dl": 11913.4,
                 "lo": 10600.0,
-                "l_band": 1416.4
+                "l_band": 1313.4
             }
         }
         self.expected_config['setup']['netdev'] = 'lo'
@@ -578,9 +602,9 @@ class TestReceiversSetupConfig(TestEnv):
             "pol": "V"
         }
         self.expected_config["freqs"] = {
-            "dl": 12016.4,
+            "dl": 11913.4,
             "lo": 10400.0,
-            "l_band": 1616.4
+            "l_band": 1513.4
         }
 
         config.configure(self.args)

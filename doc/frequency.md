@@ -32,7 +32,7 @@ The following table summarizes the transmission bands and frequencies of the sig
 
 | Satellite          | Band    | Frequency    |
 | ------------------ | ------- | ------------ |
-| Galaxy 18          | Ku High | 12016.4 MHz  |
+| Galaxy 18          | Ku High | 11913.4 MHz  |
 | Eutelsat 113       | Ku High | 12066.9 MHz  |
 | Telstar 11N Africa | Ku Low  | 11452.1 MHz  |
 | Telstar 11N Europe | Ku Low  | 11505.4 MHz  |
@@ -45,7 +45,7 @@ Next, the following table summarizes the L-band frequencies to be used in each r
 
 | LO Frequency        | 5150 MHz    | 9750 MHz    | 10600 MHz  | 10750 MHz  |
 | ------------------- | ----------- | ----------- | ---------- | ---------- |
-| Galaxy 18           |             |             | 1416.4 MHz | 1266.4 MHz |
+| Galaxy 18           |             |             | 1313.4 MHz | 1163.4 MHz |
 | Eutelsat 113        |             |             | 1466.9 MHz | 1316.9 MHz |
 | Telstar 11N Africa  |             | 1702.1 MHz  |            |            |
 | Telstar 11N Europe  |             | 1755.4 MHz  |            |            |

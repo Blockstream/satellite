@@ -583,6 +583,9 @@ def _patch_cfg_file(cfg_file, info):
         if info['sat']['alias'] == "T11N EU" and \
                 info['sat']['dl_freq'] == 11484.3:
             new_dl_freq = 11505.4
+        if info['sat']['alias'] == "G18" and \
+                info['sat']['dl_freq'] == 12016.4:
+            new_dl_freq = 11913.4
 
         if new_dl_freq is not None:
             logger.info(

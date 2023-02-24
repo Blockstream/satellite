@@ -27,7 +27,7 @@ default_standalone_ip_addr = "192.168.1.2"
 satellites = [{
     'name': "Galaxy 18",
     'alias': "G18",
-    'dl_freq': 12016.4,
+    'dl_freq': 11913.4,
     'band': "Ku",
     'pol': "H",
     'ip': "172.16.235.1"
