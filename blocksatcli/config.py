@@ -825,7 +825,7 @@ def get_readable_cfg(info):
         },
         'Frequencies': {
             'Downlink frequency': f"{freqs['dl']} MHz",
-            'LNB LO frequency': f"{freqs['dl']} MHz",
+            'LNB LO frequency': f"{freqs['lo']} MHz",
             'Receiver L-band frequency': f"{freqs['l_band']} MHz"
         }
     }
