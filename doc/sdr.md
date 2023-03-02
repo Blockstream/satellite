@@ -38,7 +38,7 @@ The SDR setup is connected as follows:
 
 The SDR-based setup relies on the applications listed below:
 
-- [leandvb](http://www.pabr.org/radio/leandvb/leandvb.en.html): a software-based DVB-S2 receiver application.
+- [leandvb](http://www.pabr.org/radio/leandvb/leandvb.en.html) or [gr-dvbs2rx](https://github.com/igorauad/gr-dvbs2rx): the software-based DVB-S2 receiver application.
 - [rtl_sdr](https://github.com/osmocom/rtl-sdr): reads samples taken by the RTL-SDR and feeds them into [leandvb](http://www.pabr.org/radio/leandvb/leandvb.en.html).
 - [TSDuck](https://tsduck.io/): unpacks the output of leandvb and produces IP packets to be fed to [Bitcoin Satellite](bitcoin.md).
 - [Gqrx](https://gqrx.dk): useful for spectrum visualization during antenna pointing.
@@ -99,18 +99,18 @@ A Docker image is available for running the SDR host on a container. Please refe
 
 ### gr-dvbs2rx Receiver
 
-An alternative software-defined DVB-S2 receiver implementation named gr-dvbs2rx is available on the CLI starting from version 0.4.5. This alternative application is based on the [GNU Radio](https://www.gnuradio.org) framework for software-defined radio.
+An alternative software-defined DVB-S2 receiver implementation named gr-dvbs2rx is available on the CLI starting from version 0.4.5. This application is based on the [GNU Radio](https://www.gnuradio.org) framework for software-defined radio, and it is supported on Fedora 36 and Ubuntu 22.04 or later versions only.
 
-To try gr-dvbs2rx, first, run the command below to install it. The installation is supported on Fedora 36 and Ubuntu 22.04 or later versions.
-
-```
-blocksat-cli deps install --gr-dvbs2rx
-```
-
-Then, use the `--impl gr-dvbs2rx` option when launching the receiver, as follows:
+The CLI installs gr-dvbs2rx automatically when available. However, if you are running an existing setup configured with a CLI version preceding 0.4.5, please rerun the installation command:
 
 ```
-blocksat-cli sdr --impl gr-dvbs2rx
+blocksat-cli deps install
+```
+
+Then, relaunch the SDR receiver with the regular command below. The CLI will choose the gr-dvbs2rx application by default when available. However, you can always toggle the implementation using option `--impl`.
+
+```
+blocksat-cli sdr
 ```
 
 ### Manual Installation of SDR Software

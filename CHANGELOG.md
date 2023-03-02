@@ -13,16 +13,16 @@
 
 ## 0.4.5
 
-Release Date: 2023-02-17
+Release Date: 2023-03-03
 
 ### Added
+- Support for the gr-dvbs2rx SDR receiver implementation selected with the new
+  `--impl` option on the `sdr` command and installed by the `deps install`
+  command on Ubuntu 22.04+ and Fedora 36+.
 - Support for password-based authentication with the Satellite Monitoring API,
   enabled automatically with the `--report` option.
 - Command `reporting password` to set/reset the Monitoring API password.
 - Command `reporting info` to show the Monitoring API registration info.
-- Support for the gr-dvbs2rx SDR receiver implementation selected with the new
-  `--impl` option on the `sdr` command and installed by command
-  `deps install --gr-dvbs2rx` on Ubuntu 22.04+ and Fedora 36+.
 - Option `--disable` to disable selected Linux media modules when building the
   TBS drivers with the `deps tbs-drivers` command.
 - Non-interactive modes for the `gqrx` and `sdr` commands.

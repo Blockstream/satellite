@@ -2,6 +2,10 @@ import argparse
 import logging
 import unittest
 import os
+from distutils.version import LooseVersion
+
+import distro
+
 from . import dependencies, util
 
 
@@ -37,6 +41,17 @@ class TestDependencies(unittest.TestCase):
         dependencies.run(args)
         expected_apps = ["rtl_sdr", "leandvb", "ldpc_tool", "tsp"]
         self.assertTrue(dependencies.check_apps(expected_apps))
+
+        # gr-dvbs2rx on fc >= 36 and Ubuntu >= 22.04.
+        distro_id = distro.id()
+        distro_ver = distro.version()
+        fc36_or_higher = distro_id == 'fedora' and int(distro_ver) >= 36
+        ubuntu22_or_higher = distro_id == 'ubuntu' and LooseVersion(
+            distro_ver) >= '22.04'
+        if fc36_or_higher or ubuntu22_or_higher:
+            self.assertTrue(dependencies.check_apps(["dvbs2-rx"]))
+        else:
+            self.assertFalse(dependencies.check_apps(["dvbs2-rx"]))
 
     def test_standalone_deps(self):
         """Test the installation of standalone receiver dependencies"""
