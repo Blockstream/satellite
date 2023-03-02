@@ -279,7 +279,7 @@ def _get_grdvbs2rx_app_cmd(args, l_band_freq, samp_rate, sym_rate,
         cmd.extend(['--log-stats', '--log-period', 10])
 
     if (args.gui):
-        cmd.append("--gui")
+        cmd.extend(["--gui", "--gui-dark"])
 
     if args.dvbs2rx_opts is not None:
         cmd.extend(args.dvbs2rx_opts.split(","))
