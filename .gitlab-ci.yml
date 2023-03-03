@@ -1,7 +1,4 @@
 variables:
-  DOCKER_DRIVER: overlay2
-  DOCKER_HOST: tcp://localhost:2375
-  DOCKER_TLS_CERTDIR: ""
   PANDOC_BUILDER_IMAGE: glregistry.blockstream.io/satellite/satellite/blocksat-pandoc-builder
 
 stages:
@@ -183,6 +180,10 @@ pandoc-docker-builder:
   image: docker:20.10.12
   services:
     - docker:20.10.12-dind
+  variables:
+    DOCKER_DRIVER: overlay2
+    DOCKER_HOST: tcp://localhost:2375
+    DOCKER_TLS_CERTDIR: ""
   needs: []
   when: manual
   script:
