@@ -156,6 +156,21 @@ pypi-upload:
     - pip3 install twine
     - make pypi
 
+docker-build:
+  image:
+    name: maniator/dind-buildx
+    entrypoint: [""]
+  stage: build
+  tags:
+    - deb-packer
+  rules:
+    - if: $DOCKER_BUILD
+  before_script:
+    - apk add make python3 py3-setuptools py3-pip
+    - docker buildx create --use
+  script:
+    - make buildx
+
 docker-upload:
   image:
     name: maniator/dind-buildx

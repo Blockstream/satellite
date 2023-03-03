@@ -49,6 +49,13 @@ testpypi: clean sdist wheel
 docker-push: docker
 	docker push $(DOCKERHUB_REPO)/satellite
 
+buildx: $(SDIST)
+	docker buildx build --platform $(PLATFORM) \
+	--build-arg distro=$(DISTRO) \
+	-t $(DOCKERHUB_REPO)/satellite \
+	-t $(DOCKERHUB_REPO)/satellite:$(VERSION) \
+	-f docker/blocksat-host.docker .
+
 buildx-push: $(SDIST)
 	docker buildx build --platform $(PLATFORM) --push \
 	--build-arg distro=$(DISTRO) \
