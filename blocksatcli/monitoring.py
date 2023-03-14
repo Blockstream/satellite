@@ -194,7 +194,8 @@ class Reporter():
         try:
             r = requests.post(self.dest_addr,
                               json=data,
-                              cert=(self.tls_cert, self.tls_key))
+                              cert=(self.tls_cert, self.tls_key),
+                              timeout=5)
             if (r.status_code != requests.codes.ok):
                 print()
                 logger.error("Report failed: " + r.text)

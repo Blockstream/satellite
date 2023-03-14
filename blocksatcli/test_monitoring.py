@@ -74,7 +74,8 @@ class TestReceiverReporter(TestEnv):
                                              'uuid': 'test-uuid',
                                              'password': 'generated-password',
                                          },
-                                         cert=(None, None))
+                                         cert=(None, None),
+                                         timeout=5)
 
         # Error in the password generation process
         mock_api_post.return_value.status_code = 502
@@ -110,7 +111,8 @@ class TestReceiverReporter(TestEnv):
                                              test_info['sat']['alias'],
                                              'hostname': 'hostname-test',
                                          },
-                                         cert=(None, None))
+                                         cert=(None, None),
+                                         timeout=5)
 
     @patch('blocksatcli.monitoring_api.BsMonitoring')
     @patch('blocksatcli.monitoring.requests.post')
