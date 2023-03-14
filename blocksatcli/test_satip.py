@@ -1,3 +1,6 @@
+import os
+import zipfile
+from pathlib import Path
 from unittest import TestCase
 from unittest.mock import patch
 
@@ -12,6 +15,14 @@ def _gen_ssdp_dev(addr, friendly_name):
     ssdp_dev = SSDPDevice(addr, resp)
     ssdp_dev.friendly_name = friendly_name
     return ssdp_dev
+
+
+def _mock_fw_upgrade(url, local_path, progress_callback):
+    # Create a mock upgrade file
+    with zipfile.ZipFile(local_path, 'w') as zip_ref:
+        supg_file = os.path.join(os.path.dirname(local_path), 'upgrade.supg')
+        Path(supg_file).touch()
+        zip_ref.write(supg_file)
 
 
 class MockResponse():
@@ -90,7 +101,8 @@ class TestApi(TestCase):
         self.assertTrue(sat_ip.check_fw_version())
 
     @patch('requests.post')
-    def test_fw_upgrade(self, mock_post):
+    @patch('blocksatcli.util.urlretrieve')
+    def test_fw_upgrade(self, mock_urlretrieve, mock_post):
         """Test Sat-IP firmware upgrade"""
         mock_post.return_value = MockResponse(
             json={
@@ -102,6 +114,7 @@ class TestApi(TestCase):
                     'sw_ver': "3.1.18"
                 }
             })
+        mock_urlretrieve.side_effect = _mock_fw_upgrade
         sat_ip = satip.SatIp()
         sat_ip.set_server_addr("192.168.100.2")
         fw_upgrade_ok = sat_ip.upgrade_fw("/tmp/",
