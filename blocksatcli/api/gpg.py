@@ -17,7 +17,7 @@ class Gpg():
     def __init__(self, gpghome, verbose=False, interactive=False):
         """Create GnuPG instance"""
         if (not os.path.exists(gpghome)):
-            os.mkdir(gpghome)
+            os.makedirs(gpghome)
             # Make sure only the owner has permissions to read, write, and
             # execute the GPG home directory
             os.chmod(gpghome, stat.S_IRWXU)
