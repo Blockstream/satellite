@@ -20,10 +20,7 @@ from .api.listen import ApiListener
 from .api.order import ApiChannel
 
 logger = logging.getLogger(__name__)
-base_url = "https://satellite.blockstream.space/monitoring"
-account_endpoint = os.path.join(base_url, 'accounts')
-account_pwd_endpoint = os.path.join(account_endpoint, "password")
-metric_endpoint = os.path.join(base_url, "metrics")
+DEFAULT_SERVER_URL = "https://satellite.blockstream.space/monitoring"
 
 
 def _privacy_explainer():
@@ -144,12 +141,19 @@ class BsMonitoring():
 
     """
 
-    def __init__(self, cfg, cfg_dir, gnupghome, passphrase=None, lazy=False):
+    def __init__(self,
+                 cfg,
+                 cfg_dir,
+                 server_url,
+                 gnupghome,
+                 passphrase=None,
+                 lazy=False):
         """Construct the BsMonitoring object
 
         Args:
             cfg (str): User configuration.
             cfg_dir (str): Configuration directory.
+            server_url (str): Monitoring API server URL.
             gnupghome (str):  GnuPG home directory.
             passphrase (str, optional): GPG private key passphrase for
                 non-interactive mode. When not defined, the user is prompted
@@ -160,6 +164,7 @@ class BsMonitoring():
         """
         self.cfg = cfg
         self.cfg_dir = cfg_dir
+        self.server_url = server_url
         self.gpg = Gpg(os.path.join(cfg_dir, gnupghome))
 
         if (passphrase is not None):
@@ -333,7 +338,9 @@ class BsMonitoring():
 
         request_payload = {}
         self.sign_request(request_payload)
-        rv = requests.post(account_pwd_endpoint, json=request_payload)
+        rv = requests.post(os.path.join(self.server_url, 'accounts',
+                                        "password"),
+                           json=request_payload)
 
         if (rv.status_code != requests.codes.ok):
             logger.error("Password generation failed")
@@ -504,6 +511,7 @@ class BsMonitoring():
         listen_thread.start()
 
         failure = False
+        account_endpoint = os.path.join(self.server_url, 'accounts')
         while (attempts > 0):
             rv = requests.post(account_endpoint,
                                json={
@@ -585,6 +593,9 @@ class BsMonitoring():
         listen_loop.stop()
         listen_thread.join()
 
+    def get_metric_endpoint(self):
+        return os.path.join(self.server_url, "metrics")
+
     def sign_request(self, data, password_allowed=False):
         """Sign a dictionary of metrics to be reported to the monitoring API
 
@@ -649,20 +660,30 @@ def show_info(args):
         print("| {:30s} | {:40s} |".format(key.replace('_', ' '), str(value)))
 
 
-def set_password(args):
+def _load_bs_monitoring(args):
     bs_monitoring = BsMonitoring(args.cfg,
                                  args.cfg_dir,
+                                 args.server,
                                  args.gnupghome,
                                  args.passphrase,
                                  lazy=True)
 
     if not bs_monitoring.registered:
-        return not_registered_error()
+        not_registered_error()
+        return
 
     if not bs_monitoring._has_matching_keys():
         logger.warning(
             "Please confirm the GPG home (option \'--gnupghome\') is "
             "set correctly")
+        return
+
+    return bs_monitoring
+
+
+def set_password(args):
+    bs_monitoring = _load_bs_monitoring(args)
+    if bs_monitoring is None:
         return
 
     bs_monitoring.gpg.prompt_passphrase('Please enter your GPG passphrase to '
@@ -711,6 +732,10 @@ def subparser(subparsers):  # pragma: no cover
         description="Manage the reporting to the Monitoring API",
         help='Manage the reporting to the Monitoring API',
         formatter_class=ArgumentDefaultsHelpFormatter)
+    p.add_argument('--server',
+                   type=str,
+                   default=DEFAULT_SERVER_URL,
+                   help="Monitoring API server address")
     p.add_argument(
         '--gnupghome',
         '--gpghome',

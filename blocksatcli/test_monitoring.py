@@ -4,7 +4,6 @@ from unittest.mock import patch, call
 from requests.exceptions import ConnectionError
 
 from . import monitoring
-from .monitoring_api import metric_endpoint
 from .test_helpers import create_test_setup, TestEnv
 
 
@@ -12,7 +11,8 @@ class TestReceiverReporter(TestEnv):
 
     def configure_reporter_setup(self,
                                  cfg_name="test_config",
-                                 report_endpoint=metric_endpoint,
+                                 report_endpoint="test_endpoint",
+                                 bs_monitoring=False,
                                  gen_gpg_key=False,
                                  mon_api_registered=False,
                                  mon_api_gen_pwd=False,
@@ -34,6 +34,7 @@ class TestReceiverReporter(TestEnv):
         reporter = monitoring.Reporter(cfg=cfg_name,
                                        cfg_dir=self.cfg_dir,
                                        dest_addr=report_endpoint,
+                                       bs_monitoring=bs_monitoring,
                                        hostname='hostname-test',
                                        gnupghome=self.gpghome,
                                        passphrase='test',
@@ -62,13 +63,14 @@ class TestReceiverReporter(TestEnv):
             'new_password': 'generated-password'
         }
         _, reporter = self.configure_reporter_setup(mon_api_registered=True,
+                                                    bs_monitoring=True,
                                                     gen_gpg_key=True)
 
         reporter.send({'test': 'test'})
 
         # Given that the password was generated successfully, check if the
         # password is used for authentication:
-        mock_api_post.assert_called_with(metric_endpoint,
+        mock_api_post.assert_called_with("test_endpoint/metrics",
                                          json={
                                              'test': 'test',
                                              'uuid': 'test-uuid',
@@ -80,6 +82,7 @@ class TestReceiverReporter(TestEnv):
         # Error in the password generation process
         mock_api_post.return_value.status_code = 502
         _, reporter2 = self.configure_reporter_setup(mon_api_registered=True,
+                                                     bs_monitoring=True,
                                                      gen_gpg_key=True)
 
         reporter2.send({'test': 'test'})
@@ -133,7 +136,8 @@ class TestReceiverReporter(TestEnv):
         does not report any metrics to the chosen destination.
 
         """
-        _, reporter = self.configure_reporter_setup(mon_api_registered=False)
+        _, reporter = self.configure_reporter_setup(mon_api_registered=False,
+                                                    bs_monitoring=True)
         self.assertIsNotNone(reporter.bs_monitoring)
 
         mock_bsmonitoring.return_value.registered = False
@@ -197,7 +201,9 @@ class TestReceiverMonitor(TestEnv):
             'pkt_err': 0
         }
 
-    def configure_monitor_setup(self, only_receiver_config=False):
+    def configure_monitor_setup(self,
+                                only_receiver_config=False,
+                                report=False):
         """Configure monitor setup
 
         This function creates a test setup with a complete receiver
@@ -214,13 +220,14 @@ class TestReceiverMonitor(TestEnv):
             return
 
         monitor = monitoring.Monitor(self.cfg_dir,
-                                     report=True,
+                                     report=report,
                                      echo=True,
                                      min_interval=0,
-                                     report_opts={
+                                     report_opts={} if not report else {
                                          'cfg': 'test_config',
                                          'cfg_dir': self.cfg_dir,
-                                         'dest_addr': metric_endpoint,
+                                         'dest_addr': 'http://test-server/',
+                                         'bs_monitoring': True,
                                          'gnupghome': self.gpghome,
                                          'passphrase': 'test'
                                      })
@@ -240,8 +247,10 @@ class TestReceiverMonitor(TestEnv):
         self.assertEqual(res_without_units, self.stats_without_units)
 
     @patch('blocksatcli.monitoring.Reporter.send')
-    def test_monitor_update_with_reporting_enabled(self, mock_send_report):
-        monitor = self.configure_monitor_setup()
+    @patch('requests.post')  # used at BsMonitoring._gen_api_password
+    def test_monitor_update_with_reporting_enabled(self, mock_post_req,
+                                                   mock_send_report):
+        monitor = self.configure_monitor_setup(report=True)
 
         monitor.update(self.stats)
         mock_send_report.assert_called_with(self.stats_without_units)
@@ -363,7 +372,7 @@ class TestReceiverMonitor(TestEnv):
         mock_bsmonitoring.return_value.registered = False
         mock_bsmonitoring.return_value.registration_running = True
 
-        monitor = self.configure_monitor_setup()
+        monitor = self.configure_monitor_setup(report=True)
         monitor.update({'lock': (True, None)})
 
         mock_print.assert_called_with()

@@ -7,6 +7,10 @@ from .test_helpers import create_test_setup, TestEnv
 
 class TestMonitoringApi(TestEnv):
 
+    def setUp(self):
+        self.server_url = 'http://test-server'
+        super().setUp()
+
     @patch('blocksatcli.util.prompt_for_enter')
     @patch('blocksatcli.monitoring_api.requests.post')
     def test_request_and_reset_monitoring_api_password(self, mock_api_post,
@@ -29,6 +33,7 @@ class TestMonitoringApi(TestEnv):
         }
         monitor_api = monitoring_api.BsMonitoring(self.cfg_name,
                                                   self.cfg_dir,
+                                                  self.server_url,
                                                   self.gpghome,
                                                   passphrase="test")
 
@@ -42,6 +47,7 @@ class TestMonitoringApi(TestEnv):
         # instantiating another BsMonitoring object
         monitor_api2 = monitoring_api.BsMonitoring(self.cfg_name,
                                                    self.cfg_dir,
+                                                   self.server_url,
                                                    self.gpghome,
                                                    passphrase="test")
         self.assertEqual(monitor_api2.api_pwd, 'password1')
@@ -66,6 +72,7 @@ class TestMonitoringApi(TestEnv):
         # should run the registration function.
         monitor_api = monitoring_api.BsMonitoring(self.cfg_name,
                                                   self.cfg_dir,
+                                                  self.server_url,
                                                   self.gpghome,
                                                   passphrase=None)
         self.assertTrue(mock_register.called)
@@ -98,6 +105,7 @@ class TestMonitoringApi(TestEnv):
         # function for registered receivers. Check:
         monitor_api = monitoring_api.BsMonitoring(self.cfg_name,
                                                   self.cfg_dir,
+                                                  self.server_url,
                                                   self.gpghome,
                                                   passphrase=None)
         self.assertTrue(mock_setup_registered.called)
@@ -125,6 +133,7 @@ class TestMonitoringApi(TestEnv):
         mock_api_post.return_value.status_code = 400
         monitor_api = monitoring_api.BsMonitoring(self.cfg_name,
                                                   self.cfg_dir,
+                                                  self.server_url,
                                                   self.gpghome,
                                                   passphrase="test")
 
@@ -146,6 +155,7 @@ class TestMonitoringApi(TestEnv):
 
         monitor_api = monitoring_api.BsMonitoring(self.cfg_name,
                                                   self.cfg_dir,
+                                                  self.server_url,
                                                   self.gpghome,
                                                   passphrase="test")
 
@@ -178,6 +188,7 @@ class TestMonitoringApi(TestEnv):
         # The monitoring api will launch the registration function
         monitoring_api.BsMonitoring(self.cfg_name,
                                     self.cfg_dir,
+                                    self.server_url,
                                     self.gpghome,
                                     passphrase="test")
 
@@ -237,6 +248,7 @@ class TestMonitoringApi(TestEnv):
         # _register_thread function on a thread.
         monitor_api = monitoring_api.BsMonitoring(self.cfg_name,
                                                   self.cfg_dir,
+                                                  self.server_url,
                                                   self.gpghome,
                                                   passphrase="test")
         monitor_api.rx_lock_event.set()
@@ -245,7 +257,7 @@ class TestMonitoringApi(TestEnv):
 
         # Check the arguments sent to API via post method to sign-up to
         # the monitoring server
-        mock_api_post.assert_called_with(monitoring_api.account_endpoint,
+        mock_api_post.assert_called_with(self.server_url + '/accounts',
                                          json={
                                              'fingerprint': fingerprint,
                                              'publickey': 'pubkey',
@@ -257,7 +269,7 @@ class TestMonitoringApi(TestEnv):
                                          })
 
         # Check arguments sent to the API via patch method
-        mock_api_patch.assert_called_with(monitoring_api.account_endpoint,
+        mock_api_patch.assert_called_with(self.server_url + '/accounts',
                                           json={
                                               'uuid': 'test-uuid',
                                               'validation_key':
@@ -301,6 +313,7 @@ class TestMonitoringApi(TestEnv):
             mock_yes_or_no.return_value = 'y'  # Reset credentials
             monitoring_api.BsMonitoring(self.cfg_name,
                                         self.cfg_dir,
+                                        self.server_url,
                                         self.gpghome,
                                         passphrase="test")
 
@@ -335,6 +348,7 @@ class TestMonitoringApi(TestEnv):
         with self.assertLogs(monitoring_api.logger, level='ERROR'):
             monitor_api = monitoring_api.BsMonitoring(self.cfg_name,
                                                       self.cfg_dir,
+                                                      self.server_url,
                                                       self.gpghome,
                                                       passphrase="test")
             monitor_api.rx_lock_event.set()

@@ -56,14 +56,25 @@ rx_metrics = {
 def get_report_opts(args):
     """Extract the parser fields needed to construct a Reporter object"""
     return {
-        'cfg': args.cfg,
-        'cfg_dir': args.cfg_dir,
-        'dest_addr': args.report_dest,
-        'hostname': args.report_hostname,
-        'tls_cert': args.report_cert,
-        'tls_key': args.report_key,
-        'gnupghome': args.report_gnupghome,
-        'passphrase': args.report_passphrase
+        'cfg':
+        args.cfg,
+        'cfg_dir':
+        args.cfg_dir,
+        'dest_addr':
+        monitoring_api.DEFAULT_SERVER_URL
+        if args.report_dest is None else args.report_dest,
+        'bs_monitoring':
+        args.report_dest is None or args.report_bs,
+        'hostname':
+        args.report_hostname,
+        'tls_cert':
+        args.report_cert,
+        'tls_key':
+        args.report_key,
+        'gnupghome':
+        args.report_gnupghome,
+        'passphrase':
+        args.report_passphrase
     }
 
 
@@ -83,6 +94,7 @@ class Reporter():
                  cfg,
                  cfg_dir,
                  dest_addr,
+                 bs_monitoring,
                  hostname=None,
                  tls_cert=None,
                  tls_key=None,
@@ -95,6 +107,8 @@ class Reporter():
             cfg       : User configuration
             cfg_dir   : Configuration directory
             dest_addr : Remote server address
+            bs_monitoring (bool): Whether reporting to the Blockstream
+                Satellite Monitoring API.
             hostname  : Hostname used to identify the reports
             tls_cert  : Optional client side certificate for TLS authentication
             tls_key   : Key associated with the client side certificate
@@ -115,19 +129,16 @@ class Reporter():
         assert (satellite in sats), "Invalid satellite"
         self.satellite = satellite
 
-        # Destination address, hostname, and client side cert
-        self.dest_addr = dest_addr
         self.hostname = hostname
         self.tls_cert = tls_cert
         self.tls_key = tls_key
 
-        # If the report destination address corresponds to Blockstream's
-        # Monitoring API (the default), create the object to handle the
-        # interaction with this API (e.g., registration).
-        if (dest_addr == monitoring_api.metric_endpoint):
+        if bs_monitoring:
             self.bs_monitoring = monitoring_api.BsMonitoring(
-                cfg, cfg_dir, gnupghome, passphrase, reset_api_pwd)
+                cfg, cfg_dir, dest_addr, gnupghome, passphrase, reset_api_pwd)
+            self.dest_addr = self.bs_monitoring.get_metric_endpoint()
         else:
+            self.dest_addr = dest_addr
             self.bs_monitoring = None
             logger.info("Reporting Rx status to {} ".format(self.dest_addr))
 
@@ -474,9 +485,16 @@ def add_to_parser(parser):  # pragma: no cover
                      help='Report receiver metrics to a remote HTTP server')
     r_p.add_argument(
         '--report-dest',
-        default=monitoring_api.metric_endpoint,
-        help='Destination address in http://ip:port format. By default, '
-        'report to the Blockstream Satellite Monitoring API')
+        type=str,
+        default=None,
+        help='Destination address in http://ip:port format. When undefined, '
+        'reports are sent to the Blockstream Satellite Monitoring API')
+    r_p.add_argument(
+        '--report-bs',
+        default=False,
+        action='store_true',
+        help='Force reporting to the Blockstream Satellite Monitoring API '
+        'even if \'--report-dest\' is defined')
     r_p.add_argument('--report-hostname', help='Reporter\'s hostname')
     r_p.add_argument(
         '--report-cert',
