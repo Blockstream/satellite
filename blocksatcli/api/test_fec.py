@@ -5,6 +5,7 @@ import unittest
 from . import fec, pkt
 
 
+@unittest.skipIf(not fec.fec_supported, "FEC support disabled")
 class TestFec(unittest.TestCase):
 
     def _rnd_string(self, n_bytes):

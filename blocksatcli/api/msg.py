@@ -8,7 +8,7 @@ import time
 import zlib
 
 from .. import defs
-from .fec import Fec
+from .fec import Fec, fec_supported
 
 logger = logging.getLogger(__name__)
 # API message header:
@@ -378,6 +378,7 @@ class ApiMsg:
                        (rounded up).
 
         """
+        assert fec_supported
         fec = Fec(overhead)
         self.data['fec_encoded'] = fec.encode(self.get_data())
 
@@ -394,6 +395,7 @@ class ApiMsg:
 
         """
         assert (self.data['fec_encoded'] is not None)
+        assert fec_supported
 
         fec = Fec()
         decoded_data = fec.decode(self.data['fec_encoded'])
@@ -417,6 +419,8 @@ class ApiMsg:
 
         """
         assert (self.data['fec_encoded'] is not None)
+        if not fec_supported:
+            return False
 
         fec = Fec()
         res = fec.decode(self.data['fec_encoded'])
@@ -535,6 +539,10 @@ def generate(data,
     if ((not plaintext or sign) and gpg is None):
         raise ValueError("Gpg object is required for encryption or signing")
 
+    if fec and not fec_supported:
+        raise ValueError(
+            "FEC support disabled. Please install zfec or blocksat-cli[fec].")
+
     msg = ApiMsg(data, filename=filename)
 
     # If transmitting a plaintext message, it could still be clearsigned.
@@ -610,6 +618,10 @@ def decode(data,
         raise ValueError("Gpg object is required for decryption/verification")
 
     if (fec):
+        if not fec_supported:
+            raise ValueError("FEC support disabled. "
+                             "Please install zfec or blocksat-cli[fec].")
+
         msg = ApiMsg(data, msg_format="fec_encoded")
         msg.fec_decode()
         data = msg.data['original']

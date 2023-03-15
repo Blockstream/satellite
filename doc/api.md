@@ -224,13 +224,15 @@ blocksat-cli api send --plaintext --send-raw
 
 The API messages sent over satellite are not guaranteed to be received by all satellite receivers. Each receiver experiences a unique reception quality, depending primarily on its location, weather conditions, and the adopted receiver hardware. When the signal quality is low, it becomes more likely for the receiver to fail on the reception of packets.
 
-One way to increase the chances of successful reception is to use forward error correction (FEC). In essence, FEC adds redundancy to the transmit data so that receivers can recover the original message even if some parts are missing. This is the mechanism that is used, for instance, in Bitcoin Satellite ([see further details in the project's Wiki](https://github.com/Blockstream/bitcoinsatellite/wiki#forward-error-correction-fec)).
+One way to increase the chances of successful reception is to use forward error correction (FEC). In essence, FEC adds redundancy to the transmitted data so that receivers can recover the original message even if some parts are missing. This is the mechanism that is used, for instance, in Bitcoin Satellite ([see further details in the project's Wiki](https://github.com/Blockstream/bitcoinsatellite/wiki#forward-error-correction-fec)).
 
 To send an API message using FEC encoding, run:
 
 ```
 blocksat-cli api send --fec
 ```
+
+> NOTE: the FEC feature requires the `zfec` dependency. You can enable it by installing the CLI with `sudo pip3 install blocksat-cli[fec]` or by installing the `zfec` package via pip3 directly.
 
 The `api listen` command detects and decodes FEC-encoded messages automatically.
 

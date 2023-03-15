@@ -4,7 +4,11 @@ import random
 import struct
 from math import ceil, floor
 
-import zfec
+try:
+    import zfec
+    fec_supported = True
+except ImportError:
+    fec_supported = False
 
 from . import pkt
 

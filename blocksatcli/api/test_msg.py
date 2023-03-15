@@ -2,6 +2,8 @@ import math
 import os
 import random
 import string
+from unittest import skipIf
+
 from . import msg, pkt, fec
 from .gpg import Gpg
 
@@ -273,6 +275,7 @@ class TestApi(TestEnv):
         # original data only
         self.assertEqual(rx_msg2.data['original'], data)
 
+    @skipIf(not fec.fec_supported, "FEC support disabled")
     def test_fec_encoding_decoding(self):
         """Test FEC encoding and decoding"""
         fec_overhead = 0.1
@@ -357,6 +360,7 @@ class TestApi(TestEnv):
         os.remove(dst_file)
         os.remove(dst_file2)
 
+    @skipIf(not fec.fec_supported, "FEC support disabled")
     def test_msg_generator_decoder_wrappers(self):
         """Test the message generation and decoding wrappers"""
         data = bytes([0, 1, 2, 3])
