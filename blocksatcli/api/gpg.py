@@ -113,24 +113,27 @@ class Gpg():
         return success
 
     def get_default_public_key(self):
-        """Get info corresponding to the first public key on the keyring
+        """Get the default (user) public key from the keyring
 
         Returns:
             Dictionary with key information such as 'fingerprint', 'keyid', and
-            'uids'.
+            'uids'. None if not found.
 
         """
-        return self.gpg.list_keys()[0]
+        for key in self.gpg.list_keys():
+            if key['fingerprint'] != defs.blocksat_pubkey:
+                return key
 
     def get_default_priv_key(self):
-        """Get info corresponding to the first private key on the keyring
+        """Get the default (user) private key from the keyring
 
         Returns:
             Dictionary with key information such as 'fingerprint', 'keyid', and
-            'uids'.
+            'uids'. None if not found.
 
         """
-        return self.gpg.list_keys(True)[0]
+        for key in self.gpg.list_keys(True):
+            return key  # return the first private key found
 
     def get_public_key(self, fingerprint):
         """Find a specific public key on the keyring and return the info dict
@@ -242,9 +245,6 @@ def import_bs_pubkey(gpg):
 
     gpg.gpg.trust_keys(defs.blocksat_pubkey, 'TRUST_ULTIMATE')
 
-    if (not is_gpg_keyring_set(gpg.gpghome)):
-        raise RuntimeError("GPG keyring configuration failed")
-
 
 def config_keyring(gpg, log_if_configured=False):
     """Configure the local keyring
@@ -271,8 +271,7 @@ def config_keyring(gpg, log_if_configured=False):
     gpg.create_keys(name, email, comment)
 
     # Import Blockstream's public key
-    #
-    # NOTE: the order is important here. Add Blockstream's public key only
-    # after adding the user key. With that, the user key becomes the first key
-    # on the keyring, which is used by default.
     import_bs_pubkey(gpg)
+
+    if (not is_gpg_keyring_set(gpg.gpghome)):
+        raise RuntimeError("GPG keyring configuration failed")

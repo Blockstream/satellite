@@ -1,6 +1,8 @@
 import os
-from .gpg import Gpg
+from unittest.mock import patch
 
+from ..defs import blocksat_pubkey
+from .gpg import Gpg, config_keyring
 from ..test_helpers import TestEnv
 
 
@@ -28,6 +30,35 @@ class TestGpg(TestEnv):
 
         # The passphrase should be saved internally
         self.assertIsNotNone(gpg.passphrase)
+
+    @patch('getpass.getpass')
+    @patch('builtins.input')
+    def test_keyring_config(self, mock_user_input, mock_getpass):
+        """Test keyring configuration"""
+        name = "Test"
+        email = "test@test.com"
+        comment = "comment"
+        passphrase = "test"
+        mock_user_input.side_effect = [name, email, comment]
+        mock_getpass.return_value = passphrase
+
+        gpg = Gpg(self.gpghome)
+
+        # Before keyring config, the default keypair is empty
+        self.assertIsNone(gpg.get_default_public_key())
+        self.assertIsNone(gpg.get_default_priv_key())
+
+        config_keyring(gpg)
+
+        # Check public key
+        expected_uid = name + " (" + comment + ") <" + email + ">"
+        created_uid = gpg.get_default_public_key()['uids'][0]
+        self.assertEqual(created_uid, expected_uid)
+
+        # Check private key
+        expected_uid = name + " (" + comment + ") <" + email + ">"
+        created_uid = gpg.get_default_priv_key()['uids'][0]
+        self.assertEqual(created_uid, expected_uid)
 
     def test_duplicate_key(self):
         """Test creation of duplicate GPG keys"""
