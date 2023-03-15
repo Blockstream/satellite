@@ -60,6 +60,35 @@ class TestGpg(TestEnv):
         created_uid = gpg.get_default_priv_key()['uids'][0]
         self.assertEqual(created_uid, expected_uid)
 
+    @patch('getpass.getpass')
+    @patch('builtins.input')
+    def test_keyring_config_empty_passphrase(self, mock_user_input,
+                                             mock_getpass):
+        """Test keyring configuration"""
+        name = "Test"
+        email = "test@test.com"
+        comment = "comment"
+        passphrase = ""
+        mock_user_input.side_effect = [name, email, comment]
+        mock_getpass.return_value = passphrase
+
+        gpg = Gpg(self.gpghome)
+
+        # Before keyring config, the default keypair is empty
+        self.assertIsNone(gpg.get_default_public_key())
+        self.assertIsNone(gpg.get_default_priv_key())
+
+        with self.assertRaises(RuntimeError):
+            config_keyring(gpg)
+
+        # The user keypair is not created if an empty passphrase is provided,
+        # so the default keypair continues to be empty
+        self.assertIsNone(gpg.get_default_public_key())
+        self.assertIsNone(gpg.get_default_priv_key())
+
+        # But the blocksat pubkey should have been imported
+        self.assertIsNotNone(gpg.get_public_key(blocksat_pubkey))
+
     def test_duplicate_key(self):
         """Test creation of duplicate GPG keys"""
         name = "Test"

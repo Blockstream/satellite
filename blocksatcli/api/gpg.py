@@ -62,6 +62,10 @@ class Gpg():
         else:
             self.set_passphrase(passphrase)
 
+        if not self.passphrase:
+            logger.error("Empty passphrase")
+            return
+
         # Generate key
         key_params = self.gpg.gen_key_input(key_type="RSA",
                                             key_length=1024,
