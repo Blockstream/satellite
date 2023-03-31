@@ -659,6 +659,19 @@ def get_rx_model(user_info):
             user_info['setup']['model']).strip()
 
 
+def get_rx_label(user_info):
+    """Return the label of the target receiver"""
+    target_map = {
+        "sdr": defs.sdr_setup_type,
+        "usb": defs.linux_usb_setup_type,
+        "standalone": defs.standalone_setup_type,
+        "sat-ip": defs.sat_ip_setup_type
+    }
+    target = user_info['setup']['type']
+
+    return next(key for key, val in target_map.items() if val == target)
+
+
 def get_satellite_name(sat):
     """Return string with satellite name"""
     return f"{sat['name']} ({sat['alias']})"

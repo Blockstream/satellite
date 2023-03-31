@@ -285,6 +285,19 @@ class TestConfigHelpers(TestCase):
         info['lnb']['band'] = "C"
         self.assertEqual(config.get_lnb_model(info), 'Custom C-band LNB')
 
+    def test_rx_label(self):
+        info = {'setup': {'type': 'Linux USB'}}
+        self.assertEqual(config.get_rx_label(info), 'usb')
+
+        info = {'setup': {'type': 'Software-defined'}}
+        self.assertEqual(config.get_rx_label(info), 'sdr')
+
+        info = {'setup': {'type': 'Standalone'}}
+        self.assertEqual(config.get_rx_label(info), 'standalone')
+
+        info = {'setup': {'type': 'Sat-IP'}}
+        self.assertEqual(config.get_rx_label(info), 'sat-ip')
+
 
 class TestReceiversSetupConfig(TestEnv):
 
