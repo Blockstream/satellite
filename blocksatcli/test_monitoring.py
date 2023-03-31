@@ -15,8 +15,7 @@ class TestReceiverReporter(TestEnv):
                                  bs_monitoring=False,
                                  gen_gpg_key=False,
                                  mon_api_registered=False,
-                                 mon_api_gen_pwd=False,
-                                 mon_api_reset_pwd=False):
+                                 mon_api_gen_pwd=False):
         """Configure reporter setup
 
         This function creates a test setup with a complete receiver
@@ -37,8 +36,7 @@ class TestReceiverReporter(TestEnv):
                                        bs_monitoring=bs_monitoring,
                                        hostname='hostname-test',
                                        gnupghome=self.gpghome,
-                                       passphrase='test',
-                                       reset_api_pwd=mon_api_reset_pwd)
+                                       passphrase='test')
 
         return test_info, reporter
 

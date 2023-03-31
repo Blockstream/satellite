@@ -99,8 +99,7 @@ class Reporter():
                  tls_cert=None,
                  tls_key=None,
                  gnupghome=None,
-                 passphrase=None,
-                 reset_api_pwd=False):
+                 passphrase=None):
         """Reporter Constructor
 
         Args:
@@ -117,7 +116,6 @@ class Reporter():
             passphrase : Passphrase to the private key used when reporting to
                          Blockstream's monitoring API. If None, it will be
                          obtained by prompting the user.
-            reset_api_pwd : Reset password for the monitoring API.
 
         """
         info = config.read_cfg_file(cfg, cfg_dir)
@@ -135,7 +133,7 @@ class Reporter():
 
         if bs_monitoring:
             self.bs_monitoring = monitoring_api.BsMonitoring(
-                cfg, cfg_dir, dest_addr, gnupghome, passphrase, reset_api_pwd)
+                cfg, cfg_dir, dest_addr, gnupghome, passphrase)
             self.dest_addr = self.bs_monitoring.get_metric_endpoint()
         else:
             self.dest_addr = dest_addr
