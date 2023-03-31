@@ -28,7 +28,8 @@ def _write_filter(ifname, val):
 
     action = "Enabling" if val == "1" else "Disabling"
     if (not runner.dry):
-        print("{} the RP filter on interface \"{}\"".format(action, ifname))
+        logger.info("{} the RP filter on interface \"{}\"".format(
+            action, ifname))
     runner.run(cmd, root=True)
 
 
@@ -68,7 +69,7 @@ def _set_filters(dvb_ifs):
     # interface.
     if (_read_filter("all", nodry=True) == 0):
         if (not runner.dry):
-            print("RP filter for \"all\" interfaces is already disabled")
+            logger.info("RP filter for \"all\" interfaces is already disabled")
 
         for dvb_if in dvb_ifs:
             _rm_filter(dvb_if)
@@ -88,8 +89,9 @@ def _set_filters(dvb_ifs):
             # Enable the RP filter if not enabled already.
             if (_read_filter(interface, nodry=True) > 0):
                 if (not runner.dry):
-                    print("RP filter is already enabled on interface %s" %
-                          (interface))
+                    logger.info(
+                        "RP filter is already enabled on interface %s" %
+                        (interface))
             else:
                 _add_filter(interface)
 
@@ -142,7 +144,7 @@ def configure(dvb_ifs, prompt=True, dry=False):
     if (runner.dry or (not prompt) or util.ask_yes_or_no("OK to proceed?")):
         _set_filters(dvb_ifs)
     else:
-        print("RP filtering configuration cancelled")
+        logger.info("RP filtering configuration cancelled")
 
 
 def subparser(subparsers):  # pragma: no cover
