@@ -292,7 +292,8 @@ class Firewalld(BaseFirewall):
         """
         rich_rule = self._get_rich_rule(src_ip, mcast_ip, portrange)
         cmd = ['firewall-cmd', '--query-rich-rule', "{}".format(rich_rule)]
-        res = runner.run(cmd, root=True, capture_output=True).stdout
+        res = runner.run(cmd, root=True, capture_output=True,
+                         nocheck=True).stdout
 
         is_rule_set = res.decode() == "yes"
 
@@ -315,7 +316,8 @@ class Firewalld(BaseFirewall):
 
         """
         cmd = ['firewall-cmd', '--query-protocol=igmp']
-        res = runner.run(cmd, root=True, capture_output=True).stdout
+        res = runner.run(cmd, root=True, capture_output=True,
+                         nocheck=True).stdout
 
         is_rule_set = res.decode() == "yes"
         if is_rule_set:

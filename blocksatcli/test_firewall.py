@@ -150,7 +150,8 @@ class Firewalld(TestCase):
              f"port port={portrange} protocol=udp accept")
         ],
                                             root=True,
-                                            capture_output=True)
+                                            capture_output=True,
+                                            nocheck=True)
 
     @patch('blocksatcli.firewall.runner.run')
     def test_config_udp_and_igmp_rules_with_both_already_set(
@@ -177,11 +178,13 @@ class Firewalld(TestCase):
              f"port port={portrange} protocol=udp accept")
         ],
                                              root=True,
-                                             capture_output=True)
+                                             capture_output=True,
+                                             nocheck=True)
         call_check_firewalld_igmp_rule = call(
             ['firewall-cmd', '--query-protocol=igmp'],
             root=True,
-            capture_output=True)
+            capture_output=True,
+            nocheck=True)
         mock_runner.assert_has_calls([
             # Check if udp rule is set (_is_udp_rule_set func)
             call_check_firewalld_udp_rule,
@@ -340,13 +343,15 @@ class TestFirewall(TestCase):
         check_firewalld_rule_udp = call(
             ["firewall-cmd", "--query-rich-rule", rich_rule],
             root=True,
-            capture_output=True)
+            capture_output=True,
+            nocheck=True)
         add_firewalld_rule_igmp = call(["firewall-cmd", "--add-protocol=igmp"],
                                        root=True)
         check_firewalld_rule_igmp = call(
             ["firewall-cmd", "--query-protocol=igmp"],
             root=True,
-            capture_output=True)
+            capture_output=True,
+            nocheck=True)
 
         mock_runner.assert_has_calls([
             # Check if udp rule is set
