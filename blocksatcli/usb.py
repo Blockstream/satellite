@@ -197,20 +197,22 @@ def _find_adapter(list_only=False, target_model=None):
     return chosen_adapter["adapter"], chosen_adapter["frontend"]
 
 
-def _dvbnet_single(adapter, ifname, pid, ule, existing_dvbnet_interfaces):
-    """Start DVB network interface
+def _dvbnet_verify_single(ifname, pid, ule, existing_dvbnet_interfaces):
+    """Check if a single DVB network interface is already created
 
     Args:
-        adapter                    : DVB adapter index
         ifname                     : DVB network interface name
         pid                        : PID to listen to
         ule                        : Whether to use ULE framing
         existing_dvbnet_interfaces : List of dvbnet interfaces already
                                      configured for the adapter
 
-    """
+    Returns:
+        if_exists (bool): Whether the interface exists.
+        is_config (bool): Whether the interface is already configured.
 
-    assert (pid >= 32 and pid <= 8190), "PID not insider range 32 to 8190"
+    """
+    assert (pid >= 32 and pid <= 8190), "PID not inside range 32 to 8190"
 
     if (ule):
         encapsulation = 'ULE'
@@ -222,10 +224,10 @@ def _dvbnet_single(adapter, ifname, pid, ule, existing_dvbnet_interfaces):
                           stdout=subprocess.DEVNULL,
                           stderr=subprocess.DEVNULL)
     os_interface_exists = (res == 0)
-    matching_dvbnet_if = None
 
     # When the network interface exists in the OS, we also need to check if the
-    # matching dvbnet device is configured according to what we want now
+    # matching dvbnet device is configured according to what we want
+    matching_dvbnet_if = None
     if (os_interface_exists):
         print("Network interface %s already exists" % (ifname))
 
@@ -234,16 +236,19 @@ def _dvbnet_single(adapter, ifname, pid, ule, existing_dvbnet_interfaces):
                 matching_dvbnet_if = interface
                 break
 
-    # Our indication that interface exists comes from "ip addr show
-    # dev". However, it is possible that dvbnet does not have any interface
+    # If there is a match, it indicates that the interface exists.
+    if_exists = matching_dvbnet_if is not None
+
+    # Our indication that interface exists comes from "ip addr show dev".
+    # However, it is possible that dvbnet does not have any interface
     # associated to an adapter, so check if we found anything:
-    cfg_interface = False
+    is_config = False
     if (len(existing_dvbnet_interfaces) > 0
             and matching_dvbnet_if is not None):
         # Compare to desired configurations
-        if (matching_dvbnet_if['pid'] != pid
-                or matching_dvbnet_if['encapsulation'] != encapsulation):
-            cfg_interface = True
+        if (matching_dvbnet_if['pid'] == pid
+                and matching_dvbnet_if['encapsulation'] == encapsulation):
+            is_config = True
 
         if (matching_dvbnet_if['pid'] != pid):
             print("Current PID is %d. Set it to %d" %
@@ -252,26 +257,35 @@ def _dvbnet_single(adapter, ifname, pid, ule, existing_dvbnet_interfaces):
         if (matching_dvbnet_if['encapsulation'] != encapsulation):
             print("Current encapsulation is %s. Set it to %s" %
                   (matching_dvbnet_if['encapsulation'], encapsulation))
-    else:
-        cfg_interface = True
 
-    # Create interface in case it doesn't exist or needs to be re-created
-    if (cfg_interface):
+    return if_exists, is_config
+
+
+def _dvbnet_single(adapter, ifname, pid, ule, remove=False):
+    """Create DVB network interface
+
+    Args:
+        adapter : DVB adapter index
+        ifname  : DVB network interface name
+        pid     : PID to listen to
+        ule     : Whether to use ULE framing
+        remove  : Whether to remove already created DVB network interface.
+
+    """
+
+    assert (pid >= 32 and pid <= 8190), "PID not insider range 32 to 8190"
+
+    if (remove):
         # If interface exists, but must be re-created, remove the existing one
         # first
-        if (os_interface_exists):
-            _rm_dvbnet_interface(adapter, ifname, verbose=False)
+        _rm_dvbnet_interface(adapter, ifname, verbose=False)
 
-        ule_arg = "-U" if ule else ""
+    ule_arg = "-U" if ule else ""
 
-        if (runner.dry):
-            print("Create interface {}:".format(ifname))
+    if (runner.dry):
+        print("Create interface {}:".format(ifname))
 
-        runner.run(["dvbnet", "-a", adapter, "-p",
-                    str(pid), ule_arg],
-                   root=True)
-    else:
-        print("Network interface %s already configured correctly" % (ifname))
+    runner.run(["dvbnet", "-a", adapter, "-p", str(pid), ule_arg], root=True)
 
 
 def _dvbnet(adapter, ifnames, pids, ule=False):
@@ -297,7 +311,16 @@ def _dvbnet(adapter, ifnames, pids, ule=False):
     util.print_header("Network Interface")
 
     for ifname, pid in zip(ifnames, pids):
-        _dvbnet_single(adapter, ifname, pid, ule, existing_dvbnet_iif)
+        if_exists, is_config = _dvbnet_verify_single(ifname, pid, ule,
+                                                     existing_dvbnet_iif)
+
+        if is_config:
+            # If interface is already configured, move to the next.
+            print("Network interface %s already configured correctly" %
+                  (ifname))
+            continue
+
+        _dvbnet_single(adapter, ifname, pid, ule, remove=if_exists)
 
 
 def _find_dvbnet_interfaces(adapter):
