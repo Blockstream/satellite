@@ -594,7 +594,7 @@ def subparser(subparsers):  # pragma: no cover
                     default=0,
                     type=float,
                     help='Carrier frequency offset correction in kHz')
-    p1.set_defaults(func=cfg_standalone)
+    p1.set_defaults(func=configure)
 
     # Monitoring
     p2 = subsubparsers.add_parser(
@@ -620,18 +620,19 @@ def _common(args):
     return user_info
 
 
-def cfg_standalone(args):
-    """Configure the standalone receiver and the host
+def verify(args) -> bool:
+    """Verify the configuration of the standalone receiver and host
 
-    Set all parameters required on the standalone receiver: signal, LNB, and
-    MPE parameters. Then, configure the host to communicate with the the
-    standalone DVB-S2 receiver by setting reverse-path filters and firewall
-    configurations.
+    Returns:
+        bool: True if the configuration is already correctly applied and False
+            if the configuration is not complete.
 
     """
+    util.print_header("Verifying Configuration")
     user_info = _common(args)
     if (user_info is None):
-        return
+        logger.error("Receiver configuration not found.")
+        sys.exit(0)
 
     if (not args.host_only):
         freq_corr_mhz = args.freq_corr / 1e3
@@ -646,6 +647,8 @@ def cfg_standalone(args):
 
     # IP Address
     rx_ip_addr = _parse_address(user_info, args.address)
+    if rx_ip_addr is None:
+        return False
 
     if (not args.rx_only):
         if 'netdev' not in user_info['setup']:
@@ -658,7 +661,52 @@ def cfg_standalone(args):
 
         # Check if all dependencies are installed
         if (not dependencies.check_apps(["iptables"])):
-            return
+            return False
+
+        if not rp.verify_filters([interface]):
+            logger.info("RP filters not configured.")
+            return False
+
+        if not firewall.verify(net_ifs=[interface],
+                               ports=defs.src_ports,
+                               src_ip=user_info['sat']['ip'],
+                               igmp=True):
+            logger.info("Firewall rules not configured.")
+            return False
+
+    if (not args.host_only):
+        s400 = S400Client(args.demod, rx_ip_addr, args.port, dry=args.dry_run)
+        s400.check_reachable()
+        update_cfg = s400.verify(user_info, freq_corr_mhz)
+        if len(update_cfg) != 0:
+            return False
+
+    return True
+
+
+def configure(args):
+    """Configure the standalone receiver and the host
+
+    Set all parameters required on the standalone receiver: signal, LNB, and
+    MPE parameters. Then, configure the host to communicate with the the
+    standalone DVB-S2 receiver by setting reverse-path filters and firewall
+    configurations.
+
+    """
+    if verify(args):
+        logger.info("Receiver already configured")
+        return
+
+    user_info = _common(args)
+    if (user_info is None):
+        return
+
+    # Configure the subprocess runner
+    runner.set_dry(args.dry_run)
+
+    if (not args.rx_only):
+        interface = args.interface if (args.interface is not None) else \
+            user_info['setup']['netdev']
 
         rp.set_filters([interface], prompt=(not args.yes), dry=args.dry_run)
         firewall.configure([interface],
@@ -670,6 +718,10 @@ def cfg_standalone(args):
 
     if (not args.host_only):
         util.print_header("Receiver Configuration")
+
+        rx_ip_addr = _parse_address(user_info, args.address)
+        freq_corr_mhz = args.freq_corr / 1e3
+
         s400 = S400Client(args.demod, rx_ip_addr, args.port, dry=args.dry_run)
         s400.check_reachable()
         s400.configure(user_info, freq_corr_mhz)
