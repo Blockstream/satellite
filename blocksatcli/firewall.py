@@ -111,20 +111,17 @@ class Iptables(BaseFirewall):
         runner.run(cmd, root=True)
 
         for rule in self._get_rules():
-            print_rule = False
-
             if (rule['rule'][3] == "ACCEPT" and rule['rule'][6] == cmd[6]
                     and rule['rule'][4] == cmd[4]):
                 if (cmd[4] == "igmp"):
-                    print_rule = True
+                    logger.info(
+                        "Added firewall rule to accept IGMP traffic at the "
+                        "{} interface.".format(cmd[6]))
                 elif (cmd[4] == "udp" and rule['rule'][12] == cmd[10]):
-                    print_rule = True
-
-                if (print_rule):
-                    print("Added iptables rule:\n")
-                    print(rule['header1'])
-                    print(rule['header2'])
-                    print(" ".join(rule['rule']) + "\n")
+                    logger.info(
+                        "Added firewall rule to accept UDP traffic at the "
+                        "{} interface with destination ports {}.".format(
+                            cmd[6], cmd[10]))
 
     def _is_igmp_rule_set(self, cmd):
         """Check if an iptables rule for IGMP is already configured
@@ -136,15 +133,17 @@ class Iptables(BaseFirewall):
             True if rule is already set, False otherwise.
 
         """
+        assert (isinstance(cmd, list))
         assert (cmd[0] != "sudo")
+
+        interface = cmd[6]
+
         for rule in self._get_rules():
-            if (rule['rule'][3] == "ACCEPT" and rule['rule'][6] == cmd[6]
+            if (rule['rule'][3] == "ACCEPT" and rule['rule'][6] == interface
                     and rule['rule'][4] == "igmp"):
-                print("\nFirewall rule for IGMP already configured\n")
-                print(rule['header1'])
-                print(rule['header2'])
-                print(" ".join(rule['rule']))
-                print("\nSkipping...")
+                logger.info(
+                    "Firewall rule to accept IGMP traffic at the {} interface "
+                    "is already configured.".format(interface))
                 return True
 
         return False
@@ -160,18 +159,22 @@ class Iptables(BaseFirewall):
             True if rule is already set, False otherwise.
 
         """
+        assert (isinstance(cmd, list))
         assert (cmd[0] != "sudo")
-        for rule in self._get_rules():
-            if (rule['rule'][3] == "ACCEPT" and rule['rule'][6] == cmd[6]
-                    and rule['rule'][4] == "udp"
-                    and rule['rule'][12] == cmd[10]):
-                print("\nFirewall rule for UDP already configured\n")
-                print(rule['header1'])
-                print(rule['header2'])
-                print(" ".join(rule['rule']))
-                print("\nSkipping...")
-                return True
 
+        protocol = cmd[4]
+        interface = cmd[6]
+        dest_ports = cmd[10]
+
+        for rule in self._get_rules():
+            if (rule['rule'][3] == "ACCEPT" and rule['rule'][6] == interface
+                    and rule['rule'][4] == protocol
+                    and rule['rule'][12] == dest_ports):
+                logger.info(
+                    "Firewall rule to accept UDP traffic at the {} interface "
+                    "with destination ports {} is already configured.".format(
+                        interface, dest_ports))
+                return True
         return False
 
     def verify(self, ports: list, src_ip: str, igmp: bool = False) -> bool:
@@ -391,8 +394,8 @@ class Firewalld(BaseFirewall):
                 ['firewall-cmd', '--add-rich-rule', "{}".format(rich_rule)],
                 root=True)
             logger.info("Added firewall rule to accept UDP traffic from "
-                        "IP address {} to the destination IP address {} "
-                        "in ports {}.".format(src_ip, defs.mcast_ip,
+                        "IP address {} to destination address {} "
+                        "on ports {}.".format(src_ip, defs.mcast_ip,
                                               portrange))
 
         if (runner.dry):
