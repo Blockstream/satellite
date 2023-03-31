@@ -128,11 +128,11 @@ def configure(dvb_ifs, prompt=True, dry=False):
     """
     assert (isinstance(dvb_ifs, list))
     runner.set_dry(dry)
-    util.print_header("Reverse Path Filters")
 
     if not dry and verify(dvb_ifs):
         return
 
+    util.print_header("Reverse Path Filters")
     util.fill_print("It will be necessary to reconfigure some reverse path \
     (RP) filtering rules applied by the Linux kernel. This is required to \
     prevent the filtering of the one-way Blockstream Satellite traffic.")

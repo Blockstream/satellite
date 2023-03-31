@@ -642,7 +642,7 @@ def verify(args) -> bool:
         's400': None
     }
 
-    util.print_header("Verifying Configuration")
+    logger.info("Checking current configuration.")
     user_info = _common(args)
     res['user_info'] = user_info
     if (user_info is None):
@@ -737,7 +737,6 @@ def configure(args):
     if not verify_res['config']['s400']:
         assert verify_res['s400'] is not None
         assert isinstance(verify_res['s400'], list)
-        util.print_header("Receiver Configuration")
 
         rx_ip_addr = _parse_address(user_info, args.address)
         freq_corr_mhz = args.freq_corr / 1e3

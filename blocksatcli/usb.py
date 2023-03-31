@@ -72,7 +72,7 @@ def _find_adapter(list_only=False, target_model=None):
 
     """
     if (target_model is None):
-        util.print_header("Find DVB Adapter")
+        logger.info("Find DVB adapter")
 
     # Search a range of adapters. There is no command to list all adapters, so
     # we try to list each one individually using `dvbnet -a adapter_no -l`.
@@ -173,8 +173,8 @@ def _find_adapter(list_only=False, target_model=None):
     else:
         # Prompt the user
         for adapter in dvb_s2_adapters:
-            print("Found DVB-S2 adapter: %s %s" %
-                  (adapter["vendor"], adapter["model"]))
+            logger.info("Found DVB-S2 adapter: %s %s" %
+                        (adapter["vendor"], adapter["model"]))
 
             if (not list_only):
                 if (len(dvb_s2_adapters) == 1
@@ -308,8 +308,6 @@ def _dvbnet(adapter, ifnames, pids, ule=False):
     # Find the dvbnet interfaces that already exist for the chosen adapter
     existing_dvbnet_iif = _find_dvbnet_interfaces(adapter)
 
-    util.print_header("Network Interface")
-
     for ifname, pid in zip(ifnames, pids):
         if_exists, is_config = _dvbnet_verify_single(ifname, pid, ule,
                                                      existing_dvbnet_iif)
@@ -358,7 +356,6 @@ def _find_dvbnet_interfaces(adapter):
 
     """
 
-    util.print_header("Find dvbnet interface(s)")
     cmd = ["dvbnet", "-a", adapter, "-l"]
     logger.debug("> " + " ".join(cmd))
     res = subprocess.check_output(cmd)
@@ -391,13 +388,13 @@ def _rm_dvbnet_interface(adapter, ifname, verbose=True):
         verbose   : Controls verbosity
     """
 
-    if (verbose):
-        util.print_header("Remove dvbnet interface")
-
     runner.run(["ip", "link", "set", ifname, "down"], root=True)
 
     if_number = ifname.split("_")[-1]
     runner.run(["dvbnet", "-a", adapter, "-d", if_number], root=True)
+
+    if (verbose):
+        logger.info(f"DVB interface {ifname} was removed.")
 
     # Remove also the static IP address configuration
     ip.rm_ip(ifname, runner.dry)
@@ -703,7 +700,7 @@ def verify(args) -> dict:
         'frontend': None
     }
 
-    util.print_header("Verifying Configuration")
+    logger.info("Checking current configuration")
     common_params = _common(args)
     if (common_params is None):
         logger.error("Receiver configuration not found.")
