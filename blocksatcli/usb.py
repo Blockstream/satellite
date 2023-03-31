@@ -229,7 +229,7 @@ def _dvbnet_verify_single(ifname, pid, ule, existing_dvbnet_interfaces):
     # matching dvbnet device is configured according to what we want
     matching_dvbnet_if = None
     if (os_interface_exists):
-        print("Network interface %s already exists" % (ifname))
+        logger.info(f"Network interface {ifname} already exists.")
 
         for interface in existing_dvbnet_interfaces:
             if (interface['name'] == ifname):
@@ -338,6 +338,9 @@ def _verify_dvbnet(adapter, ifnames, pids, ule=False):
         _, is_config = _dvbnet_verify_single(ifname, pid, ule,
                                              existing_dvbnet_iif)
         all_config_iff.append(is_config)
+
+        if is_config:
+            logger.info(f"DVB interfaces {ifname} already configured.")
 
     return all(all_config_iff)
 
@@ -679,21 +682,42 @@ def _common(args):
     return user_info, adapter, frontend
 
 
-def verify(args) -> bool:
-    """Verify configuration from the DVB interface(s) and the host"""
+def verify(args) -> dict:
+    """Verify configuration from the DVB interface(s) and the host
+
+    Returns:
+        dict: Dictionary indicating which components (package dependencies,
+            dvbnet interface, RP filters, firewall, or IPs) still need
+            configuration.
+    """
+    res = {
+        'config': {
+            'deps': False,
+            'dvb': False,
+            'rp': args.skip_rp,  # assume OK when skipping
+            'firewall': args.skip_firewall,  # assume OK when skipping
+            'ips': False
+        },
+        'user_info': None,
+        'adapter': None,
+        'frontend': None
+    }
+
     util.print_header("Verifying Configuration")
     common_params = _common(args)
     if (common_params is None):
         logger.error("Receiver configuration not found.")
         sys.exit(1)
     user_info, adapter, frontend = common_params
+    res['user_info'] = user_info
+    res['adapter'] = adapter
+    res['frontend'] = frontend
 
     # Check if dependencies other than dvbnet are installed
     apps = ["ip"]
     if not args.skip_firewall:
         apps.append("iptables")
-    if (not dependencies.check_apps(apps)):
-        return False
+    res['config']['deps'] = dependencies.check_apps(apps)
 
     # Configure the subprocess runner
     runner.set_dry(args.dry_run)
@@ -726,37 +750,40 @@ def verify(args) -> bool:
         net_ifs.append(net_if)
 
     # Check the dvbnet interface(s)
-    if not _verify_dvbnet(adapter, net_ifs, args.pid, ule=args.ule):
-        return False
+    res['config']['dvb'] = _verify_dvbnet(adapter,
+                                          net_ifs,
+                                          args.pid,
+                                          ule=args.ule)
 
     # Check RP filters
     if (not args.skip_rp):
-        if not rp.verify(net_ifs):
-            return False
+        res['config']['rp'] = rp.verify(net_ifs)
+        if not res['config']['rp']:
+            logger.info("RP filters not configured.")
 
     # Check firewall rules
     if (not args.skip_firewall):
-        if not firewall.verify(net_ifs, defs.src_ports,
-                               user_info['sat']['ip']):
-            return False
+        res['config']['firewall'] = firewall.verify(net_ifs, defs.src_ports,
+                                                    user_info['sat']['ip'])
+        if not res['config']['firewall']:
+            logger.info("Firewall rules not configured.")
 
     # Check IP
-    if not ip.check_ips(net_ifs, ips):
-        return False
+    res['config']['ips'] = ip.check_ips(net_ifs, ips)
 
-    return True
+    return res
 
 
 def configure(args):
     """Config the DVB interface(s) and the host"""
-    if verify(args):
+
+    verify_res = verify(args)
+    if all(verify_res['config'].values()):
         logger.info("Receiver already configured")
         return
 
-    common_params = _common(args)
-    if (common_params is None):
-        return
-    user_info, adapter, frontend = common_params
+    user_info = verify_res['user_info']
+    adapter = verify_res['adapter']
 
     # Configure the subprocess runner
     runner.set_dry(args.dry_run)
@@ -777,14 +804,15 @@ def configure(args):
         net_ifs.append(net_if)
 
     # Create the dvbnet interface(s)
-    _dvbnet(adapter, net_ifs, args.pid, ule=args.ule)
+    if not verify_res['config']['dvb']:
+        _dvbnet(adapter, net_ifs, args.pid, ule=args.ule)
 
     # Set RP filters
-    if (not args.skip_rp):
+    if not verify_res['config']['rp']:
         rp.configure(net_ifs, prompt=(not args.yes), dry=args.dry_run)
 
     # Set firewall rules
-    if (not args.skip_firewall):
+    if not verify_res['config']['firewall']:
         firewall.configure(net_ifs,
                            defs.src_ports,
                            user_info['sat']['ip'],
@@ -792,7 +820,8 @@ def configure(args):
                            dry=args.dry_run)
 
     # Set IP
-    ip.set_ips(net_ifs, ips, dry=runner.dry)
+    if not verify_res['config']['ips']:
+        ip.set_ips(net_ifs, ips, dry=runner.dry)
 
     util.print_header("Next Step")
     print("Run:\n\nblocksat-cli usb launch\n")
