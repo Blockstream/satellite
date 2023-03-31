@@ -176,7 +176,8 @@ class SnmpClient():
             value    : value to set on the given variable.
 
         Returns:
-            bool: Whether the request was successful.
+            bool: Whether the request was successful. Returns true in dry run
+                mode.
 
         """
         if (self.dry):
@@ -373,15 +374,19 @@ class S400Client(SnmpClient):
                     print("- {}: {}".format(label, val))
         return True
 
-    def configure(self, info, freq_corr):
-        """Configure the S400
+    def verify(self, info, freq_corr) -> list:
+        """Check configuration to be updated on the S400
 
         Args:
             info (dict): User info dictionary.
             freq_corr (float): Frequency correction in MHz.
 
+        Returns:
+            update_cfg (list): List of tuples containing the parameters to be
+                applied/updated on the S400.
+
         """
-        logger.info("Configuring the S400 receiver at {} via SNMP".format(
+        logger.info("Checking S400 receiver config at {} via SNMP".format(
             self.address))
 
         l_band_freq = int(round(info['freqs']['l_band'] + freq_corr, 2) * 1e6)
@@ -457,12 +462,12 @@ class S400Client(SnmpClient):
             ('s400Enable22KHzTone', tone),
         ]
 
+        update_cfg = []
         for section in target_cfg.keys():
-            set_calls = 0
             if self.dry:
                 logger.info(section)
             else:
-                logger.info("Configuring {}".format(section))
+                logger.info("Checking {} configuration".format(section))
 
             for config_tuple in target_cfg[section]:
                 key, val = config_tuple
@@ -486,15 +491,30 @@ class S400Client(SnmpClient):
                             key, val))
                         continue  # already set
 
-                set_calls += 1
-                if not self._set(config_tuple):
-                    if (not self.dry):
-                        logger.error("SNMP configuration error")
-                        sys.exit(1)
-                    return
+                update_cfg.append(config_tuple)
 
-            if self.dry and set_calls == 0:
-                logger.info("- Already configured")
+        return update_cfg
+
+    def configure(self, info, freq_corr):
+        """Configure the S400
+
+        Args:
+            info (dict): User info dictionary.
+            freq_corr (float): Frequency correction in MHz.
+
+        """
+        update_cfg = self.verify(info, freq_corr)
+
+        if self.dry and len(update_cfg) == 0:
+            logger.info("- Already configured")
+            return
+
+        logger.info("Configuring the S400 receiver at {} via SNMP".format(
+            self.address))
+        for config_tuple in update_cfg:
+            if not self._set(config_tuple):
+                logger.error("SNMP configuration error")
+                sys.exit(1)
 
         if (not self.dry):
             logger.info("Receiver configured successfully")
