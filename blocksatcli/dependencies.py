@@ -785,6 +785,15 @@ def check_drivers(model=None):
         True if the drivers are installed or False otherwise.
 
     """
+
+    # Bypass the driver verification if the following env var is set. This is
+    # useful in a docker container env, in which case the kernel modules are
+    # installed in the docker host instead of the container.
+    no_check = os.getenv('BLOCKSAT_NO_USB_DRIVERS_CHECK',
+                         'False').lower() in ('true', '1', 't')
+    if no_check:
+        return True
+
     module_map = {
         "5927": "dvb-usb-tbs5927.ko",
         "5520SE": "dvb-usb-tbs5520se.ko"

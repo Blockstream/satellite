@@ -2,6 +2,7 @@ ARG distro=ubuntu:jammy
 FROM $distro
 ARG distro
 MAINTAINER Blockstream Satellite
+ENV BLOCKSAT_NO_USB_DRIVERS_CHECK="true"
 
 SHELL ["/bin/bash", "-c"]
 RUN if [[ $distro == *"ubuntu"* ]]; then \
