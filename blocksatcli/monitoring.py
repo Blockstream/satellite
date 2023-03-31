@@ -100,6 +100,7 @@ class Reporter():
                  tls_key=None,
                  gnupghome=None,
                  passphrase=None,
+                 address=None,
                  interactive=True):
         """Reporter Constructor
 
@@ -117,6 +118,7 @@ class Reporter():
             passphrase : Passphrase to the private key used when reporting to
                          Blockstream's monitoring API. If None, it will be
                          obtained by prompting the user.
+            address : Receiver's address used in non-interactive mode.
             interactive: Whether to run in interactive mode.
 
         """
@@ -135,7 +137,8 @@ class Reporter():
 
         if bs_monitoring:
             self.bs_monitoring = monitoring_api.BsMonitoring(
-                cfg, cfg_dir, dest_addr, gnupghome, passphrase, interactive)
+                cfg, cfg_dir, dest_addr, gnupghome, passphrase, address,
+                interactive)
             self.dest_addr = self.bs_monitoring.get_metric_endpoint()
         else:
             self.dest_addr = dest_addr

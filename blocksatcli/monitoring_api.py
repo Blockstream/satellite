@@ -170,6 +170,7 @@ class BsMonitoring():
                  server_url,
                  gnupghome,
                  passphrase=None,
+                 address=None,
                  interactive=True,
                  lazy=False):
         """Construct the BsMonitoring object
@@ -182,6 +183,8 @@ class BsMonitoring():
             passphrase (str, optional): GPG private key passphrase for
                 non-interactive mode. When not defined, the user is prompted
                 for the passphrase instead. Defaults to None.
+            address (str, optional) : Receiver's address used in
+                non-interactive mode. Defaults to None.
             interactive (bool, optional): Whether to run in interactive mode.
             lazy (bool, optional): When True, the constructor returns before
                 running the initial interactive setup. Defaults to False.
@@ -210,7 +213,7 @@ class BsMonitoring():
         # Register with the Monitoring API if necessary
         self.rx_lock_event = threading.Event()
         if not self.registered:
-            self._register()
+            self._register(address)
         else:
             self._setup_registered()
 
