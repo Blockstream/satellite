@@ -731,7 +731,7 @@ def verify(args) -> bool:
 
     # Check RP filters
     if (not args.skip_rp):
-        if not rp.verify_filters(net_ifs):
+        if not rp.verify(net_ifs):
             return False
 
     # Check firewall rules
@@ -781,7 +781,7 @@ def configure(args):
 
     # Set RP filters
     if (not args.skip_rp):
-        rp.set_filters(net_ifs, prompt=(not args.yes), dry=args.dry_run)
+        rp.configure(net_ifs, prompt=(not args.yes), dry=args.dry_run)
 
     # Set firewall rules
     if (not args.skip_firewall):

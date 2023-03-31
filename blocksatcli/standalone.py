@@ -663,7 +663,7 @@ def verify(args) -> bool:
         if (not dependencies.check_apps(["iptables"])):
             return False
 
-        if not rp.verify_filters([interface]):
+        if not rp.verify([interface]):
             logger.info("RP filters not configured.")
             return False
 
@@ -708,7 +708,7 @@ def configure(args):
         interface = args.interface if (args.interface is not None) else \
             user_info['setup']['netdev']
 
-        rp.set_filters([interface], prompt=(not args.yes), dry=args.dry_run)
+        rp.configure([interface], prompt=(not args.yes), dry=args.dry_run)
         firewall.configure([interface],
                            defs.src_ports,
                            user_info['sat']['ip'],
