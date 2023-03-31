@@ -254,17 +254,19 @@ def check_ips(net_ifs, ip_addrs):
     Args:
         net_ifs   : List of DVB network interface names
         ip_addrs  : List of IP addresses for the dvbnet interface's subnet mask
-        verbose   : Controls verbosity
 
     """
     for net_if, ip_addr in zip(net_ifs, ip_addrs):
         has_ip, ip_ok = _check_ip(net_if, ip_addr)
         if (not has_ip):
-            raise ValueError(
+            logger.info(
                 "Interface {} does not have an IP address".format(net_if))
+            return False
         elif (has_ip and not ip_ok):
-            raise ValueError("Interface {} IP is not {}".format(
-                net_if, ip_addr))
+            logger.info("Interface {} IP is not {}".format(net_if, ip_addr))
+            return False
+
+    return True
 
 
 def rm_ip(ifname, dry=False):
