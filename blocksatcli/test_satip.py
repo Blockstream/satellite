@@ -3,6 +3,7 @@ import zipfile
 from pathlib import Path
 from unittest import TestCase
 from unittest.mock import patch
+from urllib.error import URLError
 
 from .upnp import SSDPDevice
 from . import satip
@@ -41,10 +42,16 @@ class MockResponse():
 
 class TestApi(TestCase):
 
+    @patch('urllib.request.urlopen')
     @patch('blocksatcli.util.ask_multiple_choice')
     @patch('blocksatcli.upnp.UPnP.discover')
-    def test_discover(self, mock_upnp_discover, mock_ask_multi_choice):
+    def test_discover(self, mock_upnp_discover, mock_ask_multi_choice,
+                      mock_urllib_urlopen):
         """Test Sat-IP device discovery"""
+        # Raise a mocked URLError instead of trying to open the URL to get the
+        # description from the faked devices.
+        mock_urllib_urlopen.side_effect = URLError('mocked method')
+
         addr1 = ('192.168.9.50', 33783)
         addr2 = ('192.168.9.51', 33781)
         wrong_ssdp_dev = _gen_ssdp_dev(addr1, 'Test-Dev')
