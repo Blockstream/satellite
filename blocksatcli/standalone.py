@@ -490,6 +490,7 @@ class S400Client(SnmpClient):
                 if not self._set(config_tuple):
                     if (not self.dry):
                         logger.error("SNMP configuration error")
+                        sys.exit(1)
                     return
 
             if self.dry and set_calls == 0:
