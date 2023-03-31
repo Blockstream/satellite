@@ -382,7 +382,7 @@ class S400Client(SnmpClient):
             freq_corr (float): Frequency correction in MHz.
 
         Returns:
-            update_cfg (list): List of tuples containing the parameters to be
+            list: List of tuples containing the parameters to be
                 applied/updated on the S400.
 
         """
@@ -464,10 +464,7 @@ class S400Client(SnmpClient):
 
         update_cfg = []
         for section in target_cfg.keys():
-            if self.dry:
-                logger.info(section)
-            else:
-                logger.info("Checking {} configuration".format(section))
+            logger.info("Checking {} configuration".format(section))
 
             for config_tuple in target_cfg[section]:
                 key, val = config_tuple
@@ -495,7 +492,7 @@ class S400Client(SnmpClient):
 
         return update_cfg
 
-    def configure(self, info, freq_corr):
+    def configure(self, info, freq_corr, update_cfg=None):
         """Configure the S400
 
         Args:
@@ -503,7 +500,8 @@ class S400Client(SnmpClient):
             freq_corr (float): Frequency correction in MHz.
 
         """
-        update_cfg = self.verify(info, freq_corr)
+        if update_cfg is None:
+            update_cfg = self.verify(info, freq_corr)
 
         if self.dry and len(update_cfg) == 0:
             logger.info("- Already configured")
@@ -576,16 +574,19 @@ def subparser(subparsers):  # pragma: no cover
                     default=False,
                     action='store_true',
                     help="Default to answering Yes to configuration prompts")
-    p1.add_argument('--host-only',
-                    default=False,
-                    action='store_true',
-                    help="Configure the host only and skip the receiver "
-                    "configuration")
-    p1.add_argument('--rx-only',
-                    default=False,
-                    action='store_true',
-                    help="Configure the receiver only and skip the host "
-                    "configuration")
+    only_opts = p1.add_mutually_exclusive_group()
+    only_opts.add_argument(
+        '--host-only',
+        default=False,
+        action='store_true',
+        help="Configure the host only and skip the receiver "
+        "configuration")
+    only_opts.add_argument(
+        '--rx-only',
+        default=False,
+        action='store_true',
+        help="Configure the receiver only and skip the host "
+        "configuration")
     p1.add_argument("--dry-run",
                     action='store_true',
                     default=False,
@@ -624,12 +625,26 @@ def verify(args) -> bool:
     """Verify the configuration of the standalone receiver and host
 
     Returns:
-        bool: True if the configuration is already correctly applied and False
-            if the configuration is not complete.
+        dict: Dictionary indicating which components (package dependencies, RP
+            filters, firewall, or S400) still need configuration. When the S400
+            needs configuration, the dictionary also contains the list of
+            tuples to be applied to the S400 over SNMP.
 
     """
+    res = {
+        'config': {
+            'deps': args.rx_only,  # assume OK if --rx-only
+            'rp': args.rx_only,
+            'firewall': args.rx_only,
+            's400': args.host_only,  # assume OK if --host-only
+        },
+        'user_info': None,
+        's400': None
+    }
+
     util.print_header("Verifying Configuration")
     user_info = _common(args)
+    res['user_info'] = user_info
     if (user_info is None):
         logger.error("Receiver configuration not found.")
         sys.exit(0)
@@ -660,28 +675,29 @@ def verify(args) -> bool:
             user_info['setup']['netdev']
 
         # Check if all dependencies are installed
-        if (not dependencies.check_apps(["iptables"])):
-            return False
+        res['config']['deps'] = dependencies.check_apps(["iptables"])
 
-        if not rp.verify([interface]):
-            logger.info("RP filters not configured.")
-            return False
+        res['config']['rp'] = rp.verify([interface])
+        if not res['config']['rp']:
+            logger.info("Reverse path (RP) filters not configured.")
 
-        if not firewall.verify(net_ifs=[interface],
-                               ports=defs.src_ports,
-                               src_ip=user_info['sat']['ip'],
-                               igmp=True):
+        res['config']['firewall'] = firewall.verify(
+            net_ifs=[interface],
+            ports=defs.src_ports,
+            src_ip=user_info['sat']['ip'],
+            igmp=True)
+        if not res['config']['firewall']:
             logger.info("Firewall rules not configured.")
-            return False
 
     if (not args.host_only):
         s400 = S400Client(args.demod, rx_ip_addr, args.port, dry=args.dry_run)
         s400.check_reachable()
-        update_cfg = s400.verify(user_info, freq_corr_mhz)
-        if len(update_cfg) != 0:
-            return False
+        missing_snmp_configs = s400.verify(user_info, freq_corr_mhz)
+        res['config']['s400'] = len(missing_snmp_configs) == 0
+        if not res['config']['s400']:
+            res['s400'] = missing_snmp_configs
 
-    return True
+    return res
 
 
 def configure(args):
@@ -693,22 +709,24 @@ def configure(args):
     configurations.
 
     """
-    if verify(args):
+    verify_res = verify(args)
+    if all(verify_res['config'].values()):
         logger.info("Receiver already configured")
         return
 
-    user_info = _common(args)
-    if (user_info is None):
-        return
+    user_info = verify_res['user_info']
+    assert (user_info is not None)
 
     # Configure the subprocess runner
     runner.set_dry(args.dry_run)
 
-    if (not args.rx_only):
-        interface = args.interface if (args.interface is not None) else \
-            user_info['setup']['netdev']
+    interface = args.interface if (args.interface is not None) else \
+        user_info['setup']['netdev']
 
+    if not verify_res['config']['rp']:
         rp.configure([interface], prompt=(not args.yes), dry=args.dry_run)
+
+    if not verify_res['config']['firewall']:
         firewall.configure([interface],
                            defs.src_ports,
                            user_info['sat']['ip'],
@@ -716,7 +734,9 @@ def configure(args):
                            prompt=(not args.yes),
                            dry=args.dry_run)
 
-    if (not args.host_only):
+    if not verify_res['config']['s400']:
+        assert verify_res['s400'] is not None
+        assert isinstance(verify_res['s400'], list)
         util.print_header("Receiver Configuration")
 
         rx_ip_addr = _parse_address(user_info, args.address)
@@ -724,7 +744,7 @@ def configure(args):
 
         s400 = S400Client(args.demod, rx_ip_addr, args.port, dry=args.dry_run)
         s400.check_reachable()
-        s400.configure(user_info, freq_corr_mhz)
+        s400.configure(user_info, freq_corr_mhz, verify_res['s400'])
 
 
 def _get_monitor(args):
