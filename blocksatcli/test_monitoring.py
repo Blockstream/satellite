@@ -245,7 +245,7 @@ class TestReceiverMonitor(TestEnv):
         self.assertEqual(res_without_units, self.stats_without_units)
 
     @patch('blocksatcli.monitoring.Reporter.send')
-    @patch('requests.post')  # used at BsMonitoring._gen_api_password
+    @patch('requests.post')  # used at BsMonitoring.gen_api_password
     def test_monitor_update_with_reporting_enabled(self, mock_post_req,
                                                    mock_send_report):
         monitor = self.configure_monitor_setup(report=True)

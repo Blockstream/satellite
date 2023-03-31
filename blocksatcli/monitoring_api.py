@@ -214,7 +214,7 @@ class BsMonitoring():
         else:
             self._setup_registered()
 
-    def _has_matching_keys(self):
+    def has_matching_keys(self):
         """Check if the GPG key used for monitoring is available"""
         fingerprint = self.user_info['monitoring']['fingerprint']
         matching_keys = self.gpg.gpg.list_keys(True, keys=fingerprint)
@@ -234,7 +234,7 @@ class BsMonitoring():
         """
         logger.info("Loading the Monitoring API reporting credentials")
 
-        if not self._has_matching_keys():
+        if not self.has_matching_keys():
             # In non-interactive mode, delete the credentials and try
             # registering again with no prompt to the user. There is no concern
             # with losing the credentials here because the Monitoring API
@@ -245,7 +245,7 @@ class BsMonitoring():
                 "with a new key?",
                 default="n")
             if (try_again):
-                self._delete_credentials()
+                self.delete_credentials()
                 self._register()
             else:
                 print("Aborting")
@@ -268,14 +268,14 @@ class BsMonitoring():
             self.disabled = True
             return
 
-        if not self._has_password():
-            self._gen_api_password()
+        if not self.has_password():
+            self.gen_api_password()
         else:
-            self._load_api_password()
+            self.load_api_password()
 
         logger.info("Ready to report the Rx status to the Monitoring API")
 
-    def _delete_credentials(self):
+    def delete_credentials(self):
         """Remove the registration info from the local config file"""
         self.user_info.pop('monitoring')
         config.write_cfg_file(self.cfg, self.cfg_dir, self.user_info)
@@ -297,7 +297,7 @@ class BsMonitoring():
         return os.path.join(self.api_cfg_dir,
                             f'{fingerprint}_{self.cfg}_pwd.gpg')
 
-    def _has_password(self):
+    def has_password(self):
         return ('monitoring' in self.user_info) and \
             ('has_password' in self.user_info['monitoring']) and \
             (self.user_info['monitoring']['has_password'])
@@ -324,7 +324,7 @@ class BsMonitoring():
         self.user_info['monitoring']['has_password'] = True
         config.write_cfg_file(self.cfg, self.cfg_dir, self.user_info)
 
-    def _load_api_password(self):
+    def load_api_password(self):
         """Load the password used for non-GPG authentication
 
         When already defined, the password is available locally on an encrypted
@@ -355,7 +355,7 @@ class BsMonitoring():
         self.user_info['monitoring']['has_password'] = True
         config.write_cfg_file(self.cfg, self.cfg_dir, self.user_info)
 
-    def _gen_api_password(self):
+    def gen_api_password(self):
         """Generate password for non-GPG-authenticated requests
 
         This is the password used as a lightweight authentication mechanism in
@@ -590,8 +590,8 @@ class BsMonitoring():
                 # If we are trying to register an account that already exists,
                 # chances are that the config dir already has its non-GPG
                 # password file. If not, try to redefine the password.
-                self._load_api_password()
-                self._gen_api_password()  # will generate only if necessary
+                self.load_api_password()
+                self.gen_api_password()  # will generate only if necessary
                 break
 
             try:
@@ -623,7 +623,7 @@ class BsMonitoring():
                 self._save_credentials(uuid, fingerprint)
                 # Now that the account is verified, we can generate the
                 # password for non-GPG-authenticated requests
-                self._gen_api_password()
+                self.gen_api_password()
                 break
 
         if (attempts == 0):
@@ -718,7 +718,7 @@ def _load_bs_monitoring(args):
         not_registered_error()
         return
 
-    if not bs_monitoring._has_matching_keys():
+    if not bs_monitoring.has_matching_keys():
         logger.warning(
             "Please confirm the GPG home (option \'--gnupghome\') is "
             "set correctly")
@@ -739,8 +739,8 @@ def set_password(args):
             bs_monitoring.user_info['monitoring']['fingerprint']):
         return
 
-    if bs_monitoring._has_password():
-        bs_monitoring._load_api_password()
+    if bs_monitoring.has_password():
+        bs_monitoring.load_api_password()
 
     if bs_monitoring.api_pwd is not None:
         logger.info("Found existing password at {}.".format(
@@ -751,7 +751,7 @@ def set_password(args):
         # Let the password generation function generate a new one
         bs_monitoring.api_pwd = None
 
-    bs_monitoring._gen_api_password()
+    bs_monitoring.gen_api_password()
 
 
 def add_to_parser(parser):

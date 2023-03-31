@@ -111,7 +111,7 @@ class TestMonitoringApi(TestEnv):
         self.assertTrue(mock_setup_registered.called)
 
         # Delete the receiver credentials from the configuration file
-        monitor_api._delete_credentials()
+        monitor_api.delete_credentials()
         user_info = config.read_cfg_file(self.cfg_name, self.cfg_dir)
         self.assertFalse('monitoring' in user_info)
 
@@ -217,7 +217,7 @@ class TestMonitoringApi(TestEnv):
             # LNB
             'Selfsat Integrated LNB')
 
-    @patch('blocksatcli.monitoring_api.BsMonitoring._gen_api_password')
+    @patch('blocksatcli.monitoring_api.BsMonitoring.gen_api_password')
     @patch('blocksatcli.monitoring_api.requests.patch')
     @patch('blocksatcli.monitoring_api.queue.Queue')
     @patch('blocksatcli.monitoring_api.ApiListener')
