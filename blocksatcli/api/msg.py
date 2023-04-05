@@ -123,8 +123,9 @@ class ApiMsg:
         self.data['encapsulated'] = header + orig_data
 
         logger.debug("Checksum: {:d}".format(crc32))
-        logger.debug("Packed in data structure with a total of %d bytes" %
-                     (len(self.data['encapsulated'])))
+        logger.debug(
+            "Packed in data structure with a total of {:d} bytes".format(
+                len(self.data['encapsulated'])))
 
     def decapsulate(self):
         """Decapsulate the data structure
@@ -158,12 +159,13 @@ class ApiMsg:
         calc_checksum = zlib.crc32(payload)
 
         if (calc_checksum != in_checksum):
-            logger.error("Checksum (%d) does not match the header value (%d)" %
-                         (calc_checksum, in_checksum))
+            logger.error(
+                "Checksum ({}) does not match the header value ({})".format(
+                    calc_checksum, in_checksum))
             return False
         else:
-            logger.info("File: %s\tChecksum: %d\tSize: %d bytes" %
-                        (self.filename, in_checksum, len(payload)))
+            logger.info("File: {}; Checksum: {}; Size: {:d} bytes".format(
+                self.filename, in_checksum, len(payload)))
 
         self.data['original'] = payload
         return True
@@ -187,10 +189,10 @@ class ApiMsg:
         data = self.data['encapsulated'] if self.data['encapsulated'] \
             else self.data['original']
 
-        logger.debug("Encrypt for recipient %s" % (recipient))
+        logger.debug("Encrypt for recipient {}".format(recipient))
 
         if (sign and sign is not True):
-            logger.debug("Sign message using key %s" % (sign))
+            logger.debug("Sign message using key {}".format(sign))
 
         encrypted_obj = gpg.encrypt(data,
                                     recipient,
@@ -201,8 +203,9 @@ class ApiMsg:
             raise ValueError(encrypted_obj.status)
 
         self.data['encrypted'] = encrypted_obj.data
-        logger.debug("Encrypted version of the data structure has %d bytes" %
-                     (len(self.data['encrypted'])))
+        logger.debug(
+            "Encrypted version of the data structure has {:d} bytes".format(
+                len(self.data['encrypted'])))
 
     def decrypt(self, gpg, signer_filter=None):
         """Decrypt the data
@@ -220,9 +223,10 @@ class ApiMsg:
         decrypted_data = gpg.decrypt(self.data['encrypted'])
 
         if (not decrypted_data.ok):
-            logger.info("Size: %7d bytes\t Decryption: FAILED\t" %
-                        (len(self.data['encrypted'])) +
-                        "Not encrypted for us (%s)" % (decrypted_data.status))
+            logger.info(
+                "Size: {:d} bytes; Decryption: FAILED; ".format(
+                    len(self.data['encrypted'])) +
+                "Not encrypted for us ({})".format(decrypted_data.status))
             return False
 
         # Is the message digitally signed?
@@ -233,18 +237,18 @@ class ApiMsg:
 
             if verified:
                 sign_str_long = \
-                    "Signed by %s (verified w/ trust level: %s)" % (
+                    "Signed by {} (verified w/ trust level: {})".format(
                         signed_by, decrypted_data.trust_text)
             else:
-                sign_str_long = "Signed by %s (unverified)" % (signed_by)
+                sign_str_long = "Signed by {} (unverified)".format(signed_by)
         else:
             sign_str_short = "Unsigned"
             sign_str_long = ""
             signed_by = None
             verified = False
 
-        logger.info("Encrypted size: %7d bytes\t Decryption: OK    \t%s" %
-                    (len(self.data['encrypted']), sign_str_short))
+        logger.info("Encrypted size: {:d} bytes; Decryption: OK; {}".format(
+            len(self.data['encrypted']), sign_str_short))
 
         if (len(sign_str_long) > 0):
             logger.info(sign_str_long)
@@ -263,7 +267,8 @@ class ApiMsg:
                 logger.warning("Dropping message - signature unverified")
                 return False
 
-        logger.info("Decrypted size: %7d bytes" % (len(str(decrypted_data))))
+        logger.info("Decrypted size: {:d} bytes".format(
+            len(str(decrypted_data))))
 
         # We can't know whether decrypted data is encapsulated or not. So, for
         # now, put the data into both fields. If the decrypted data is
@@ -294,12 +299,13 @@ class ApiMsg:
         """
         data = self.data['original']
 
-        logger.debug("Sign message using key %s" % (sign_key))
+        logger.debug("Sign message using key {}".format(sign_key))
 
         signed_obj = gpg.sign(data, sign_key)
 
-        logger.debug("Signed version of the data structure has %d bytes" %
-                     (len(signed_obj.data)))
+        logger.debug(
+            "Signed version of the data structure has {:d} bytes".format(
+                len(signed_obj.data)))
 
         self.data['original'] = signed_obj.data
 
@@ -645,7 +651,7 @@ def decode(data,
         if (sender and not msg.verify(gpg, sender)):
             return
 
-        logger.info("Message Size: {:d} bytes\tSaving in plaintext".format(
+        logger.info("Size: {:d} bytes".format(
             msg.get_length(target='original')))
 
     else:

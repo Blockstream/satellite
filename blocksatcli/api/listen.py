@@ -136,7 +136,7 @@ class ApiListener():
             else:
                 logger.info("-------- API message {:d}".format(seq_num))
             logger.debug("Message source: {}:{}".format(addr[0], addr[1]))
-            logger.info("Fragments: {:d}".format(
+            logger.debug("Fragments: {:d}".format(
                 pkt_handler.get_n_frags(seq_num)))
 
             # Send confirmation of reception to API server
