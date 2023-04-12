@@ -175,7 +175,13 @@ class TestMonitoringApi(TestEnv):
         """Test user interaction in the register procedure
         """
         # Mock user input
-        mock_user_input.side_effect = ['y', 'City', 'State', 'Country', 'y']
+        mock_user_input.side_effect = [
+            'y',  # show explainer
+            'City',
+            'State',
+            'Country',
+            'y'  # confirm address
+        ]
 
         # Create a configuration file with an unregistered receiver
         create_test_setup(self.cfg_name,

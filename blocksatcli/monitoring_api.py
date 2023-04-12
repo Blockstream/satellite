@@ -15,7 +15,7 @@ from . import defs
 from . import config
 from .cache import Cache
 from .api import api
-from .api.gpg import Gpg
+from .api.gpg import Gpg, is_gpg_keyring_set
 from .api.listen import ApiListener
 from .api.order import ApiChannel
 
@@ -120,6 +120,29 @@ def _register_explainer():
         _privacy_explainer()
 
 
+def _ask_address():
+    confirmed = False
+    while (not confirmed):
+        # City (required)
+        city = util.string_input("City")
+
+        # State (optional)
+        state = input("State: ")
+        if (len(state) > 0):
+            address = "{}, {}".format(city, state)
+        else:
+            address = city
+
+        # Country (required)
+        country = util.string_input("Country")
+
+        # Wait until the user confirms the full address
+        address += ", {}".format(country)
+        confirmed = util.ask_yes_or_no("\"{}\"?".format(address))
+
+    return address
+
+
 class BsMonitoring():
     """Blockstream Satellite Monitoring API
 
@@ -147,6 +170,7 @@ class BsMonitoring():
                  server_url,
                  gnupghome,
                  passphrase=None,
+                 interactive=True,
                  lazy=False):
         """Construct the BsMonitoring object
 
@@ -158,9 +182,9 @@ class BsMonitoring():
             passphrase (str, optional): GPG private key passphrase for
                 non-interactive mode. When not defined, the user is prompted
                 for the passphrase instead. Defaults to None.
+            interactive (bool, optional): Whether to run in interactive mode.
             lazy (bool, optional): When True, the constructor returns before
                 running the initial interactive setup. Defaults to False.
-
         """
         self.cfg = cfg
         self.cfg_dir = cfg_dir
@@ -170,6 +194,7 @@ class BsMonitoring():
         if (passphrase is not None):
             self.gpg.set_passphrase(passphrase)
 
+        self.interactive = interactive
         self.api_pwd = None
         self.api_cfg_dir = os.path.join(self.cfg_dir, 'monitoring_api')
 
@@ -210,7 +235,12 @@ class BsMonitoring():
         logger.info("Loading the Monitoring API reporting credentials")
 
         if not self._has_matching_keys():
-            try_again = util.ask_yes_or_no(
+            # In non-interactive mode, delete the credentials and try
+            # registering again with no prompt to the user. There is no concern
+            # with losing the credentials here because the Monitoring API
+            # informs when a registering account already exists and is already
+            # verified. Also, the password can be regenerated as needed.
+            try_again = not self.interactive or util.ask_yes_or_no(
                 "Reset the Monitoring API credentials and try registering "
                 "with a new key?",
                 default="n")
@@ -350,28 +380,19 @@ class BsMonitoring():
             self.api_pwd = rv.json()['new_password']
             self._save_api_password(self.api_pwd)
 
-    def _register(self):
-        """Run the registration procedure
+    def _register_interactive(self):
+        """Interactive configuration of the user setup
 
-        The procedure is divided in two steps:
+        Executes the following steps:
+            1) Shows the registration explainer;
+            2) Ensures a GPG keyring is set up;
+            3) Loads and validates the GPG passphrase for decoding;
+            4) Collects the user address interactively.
 
-        1) Interaction with the user;
-        2) Interaction with the API.
-
-        This method implements step 1, where it sets up a GPG keyring, collects
-        the user address, and prepares the request parameters for registering
-        with the monitoring API. In the end, it dispatches step 2 on a thread.
-
-        Note step 2 has to run on a thread because it needs the receiver lock
-        first. By running on a thread, the main (parent) thread can proceed to
-        initializing the receiver.
+        Returns:
+            str: The collected address or None in case of failure.
 
         """
-        self.registration_running = True
-        self.registration_failure = False
-        logger.info("Initiating the registration with the Monitoring API")
-
-        # Save some state on the local cache
         cache = Cache(self.cfg_dir)
 
         # Show the explainer when running the registration for the first time
@@ -405,41 +426,66 @@ class BsMonitoring():
 
         os.system('clear')
 
-        confirmed = False
+        # In interactive mode, the address is either loaded from the cache or
+        # provided by the user
+        use_cached_address = False
         cached_address = cache.get(self.cfg + '.monitoring.location')
         if cached_address is not None:
-            confirmed = util.ask_yes_or_no(
+            use_cached_address = util.ask_yes_or_no(
                 "Reporting from \"{}\"?".format(cached_address))
 
-        if confirmed:
+        if use_cached_address:
             address = cached_address
         else:
             util.fill_print(
                 "Please inform you city, state (if applicable), and country:")
-
-        while (not confirmed):
-            # City (required)
-            city = util.string_input("City")
-
-            # State (optional)
-            state = input("State: ")
-            if (len(state) > 0):
-                address = "{}, {}".format(city, state)
-            else:
-                address = city
-
-            # Country (required)
-            country = util.string_input("Country")
-
-            # Wait until the user confirms the full address
-            address += ", {}".format(country)
-            confirmed = util.ask_yes_or_no("\"{}\"?".format(address))
+            address = _ask_address()
             cache.set(self.cfg + '.monitoring.location', address)
             cache.save()
 
         os.system('clear')
+        return address
+
+    def _register(self, address=None):
+        """Run the registration procedure
+
+        The procedure is divided in two steps:
+
+        1) Interaction with the user;
+        2) Interaction with the API.
+
+        This method implements step 1 and dispatches step 2 on a thread. Step 2
+        has to run on a thread because it needs the receiver lock first. By
+        running on a thread, the main (parent) thread can proceed to
+        initializing the receiver.
+
+        Args:
+            address (str, optional): Receiver's address used in non-interactive
+                mode. Defaults to None.
+
+        """
+        self.registration_running = True
+        self.registration_failure = False
+        logger.info("Initiating the registration with the Monitoring API")
+
+        if self.interactive:
+            res = self._register_interactive()
+            if res is None:
+                return
+            # Use the address collected interactively, not the one provided by
+            # argument:
+            _address = res
+        else:
+            # In non-interactive mode, the caller must take care of the steps
+            # otherwise implemented by the interactive routine. Also, in this
+            # case, the address must be provided by argument.
+            assert is_gpg_keyring_set(self.gpg.gpghome)
+            assert self.gpg.passphrase is not None
+            assert address is not None
+            _address = address
 
         # Registration parameters
+        fingerprint = self.gpg.get_default_priv_key()['fingerprint']
         pubkey = self.gpg.gpg.export_keys(fingerprint)
         satellite = self.user_info['sat']['alias']
         rx_type = config.get_rx_model(self.user_info)
@@ -449,7 +495,7 @@ class BsMonitoring():
         # Run step 2 on a thread
         t1 = threading.Thread(target=self._register_thread,
                               daemon=True,
-                              args=(fingerprint, pubkey, address, satellite,
+                              args=(fingerprint, pubkey, _address, satellite,
                                     rx_type, antenna, lnb))
         t1.start()
 
