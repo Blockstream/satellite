@@ -226,7 +226,9 @@ def listen(args):
         user_info = blocksatcli_config.read_cfg_file(args.cfg, args.cfg_dir)
         interface = blocksatcli_config.get_net_if(user_info)
     logger.info("Listening on interface: {}".format(interface))
-    logger.info("Downloads will be saved at: {}".format(download_dir))
+
+    if not args.no_save:
+        logger.info("Downloads will be saved at: {}".format(download_dir))
 
     # A passphrase is required for decryption (but not for signature
     # verification)
