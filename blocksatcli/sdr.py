@@ -16,6 +16,8 @@ from . import config, defs, util, dependencies, monitoring, tsp
 logger = logging.getLogger(__name__)
 runner = util.ProcessRunner(logger)
 
+MBYTES = 2**20
+
 
 def _verify_max_pipe_size(pipesize):
     """Verify the maximum size of pipes currently configured
@@ -332,6 +334,31 @@ def _record_iq_samples(args, l_band_freq, samp_rate, interactive):
         p1.kill()
 
 
+def verify(args):
+    """Check the host configuration"""
+    if not args.implementation == 'leandvb':
+        return True
+
+    logger.info("Checking SDR host configuration")
+    pipe_size_bytes = int(args.pipe_size * MBYTES)
+    insufficient_pipe_size, _ = _verify_max_pipe_size(pipe_size_bytes)
+
+    return not insufficient_pipe_size
+
+
+def configure(args):
+    """Configure the host"""
+    if not args.implementation == 'leandvb':
+        return True
+
+    if verify(args):
+        return True
+
+    logger.info("Running SDR host configuration")
+    pipe_size_bytes = int(args.pipe_size * MBYTES)
+    return _tune_max_pipe_size(pipe_size_bytes, not args.yes)
+
+
 def subparser(subparsers):  # pragma: no cover
     """Parser for sdr command"""
     default_impl = 'leandvb' if which('dvbs2-rx') is None else 'gr-dvbs2rx'
@@ -497,10 +524,10 @@ def run(args, monitor: monitoring.Monitor = None):
 
     util.check_configured_setup_type(info, defs.sdr_setup_type, logger)
 
-    if args.implementation == 'leandvb':
-        pipe_size_bytes = int(args.pipe_size * (2**20))
-        if (not _tune_max_pipe_size(pipe_size_bytes, interactive)):
-            return
+    # Configure the host
+    pipe_size_bytes = int(args.pipe_size * MBYTES)
+    if not configure(args):
+        return
 
     # Check if all dependencies are installed
     apps = ["rtl_sdr"]
