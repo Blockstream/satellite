@@ -17,6 +17,26 @@ logger = logging.getLogger(__name__)
 runner = util.ProcessRunner(logger)
 
 
+def _verify_max_pipe_size(pipesize):
+    """Verify the maximum size of pipes currently configured
+
+    Returns:
+        tuple (bool, int): The boolean indicates whether the currently
+        configured pipe size is less than required. The integer indicates the
+        currently pipe size.
+
+    """
+    if (not which("sysctl")):
+        logging.error("Couldn't check max-pipe-size. Please check how to tune "
+                      "it in your OS.")
+        return False
+
+    ret = subprocess.check_output(["sysctl", "fs.pipe-max-size"])
+    current_max = int(ret.decode().split()[-1])
+
+    return current_max < pipesize, current_max
+
+
 def _tune_max_pipe_size(pipesize, interactive=True):
     """Tune the maximum size of pipes"""
     if (not which("sysctl")):
@@ -24,10 +44,9 @@ def _tune_max_pipe_size(pipesize, interactive=True):
                       "it in your OS.")
         return False
 
-    ret = subprocess.check_output(["sysctl", "fs.pipe-max-size"])
-    current_max = int(ret.decode().split()[-1])
+    insufficient_pipe_size, current_max = _verify_max_pipe_size(pipesize)
 
-    if (current_max < pipesize):
+    if insufficient_pipe_size:
         cmd = ["sysctl", "-w", "fs.pipe-max-size=" + str(pipesize)]
         print(
             textwrap.fill("The maximum pipe size that is currently "
