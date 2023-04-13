@@ -100,6 +100,38 @@ def _is_iptables_udp_rule_set(net_if, cmd):
     return False
 
 
+def _is_firewalld_udp_rule_set(rich_rule):
+    """Check if firewalld rule for UDP is already configured
+
+    Args:
+        rich_rule: Firewalld rich rule
+
+    Returns:
+        True if rule is already set, False otherwise.
+
+    """
+    cmd = ['firewall-cmd', '--query-rich-rule', "{}".format(rich_rule)]
+    res = runner.run(cmd, root=True, capture_output=True).stdout
+
+    return res == "yes"
+
+
+def _is_firewalld_igmp_rule_set():
+    """Check if firewalld rule for UDP is already configured
+
+    Args:
+        rich_rule: Firewalld rich rule
+
+    Returns:
+        True if rule is already set, False otherwise.
+
+    """
+    cmd = ['firewall-cmd', '--query-protocol=igmp']
+    res = runner.run(cmd, root=True, capture_output=True).stdout
+
+    return res == "yes"
+
+
 def _add_iptables_rule(net_if, cmd):
     """Add iptables rule
 
@@ -130,17 +162,8 @@ def _add_iptables_rule(net_if, cmd):
                 print(" ".join(rule['rule']) + "\n")
 
 
-def _configure_iptables(net_if, ports, igmp=False, prompt=True):
-    """Configure iptables rules on DVB-S2 interface
-
-    Args:
-        net_if : DVB network interface name
-        ports  : ports used for blocks traffic and API traffic
-        igmp   : Whether or not to configure rule to accept IGMP queries
-        prompt : Ask yes/no before applying any changes
-
-    """
-
+def _get_iptables_cmd(net_if, ports, igmp):
+    """Get command-line options to configure iptables"""
     cmd = [
         "iptables",
         "-I",
@@ -156,6 +179,44 @@ def _configure_iptables(net_if, ports, igmp=False, prompt=True):
         "-j",
         "ACCEPT",
     ]
+
+    cmd_igmp = [
+        "iptables",
+        "-I",
+        "INPUT",
+        "-p",
+        "igmp",
+        "-i",
+        net_if,
+        "-j",
+        "ACCEPT",
+    ]
+
+    return cmd if not igmp else cmd_igmp
+
+
+def _get_firewalld_rich_rule(src_ip, mcast_ip, portrange):
+    """Get firewalld rich rule to accept Blocksat traffic"""
+    return ("rule "
+            "family=ipv4 "
+            "source address={} "
+            "destination address={}/32 "
+            "port port={} protocol=udp accept".format(src_ip, mcast_ip,
+                                                      portrange))
+
+
+def _configure_iptables(net_if, ports, igmp=False, prompt=True):
+    """Configure iptables rules on DVB-S2 interface
+
+    Args:
+        net_if : DVB network interface name
+        ports  : ports used for blocks traffic and API traffic
+        igmp   : Whether or not to configure rule to accept IGMP queries
+        prompt : Ask yes/no before applying any changes
+
+    """
+
+    cmd = _get_iptables_cmd(net_if, ports, igmp=False)
 
     util.fill_print(
         "A firewall rule is required to accept Blocksat traffic arriving " +
@@ -181,17 +242,7 @@ def _configure_iptables(net_if, ports, igmp=False, prompt=True):
     # switches between itself and the DVB receiver to continue delivering the
     # multicast-addressed traffic. This overcomes the scenario where group
     # membership timeouts are implemented by the intermediate switches.
-    cmd = [
-        "iptables",
-        "-I",
-        "INPUT",
-        "-p",
-        "igmp",
-        "-i",
-        net_if,
-        "-j",
-        "ACCEPT",
-    ]
+    cmd = _get_iptables_cmd(net_if, ports, igmp=True)
 
     print()
     util.fill_print(
@@ -267,12 +318,7 @@ def _configure_firewalld(net_if, ports, src_ip, igmp, prompt):
             print("\nFirewall configuration cancelled")
             return
 
-    rich_rule = ("rule "
-                 "family=ipv4 "
-                 "source address={} "
-                 "destination address={}/32 "
-                 "port port={} protocol=udp accept".format(
-                     src_ip, defs.mcast_ip, portrange))
+    rich_rule = _get_firewalld_rich_rule(src_ip, defs.mcast_ip, portrange)
     runner.run(['firewall-cmd', '--add-rich-rule', "{}".format(rich_rule)],
                root=True)
 
@@ -297,6 +343,80 @@ def _configure_firewalld(net_if, ports, src_ip, igmp, prompt):
 
     runner.run(['firewall-cmd', '--add-protocol=igmp'], root=True)
     print()
+
+
+def _verify_firewalld(ports, src_ip, igmp):
+    """Verify if firewalld rules are set
+
+    Args:
+        ports   : UDP ports used by satellite traffic
+        src_ip  : Source IP to whitelist (unique to each satellite)
+        igmp    : Whether or not to configure rule to accept IGMP queries
+
+    Returns:
+        True if rule is already set, False otherwise.
+
+    """
+    if len(ports) > 1:
+        portrange = "{}-{}".format(min(ports), max(ports))
+    else:
+        portrange = ports
+
+    # Check UDP rule
+    rich_rule = _get_firewalld_rich_rule(src_ip, defs.mcast_ip, portrange)
+    is_rule_set = _is_firewalld_udp_rule_set(rich_rule)
+
+    if not is_rule_set or not igmp:
+        # Early return if UDP rules are not set. If that is the case,
+        # we need to run the configuration process anyway.
+        return is_rule_set
+
+    # Check IGMP rule
+    is_igmp_rule_set = _is_firewalld_igmp_rule_set()
+    return is_igmp_rule_set
+
+
+def _verify_iptables(net_if, ports, src_ip, igmp):
+    """Verify if iptables rules are set
+
+    Args:
+        net_ifs : List of DVB network interface names
+        ports   : UDP ports used by satellite traffic
+        src_ip  : Source IP to whitelist (unique to each satellite)
+        igmp    : Whether or not to configure rule to accept IGMP queries
+
+    Returns:
+        True if rule is already set, False otherwise.
+
+    """
+    # Check UDP rule
+    cmd = _get_iptables_cmd(net_if, ports, igmp=False)
+    is_rule_set = _is_iptables_udp_rule_set(net_if, cmd)
+
+    if not is_rule_set or not igmp:
+        # Early return if UDP rules are not set. If that is the case,
+        # we need to run the configuration process anyway.
+        return is_rule_set
+
+    # Check IGMP rule
+    cmd = _get_iptables_cmd(net_if, ports, igmp=True)
+    is_igmp_rule_set = _is_iptables_igmp_rule_set(net_if, cmd)
+
+    return is_igmp_rule_set
+
+
+def verify(net_ifs, ports, src_ip, igmp=False):
+    assert (isinstance(net_ifs, list))
+    firewall_set = list()
+    for net_if in net_ifs:
+        if (is_firewalld()):
+            res = _verify_firewalld(ports, src_ip, igmp)
+        else:
+            res = _verify_iptables(net_if, ports, src_ip, igmp)
+
+        firewall_set.append(res)
+
+    return all(firewall_set)
 
 
 def configure(net_ifs, ports, src_ip, igmp=False, prompt=True, dry=False):
