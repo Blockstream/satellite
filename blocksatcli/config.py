@@ -172,27 +172,70 @@ def _ask_lnb_freq_range(sat):
             except ValueError:
                 continue
 
-        if (in_range[1] < in_range[0]):
-            in_range = []
-            print("Please, provide the lowest frequency first, followed by "
-                  "the highest.")
-            continue
-
-        if (in_range[0] < 3000 or in_range[1] < 3000):
-            in_range = []
-            print("Please, provide the frequencies in MHz.")
-            continue
-
-        if not _sat_freq_in_lnb_range(sat, {'in_range': in_range}):
-            print(
-                f"Please, choose a frequency range covering the {sat['name']} "
-                f"downlink frequency of {sat['dl_freq']} MHz")
+        is_valid, msg = _validate_lnb_freq_range(in_range, sat)
+        if not is_valid:
+            print(msg)
             in_range = []
             continue
 
         break
 
     return in_range
+
+
+def _validate_lnb_freq_range(freq_range, sat):
+    """Validate the LNB frequency range
+
+    Args:
+        freq_range (list): Two extreme LNB frequencies.
+        sat (dict): Dictionary with the Satellite information.
+
+    Returns:
+        is_valid (bool): Whether the two frequencies are valid.
+        msg (str): Detailed error message if the frequencies are invalid.
+
+    """
+    assert (isinstance(freq_range, list))
+
+    is_valid = False
+    msg = ""
+
+    if (freq_range[1] < freq_range[0]):
+        msg = ("Please, provide the lowest frequency first, followed by "
+               "the highest.")
+    elif (freq_range[0] < 3000 or freq_range[1] < 3000):
+        msg = "Please, provide the frequencies in MHz."
+    elif not _sat_freq_in_lnb_range(sat, {'in_range': freq_range}):
+        msg = (f"Please, choose a frequency range covering the {sat['name']} "
+               f"downlink frequency of {sat['dl_freq']} MHz")
+    else:
+        is_valid = True
+
+    return is_valid, msg
+
+
+def _validate_lnb_lo_freq(lo_freq, single_lo=False):
+    is_valid = False
+    msg = ""
+
+    if single_lo:
+        assert (isinstance(lo_freq, float))
+        if (lo_freq < 3000):
+            msg = "Please, provide the frequencies in MHz."
+        else:
+            is_valid = True
+
+    else:
+        assert (isinstance(lo_freq, list))
+        if (lo_freq[1] < lo_freq[0]):
+            msg = ("Please, provide the low LO frequency first, followed by "
+                   "the high LO frequency.")
+        elif (lo_freq[0] < 3000 or lo_freq[1] < 3000):
+            msg = "Please, provide the frequencies in MHz."
+        else:
+            is_valid = True
+
+    return is_valid, msg
 
 
 def _ask_lnb_lo(single_lo=True):
@@ -202,8 +245,9 @@ def _ask_lnb_lo(single_lo=True):
             lo_freq = util.typed_input("LNB LO frequency in MHz",
                                        in_type=float)
 
-            if (lo_freq < 3000):
-                print("Please, provide the frequencies in MHz.")
+            is_valid, msg = _validate_lnb_lo_freq(lo_freq, single_lo)
+            if (not is_valid):
+                print(msg)
                 continue
 
             break
@@ -219,15 +263,10 @@ def _ask_lnb_lo(single_lo=True):
             except ValueError:
                 continue
 
-        if (lo_freq[1] < lo_freq[0]):
+        is_valid, msg = _validate_lnb_lo_freq(lo_freq, single_lo)
+        if (not is_valid):
             lo_freq = []
-            print("Please, provide the low LO frequency first, followed by "
-                  "the high LO frequency.")
-            continue
-
-        if (lo_freq[0] < 3000 or lo_freq[1] < 3000):
-            lo_freq = []
-            print("Please, provide the frequencies in MHz.")
+            print(msg)
             continue
 
         break
