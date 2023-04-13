@@ -89,6 +89,31 @@ def _gen_cfgs(info, interface):
     return cfg
 
 
+def create_config_file(abs_path, info, ifname, concat=False, stdout=False):
+    """Generate bitcoin configuration file"""
+    # Generate configuration object
+    cfg = _gen_cfgs(info, ifname)
+
+    # Load and concatenate pre-existing configurations
+    if concat and os.path.exists(abs_path):
+        with open(abs_path, "r") as fd:
+            prev_cfg_text = fd.read()
+            cfg.load_text_cfg(prev_cfg_text)
+
+    # Export configurations to text format
+    cfg_text = cfg.text()
+
+    # Print configurations to stdout and don't save them
+    if stdout:
+        print(cfg_text)
+        return
+
+    with open(abs_path, "w") as fd:
+        fd.write(cfg_text)
+
+    print("Saved")
+
+
 def subparser(subparsers):  # pragma: no cover
     """Argument parser of bitcoin-conf command"""
     p = subparsers.add_parser(
@@ -135,46 +160,27 @@ def configure(args):
 
     conf_file = "bitcoin.conf"
     abs_path = os.path.join(path, conf_file)
+    save_file = not args.stdout
+
+    # Proceed to saving configurations
+    if save_file:
+        print("Save {} at {}".format(conf_file, path))
+        if not util.ask_yes_or_no("Proceed?"):
+            print("Aborted")
+            return
+
+        if not os.path.exists(path):
+            os.makedirs(path)
+
+        if os.path.exists(abs_path) and not args.concat:
+            if (not util.ask_yes_or_no("File already exists. Overwrite?")):
+                print("Aborted")
+                return
 
     # Network interface
     ifname = config.get_net_if(info)
 
-    # Generate configuration object
-    cfg = _gen_cfgs(info, ifname)
-
-    # Load and concatenate pre-existing configurations
-    if args.concat and os.path.exists(abs_path):
-        with open(abs_path, "r") as fd:
-            prev_cfg_text = fd.read()
-            cfg.load_text_cfg(prev_cfg_text)
-
-    # Export configurations to text format
-    cfg_text = cfg.text()
-
-    # Print configurations to stdout and don't save them
-    if (args.stdout):
-        print(cfg_text)
-        return
-
-    # Proceed to saving configurations
-    print("Save {} at {}".format(conf_file, path))
-
-    if (not util.ask_yes_or_no("Proceed?")):
-        print("Aborted")
-        return
-
-    if not os.path.exists(path):
-        os.makedirs(path)
-
-    if os.path.exists(abs_path) and not args.concat:
-        if (not util.ask_yes_or_no("File already exists. Overwrite?")):
-            print("Aborted")
-            return
-
-    with open(abs_path, "w") as fd:
-        fd.write(cfg_text)
-
-    print("Saved")
+    create_config_file(abs_path, info, ifname, args.concat, args.stdout)
 
     if (info['setup']['type'] == defs.linux_usb_setup_type):
         print()
