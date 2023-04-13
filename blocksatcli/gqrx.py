@@ -1,8 +1,9 @@
 """Generate gqrx configurations"""
 import os
-from argparse import ArgumentDefaultsHelpFormatter
-from . import config, util
 import textwrap
+from argparse import ArgumentDefaultsHelpFormatter
+
+from . import config, util
 
 
 def subparser(subparsers):  # pragma: no cover
@@ -27,24 +28,8 @@ def subparser(subparsers):  # pragma: no cover
     return subparser
 
 
-def configure(args):
-    """Configure GQRX"""
-    interactive = not args.yes
-    info = config.read_cfg_file(args.cfg, args.cfg_dir)
-
-    if (info is None):
-        return
-
-    util.print_header("Gqrx Conf Generator")
-
-    if args.path is None:
-        home = os.path.expanduser("~")
-        path = os.path.join(home, ".config", "gqrx")
-    else:
-        path = args.path
-
-    conf_file = "default.conf"
-    abs_path = os.path.join(path, conf_file)
+def gqrx_config(cfg_path, info, interactive=True):
+    """Generate Gqrx configuration file"""
 
     default_gains = r'@Variant(\0\0\0\b\0\0\0\x2\0\0\0\x6\0L\0N\0\x41\0\0' + \
         r'\0\x2\0\0\x1\x92\0\0\0\x4\0I\0\x46\0\0\0\x2\0\0\0\xcc)'
@@ -75,22 +60,44 @@ def configure(args):
         int(info['freqs']['lo'] * 1e6),
     )
 
+    cfg_dir = os.path.dirname(cfg_path)
+    if not os.path.exists(cfg_dir):
+        os.makedirs(cfg_dir)
+
+    if os.path.exists(cfg_path):
+        if (interactive
+                and not util.ask_yes_or_no("File already exists. Overwrite?")):
+            print("Aborted")
+            return
+
+    with open(cfg_path, "w") as file:
+        file.write(textwrap.dedent(cfg))
+
+    print("Saved")
+
+
+def configure(args):
+    """Configure GQRX"""
+    interactive = not args.yes
+    info = config.read_cfg_file(args.cfg, args.cfg_dir)
+
+    if (info is None):
+        return
+
+    util.print_header("Gqrx Conf Generator")
+
+    if args.path is None:
+        home = os.path.expanduser("~")
+        path = os.path.join(home, ".config", "gqrx")
+    else:
+        path = args.path
+
+    conf_file = "default.conf"
+    abs_path = os.path.join(path, conf_file)
     print("Save {} at {}/".format(conf_file, path))
 
     if (interactive and not util.ask_yes_or_no("Proceed?")):
         print("Aborted")
         return
 
-    if not os.path.exists(path):
-        os.makedirs(path)
-
-    if os.path.exists(abs_path):
-        if (interactive
-                and not util.ask_yes_or_no("File already exists. Overwrite?")):
-            print("Aborted")
-            return
-
-    with open(abs_path, "w") as file:
-        file.write(textwrap.dedent(cfg))
-
-    print("Saved")
+    gqrx_config(abs_path, info, interactive)
