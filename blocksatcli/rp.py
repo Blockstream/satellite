@@ -101,6 +101,20 @@ def _set_filters(dvb_ifs):
             _rm_filter(dvb_if)
 
 
+def verify_filters(dvb_ifs):
+    """Check if the RP filters are already configured properly"""
+    rp_filters_set = list()
+    rp_filters_set.append(_read_filter("all", nodry=True) == 0)
+    for dvb_if in dvb_ifs:
+        rp_filters_set.append(_read_filter(dvb_if, nodry=True) == 0)
+
+    all_rp_filters_set = all(rp_filters_set)
+    if all_rp_filters_set:
+        logger.info("RP filtering is already configured on DVB interfaces.")
+
+    return all_rp_filters_set
+
+
 def set_filters(dvb_ifs, prompt=True, dry=False):
     """Disable reverse-path (RP) filtering for the DVB interfaces
 
@@ -114,15 +128,7 @@ def set_filters(dvb_ifs, prompt=True, dry=False):
     runner.set_dry(dry)
     util.print_header("Reverse Path Filters")
 
-    # Check if the RP filters are already configured properly
-    rp_filters_set = list()
-    rp_filters_set.append(_read_filter("all", nodry=True) == 0)
-    for dvb_if in dvb_ifs:
-        rp_filters_set.append(_read_filter(dvb_if, nodry=True) == 0)
-
-    if (all(rp_filters_set)):
-        print("Current RP filtering configurations are already OK")
-        print("Skipping...")
+    if not dry and verify_filters(dvb_ifs):
         return
 
     util.fill_print("It will be necessary to reconfigure some reverse path \
