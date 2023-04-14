@@ -1,6 +1,7 @@
 # Changelog
 
 ## Releases
+- [0.4.6](#046)
 - [0.4.5](#045)
 - [0.4.4](#044)
 - [0.4.3](#043)
@@ -10,6 +11,34 @@
 - [0.3.2](#032)
 - [0.3.1](#031)
 - [0.3.0](#030)
+
+## 0.4.6
+
+Release Date: 2023-07-12
+
+### Added
+- Support for reporting to a custom Blockstream Monitoring server for testing.
+- Environmental variable to disable the verification of TBS USB drivers.
+- Generation of manpage and bash completion files via Makefile.
+- Command `blocksat-cli sat-ip ls` to list the available Sat-IP receivers.
+- Support for new Satellite API order queues on the `api list` command.
+
+### Changed
+- SSE client to custom implementation on the API demo Rx command.
+- Verification of already configured components before attempting to configure
+  the firewall, RP filters, SDR, S400, and USB receivers.
+- Dependency on `zfec` made optional.
+- Generate Gqrx configuration directly with the `blocksat-cli cfg` command for
+  SDR receivers.
+
+### Fixed
+- Receiver reports not timing out when the connection hangs.
+- GPG home directory not recursively created when setting up the directory.
+- Dependency on GPG key importing order when setting up the GPG directory.
+- GPG key creation not indicating an error for an empty passphrase.
+
+### Removed
+- Dependency on `sseclient-py`.
 
 ## 0.4.5
 
