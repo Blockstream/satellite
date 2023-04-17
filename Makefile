@@ -6,8 +6,10 @@ DISTRO     = ubuntu:jammy
 DISTRO_ALT = $(subst :,-,$(DISTRO))
 PLATFORM   = linux/amd64,linux/arm64
 DOCKERHUB_REPO = blockstream
+MANPAGE    = blocksat-cli.1
+COMPLETION = blocksat-cli.bash-completion
 
-.PHONY: all clean clean-py sdist wheel install docker pypi testpypi
+.PHONY: all clean clean-py sdist wheel install docker pypi testpypi manpage completion
 
 all: sdist
 
@@ -32,6 +34,16 @@ wheel: $(WHEEL)
 
 install: $(SDIST)
 	pip3 install $(SDIST)
+
+manpage: $(MANPAGE)
+
+$(MANPAGE): $(PY_FILES)
+	help2man ./blocksat-cli.py -o $@ -s 1
+
+completion: $(COMPLETION)
+
+$(COMPLETION): $(PY_FILES)
+	shtab blocksatcli.main.get_parser -s bash > $@
 
 docker: $(SDIST)
 	docker build --build-arg distro=$(DISTRO) \
