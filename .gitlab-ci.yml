@@ -45,6 +45,16 @@ test-py311:
   extends: .test
   image: python:3.11
 
+check-shtab:
+  extends: .test
+  image: python:3.11
+  before_script:
+    - pip3 install shtab
+  script:
+    - make && make install
+    - make completion
+    - git diff --exit-code blocksat-cli.bash-completion
+
 lint:
   image: python:3.9
   before_script:
