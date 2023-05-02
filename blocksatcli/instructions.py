@@ -4,7 +4,7 @@ import os
 import textwrap
 from argparse import ArgumentDefaultsHelpFormatter
 
-from . import util, defs, config
+from . import config, defs, util
 
 
 def _item(text):
@@ -14,6 +14,10 @@ def _item(text):
 def _code(text):
     print(textwrap.fill(text, initial_indent="    "))
     print()
+
+
+def _url(text):
+    print("\033[4m" + text + "\033[0m" + "\n")
 
 
 def _paragraph(text, text_wrap=True):
@@ -30,7 +34,8 @@ def _print(text,
            end_linebreak=False,
            end_prompt=False,
            text_wrap=True):
-    assert (style in ['header', 'subheader', 'paragraph', 'item', 'code'])
+    assert (style
+            in ['header', 'subheader', 'paragraph', 'item', 'code', 'url'])
 
     if style == 'header':
         util.print_header(text)
@@ -40,6 +45,8 @@ def _print(text,
         _item(text)
     elif style == 'code':
         _code(text)
+    elif style == 'url':
+        _url(text)
     else:
         _paragraph(text, text_wrap)
 
