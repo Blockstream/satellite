@@ -136,13 +136,22 @@ class SatIp():
         logger.debug("Local Sat-IP client address: {}".format(local_addr))
         self.local_addr = local_addr
 
-    def discover(self, interactive=True, src_port=None, interface=None):
-        """Discover the Sat-IP receivers in the local network via UPnP"""
+    def discover(self, src_port, interface):
+        """Discover the Sat-IP receivers in the local network via UPnP
+
+        Args:
+            src_port: Source port.
+            interface: Network interface.
+
+        Retuns:
+            List with the discovered devices
+
+        """
         upnp = UPnP(src_port, interface)
         devices = upnp.discover()
 
         if (len(devices) == 0):
-            return
+            return []
 
         # Filter the Sat-IP devices
         sat_ip_devices = [{
@@ -152,6 +161,12 @@ class SatIp():
         # Note: convert to dictionary so that _ask_multiple_choice can
         # deep-copy the selected element (which would not work for the original
         # SSDPDevice object).
+
+        return sat_ip_devices
+
+    def select_receiver(self, interactive=True, src_port=None, interface=None):
+        """Select Sat-IP receiver discovered in the local network via UPnP"""
+        sat_ip_devices = self.discover(src_port, interface)
 
         if (len(sat_ip_devices) == 0):
             return
@@ -702,6 +717,18 @@ def subparser(subparsers):  # pragma: no cover
     tsp.add_to_parser(p)
     monitoring.add_to_parser(p)
     p.set_defaults(func=launch)
+
+    subsubparsers = p.add_subparsers(title='subcommands',
+                                     help='Target sub-command')
+
+    p1 = subsubparsers.add_parser(
+        'list',
+        aliases=['ls'],
+        description='List Sat-IP devices discovered in the local network',
+        help='List Sat-IP devices discovered in the local network',
+        formatter_class=ArgumentDefaultsHelpFormatter)
+    p1.set_defaults(func=list_devices)
+
     return p
 
 
@@ -718,8 +745,8 @@ def launch(args, monitor: monitoring.Monitor = None):
     # Discover or define the IP address to communicate with the Sat-IP server
     sat_ip = SatIp()
     if args.addr is None and 'ip_addr' not in info['setup']:
-        sat_ip.discover(src_port=args.ssdp_src_port,
-                        interface=args.ssdp_net_if)
+        sat_ip.select_receiver(src_port=args.ssdp_src_port,
+                               interface=args.ssdp_net_if)
         if (sat_ip.host is None):
             logger.error("Could not find a Sat-IP receiver")
             logger.info("Check your network or specify the receiver address "
@@ -802,3 +829,29 @@ def launch(args, monitor: monitoring.Monitor = None):
         tsp_handler.proc.kill()
 
     print()
+
+
+def list_devices(args):
+    """List Sat-IP devices"""
+    info = config.read_cfg_file(args.cfg, args.cfg_dir)
+    if (info is None):
+        return
+
+    util.check_configured_setup_type(info, defs.sat_ip_setup_type, logger)
+
+    if (not dependencies.check_dependencies('sat-ip')):
+        return
+
+    # Discover or define the IP address to communicate with the Sat-IP server
+    sat_ip = SatIp()
+    sat_ip_devices = sat_ip.discover(src_port=args.ssdp_src_port,
+                                     interface=args.ssdp_net_if)
+
+    if len(sat_ip_devices) == 0:
+        logger.info("No Sat-IP receiver found.")
+        return
+
+    for device in sat_ip_devices:
+        logger.info(f" - Found receiver at {device['host']}")
+
+    return sat_ip_devices

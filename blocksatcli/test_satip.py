@@ -61,25 +61,25 @@ class TestApi(TestCase):
         # UPnP does not discover any device
         mock_upnp_discover.return_value = []
         sat_ip = satip.SatIp()
-        sat_ip.discover()
+        sat_ip.select_receiver()
         self.assertIsNone(sat_ip.host)
 
         # UPnP discovers a device, but not the Sat-IP receiver
         mock_upnp_discover.return_value = [wrong_ssdp_dev]
         sat_ip = satip.SatIp()
-        sat_ip.discover()
+        sat_ip.select_receiver()
         self.assertIsNone(sat_ip.host)
 
         # UPnP discovers the Sat-IP receiver
         mock_upnp_discover.return_value = [satip_ssdp_dev1]
         sat_ip = satip.SatIp()
-        sat_ip.discover()
+        sat_ip.select_receiver()
         self.assertEqual(sat_ip.host, addr1[0])
 
         # UPnP discovers multiple Sat-IP receivers in non-interactive mode
         mock_upnp_discover.return_value = [satip_ssdp_dev1, satip_ssdp_dev2]
         sat_ip = satip.SatIp()
-        sat_ip.discover(interactive=False)
+        sat_ip.select_receiver(interactive=False)
         self.assertEqual(sat_ip.host, addr1[0])
 
         # UPnP discovers multiple Sat-IP receivers in interactive mode
@@ -88,7 +88,7 @@ class TestApi(TestCase):
             'base_url': satip_ssdp_dev2.base_url
         }
         sat_ip = satip.SatIp()
-        sat_ip.discover(interactive=True)
+        sat_ip.select_receiver(interactive=True)
         self.assertEqual(sat_ip.host, addr2[0])
 
     @patch('requests.get')
