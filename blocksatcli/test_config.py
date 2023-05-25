@@ -487,7 +487,8 @@ class TestReceiversSetupConfig(TestEnv):
             3,  # DVB-S2 receiver: SDR
             0,  # Antenna: Satellite Dish (45cm / 18in)
             0,  # LNB: GEOSATpro UL1PLL
-            0  # Power Supply: Directv 21 Volt Power
+            0,  # Power Supply: Directv 21 Volt Power
+            'y'  # Generate gqrx config file
         ]
         self.expected_config["setup"] = defs.get_demod_def('', 'RTL-SDR')
         self.expected_config['setup']['antenna'] = defs.get_antenna_def('45cm')

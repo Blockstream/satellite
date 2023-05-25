@@ -76,21 +76,14 @@ def gqrx_config(cfg_path, info, interactive=True):
     print("Saved")
 
 
-def configure(args):
+def _configure(info, interactive=True, path=None):
     """Configure GQRX"""
-    interactive = not args.yes
-    info = config.read_cfg_file(args.cfg, args.cfg_dir)
-
-    if (info is None):
-        return
 
     util.print_header("Gqrx Conf Generator")
 
-    if args.path is None:
+    if path is None:
         home = os.path.expanduser("~")
         path = os.path.join(home, ".config", "gqrx")
-    else:
-        path = args.path
 
     conf_file = "default.conf"
     abs_path = os.path.join(path, conf_file)
@@ -101,3 +94,14 @@ def configure(args):
         return
 
     gqrx_config(abs_path, info, interactive)
+
+
+def configure(args):
+    """Configure GQRX"""
+    interactive = not args.yes
+    info = config.read_cfg_file(args.cfg, args.cfg_dir)
+
+    if (info is None):
+        return
+
+    _configure(info, interactive, args.path)

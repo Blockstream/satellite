@@ -9,7 +9,7 @@ from decimal import Decimal, getcontext
 from ipaddress import IPv4Address
 from pprint import pprint, pformat
 
-from . import util, defs
+from . import util, defs, gqrx
 
 logger = logging.getLogger(__name__)
 
@@ -839,6 +839,11 @@ def configure(args):
         chan_file = os.path.join(args.cfg_dir, args.cfg + "-channel.conf")
         _cfg_chan_conf(user_info, chan_file)
         user_info['setup']['channel'] = chan_file
+
+    # Gqrx configuration
+    if (user_setup['type'] == defs.sdr_setup_type):
+        os.system('clear')
+        gqrx._configure(user_info)
 
     # Create the JSON configuration file
     _write_cfg_file(cfg_file, user_info)
