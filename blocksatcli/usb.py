@@ -64,15 +64,13 @@ def _find_v4l_lnb(info):
     return options[0]
 
 
-def _find_adapter(list_only=False, target_model=None):
+def find_adapters():
     """Find the DVB adapter
 
     Returns:
-        Tuple with (adapter index, frontend index)
+        List of dictionaries with DVB adapter information
 
     """
-    if (target_model is None):
-        logger.info("Find DVB adapter")
 
     # Search a range of adapters. There is no command to list all adapters, so
     # we try to list each one individually using `dvbnet -a adapter_no -l`.
@@ -162,6 +160,22 @@ def _find_adapter(list_only=False, target_model=None):
     if (len(dvb_s2_adapters) == 0):
         logger.error("No DVB-S2 adapters found")
         sys.exit(1)
+
+    return dvb_s2_adapters
+
+
+def _select_adapter(list_only=False, target_model=None):
+    """Select DVB-S2 adapter
+
+    Returns:
+        Tuple with (adapter index, frontend index)
+
+    """
+
+    if (target_model is None):
+        logger.info("Find DVB adapter")
+
+    dvb_s2_adapters = find_adapters()
 
     chosen_adapter = None
     if (target_model is not None):
@@ -657,7 +671,7 @@ def _common(args):
 
     # Find adapter
     if (args.adapter is None):
-        adapter, frontend = _find_adapter()
+        adapter, frontend = _select_adapter()
     else:
         if (args.adapter.isdigit()):
             # Assume argument --adapter has the adapter number. In this case,
@@ -668,7 +682,7 @@ def _common(args):
             frontend = args.frontend
         else:
             # Assume argument --adapter has the target model
-            adapter, frontend = _find_adapter(target_model=args.adapter)
+            adapter, frontend = _select_adapter(target_model=args.adapter)
 
     # Cache the adapter number on the local config file so that other modules
     # can read the adapter number directly. Rewrite the info every time, as the
@@ -980,7 +994,7 @@ def list_subcommand(args):
     if (not dependencies.check_apps(["dvbnet", "dvb-fe-tool"])):
         return
 
-    _find_adapter(list_only=True)
+    _select_adapter(list_only=True)
 
 
 def rm_subcommand(args):
@@ -996,12 +1010,12 @@ def rm_subcommand(args):
 
     # Find adapter
     if (args.adapter is None):
-        adapter, _ = _find_adapter()
+        adapter, _ = _select_adapter()
     else:
         # If argument --adapter holds a digit-only string, assume it refers to
         # the adapter number. Otherwise, assume it refers to the target model.
         adapter = args.adapter if args.adapter.isdigit() else \
-            _find_adapter(target_model=args.adapter)[0]
+            _select_adapter(target_model=args.adapter)[0]
 
     interfaces = _find_dvbnet_interfaces(adapter)
     chosen_devices = list()
