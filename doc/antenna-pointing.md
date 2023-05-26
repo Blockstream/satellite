@@ -37,9 +37,9 @@ After entering your address or latitude/longitude, the tool will give you the fo
 
 The three angles are illustrated below:
 
-|                    Azimuth                     |                      Elevation                       |                         Polarity                          |
-| :--------------------------------------------: | :--------------------------------------------------: | :-------------------------------------------------------: |
-| ![Azimuth](img/azimuth.png?raw=true "Azimuth") | ![Elevation](img/elevation.png?raw=true "Elevation") | ![Polarity](img/lnb_polarization.png?raw=true "Polarity") |
+|                Azimuth                |                  Elevation                  |                     Polarity                     |
+| :-----------------------------------: | :-----------------------------------------: | :----------------------------------------------: |
+| ![Azimuth](img/azimuth.png "Azimuth") | ![Elevation](img/elevation.png "Elevation") | ![Polarity](img/lnb_polarization.png "Polarity") |
 
 Next, visually inspect the direction to which your antenna must point. Use a compass or smartphone app (e.g., Satellite Pointer for [Android](https://play.google.com/store/apps/details?id=com.tda.satpointer) and [iOS](https://apps.apple.com/br/app/satellite-pointer/id994565490)) to identify it. Ensure that there are no obstacles (like trees or buildings) between your antenna and the target area in the sky. You must have a clear line of sight to that area of the sky.
 
