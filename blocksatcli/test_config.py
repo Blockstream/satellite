@@ -478,7 +478,8 @@ class TestReceiversSetupConfig(TestEnv):
         self.assertEqual(cfg_info, self.expected_config)
 
     @patch('builtins.input')
-    def test_sdr_setup(self, mock_user_input):
+    @patch('blocksatcli.gqrx.os.path.expanduser')
+    def test_sdr_setup(self, mock_user_home, mock_user_input):
         """Test Software-defined Radio (SDR) Setup
         """
         # User Input:
@@ -490,6 +491,13 @@ class TestReceiversSetupConfig(TestEnv):
             0,  # Power Supply: Directv 21 Volt Power
             'y'  # Generate gqrx config file
         ]
+
+        # Mock the user's home directory so that the gqrx conf is saved on the
+        # temporary test directory
+        mock_user_home.return_value = self.cfg_dir
+        gqrx_path = os.path.join(self.cfg_dir, '.config', 'gqrx')
+        gqrx_conf_file = os.path.join(gqrx_path, 'default.conf')
+
         self.expected_config["setup"] = defs.get_demod_def('', 'RTL-SDR')
         self.expected_config['setup']['antenna'] = defs.get_antenna_def('45cm')
         self.expected_config["lnb"].pop("v1_pointed")
@@ -498,6 +506,7 @@ class TestReceiversSetupConfig(TestEnv):
         config.configure(self.args)
         cfg_info = config.read_cfg_file(self.cfg_name, self.cfg_dir)
         self.assertEqual(cfg_info, self.expected_config)
+        self.assertTrue(os.path.exists(gqrx_conf_file))
 
     @patch('os.listdir')
     @patch('builtins.input')
