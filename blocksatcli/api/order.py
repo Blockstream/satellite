@@ -31,7 +31,10 @@ ORDER_STATUS = [
     'pending', 'paid', 'transmitting', 'sent', 'received', 'cancelled',
     'expired', 'confirming'
 ]
-ORDER_QUEUES = ['pending', 'queued', 'sent']
+ORDER_QUEUES = [
+    'pending', 'paid', 'transmitting', 'confirming', 'queued', 'sent',
+    'rx-pending', 'received', 'retransmitting'
+]
 
 
 class ApiOrder:

@@ -262,7 +262,7 @@ class DemoRx():
             try:
                 tx_orders = order_mgr.get_orders(['transmitting'],
                                                  self.channel,
-                                                 queue='queued')
+                                                 queue='transmitting')
 
                 # There can only be one order in transmitting state at a time
                 if len(tx_orders) > 1:
