@@ -309,7 +309,7 @@ Next, make sure the finder has an adequate attenuation and gain configuration to
 
 At this point, you should be ready to start the antenna alignment process. Make sure to keep an eye on the receiver's lock status (refer to the [lock status instructions](#find-the-satellite-and-lock-the-signal)) throughout the process and continue with the following steps:
 
-1. Adjust the antenna roughly in the right direction based on the azimuth, elevation, and polarity angles obtained from the [website](https://blockstream.com/satellite/#satellite_network-coverage).
+1. Adjust the antenna roughly in the right direction based on the azimuth, elevation, and polarity angles obtained from the [Coverage Map](https://blockstream.com/satellite/#satellite_network-coverage).
 2. Choose a coordinate to optimize (azimuth, elevation, or polarity) and focus on it. For example, start by optimizing the azimuth.
 3. Make subtle adjustments to the chosen coordinate until you can observe an increase in the signal level measured by the finder.
 4. If the level increases too much and reaches 99%, turn the side dial (gain) down slightly such that the measured signal strength comes back to a low value. If the side dial reaches its minimum and the measured level remains at 99%, it means the signal is now too strong to be measured. Increase the attenuation by pressing the left ATT button once and readjust the side dial to get the measured level back at a low value.
