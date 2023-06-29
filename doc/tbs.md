@@ -23,7 +23,7 @@ The instructions that follow prepare the host for driving the TBS receiver.
   - [Docker](#docker)
   - [Useful Resources](#useful-resources)
   - [Install Binary Packages Manually](#install-binary-packages-manually)
-  - [Building dvb-apps from source](#building-dvb-apps-from-source)
+  - [Building dvb-apps from Source](#building-dvb-apps-from-source)
 
 <!-- markdown-toc end -->
 
@@ -139,7 +139,7 @@ sudo dnf install dvb-apps
 > If command `dnf copr enable` is not available in your system, install package `dnf-plugins-core`.
 
 
-### Building dvb-apps from source
+### Building dvb-apps from Source
 
 Alternatively, you can build `dvb-apps` from source by running the following commands:
 
