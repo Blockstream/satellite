@@ -45,7 +45,7 @@ completion: $(COMPLETION)
 $(COMPLETION): $(PY_FILES)
 	shtab blocksatcli.main.get_parser -s bash > $@
 
-docker: $(SDIST)
+docker: $(SDIST) $(MANPAGE) $(COMPLETION)
 	docker build --build-arg distro=$(DISTRO) \
 	-t $(DOCKERHUB_REPO)/satellite \
 	-t $(DOCKERHUB_REPO)/satellite:$(DISTRO_ALT) \
@@ -61,14 +61,14 @@ testpypi: clean sdist wheel
 docker-push: docker
 	docker push $(DOCKERHUB_REPO)/satellite
 
-buildx: $(SDIST)
+buildx: $(SDIST) $(MANPAGE) $(COMPLETION)
 	docker buildx build --platform $(PLATFORM) \
 	--build-arg distro=$(DISTRO) \
 	-t $(DOCKERHUB_REPO)/satellite \
 	-t $(DOCKERHUB_REPO)/satellite:$(VERSION) \
 	-f docker/blocksat-host.docker .
 
-buildx-push: $(SDIST)
+buildx-push: $(SDIST) $(MANPAGE) $(COMPLETION)
 	docker buildx build --platform $(PLATFORM) --push \
 	--build-arg distro=$(DISTRO) \
 	-t $(DOCKERHUB_REPO)/satellite \

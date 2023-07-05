@@ -6,17 +6,22 @@ ENV BLOCKSAT_NO_USB_DRIVERS_CHECK="true"
 
 SHELL ["/bin/bash", "-c"]
 RUN if [[ $distro == *"ubuntu"* ]]; then \
-	apt update && DEBIAN_FRONTEND=noninteractive apt install -y python3-pip; \
+	apt update && DEBIAN_FRONTEND=noninteractive apt install -y python3-pip bash-completion; \
 	elif [[ $distro == *"fedora"* ]]; then \
-	dnf update -y && dnf install -y python3-pip; \
+	dnf update -y && dnf install -y python3-pip bash-completion; \
 	else \
-	yum update -y && yum install -y python3-pip; \
+	yum update -y && yum install -y python3-pip bash-completion; \
 	fi
 
 # Install the local distribution of the CLI
 RUN mkdir -p ~/src/blocksat-cli/dist/
 COPY dist/* ~/src/blocksat-cli/dist/
 RUN pip3 install \~/src/blocksat-cli/dist/blocksat-cli-*.tar.gz
+
+# Install the manpage and bash completion files
+COPY blocksat-cli.1 /usr/share/man/man1/blocksat-cli.1
+COPY blocksat-cli.bash-completion /usr/share/bash-completion/completions/blocksat-cli
+RUN echo "source /etc/profile.d/bash_completion.sh" >> ~/.bashrc
 
 # Install SDR software dependencies via the CLI
 RUN blocksat-cli --debug deps -y install --target sdr --btc
