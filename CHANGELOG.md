@@ -24,6 +24,7 @@ Release Date: 2023-07-12
 - Support for new Satellite API order queues on the `api list` command.
 
 ### Changed
+- T18V C-band downlink frequency following the update on July 12, 2023.
 - SSE client to custom implementation on the API demo Rx command.
 - Verification of already configured components before attempting to configure
   the firewall, RP filters, SDR, S400, and USB receivers.

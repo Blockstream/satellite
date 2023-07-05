@@ -474,6 +474,29 @@ def _cfg_lnb(sat, setup):
     return lnb
 
 
+def _calc_if_freq(dl_freq, lo_freq, band):
+    """Calculate the IF frequency for downlink reception with a given LO
+
+    Args:
+        dl_freq : Downlink frequency.
+        lo_freq : LNB LO frequency.
+        band    : Band of the satellite.
+
+    Returns:
+        float: IF frequency.
+
+    """
+    if (band.lower() == "c"):
+        if_freq = float(Decimal(lo_freq) - Decimal(dl_freq))
+    elif (band.lower() == "ku"):
+        if_freq = float(Decimal(dl_freq) - Decimal(lo_freq))
+    else:
+        logging.error("Invalid satellite band: {}".format(band))
+        sys.exit(1)
+
+    return round(if_freq, 2)
+
+
 def _cfg_frequencies(sat, lnb, setup):
     """Print summary of frequencies
 
@@ -493,21 +516,18 @@ def _cfg_frequencies(sat, lnb, setup):
                 "A Universal LNB must have a list with two LO frequencies"
             assert (len(lnb['lo_freq']) == 2), \
                 "A Universal LNB must have two LO frequencies"
-
             if (sat['dl_freq'] > defs.ku_band_thresh):
                 lo_freq = lnb['lo_freq'][1]
             else:
                 lo_freq = lnb['lo_freq'][0]
         else:
             lo_freq = lnb['lo_freq']
-
-        if_freq = float(Decimal(sat['dl_freq']) - Decimal(lo_freq))
-
     elif (sat['band'].lower() == "c"):
         lo_freq = lnb['lo_freq']
-        if_freq = float(Decimal(lo_freq) - Decimal(sat['dl_freq']))
     else:
         raise ValueError("Unknown satellite band")
+
+    if_freq = _calc_if_freq(sat['dl_freq'], lo_freq, sat['band'])
 
     if (if_freq < setup['tun_range'][0] or if_freq > setup['tun_range'][1]):
         logging.error("Your LNB yields an L-band frequency that is out of "
@@ -625,6 +645,9 @@ def _patch_cfg_file(cfg_file, info):
         if info['sat']['alias'] == "G18" and \
                 info['sat']['dl_freq'] == 12016.4:
             new_dl_freq = 11913.4
+        if info['sat']['alias'] == "T18V C" and \
+                info['sat']['dl_freq'] == 4053.83:
+            new_dl_freq = 4057.4
 
         if new_dl_freq is not None:
             logger.info(
@@ -632,8 +655,9 @@ def _patch_cfg_file(cfg_file, info):
                     info['sat']['alias'], info['sat']['dl_freq'], new_dl_freq))
             info['sat']['dl_freq'] = new_dl_freq
             info['freqs']['dl'] = new_dl_freq
-            info['freqs']['l_band'] = round(new_dl_freq - info['freqs']['lo'],
-                                            2)
+            info['freqs']['l_band'] = _calc_if_freq(new_dl_freq,
+                                                    info['freqs']['lo'],
+                                                    info['sat']['band'])
             updated = True
 
     if updated:

@@ -102,6 +102,30 @@ class TestConfigDir(TestEnv):
         self.assertEqual(user_info['freqs']['dl'], 11913.4)
         self.assertEqual(user_info['freqs']['l_band'], 1163.4)
 
+        # Configuration based on T18V C before the update on July 12, 2023:
+        test_info = {
+            "sat": {
+                'name': "Telstar 18V C Band",
+                'alias': "T18V C",
+                'dl_freq': 4053.83,
+                'band': "C",
+                'pol': "H",
+                'ip': "172.16.235.41"
+            },
+            "freqs": {
+                "dl": 4053.83,
+                "lo": 5150.0,
+                "l_band": 1096.17
+            }
+        }
+        config.write_cfg_file(self.cfg_name, self.cfg_dir, test_info)
+
+        # Check patching
+        user_info = config.read_cfg_file(self.cfg_name, self.cfg_dir)
+        self.assertEqual(user_info['sat']['dl_freq'], 4057.4)
+        self.assertEqual(user_info['freqs']['dl'], 4057.4)
+        self.assertEqual(user_info['freqs']['l_band'], 1092.6)
+
         # Configuration based on a satellite that is not patched
         test_info = {
             "sat": {
@@ -668,9 +692,9 @@ class TestReceiversSetupConfig(TestEnv):
             "pol": "V"
         }
         self.expected_config["freqs"] = {
-            "dl": 4053.83,
+            "dl": 4057.4,
             "lo": 5150.0,
-            "l_band": 1096.17
+            "l_band": 1092.6
         }
 
         # Continue with invalid frequency range
@@ -712,9 +736,9 @@ class TestReceiversSetupConfig(TestEnv):
             "pol": "V"
         }
         self.expected_config["freqs"] = {
-            "dl": 4053.83,
+            "dl": 4057.4,
             "lo": 5150.0,
-            "l_band": 1096.17
+            "l_band": 1092.6
         }
 
         config.configure(self.args)
