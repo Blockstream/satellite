@@ -538,7 +538,44 @@ def _cfg_frequencies(sat, lnb, setup):
     return {'dl': sat['dl_freq'], 'lo': lo_freq, 'l_band': if_freq}
 
 
-def _cfg_chan_conf(info, chan_file, yes=False):
+def _gen_chan_conf(info):
+    """Generate the content for the channel configuration file
+
+    Returns:
+        dict: Dictionary with the keys and values to be written in the channel
+        configuration file.
+    """
+    chan_conf = {}
+    chan_conf['DELIVERY_SYSTEM'] = 'DVBS2'
+    chan_conf['FREQUENCY'] = str(int(info['sat']['dl_freq'] * 1000))
+    if (info['lnb']['pol'].lower() == "dual" and 'v1_pointed' in info['lnb']
+            and info['lnb']['v1_pointed']):
+        # If a dual-polarization LNB is already pointed for Blocksat v1,
+        # then we must use the polarization that the LNB was pointed to
+        # originally, regardless of the satellite signal's polarization. In
+        # v1, what mattered the most was the power supply voltage, which
+        # determined the polarization of the dual polarization LNBs. If the
+        # power supply provides voltage >= 18 (often the case), then the
+        # LNB necessarily operates currently with horizontal polarization.
+        # Thus, on channels.conf we must use the same polarization in order
+        # for the DVB adapter to supply the 18VDC voltage.
+        if (info['lnb']["v1_psu_voltage"] >= 16):  # 16VDC threshold
+            chan_conf['POLARIZATION'] = 'HORIZONTAL'
+        else:
+            chan_conf['POLARIZATION'] = 'VERTICAL'
+    else:
+        if (info['sat']['pol'] == 'V'):
+            chan_conf['POLARIZATION'] = 'VERTICAL'
+        else:
+            chan_conf['POLARIZATION'] = 'HORIZONTAL'
+    chan_conf['SYMBOL_RATE'] = str(defs.sym_rate[info['sat']['alias']])
+    chan_conf['INVERSION'] = 'AUTO'
+    chan_conf['MODULATION'] = 'QPSK'
+    chan_conf['VIDEO_PID'] = "+".join([str(x) for x in defs.pids])
+    return chan_conf
+
+
+def write_chan_conf(info, chan_file, yes=False):
     """Generate the channels.conf file"""
 
     util.print_header("Channel Configuration")
@@ -558,35 +595,10 @@ def _cfg_chan_conf(info, chan_file, yes=False):
             return
 
     with open(chan_file, 'w') as f:
+        chan_config = _gen_chan_conf(info)
         f.write('[blocksat-ch]\n')
-        f.write('\tDELIVERY_SYSTEM = DVBS2\n')
-        f.write('\tFREQUENCY = %u\n' % (int(info['sat']['dl_freq'] * 1000)))
-        if (info['lnb']['pol'].lower() == "dual"
-                and 'v1_pointed' in info['lnb'] and info['lnb']['v1_pointed']):
-            # If a dual-polarization LNB is already pointed for Blocksat v1,
-            # then we must use the polarization that the LNB was pointed to
-            # originally, regardless of the satellite signal's polarization. In
-            # v1, what mattered the most was the power supply voltage, which
-            # determined the polarization of the dual polarization LNBs. If the
-            # power supply provides voltage >= 18 (often the case), then the
-            # LNB necessarily operates currently with horizontal polarization.
-            # Thus, on channels.conf we must use the same polarization in order
-            # for the DVB adapter to supply the 18VDC voltage.
-            if (info['lnb']["v1_psu_voltage"] >= 16):  # 16VDC threshold
-                f.write('\tPOLARIZATION = HORIZONTAL\n')
-            else:
-                f.write('\tPOLARIZATION = VERTICAL\n')
-        else:
-            if (info['sat']['pol'] == 'V'):
-                f.write('\tPOLARIZATION = VERTICAL\n')
-            else:
-                f.write('\tPOLARIZATION = HORIZONTAL\n')
-        f.write('\tSYMBOL_RATE = {}\n'.format(
-            defs.sym_rate[info['sat']['alias']]))
-        f.write('\tINVERSION = AUTO\n')
-        f.write('\tMODULATION = QPSK\n')
-        pids = "+".join([str(x) for x in defs.pids])
-        f.write('\tVIDEO_PID = {}\n'.format(pids))
+        for k, v in chan_config.items():
+            f.write(f'\t{k} = {v}\n')
 
     print("File \"%s\" saved." % (chan_file))
 
@@ -595,14 +607,39 @@ def _cfg_chan_conf(info, chan_file, yes=False):
 
 
 def _parse_chan_conf(chan_file):
-    """Convert channel.conf file contents to dictionary"""
+    """Read channel.conf file and parse contents into a dictionary"""
     chan_conf = {}
     with open(chan_file, 'r') as f:
         lines = f.read().splitlines()
-        for line in lines[1:]:
+        for line in lines[1:]:  # skip the channel name
             key, val = line.split('=')
             chan_conf[key.strip()] = val.strip()
     return chan_conf
+
+
+def get_chan_file_path(cfg_dir, cfg_name):
+    """Get the path to the channels configuration file"""
+    return os.path.join(cfg_dir, cfg_name + '-channel.conf')
+
+
+def verify_chan_conf(info):
+    """Verify if channel.conf file content is up-to-date
+
+    Args:
+        info (dict): User's info.
+
+    Returns:
+        bool: True if the file is up-to-date or false otherwise.
+
+    """
+    if 'channel' not in info['setup'] or not info['setup']['channel']:
+        return False
+
+    chan_file = info['setup']['channel']
+    new_chan_cfg = _gen_chan_conf(info)
+    old_chan_cfg = _parse_chan_conf(chan_file)
+
+    return new_chan_cfg == old_chan_cfg
 
 
 def _cfg_file_name(cfg_name, directory):
@@ -861,7 +898,7 @@ def configure(args):
     # Channel configuration file
     if (user_setup['type'] == defs.linux_usb_setup_type):
         chan_file = os.path.join(args.cfg_dir, args.cfg + "-channel.conf")
-        _cfg_chan_conf(user_info, chan_file)
+        write_chan_conf(user_info, chan_file)
         user_info['setup']['channel'] = chan_file
 
     # Gqrx configuration
@@ -957,8 +994,8 @@ def channel(args):
         raise TypeError("Invalid command for {} receivers".format(
             user_info['setup']['type']))
 
-    chan_file = os.path.join(args.cfg_dir, args.cfg + "-channel.conf")
-    _cfg_chan_conf(user_info, chan_file)
+    chan_file = get_chan_file_path(args.cfg_dir, args.cfg)
+    write_chan_conf(user_info, chan_file)
 
     # Overwrite the channels.conf path in case it is changing from a previous
     # version of the CLI when the conf file name was not bound to the cfg name

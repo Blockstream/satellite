@@ -164,7 +164,7 @@ class TestConfigDir(TestEnv):
         chan_file = os.path.join(self.cfg_dir, self.cfg_name + "-channel.conf")
 
         # First conf file
-        config._cfg_chan_conf(info, chan_file)
+        config.write_chan_conf(info, chan_file)
         conf = config._parse_chan_conf(chan_file)
         self.assertEqual(int(conf['FREQUENCY']), info['sat']['dl_freq'] * 1e3)
         self.assertEqual(conf['POLARIZATION'], 'HORIZONTAL')
@@ -175,14 +175,14 @@ class TestConfigDir(TestEnv):
 
         # Generate a conf file but refuse to overwrite the pre-existing one
         mock_yes_or_no.return_value = False
-        config._cfg_chan_conf(info, chan_file)
+        config.write_chan_conf(info, chan_file)
         conf = config._parse_chan_conf(chan_file)
         # Nothing should be changed
         self.assertEqual(conf['VIDEO_PID'], '32')
 
         # Overwrite the pre-existing conf file
         mock_yes_or_no.return_value = True
-        config._cfg_chan_conf(info, chan_file)
+        config.write_chan_conf(info, chan_file)
         conf = config._parse_chan_conf(chan_file)
         # Now the new PID settings should be in the file
         self.assertEqual(conf['VIDEO_PID'], '60+61')
@@ -190,9 +190,30 @@ class TestConfigDir(TestEnv):
         # Add the v1-pointed flag to change the polarization
         info['lnb']['v1_pointed'] = True
         info['lnb']['v1_psu_voltage'] = 13
-        config._cfg_chan_conf(info, chan_file)
+        config.write_chan_conf(info, chan_file)
         conf = config._parse_chan_conf(chan_file)
         self.assertEqual(conf['POLARIZATION'], 'VERTICAL')
+
+    def test_verify_chan_config(self):
+        chan_file = config.get_chan_file_path(self.cfg_dir, self.cfg_name)
+        info = {
+            'sat': defs.get_satellite_def('G18'),
+            'lnb': defs.get_lnb_def('GEOSATpro', 'UL1PLL'),
+            'setup': {
+                'channel': chan_file
+            }
+        }
+
+        # First, generate the channel config file
+        config.write_chan_conf(info, chan_file)
+
+        # The verify function should check if the channel config file matches
+        # with the configuration expected for the user's satellite and setup
+        self.assertTrue(config.verify_chan_conf(info))
+
+        # Change the satellite to one that is not in the config file
+        info['sat'] = defs.get_satellite_def('T11N EU')
+        self.assertFalse(config.verify_chan_conf(info))
 
     @patch('blocksatcli.util.ask_yes_or_no')
     def test_cfg_reseting(self, mock_yes_or_no):
