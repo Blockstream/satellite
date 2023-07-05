@@ -935,14 +935,14 @@ def show(args):
         print(json.dumps(pr_cfgs, indent=4))
         return
 
-    box_size = 62
+    box_size = 67
     box_line = "-" * box_size
 
     for category in pr_cfgs:
         print(f"\n{category}")
         print(box_line)
         for key, pr_cfg in pr_cfgs[category].items():
-            print("| {:30s} | {:25s} |".format(key, pr_cfg))
+            print("| {:30s} | {:30s} |".format(key, pr_cfg))
         print(box_line)
 
 
