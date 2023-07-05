@@ -571,6 +571,12 @@ def subparser(subparsers):  # pragma: no cover
                     help='Launch dvbv5-zap in monitor mode to debug MPEG TS '
                     'packet and bit rates')
 
+    p1.add_argument('-y',
+                    '--yes',
+                    default=False,
+                    action='store_true',
+                    help="Defaults to answering Yes to prompts")
+
     monitoring.add_to_parser(p1)
 
     p1.set_defaults(func=launch)
@@ -943,11 +949,18 @@ def launch(args, monitor: monitoring.Monitor = None):
         raise ValueError("Logging options are disabled when running with "
                          "-m/--monitor or -r/--record-file")
 
+    # Check if the channels.conf file is up-to-date
+    chan_conf = user_info['setup']['channel']
+    if not config.verify_chan_conf(user_info):
+        logger.info('Channel configuration at {} is invalid'.format(chan_conf))
+        config.write_chan_conf(user_info,
+                               chan_conf,
+                               yes=args.yes,
+                               regeneration=True)
+        print()
+
     if monitor is None:
         monitor = _get_monitor(args)
-
-    # Channel configuration file
-    chan_conf = user_info['setup']['channel']
 
     # Zap
     zap_ps = zap(adapter,

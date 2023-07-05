@@ -575,18 +575,21 @@ def _gen_chan_conf(info):
     return chan_conf
 
 
-def write_chan_conf(info, chan_file, yes=False):
+def write_chan_conf(info, chan_file, yes=False, regeneration=False):
     """Generate the channels.conf file"""
 
-    util.print_header("Channel Configuration")
-
-    print(
-        textwrap.fill("This step will generate the channel configuration "
-                      "file that is required when launching the USB "
-                      "receiver in Linux.") + "\n")
+    if not regeneration:
+        util.print_header("Channel Configuration")
+        print(
+            textwrap.fill("This step will generate the channel configuration "
+                          "file that is required when launching the USB "
+                          "receiver in Linux.") + "\n")
+    else:
+        logger.info("Regenerating channel configuration file...")
 
     if (os.path.isfile(chan_file)):
-        print("Found previous %s file:" % (chan_file))
+        if not regeneration:
+            print("Found previous %s file:" % (chan_file))
 
         if (yes or util.ask_yes_or_no("Remove and regenerate file?")):
             os.remove(chan_file)
@@ -600,7 +603,7 @@ def write_chan_conf(info, chan_file, yes=False):
         for k, v in chan_config.items():
             f.write(f'\t{k} = {v}\n')
 
-    print("File \"%s\" saved." % (chan_file))
+    logger.info("File {} saved.".format(chan_file))
 
     with open(chan_file, 'r') as f:
         logging.debug(f.read())
@@ -704,8 +707,7 @@ def _patch_cfg_file(cfg_file, info):
             cfg_name = os.path.basename(cfg_file)
             cfg_name_no_ext = os.path.splitext(cfg_name)[0]
             chan_file = get_chan_file_path(cfg_dir, cfg_name_no_ext)
-            logger.info(f"Updating channel configuration file {chan_file}")
-            write_chan_conf(info, chan_file, yes=True)
+            write_chan_conf(info, chan_file, yes=True, regeneration=True)
 
     if updated:
         _write_cfg_file(cfg_file, info)

@@ -22,6 +22,8 @@ Release Date: 2023-07-12
 - Generation of manpage and bash completion files via Makefile.
 - Command `blocksat-cli sat-ip ls` to list the available Sat-IP receivers.
 - Support for new Satellite API order queues on the `api list` command.
+- Automatic patching and runtime verification of the channel configuration file
+  used by USB receivers.
 
 ### Changed
 - T18V C-band downlink frequency following the update on July 12, 2023.
