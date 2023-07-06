@@ -30,101 +30,75 @@ class TestConfigDir(TestEnv):
     def test_cfg_patching(self, mock_yes_or_no):
         mock_yes_or_no.return_value = False
 
-        # Configuration based on T11N AFR before the update on May 31st 2022:
-        test_info = {
-            "sat": {
-                "name": "Telstar 11N Africa",
-                "alias": "T11N AFR",
-                "dl_freq": 11480.7,
-                "band": "Ku",
-                "pol": "H",
-                "ip": "172.16.235.17"
-            },
-            "freqs": {
-                "dl": 11480.7,
-                "lo": 9750.0,
-                "l_band": 1730.7
-            }
+        change_map = {
+            'T11N AFR': {
+                'old_freq': 11480.7,
+                'new_freq': 11452.1,
+            },  # T11N AFR update on May 31st 2022
+            'T11N EU': {
+                'old_freq': 11484.3,
+                'new_freq': 11505.4
+            },  # T11N EU update on May 31st 2022:
+            'G18': {
+                'old_freq': 12016.4,
+                'new_freq': 11913.4
+            },  # G18 update on March 3, 2023
+            'T18V C': {
+                'old_freq': 4053.83,
+                'new_freq': 4057.4
+            },  # T18V C update on July 12, 2023
         }
-        config.write_cfg_file(self.cfg_name, self.cfg_dir, test_info)
 
-        # Check patching
-        user_info = config.read_cfg_file(self.cfg_name, self.cfg_dir)
-        self.assertEqual(user_info['sat']['dl_freq'], 11452.1)
-        self.assertEqual(user_info['freqs']['dl'], 11452.1)
-        self.assertEqual(user_info['freqs']['l_band'], 1702.1)
+        for satellite in change_map.keys():
+            sat_def = defs.get_satellite_def(satellite)
+            sat_def['dl_freq'] = change_map[satellite]['old_freq']
+            band = sat_def['band']
+            example_lnb = "Titanium C1-PLL" if band == 'C' else \
+                "GEOSATpro UL1PLL"
+            lo_freq = 5150.0 if band == 'C' else (
+                9750.0 if sat_def['dl_freq'] < 11700.0 else 10600.0)
+            old_l_band = config._calc_if_freq(
+                change_map[satellite]['old_freq'], lo_freq, band)
+            new_l_band = config._calc_if_freq(
+                change_map[satellite]['new_freq'], lo_freq, band)
 
-        # Configuration based on T11N EU before the update on May 31st 2022:
-        test_info = {
-            "sat": {
-                "name": "Telstar 11N Europe",
-                "alias": "T11N EU",
-                "dl_freq": 11484.3,
-                "band": "Ku",
-                "pol": "V",
-                "ip": "172.16.235.25"
-            },
-            "freqs": {
-                "dl": 11484.3,
-                "lo": 9750.0,
-                "l_band": 1734.3
+            # Original configuration
+            chan_conf = config.get_chan_file_path(self.cfg_dir, self.cfg_name)
+            old_info = {
+                "sat": sat_def,
+                "freqs": {
+                    "dl": change_map[satellite]['old_freq'],
+                    "lo": lo_freq,
+                    "l_band": old_l_band
+                },
+                "lnb": defs.get_lnb_def(*example_lnb.split()),
+                "setup": {
+                    "type": defs.linux_usb_setup_type,
+                    "channel": chan_conf
+                }
             }
-        }
-        config.write_cfg_file(self.cfg_name, self.cfg_dir, test_info)
-
-        # Check patching
-        user_info = config.read_cfg_file(self.cfg_name, self.cfg_dir)
-        self.assertEqual(user_info['sat']['dl_freq'], 11505.4)
-        self.assertEqual(user_info['freqs']['dl'], 11505.4)
-        self.assertEqual(user_info['freqs']['l_band'], 1755.4)
-
-        # Configuration based on G18 before the update on March 3, 2023:
-        test_info = {
-            "sat": {
-                'name': "Galaxy 18",
-                'alias': "G18",
-                'dl_freq': 12016.4,
-                'band': "Ku",
-                'pol': "H",
-                'ip': "172.16.235.1"
-            },
-            "freqs": {
-                "dl": 12016.4,
-                "lo": 10750.0,
-                "l_band": 1266.4
+            new_info = {
+                "sat": defs.get_satellite_def(satellite),
+                "freqs": {
+                    "dl": change_map[satellite]['new_freq'],
+                    "lo": lo_freq,
+                    "l_band": new_l_band
+                },
+                "lnb": defs.get_lnb_def(*example_lnb.split()),
+                "setup": {
+                    "type": defs.linux_usb_setup_type,
+                    "channel": chan_conf
+                }
             }
-        }
-        config.write_cfg_file(self.cfg_name, self.cfg_dir, test_info)
+            config.write_cfg_file(self.cfg_name, self.cfg_dir, old_info)
+            config.write_chan_conf(old_info, chan_conf)
 
-        # Check patching
-        user_info = config.read_cfg_file(self.cfg_name, self.cfg_dir)
-        self.assertEqual(user_info['sat']['dl_freq'], 11913.4)
-        self.assertEqual(user_info['freqs']['dl'], 11913.4)
-        self.assertEqual(user_info['freqs']['l_band'], 1163.4)
+            # Before patching, the channel conf file should be inferred invalid
+            config.verify_chan_conf(new_info)
 
-        # Configuration based on T18V C before the update on July 12, 2023:
-        test_info = {
-            "sat": {
-                'name': "Telstar 18V C Band",
-                'alias': "T18V C",
-                'dl_freq': 4053.83,
-                'band': "C",
-                'pol': "H",
-                'ip': "172.16.235.41"
-            },
-            "freqs": {
-                "dl": 4053.83,
-                "lo": 5150.0,
-                "l_band": 1096.17
-            }
-        }
-        config.write_cfg_file(self.cfg_name, self.cfg_dir, test_info)
-
-        # Check patching
-        user_info = config.read_cfg_file(self.cfg_name, self.cfg_dir)
-        self.assertEqual(user_info['sat']['dl_freq'], 4057.4)
-        self.assertEqual(user_info['freqs']['dl'], 4057.4)
-        self.assertEqual(user_info['freqs']['l_band'], 1092.6)
+            # Check patching
+            user_info = config.read_cfg_file(self.cfg_name, self.cfg_dir)
+            self.assertEqual(user_info, new_info)
 
         # Configuration based on a satellite that is not patched
         test_info = {

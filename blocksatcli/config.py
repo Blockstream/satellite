@@ -697,6 +697,16 @@ def _patch_cfg_file(cfg_file, info):
                                                     info['sat']['band'])
             updated = True
 
+    if updated and 'setup' in info and info['setup'][
+            'type'] == defs.linux_usb_setup_type:
+        if not verify_chan_conf(info):
+            cfg_dir = os.path.dirname(cfg_file)
+            cfg_name = os.path.basename(cfg_file)
+            cfg_name_no_ext = os.path.splitext(cfg_name)[0]
+            chan_file = get_chan_file_path(cfg_dir, cfg_name_no_ext)
+            logger.info(f"Updating channel configuration file {chan_file}")
+            write_chan_conf(info, chan_file, yes=True)
+
     if updated:
         _write_cfg_file(cfg_file, info)
 
