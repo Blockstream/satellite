@@ -12,19 +12,18 @@ The instructions that follow prepare the host for driving the TBS receiver.
 <!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-generate-toc again -->
 **Table of Contents**
 
-- [TBS Linux USB Receiver](#tbs-linux-usb-receiver)
-    - [Hardware Connections](#hardware-connections)
-    - [TBS Drivers](#tbs-drivers)
-    - [Setup Configuration Helper](#setup-configuration-helper)
-    - [Software Requirements](#software-requirements)
-    - [Configure the Host](#configure-the-host)
-    - [Launch](#launch)
-    - [Next Steps](#next-steps)
-    - [Further Information](#further-information)
-        - [Docker](#docker)
-        - [Useful Resources](#useful-resources)
-        - [Install Binary Packages Manually](#install-binary-packages-manually)
-        - [Building dvb-apps from source](#building-dvb-apps-from-source)
+- [Hardware Connections](#hardware-connections)
+- [TBS Drivers](#tbs-drivers)
+- [Setup Configuration Helper](#setup-configuration-helper)
+- [Software Requirements](#software-requirements)
+- [Configure the Host](#configure-the-host)
+- [Launch](#launch)
+- [Next Steps](#next-steps)
+- [Further Information](#further-information)
+  - [Docker](#docker)
+  - [Useful Resources](#useful-resources)
+  - [Install Binary Packages Manually](#install-binary-packages-manually)
+  - [Building dvb-apps from source](#building-dvb-apps-from-source)
 
 <!-- markdown-toc end -->
 

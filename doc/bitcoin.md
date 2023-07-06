@@ -7,15 +7,14 @@ nav_order: 6
 <!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-refresh-toc -->
 **Table of Contents**
 
-- [Bitcoin Satellite](#bitcoin-satellite)
-    - [Overview](#overview)
-    - [Installation](#installation)
-    - [Configuration](#configuration)
-    - [Running](#running)
-    - [Further Information](#further-information)
-        - [UDP Multicast Reception Option](#udp-multicast-reception-option)
-        - [Installation from Binary Packages](#installation-from-binary-packages)
-        - [Compilation from Source](#compilation-from-source)
+- [Overview](#overview)
+- [Installation](#installation)
+- [Configuration](#configuration)
+- [Running](#running)
+- [Further Information](#further-information)
+  - [UDP Multicast Reception Option](#udp-multicast-reception-option)
+  - [Installation from Binary Packages](#installation-from-binary-packages)
+  - [Compilation from Source](#compilation-from-source)
 
 <!-- markdown-toc end -->
 

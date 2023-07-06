@@ -7,13 +7,12 @@ nav_order: 9
 <!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-refresh-toc -->
 **Table of Contents**
 
-- [Running on Docker](#running-on-docker)
-    - [Standalone Receiver](#standalone-receiver)
-    - [USB Receiver](#usb-receiver)
-    - [SDR Receiver](#sdr-receiver)
-    - [Sat-IP Receiver](#sat-ip-receiver)
-    - [Bitcoin Satellite](#bitcoin-satellite)
-    - [Build the Docker Image Locally](#build-the-docker-image-locally)
+- [Standalone Receiver](#standalone-receiver)
+- [USB Receiver](#usb-receiver)
+- [SDR Receiver](#sdr-receiver)
+- [Sat-IP Receiver](#sat-ip-receiver)
+- [Bitcoin Satellite](#bitcoin-satellite)
+- [Build the Docker Image Locally](#build-the-docker-image-locally)
 
 <!-- markdown-toc end -->
 

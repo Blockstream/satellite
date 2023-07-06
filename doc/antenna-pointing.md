@@ -9,15 +9,14 @@ Aligning a satellite antenna is a precise procedure. Remember that the satellite
 <!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-generate-toc again -->
 **Table of Contents**
 
-- [Antenna Pointing](#antenna-pointing)
-    - [Mount the Antenna](#mount-the-antenna)
-    - [Find the Satellite and Lock the Signal](#find-the-satellite-and-lock-the-signal)
-    - [Optimize the SNR](#optimize-the-snr)
-    - [Next Steps](#next-steps)
-    - [Further Information](#further-information)
-        - [Novra S400's User Interface](#novra-s400s-user-interface)
-        - [Pointing with an SDR-based Receiver](#pointing-with-an-sdr-based-receiver)
-        - [Pointing with a Satellite Finder](#pointing-with-a-satellite-finder)
+- [Mount the Antenna](#mount-the-antenna)
+- [Find the Satellite and Lock the Signal](#find-the-satellite-and-lock-the-signal)
+- [Optimize the SNR](#optimize-the-snr)
+- [Next Steps](#next-steps)
+- [Further Information](#further-information)
+  - [Novra S400's User Interface](#novra-s400s-user-interface)
+  - [Pointing with an SDR-based Receiver](#pointing-with-an-sdr-based-receiver)
+  - [Pointing with a Satellite Finder](#pointing-with-a-satellite-finder)
 
 <!-- markdown-toc end -->
 

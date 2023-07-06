@@ -7,13 +7,12 @@ nav_order: 7
 <!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-refresh-toc -->
 **Table of Contents**
 
-- [Dual-Satellite Connection](#dual-satellite-connection)
-    - [Required Hardware](#required-hardware)
-    - [Host Configuration](#host-configuration)
-        - [Novra S400 Standalone Receiver](#novra-s400-standalone-receiver)
-        - [TBS 5927/5520SE USB Receiver](#tbs-usb-receiver)
-        - [Blockstream Base Station Sat-IP Receiver](#blockstream-base-station-sat-ip-receiver)
-        - [SDR Receiver](#sdr-receiver)
+- [Required Hardware](#required-hardware)
+- [Host Configuration](#host-configuration)
+  - [Novra S400 Standalone Receiver](#novra-s400-standalone-receiver)
+  - [TBS USB Receiver](#tbs-usb-receiver)
+  - [Blockstream Base Station Sat-IP Receiver](#blockstream-base-station-sat-ip-receiver)
+  - [SDR Receiver](#sdr-receiver)
 
 <!-- markdown-toc end -->
 

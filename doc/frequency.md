@@ -7,10 +7,9 @@ nav_order: 10
 <!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-generate-toc again -->
 **Table of Contents**
 
-- [Frequency Guide](#frequency-guide)
-    - [Signal Bands](#signal-bands)
-    - [Signal Frequencies](#signal-frequencies)
-    - [L-band Frequencies](#l-band-frequencies)
+- [Signal Bands](#signal-bands)
+- [Signal Frequencies](#signal-frequencies)
+- [L-band Frequencies](#l-band-frequencies)
 
 <!-- markdown-toc end -->
 

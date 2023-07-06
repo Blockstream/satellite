@@ -10,17 +10,16 @@ The Selfsat>IP22 is an all-in-one flat-panel antenna with an integrated DVB-S2 r
 <!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-refresh-toc -->
 **Table of Contents**
 
-- [Selfsat>IP22 Sat-IP Receiver](#selfsatip22-sat-ip-receiver)
-    - [Connections](#connections)
-    - [Software Requirements](#software-requirements)
-    - [Running](#running)
-    - [Next Steps](#next-steps)
-    - [Further Information](#further-information)
-        - [Software Updates](#software-updates)
-        - [Troubleshooting the Server Discovery](#troubleshooting-the-server-discovery)
-        - [Direct Connection to the Base Station](#direct-connection-to-the-base-station)
-        - [Running on Docker](#running-on-docker)
-        - [Compilation from Source](#compilation-from-source)
+- [Connections](#connections)
+- [Software Requirements](#software-requirements)
+- [Running](#running)
+- [Next Steps](#next-steps)
+- [Further Information](#further-information)
+  - [Software Updates](#software-updates)
+  - [Troubleshooting the Server Discovery](#troubleshooting-the-server-discovery)
+  - [Direct Connection to the Base Station](#direct-connection-to-the-base-station)
+  - [Running on Docker](#running-on-docker)
+  - [Compilation from Source](#compilation-from-source)
 
 <!-- markdown-toc end -->
 
