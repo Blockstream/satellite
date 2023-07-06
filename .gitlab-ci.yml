@@ -25,6 +25,10 @@ stages:
     - make && make install
     - python -m unittest discover -b
 
+test-py36:
+  extends: .test
+  image: python:3.6
+
 test-py37:
   extends: .test
   image: python:3.7
