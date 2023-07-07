@@ -39,6 +39,7 @@ Release Date: 2023-07-12
 - GPG home directory not recursively created when setting up the directory.
 - Dependency on GPG key importing order when setting up the GPG directory.
 - GPG key creation not indicating an error for an empty passphrase.
+- v4l LNB definition inferred for the C1-PLL LNB when using a USB receiver.
 
 ### Removed
 - Dependency on `sseclient-py`.

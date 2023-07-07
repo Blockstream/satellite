@@ -46,8 +46,16 @@ def _find_v4l_lnb(info):
                     'v1_pointed' in info['lnb'] and info['lnb']['v1_pointed']
                     and info['lnb']['v1_psu_voltage'] >=
                     16  # or LNB already operates with H pol
-                )) and "rangeswitch"
-                not in lnb):  # but LNB candidate is single-pol
+                )) and
+                "rangeswitch" not in lnb  # but LNB candidate is single-pol
+                and info['sat']['band'] != "C"):  # and not C band (see below)
+            # NOTE: the above condition should apply to C band just like it
+            # applies to Ku band. If the LNB needs 18V to operate in H pol, the
+            # v4l LNB definition should have a "rangeswitch" property. However,
+            # the problem is that there are only two C-band LNB definitions in
+            # v4l-utils, and neither of them has a "rangeswitch" property.
+            # Hence, as a temporary workaround, ignore the polarization setting
+            # for the C-band LNB and return the first match.
             continue  # not a validate candidate, skip
 
         if (target_is_universal):

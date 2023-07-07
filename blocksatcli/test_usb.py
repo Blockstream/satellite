@@ -1,5 +1,5 @@
 import unittest
-from . import usb
+from . import usb, defs
 
 
 class TestApi(unittest.TestCase):
@@ -31,3 +31,26 @@ Lock   (0x1f) Signal= -48.19dBm C/N= 10.50dB postBER= 0
                 res.append(parse_res)
 
         self.assertListEqual(expected_res, res)
+
+    def test_v4l_lnb_search(self):
+        """Test searching of v4l-utils present LNBs"""
+
+        for satellite, lnb, expected_v4l_lnb in [
+            ("G18", ("GEOSATpro", "UL1PLL"), "UNIVERSAL"),
+            ("E113", ("Selfsat", "Integrated LNB"), "UNIVERSAL"),
+            ("T11N EU", ("Avenger", "PLL321S-2"), "UNIVERSAL"),
+            ("T11N AFR", ("GEOSATpro", "UL1PLL"), "UNIVERSAL"),
+            ("T18V Ku", ("Selfsat", "Integrated LNB"), "UNIVERSAL"),
+            (
+                "G18", ("Maverick", "MK1-PLL"), "QPH031"
+            ),  # QPH031 because it can change the pol voltage and G18 is H-pol
+            ("E113", ("Maverick", "MK1-PLL"),
+             "L10750"),  # L10750 can't change pol voltage but E113 is V-pol
+            ("T18V C", ("Titanium", "C1-PLL"), "C-BAND")
+        ]:
+            info = {
+                "sat": defs.get_satellite_def(satellite),
+                "lnb": defs.get_lnb_def(*lnb)
+            }
+            v4l_lnb = usb._find_v4l_lnb(info)
+            self.assertEqual(v4l_lnb['alias'], expected_v4l_lnb)
