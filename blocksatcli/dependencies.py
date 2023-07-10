@@ -682,19 +682,20 @@ def drivers(args):
             and LooseVersion(linux_release) < LooseVersion('5.8')):
         disable_list.append("VIDEO_OV9650")
 
-    # On Raspbian, disable RC/IR support and disable the MN88436 drivers to
-    # avoid the __aeabi_ldivmod/__aeabi_uldivmod undefined errors. Also,
-    # disable SAA7146 which lead to
-    # saa7146_pgtable_free/saa7146_pgtable_alloc/saa7146_pgtable_build_single
-    # undefined when running on a RPi3 B+ with kernel 5.10.63-v7+.
+    # On Raspbian, disable the MN88436 drivers to avoid the
+    # __aeabi_ldivmod/__aeabi_uldivmod undefined errors.
     if (distro_id == "raspbian"):
+        disable_list.append("DVB_MN88436")
+
+    # Disable RC/IR support
+    if (distro_id == "raspbian"
+            or LooseVersion(linux_release) >= LooseVersion('6.0')):
         runner.run(
             ["sed", "-i", "-r", "s/(^CONFIG.*_RC.*=)./\1n/g", "v4l/.config"],
             cwd=media_build_dir)
         runner.run(
             ["sed", "-i", "-r", "s/(^CONFIG.*_IR.*=)./\1n/g", "v4l/.config"],
             cwd=media_build_dir)
-        disable_list.append("DVB_MN88436")
 
     if args.disable is not None:
         disable_list.extend(args.disable)
