@@ -181,6 +181,7 @@ docker-build:
     - if: $DOCKER_BUILD
   before_script:
     - apk add make python3 py3-setuptools py3-pip help2man
+    - pip3 install shtab
     - docker buildx create --use
   script:
     - make install
@@ -198,6 +199,7 @@ docker-upload:
     - if: $DOCKER_UPLOAD
   before_script:
     - apk add make python3 py3-setuptools py3-pip help2man
+    - pip3 install shtab
     - docker buildx create --use
   script:
     - echo $DOCKERHUB_PW | docker login -u $DOCKERHUB_USER --password-stdin
