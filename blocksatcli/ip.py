@@ -51,6 +51,12 @@ def _check_debian_net_interfaces_d(dry):
     runner.append_to_file("\n" + src_line + "\n", if_file, root=True)
 
 
+def is_network_manager_active():
+    is_nm = runner.run(['systemctl', 'is-active', '--quiet', 'NetworkManager'],
+                       nocheck=True)
+    return is_nm and is_nm.returncode == 0
+
+
 def _add_to_netplan(ifname, addr_with_prefix):
     """Create configuration file at /etc/netplan/"""
     assert ("/" in addr_with_prefix)
@@ -59,10 +65,7 @@ def _add_to_netplan(ifname, addr_with_prefix):
     # Netplan is an abstraction layer for configuring the system network. It
     # uses NetworkManager or networkd for configuring the network interfaces.
     # Thus, check which one is being used first.
-    is_nm = runner.run(['systemctl', 'is-active', '--quiet', 'NetworkManager'],
-                       nocheck=True)
-    renderer = ('NetworkManager'
-                if is_nm and is_nm.returncode == 0 else 'networkd')
+    renderer = 'NetworkManager' if is_network_manager_active() else 'networkd'
 
     cfg = ("network:\n"
            "  version: 2\n"
@@ -84,6 +87,34 @@ def _add_to_netplan(ifname, addr_with_prefix):
         return
 
     runner.create_file(cfg, path, root=True)
+
+
+def _add_to_network_manager(ifname, addr):
+    """Create connection with network manager CLI
+
+    The network manager CLI (nmcli) automatically creates the configuration
+    file at `/etc/NetworkManager/system-connections/`.
+
+    Args:
+        ifname: Interface name.
+        addr: IP Address.
+
+    """
+    # Delete any existing connection of the chosen interface
+    res = runner.run(["nmcli", "connection", "show", ifname],
+                     nocheck=True,
+                     stdout=subprocess.DEVNULL)
+    if res and res.returncode == 0:
+        runner.run(["nmcli", "connection", "delete", ifname], root=True)
+        logger.info(f"Previous {ifname} connection deleted.")
+
+    # Create new connection
+    logger.info(f"Adding new {ifname} connection.")
+    runner.run([
+        "nmcli", "connection", "add", "type", "ethernet", "ifname", ifname,
+        "con-name", ifname, "ip4", addr
+    ],
+               root=True)
 
 
 def _add_to_interfaces_d(ifname, addr, netmask):
@@ -143,6 +174,8 @@ def _set_static_iface_ip(ifname, ipv4_if):
         _add_to_netplan(ifname, addr_with_prefix)
     elif (os.path.exists("/etc/network/interfaces.d/")):
         _add_to_interfaces_d(ifname, addr, netmask)
+    elif is_network_manager_active():
+        _add_to_network_manager(ifname, addr_with_prefix)
     elif (os.path.exists("/etc/sysconfig/network-scripts")):
         _add_to_sysconfig_net_scripts(ifname, addr, netmask)
     else:
@@ -246,6 +279,9 @@ def set_ips(net_ifs, ip_addrs, verbose=True, dry=False):
                             "bring up the interfaces:")
             print()
         runner.run(["systemctl", "restart", "networking"], root=True)
+    elif is_network_manager_active():
+        # Bring-up is automatic when creating the interface
+        pass
     elif (os.path.exists("/etc/sysconfig/network-scripts")):
         ifup_required = True
         # CentOS/Fedora/RHEL approach

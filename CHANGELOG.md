@@ -24,6 +24,7 @@ Release Date: 2023-07-12
 - Support for new Satellite API order queues on the `api list` command.
 - Automatic patching and runtime verification of the channel configuration file
   used by USB receivers.
+- Support for NetworkManager when configuring static IP addresses.
 
 ### Changed
 - T18V C-band downlink frequency following the update on July 12, 2023.
