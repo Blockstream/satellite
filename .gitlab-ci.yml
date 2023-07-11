@@ -183,6 +183,7 @@ docker-build:
     - apk add make python3 py3-setuptools py3-pip help2man
     - docker buildx create --use
   script:
+    - make install
     - make buildx
 
 docker-upload:
@@ -200,6 +201,7 @@ docker-upload:
     - docker buildx create --use
   script:
     - echo $DOCKERHUB_PW | docker login -u $DOCKERHUB_USER --password-stdin
+    - make install
     - make buildx-push
 
 pandoc-docker-builder:
