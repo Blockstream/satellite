@@ -42,6 +42,7 @@ Release Date: 2023-07-12
 - v4l LNB definition inferred for the C1-PLL LNB when using a USB receiver.
 - TBS driver compilation with Linux kernel 6.0+ on Fedora 37 and 38.
 - Fix Netplan configuration with NetworkManager renderer.
+- Fix `firewall-cmd` output parsing when configuring the firewall.
 
 ### Removed
 - Dependency on `sseclient-py`.

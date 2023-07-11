@@ -291,11 +291,12 @@ class Firewalld(BaseFirewall):
 
         """
         rich_rule = self._get_rich_rule(src_ip, mcast_ip, portrange)
-        cmd = ['firewall-cmd', '--query-rich-rule', "{}".format(rich_rule)]
-        res = runner.run(cmd, root=True, capture_output=True,
-                         nocheck=True).stdout
-
-        is_rule_set = res.decode() == "yes"
+        cmd = [
+            'firewall-cmd', '--quiet', '--query-rich-rule',
+            "{}".format(rich_rule)
+        ]
+        res = runner.run(cmd, root=True, nocheck=True)
+        is_rule_set = res is not None and res.returncode == 0
 
         if is_rule_set:
             logger.info("Firewall rule to accept UDP traffic from IP address "
@@ -315,11 +316,10 @@ class Firewalld(BaseFirewall):
             True if rule is already set, False otherwise.
 
         """
-        cmd = ['firewall-cmd', '--query-protocol=igmp']
-        res = runner.run(cmd, root=True, capture_output=True,
-                         nocheck=True).stdout
+        cmd = ['firewall-cmd', '--quiet', '--query-protocol=igmp']
+        res = runner.run(cmd, root=True, nocheck=True)
+        is_rule_set = res is not None and res.returncode == 0
 
-        is_rule_set = res.decode() == "yes"
         if is_rule_set:
             logger.info(
                 "Firewall rule to accept IGMP traffic is already configured.")
