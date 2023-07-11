@@ -41,6 +41,7 @@ Release Date: 2023-07-12
 - GPG key creation not indicating an error for an empty passphrase.
 - v4l LNB definition inferred for the C1-PLL LNB when using a USB receiver.
 - TBS driver compilation with Linux kernel 6.0+ on Fedora 37 and 38.
+- Fix Netplan configuration with NetworkManager renderer.
 
 ### Removed
 - Dependency on `sseclient-py`.

@@ -56,14 +56,23 @@ def _add_to_netplan(ifname, addr_with_prefix):
     assert ("/" in addr_with_prefix)
     cfg_dir = "/etc/netplan/"
 
+    # Netplan is an abstraction layer for configuring the system network. It
+    # uses NetworkManager or networkd for configuring the network interfaces.
+    # Thus, check which one is being used first.
+    is_nm = runner.run(['systemctl', 'is-active', '--quiet', 'NetworkManager'],
+                       nocheck=True)
+    renderer = ('NetworkManager'
+                if is_nm and is_nm.returncode == 0 else 'networkd')
+
     cfg = ("network:\n"
            "  version: 2\n"
-           "  renderer: networkd\n"
+           "  renderer: {0}\n"
            "  ethernets:\n"
-           "    {0}:\n"
+           "    {1}:\n"
            "      dhcp4: no\n"
            "      optional: true\n"
-           "      addresses: [{1}]\n").format(ifname, addr_with_prefix)
+           "      addresses: [{2}]\n").format(renderer, ifname,
+                                              addr_with_prefix)
 
     fname = "blocksat-" + ifname + ".yaml"
     path = os.path.join(cfg_dir, fname)
