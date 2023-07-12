@@ -888,6 +888,9 @@ def _parse_log(line):
             key = elem[:-1]
             raw_value = elements[i + 1]
 
+            if key not in log_key_map:
+                continue  # unexpected key
+
             # Convert key to the nomenclature adopted on monitor.py
             key = log_key_map[key]
 
