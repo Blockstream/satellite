@@ -267,8 +267,9 @@ check-markdown-links:
   image:
     name: ghcr.io/tcort/markdown-link-check:stable
     entrypoint: [""]
-  only:
-    changes:
-      - "**/*.md"
+  rules:
+    - if: $CI_COMMIT_TAG
+      when: never
+    - when: always
   script:
     - find . -name \*.md | xargs -n1 /src/markdown-link-check
