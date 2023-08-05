@@ -235,6 +235,12 @@ def listen(args):
     if (not args.plaintext and not args.no_password):
         gpg.prompt_passphrase('GPG keyring password for decryption: ')
 
+    if not api_msg.fec_supported:
+        logger.warning("The FEC support is currently disabled. Some "
+                       "messages may not be decodable.")
+        logger.warning("To enable it, please install the 'zfec' package or "
+                       "'blocksat-cli[fec]'.")
+
     # Listen continuously
     listen_loop = ApiListener()
     listen_loop.run(gpg,
