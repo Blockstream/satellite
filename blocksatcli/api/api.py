@@ -18,10 +18,10 @@ from .demorx import DemoRx
 from .gpg import Gpg, config_keyring
 from .listen import ApiListener
 from .order import ApiOrder, ApiChannel, \
-    API_CHANNELS,\
-    SENDABLE_API_CHANNELS,\
-    PAID_API_CHANNELS,\
-    ORDER_STATUS,\
+    API_CHANNELS, \
+    SENDABLE_API_CHANNELS, \
+    PAID_API_CHANNELS, \
+    ORDER_STATUS, \
     ORDER_QUEUES
 from .pkt import calc_ota_msg_len
 
