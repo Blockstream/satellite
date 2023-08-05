@@ -181,6 +181,7 @@ pypi-upload:
   only:
     refs:
       - tags
+  when: manual
   script:
     - pip3 install twine
     - make pypi
@@ -212,6 +213,7 @@ docker-upload:
   rules:
     - if: $CI_COMMIT_TAG
     - if: $DOCKER_UPLOAD
+  when: manual
   before_script:
     - apk add make python3 py3-setuptools py3-pip help2man
     - pip3 install shtab
