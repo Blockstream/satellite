@@ -47,6 +47,7 @@ $(COMPLETION): $(PY_FILES)
 
 docker: $(SDIST) $(MANPAGE) $(COMPLETION)
 	docker build --build-arg distro=$(DISTRO) \
+	--build-arg version=$(VERSION) \
 	-t $(DOCKERHUB_REPO)/satellite \
 	-t $(DOCKERHUB_REPO)/satellite:$(DISTRO_ALT) \
 	-t $(DOCKERHUB_REPO)/satellite:$(VERSION) \
@@ -64,6 +65,7 @@ docker-push: docker
 buildx: $(SDIST) $(MANPAGE) $(COMPLETION)
 	docker buildx build --platform $(PLATFORM) \
 	--build-arg distro=$(DISTRO) \
+	--build-arg version=$(VERSION) \
 	-t $(DOCKERHUB_REPO)/satellite \
 	-t $(DOCKERHUB_REPO)/satellite:$(VERSION) \
 	-f docker/blocksat-host.docker .
@@ -71,6 +73,7 @@ buildx: $(SDIST) $(MANPAGE) $(COMPLETION)
 buildx-push: $(SDIST) $(MANPAGE) $(COMPLETION)
 	docker buildx build --platform $(PLATFORM) --push \
 	--build-arg distro=$(DISTRO) \
+	--build-arg version=$(VERSION) \
 	-t $(DOCKERHUB_REPO)/satellite \
 	-t $(DOCKERHUB_REPO)/satellite:$(VERSION) \
 	-f docker/blocksat-host.docker .

@@ -1,6 +1,7 @@
 ARG distro=ubuntu:jammy
 FROM $distro
 ARG distro
+ARG version
 MAINTAINER Blockstream Satellite
 ENV BLOCKSAT_NO_USB_DRIVERS_CHECK="true"
 
@@ -16,7 +17,7 @@ RUN if [[ $distro == *"ubuntu"* ]]; then \
 # Install the local distribution of the CLI
 RUN mkdir -p ~/src/blocksat-cli/dist/
 COPY dist/* ~/src/blocksat-cli/dist/
-RUN pip3 install \~/src/blocksat-cli/dist/blocksat-cli-*.tar.gz[fec]
+RUN pip3 install \~/src/blocksat-cli/dist/blocksat-cli-$version.tar.gz[fec]
 
 # Install the manpage and bash completion files
 COPY blocksat-cli.1 /usr/share/man/man1/blocksat-cli.1
