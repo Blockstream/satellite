@@ -25,27 +25,27 @@ stages:
     - make && make install
     - python -m unittest discover -b
 
-test-py36:
+unit-tests-py36:
   extends: .test
   image: python:3.6
 
-test-py37:
+unit-tests-py37:
   extends: .test
   image: python:3.7
 
-test-py38:
+unit-tests-py38:
   extends: .test
   image: python:3.8
 
-test-py39:
+unit-tests-py39:
   extends: .test
   image: python:3.9
 
-test-py310:
+unit-tests-py310:
   extends: .test
   image: python:3.10
 
-test-py311:
+unit-tests-py311:
   extends: .test
   image: python:3.11
 
@@ -68,17 +68,23 @@ manpage:
     - make install
     - make manpage
 
-lint:
+flake8-lint:
   image: python:3.9
   before_script:
-    - pip3 install flake8 yapf
+    - pip3 install flake8
   script:
     - flake8 .
+
+yapf-format:
+  image: python:3.9
+  before_script:
+    - pip3 install yapf
+  script:
     - yapf --diff --recursive --verbose .
 
 test-make-install-apt:
   image: $IMAGE
-  stage: build
+  stage: test
   only:
     - tags
     - web
@@ -100,7 +106,7 @@ test-make-install-apt:
 # TODO Remove the gcc/python3-devel installation when zfec ships py3.11 wheels
 test-make-install-fedora:
   image: $IMAGE
-  stage: build
+  stage: test
   only:
     - tags
     - web
@@ -115,7 +121,7 @@ test-make-install-fedora:
 
 test-make-install-centos:
   image: $IMAGE
-  stage: build
+  stage: test
   only:
     - tags
     - web
