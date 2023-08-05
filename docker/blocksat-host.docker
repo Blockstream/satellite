@@ -16,7 +16,7 @@ RUN if [[ $distro == *"ubuntu"* ]]; then \
 # Install the local distribution of the CLI
 RUN mkdir -p ~/src/blocksat-cli/dist/
 COPY dist/* ~/src/blocksat-cli/dist/
-RUN pip3 install \~/src/blocksat-cli/dist/blocksat-cli-*.tar.gz
+RUN pip3 install \~/src/blocksat-cli/dist/blocksat-cli-*.tar.gz[fec]
 
 # Install the manpage and bash completion files
 COPY blocksat-cli.1 /usr/share/man/man1/blocksat-cli.1
