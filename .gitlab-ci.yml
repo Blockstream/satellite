@@ -37,7 +37,7 @@ stages:
     - mkdir -p $DOCKER_PLUGINS_DIR
     - wget -O $DOCKER_PLUGINS_DIR/docker-buildx $BUILDX_URL
     - chmod +x $DOCKER_PLUGINS_DIR/docker-buildx
-    - apk add make python3 py3-setuptools py3-pip help2man
+    - apk add make python3 py3-setuptools py3-pip help2man gcc musl-dev python3-dev
     - pip3 install shtab
     - docker buildx create --use
 
