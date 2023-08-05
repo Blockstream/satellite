@@ -449,7 +449,7 @@ _shtab_replace_nonword() {
 # set default values (called for the initial parser & any subparsers)
 _set_parser_defaults() {
   local subparsers_var="${prefix}_subparsers[@]"
-  sub_parsers=${!subparsers_var}
+  sub_parsers=${!subparsers_var-}
 
   local current_option_strings_var="${prefix}_option_strings[@]"
   current_option_strings=${!current_option_strings_var}
@@ -466,13 +466,13 @@ _set_new_action() {
   current_action="${prefix}_$(_shtab_replace_nonword $1)"
 
   local current_action_compgen_var=${current_action}_COMPGEN
-  current_action_compgen="${!current_action_compgen_var}"
+  current_action_compgen="${!current_action_compgen_var-}"
 
   local current_action_choices_var="${current_action}_choices[@]"
-  current_action_choices="${!current_action_choices_var}"
+  current_action_choices="${!current_action_choices_var-}"
 
   local current_action_nargs_var="${current_action}_nargs"
-  if [ -n "${!current_action_nargs_var}" ]; then
+  if [ -n "${!current_action_nargs_var-}" ]; then
     current_action_nargs="${!current_action_nargs_var}"
   else
     current_action_nargs=1
@@ -494,8 +494,8 @@ _shtab_blocksatcli() {
   local completing_word="${COMP_WORDS[COMP_CWORD]}"
   COMPREPLY=()
 
-  prefix=_shtab_blocksatcli
-  word_index=0
+  local prefix=_shtab_blocksatcli
+  local word_index=0
   _set_parser_defaults
   word_index=1
 
@@ -504,13 +504,13 @@ _shtab_blocksatcli() {
   while [ $word_index -ne $COMP_CWORD ]; do
     local this_word="${COMP_WORDS[$word_index]}"
 
-    if [[ -n $sub_parsers && " ${sub_parsers[@]} " =~ " ${this_word} " ]]; then
+    if [[ -n $sub_parsers && " ${sub_parsers[@]} " == *" ${this_word} "* ]]; then
       # valid subcommand: add it to the prefix & reset the current action
       prefix="${prefix}_$(_shtab_replace_nonword $this_word)"
       _set_parser_defaults
     fi
 
-    if [[ " ${current_option_strings[@]} " =~ " ${this_word} " ]]; then
+    if [[ " ${current_option_strings[@]} " == *" ${this_word} "* ]]; then
       # a new action should be acquired (due to recognised option string or
       # no more input expected from current action);
       # the next positional action can fill in here
