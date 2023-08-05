@@ -204,6 +204,7 @@ docker-upload:
   script:
     - echo $DOCKERHUB_PW | docker login -u $DOCKERHUB_USER --password-stdin
     - make install
+    - make docker-buildx
     - make docker-buildx-push
 
 pandoc-docker-builder:
