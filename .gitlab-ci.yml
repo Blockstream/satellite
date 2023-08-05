@@ -185,7 +185,7 @@ docker-build:
     - docker buildx create --use
   script:
     - make install
-    - make buildx
+    - make docker-buildx
 
 docker-upload:
   image:
@@ -204,7 +204,7 @@ docker-upload:
   script:
     - echo $DOCKERHUB_PW | docker login -u $DOCKERHUB_USER --password-stdin
     - make install
-    - make buildx-push
+    - make docker-buildx-push
 
 pandoc-docker-builder:
   extends: .pandoc_setup

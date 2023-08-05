@@ -45,6 +45,12 @@ completion: $(COMPLETION)
 $(COMPLETION): $(PY_FILES)
 	shtab blocksatcli.main.get_parser -s bash > $@
 
+pypi: clean sdist wheel
+	python3 -m twine upload --repository pypi dist/*
+
+testpypi: clean sdist wheel
+	python3 -m twine upload --repository testpypi dist/*
+
 docker: $(SDIST) $(MANPAGE) $(COMPLETION)
 	docker build --build-arg distro=$(DISTRO) \
 	--build-arg version=$(VERSION) \
@@ -53,16 +59,10 @@ docker: $(SDIST) $(MANPAGE) $(COMPLETION)
 	-t $(DOCKERHUB_REPO)/satellite:$(VERSION) \
 	-f docker/blocksat-host.docker .
 
-pypi: clean sdist wheel
-	python3 -m twine upload --repository pypi dist/*
-
-testpypi: clean sdist wheel
-	python3 -m twine upload --repository testpypi dist/*
-
 docker-push: docker
 	docker push $(DOCKERHUB_REPO)/satellite
 
-buildx: $(SDIST) $(MANPAGE) $(COMPLETION)
+docker-buildx: $(SDIST) $(MANPAGE) $(COMPLETION)
 	docker buildx build --platform $(PLATFORM) \
 	--build-arg distro=$(DISTRO) \
 	--build-arg version=$(VERSION) \
@@ -70,7 +70,7 @@ buildx: $(SDIST) $(MANPAGE) $(COMPLETION)
 	-t $(DOCKERHUB_REPO)/satellite:$(VERSION) \
 	-f docker/blocksat-host.docker .
 
-buildx-push: $(SDIST) $(MANPAGE) $(COMPLETION)
+docker-buildx-push: $(SDIST) $(MANPAGE) $(COMPLETION)
 	docker buildx build --platform $(PLATFORM) --push \
 	--build-arg distro=$(DISTRO) \
 	--build-arg version=$(VERSION) \
