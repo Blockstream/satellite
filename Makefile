@@ -48,10 +48,14 @@ $(COMPLETION): $(PY_FILES)
 	shtab blocksatcli.main.get_parser -s bash > $@
 
 pypi: clean sdist wheel
-	python3 -m twine upload --repository pypi dist/*
+	python3 -m twine upload --repository pypi \
+		dist/blocksat-cli-$(VERSION).tar.gz \
+		dist/blocksat_cli-$(VERSION)-*.whl
 
 testpypi: clean sdist wheel
-	python3 -m twine upload --repository testpypi dist/*
+	python3 -m twine upload --repository testpypi \
+		dist/blocksat-cli-$(VERSION).tar.gz \
+		dist/blocksat_cli-$(VERSION)-*.whl
 
 docker: $(SDIST) $(MANPAGE) $(COMPLETION)
 	docker build --build-arg distro=$(DISTRO) \
