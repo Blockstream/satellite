@@ -49,7 +49,7 @@ test-py311:
   extends: .test
   image: python:3.11
 
-check-shtab:
+bash-completion:
   extends: .test
   image: python:3.11
   before_script:
@@ -58,6 +58,15 @@ check-shtab:
     - make && make install
     - make completion
     - git diff --exit-code blocksat-cli.bash-completion
+
+manpage:
+  extends: .test
+  image: python:3.11
+  before_script:
+    - apt update && apt install -y help2man
+  script:
+    - make install
+    - make manpage
 
 lint:
   image: python:3.9
