@@ -33,7 +33,7 @@ $(WHEEL): $(PY_FILES)
 wheel: $(WHEEL)
 
 install: $(SDIST)
-	pip3 install $(SDIST)
+	pip3 install $(SDIST)[fec]
 
 manpage: $(MANPAGE)
 
