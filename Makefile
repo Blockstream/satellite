@@ -19,6 +19,8 @@ clean-py:
 	rm -fr build/
 	rm -fr dist/
 	rm -fr .eggs/
+	rm -f $(MANPAGE)
+	rm -f $(COMPLETION)
 	find . -name '*.egg-info' -exec rm -fr {} +
 	find . -name '*.egg' -exec rm -f {} +
 
