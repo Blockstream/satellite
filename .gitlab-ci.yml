@@ -3,8 +3,8 @@ variables:
 
 stages:
   - test
-  - build
   - deploy
+  - docker
   - pandoc
 
 .pandoc_setup:
@@ -18,6 +18,15 @@ stages:
       - master
       - web
       - tags
+
+.docker_setup:
+  image:
+    name: maniator/dind-buildx
+    entrypoint: [""]
+  stage: docker
+  tags:
+    - deb-packer
+  needs: []
 
 .test:
   stage: test
@@ -187,12 +196,7 @@ pypi-upload:
     - make pypi
 
 docker-build:
-  image:
-    name: maniator/dind-buildx
-    entrypoint: [""]
-  stage: build
-  tags:
-    - deb-packer
+  extends: .docker_setup
   rules:
     - if: $DOCKER_BUILD
   before_script:
@@ -204,12 +208,7 @@ docker-build:
     - make docker-buildx
 
 docker-upload:
-  image:
-    name: maniator/dind-buildx
-    entrypoint: [""]
-  stage: deploy
-  tags:
-    - deb-packer
+  extends: .docker_setup
   rules:
     - if: $CI_COMMIT_TAG
     - if: $DOCKER_UPLOAD
