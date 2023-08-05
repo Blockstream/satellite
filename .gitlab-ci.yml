@@ -20,13 +20,26 @@ stages:
       - tags
 
 .docker_setup:
-  image:
-    name: maniator/dind-buildx
-    entrypoint: [""]
   stage: docker
   tags:
-    - deb-packer
+    - k8s-docker
+  image: docker:20.10.12
+  services:
+    - docker:20.10.12-dind
+  variables:
+    DOCKER_DRIVER: overlay2
+    DOCKER_HOST: tcp://localhost:2375
+    DOCKER_TLS_CERTDIR: ""
+    BUILDX_URL: https://github.com/docker/buildx/releases/download/v0.11.2/buildx-v0.11.2.linux-amd64
+    DOCKER_PLUGINS_DIR: /usr/local/lib/docker/cli-plugins
   needs: []
+  before_script:
+    - mkdir -p $DOCKER_PLUGINS_DIR
+    - wget -O $DOCKER_PLUGINS_DIR/docker-buildx $BUILDX_URL
+    - chmod +x $DOCKER_PLUGINS_DIR/docker-buildx
+    - apk add make python3 py3-setuptools py3-pip help2man
+    - pip3 install shtab
+    - docker buildx create --use
 
 .test:
   stage: test
@@ -199,10 +212,6 @@ docker-build:
   extends: .docker_setup
   rules:
     - if: $DOCKER_BUILD
-  before_script:
-    - apk add make python3 py3-setuptools py3-pip help2man
-    - pip3 install shtab
-    - docker buildx create --use
   script:
     - make install
     - make docker-buildx
@@ -213,10 +222,6 @@ docker-upload:
     - if: $CI_COMMIT_TAG
     - if: $DOCKER_UPLOAD
   when: manual
-  before_script:
-    - apk add make python3 py3-setuptools py3-pip help2man
-    - pip3 install shtab
-    - docker buildx create --use
   script:
     - echo $DOCKERHUB_PW | docker login -u $DOCKERHUB_USER --password-stdin
     - make install
