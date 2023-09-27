@@ -39,4 +39,4 @@ Once the above command completes successfully, you can move on to the next secti
 
 ---
 
-Prev: [Hardware Guide](hardware.md) - Next: [Receiver Setup](receiver.md)
+Prev: [Hardware Components](hardware-components.md) - Next: [Receiver Setup](receiver.md)

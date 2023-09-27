@@ -119,10 +119,26 @@ def main():
         open(os.path.join(root_dir, 'blocksatcli', 'main.py')).read(),
         re.M).group(1)
     docs = [
-        "../index.md", "hardware.md", "software.md", "s400.md", "tbs.md",
-        "sat-ip.md", "sdr.md", "antenna-pointing.md", "bitcoin.md",
-        "dual-satellite.md", "api.md", "docker.md", "frequency.md",
-        "monitoring.md", "quick-reference.md"
+        "../index.md",
+        "hardware.md",
+        "basic-kit.md",
+        "pro-kit.md",
+        "base-station.md",
+        "sdr-setup.md",
+        "hardware-components.md",
+        "software.md",
+        "s400.md",
+        "tbs.md",
+        "sat-ip.md",
+        "sdr.md",
+        "antenna-pointing.md",
+        "bitcoin.md",
+        "dual-satellite.md",
+        "api.md",
+        "docker.md",
+        "frequency.md",
+        "monitoring.md",
+        "quick-reference.md",
     ]
 
     title_map = {}

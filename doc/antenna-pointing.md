@@ -283,7 +283,7 @@ A satellite finder usually has two connections: one to the LNB (typically labele
 Receiver <---> Finder <---> LNB
 ```
 
-Some finders also come with a dedicated power supply. And even if not, you could purchase a power supply such as the one used in the [SDR setup](hardware.md#software-defined-radio-sdr-setup). In this case, it suffices to connect the finder to the power supply instead of the receiver, as follows:
+Some finders also come with a dedicated power supply. And even if not, you could purchase a power supply such as the one used in the [SDR setup](hardware-components.md#specific-parts-for-the-sdr-setup). In this case, it suffices to connect the finder to the power supply instead of the receiver, as follows:
 
 ```
 Power Supply <---> Finder <---> LNB
@@ -337,7 +337,7 @@ blocksat-cli cfg show
 Additionally, you will need to define:
 
 - Symbol rate: set it to "1000 kbaud" (or "1000000 baud", or "1 Mbaud", depending on the units adopted by your finder).
-- 22 kHz: enable only when using a Universal LNB and pointing to Galaxy 18 or Eutelsat 113 (i.e., when receiving in [Ku high band](frequency.md)). Otherwise, leave it disabled. See the [notes regarding Universal LNBs](hardware.md#universal-lnb).
+- 22 kHz: enable only when using a Universal LNB and pointing to Galaxy 18 or Eutelsat 113 (i.e., when receiving in [Ku high band](frequency.md)). Otherwise, leave it disabled. See the [notes regarding Universal LNBs](hardware-components.md#universal-lnb).
 
 After the configuration, the finder will typically present you with signal strength and (or) quality indicators. At this point, try aligning your antenna until you can maximize these levels.
 
