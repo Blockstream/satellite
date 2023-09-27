@@ -5,5 +5,12 @@ plugins:
 remote_theme: pmarsceill/just-the-docs
 logo: "/doc/img/blockstream.png"
 search_enabled: true
-exclude: ["README.md", "doc/README.md", "docker/README.md", "CHANGELOG.md"]
-footer_content: "Copyright &copy; 2017-2021 Blockstream. <a href=\"https://github.com/Blockstream/satellite/blob/master/LICENSE\">GPL-3.0 license.</a>"
+exclude:
+  [
+    "README.md",
+    "doc/README.md",
+    "doc/mkdocs.md",
+    "docker/README.md",
+    "CHANGELOG.md",
+  ]
+footer_content: 'Copyright &copy; 2017-2021 Blockstream. <a href="https://github.com/Blockstream/satellite/blob/master/LICENSE">GPL-3.0 license.</a>'

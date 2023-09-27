@@ -1,0 +1,36 @@
+site_name: Blockstream Satellite
+site_url: https://blockstream.com/docs/
+theme:
+  name: "material"
+  palette:
+    scheme: default
+    primary: light blue
+nav:
+  - index.md
+  - "Hardware Guide":
+      - "Overview": hardware.md
+      - basic-kit.md
+      - pro-kit.md
+      - base-station.md
+      - sdr-setup.md
+      - hardware-components.md
+  - software.md
+  - "Receiver Setup":
+      - "Overview": receiver.md
+      - s400.md
+      - tbs.md
+      - sat-ip.md
+      - sdr.md
+  - antenna-pointing.md
+  - bitcoin.md
+  - dual-satellite.md
+  - api.md
+  - docker.md
+  - frequency.md
+  - monitoring.md
+  - quick-reference.md
+markdown_extensions:
+  - attr_list
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
