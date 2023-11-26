@@ -30,7 +30,7 @@ def _print(text,
            end_linebreak=False,
            end_prompt=False,
            text_wrap=True):
-    assert (style in ['header', 'subheader', 'paragraph', 'item', 'code'])
+    assert (style in ['header', 'subheader', 'paragraph', 'item', 'code', 'url'])
 
     if style == 'header':
         util.print_header(text)
