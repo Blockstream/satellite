@@ -24,8 +24,8 @@ There are four broad categories of receiver setups and kits:
 
 Only two of those are currently available on Blockstream Store:
 
-1. [Satellite Base Station](https://store.blockstream.com/product/blockstream-satellite-base-station/).
-2. [Pro Kit](https://store.blockstream.com/product/blockstream-satellite-pro-kit/).
+1. [Satellite Base Station](https://store.blockstream.com/products/blockstream-satellite-base-station/).
+2. [Pro Kit](https://store.blockstream.com/products/blockstream-satellite-pro-kit/).
 
 The following table summarizes the key differences between them:
 
@@ -58,7 +58,7 @@ The following table summarizes the key differences between them:
 
 ## Choosing the Right Kit
 
-As mentioned, only two kits are currently available on the Blockstream Store: the [Base Station](https://store.blockstream.com/product/blockstream-satellite-base-station/) and the [Pro Kit](https://store.blockstream.com/product/blockstream-satellite-pro-kit/).
+As mentioned, only two kits are currently available on the Blockstream Store: the [Base Station](https://store.blockstream.com/products/blockstream-satellite-base-station/) and the [Pro Kit](https://store.blockstream.com/products/blockstream-satellite-pro-kit/).
 
 For most users, we recommend the Base Station receiver. Its minimalist design, simplified setup, and high performance will fit most Bitcoin users' needs.
 

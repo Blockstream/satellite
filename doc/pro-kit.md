@@ -5,7 +5,7 @@ nav_order: 2
 
 # Pro Kit
 
-The Basic Kit includes the parts required for a receiver setup based on a Standalone DVB-S2 receiver. The kit is available on [Blockstream Store](https://store.blockstream.com/product/blockstream-satellite-pro-kit/), but please follow the information below if you prefer to purchase the parts independently.
+The Basic Kit includes the parts required for a receiver setup based on a Standalone DVB-S2 receiver. The kit is available on [Blockstream Store](https://store.blockstream.com/products/blockstream-satellite-pro-kit/), but please follow the information below if you prefer to purchase the parts independently.
 
 If you are covered by a Ku-band beam (G18, E113, T11N, or T18V Ku), please purchase the following items:
 

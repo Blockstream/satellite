@@ -64,7 +64,7 @@ The standalone receiver that is currently supported is the [Novra S400 PRO DVB s
 
 ### Sat-IP Receiver
 
-The Sat-IP Receiver is another hardware-based and standalone receiver option. The difference is that it is based on an all-in-one antenna with a built-in DVB-S2 receiver and integrated LNB (see the [Satellite Base Station](https://store.blockstream.com/product/blockstream-satellite-base-station/)). It is referred to as a Sat-IP receiver because it runs a [Sat-IP server](https://en.wikipedia.org/wiki/Sat-IP), to which your host will connect as a client. Overall, this option offers the easiest configuration and the most minimalist setup, given that it requires a single component (the all-in-one antenna). However, note it does not work with the Telstar 18V C band satellite covering the Asia-Pacific region.
+The Sat-IP Receiver is another hardware-based and standalone receiver option. The difference is that it is based on an all-in-one antenna with a built-in DVB-S2 receiver and integrated LNB (see the [Satellite Base Station](https://store.blockstream.com/products/blockstream-satellite-base-station/)). It is referred to as a Sat-IP receiver because it runs a [Sat-IP server](https://en.wikipedia.org/wiki/Sat-IP), to which your host will connect as a client. Overall, this option offers the easiest configuration and the most minimalist setup, given that it requires a single component (the all-in-one antenna). However, note it does not work with the Telstar 18V C band satellite covering the Asia-Pacific region.
 
 The Sat-IP receiver that is currently supported is the all-in-one Selfsat>IP22 Sat-IP flat-panel antenna. It requires an Ethernet cable (Cat5e or superior) to connect to a switch, router, or directly to your host. Furthermore, it requires Power over Ethernet (PoE). Hence, you will need a PoE injector if the network adapter connecting to the Sat-IP antenna does not support PoE.
 
@@ -74,7 +74,7 @@ The connections with the Sat-IP receiver are as follows:
 
 ## Antenna
 
-In addition to the DVB-S2 receiver, you will always need an antenna to receive the satellite signal. The most widely available antenna option is the regular satellite TV dish with a conventional parabolic reflector. However, you can also use a flat panel antenna if you are looking for a more compact and stylish option. Also, you can use a Sat-IP antenna like the [Satellite Base Station](https://store.blockstream.com/product/blockstream-satellite-base-station/) with a built-in DVB-S2 receiver and integrated LNB. With a Sat-IP antenna, you don't need a separate DVB-S2 receiver. Instead, the receiver and antenna are all in one.
+In addition to the DVB-S2 receiver, you will always need an antenna to receive the satellite signal. The most widely available antenna option is the regular satellite TV dish with a conventional parabolic reflector. However, you can also use a flat panel antenna if you are looking for a more compact and stylish option. Also, you can use a Sat-IP antenna like the [Satellite Base Station](https://store.blockstream.com/products/blockstream-satellite-base-station/) with a built-in DVB-S2 receiver and integrated LNB. With a Sat-IP antenna, you don't need a separate DVB-S2 receiver. Instead, the receiver and antenna are all in one.
 
 ### Dish Antenna
 
@@ -86,7 +86,7 @@ Other than size, the only additional requirement is that the antenna works with 
 
 A flat panel antenna is generally more compact and stylish than a conventional dish. However, they are typically only available for Ku band.
 
-A recommended flat panel model is the Selfsat H50D, which was previously available on Blockstream Store before being replaced by the all-in-one [Satellite Base Station](https://store.blockstream.com/product/blockstream-satellite-base-station/). The Selfsat H50D includes the LNB internally, so there is no need to purchase an LNB (nor an LNB bracket) when using it. However, note that this model has limited compatibility. It is an excellent option for:
+A recommended flat panel model is the Selfsat H50D, which was previously available on Blockstream Store before being replaced by the all-in-one [Satellite Base Station](https://store.blockstream.com/products/blockstream-satellite-base-station/). The Selfsat H50D includes the LNB internally, so there is no need to purchase an LNB (nor an LNB bracket) when using it. However, note that this model has limited compatibility. It is an excellent option for:
 
 1. **Linux USB** and **Standalone Receivers** in any Ku band region.
 2. **SDR** receivers in Ku low band regions (Telstar 11N Africa, Telstar 11N Europe, and Telstar 18V Ku).
@@ -97,7 +97,7 @@ The flat panel requires an extra 22 kHz generator to work with **SDR** receivers
 
 ### Sat-IP Antenna
 
-As mentioned earlier, a Sat-IP antenna has a built-in receiver and integrated LNB. Hence, if you go with this option, you do not need to purchase a separate DVB-S2 receiver or an LNB. With the [Satellite Base Station](https://store.blockstream.com/product/blockstream-satellite-base-station/), the only additional component you would need is an Ethernet cable to connect the antenna to your host and a PoE-capable host. More details on this option are available on the [Satellite Base Station page](base-station.md).
+As mentioned earlier, a Sat-IP antenna has a built-in receiver and integrated LNB. Hence, if you go with this option, you do not need to purchase a separate DVB-S2 receiver or an LNB. With the [Satellite Base Station](https://store.blockstream.com/products/blockstream-satellite-base-station/), the only additional component you would need is an Ethernet cable to connect the antenna to your host and a PoE-capable host. More details on this option are available on the [Satellite Base Station page](base-station.md).
 
 ## Low-noise Block Downconverter (LNB)
 

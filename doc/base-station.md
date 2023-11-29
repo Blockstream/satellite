@@ -5,7 +5,7 @@ nav_order: 3
 
 # Satellite Base Station Kit
 
-The Satellite Base Station Kit includes the parts required for a receiver setup based on a Sat-IP all-in-one antenna. The kit is available on [Blockstream Store](https://store.blockstream.com/product/blockstream-satellite-base-station/).
+The Satellite Base Station Kit includes the parts required for a receiver setup based on a Sat-IP all-in-one antenna. The kit is available on [Blockstream Store](https://store.blockstream.com/products/blockstream-satellite-base-station/).
 
 Note the Base Station only works in the Ku band. Hence, please make sure you are covered by a Ku-band beam before purchasing it. That is, the Base Station is appropriate for receiving from the Galaxy 18, Eutelsat 113, Telstar 11N (Africa and Europe), and the Telstar 18V Ku-band beam. In contrast, it is incompatible with the C-band beam from Telstar 18V.
 

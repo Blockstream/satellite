@@ -7,7 +7,7 @@ nav_order: 4
 
 
 
-This section summarizes the items you need to purchase for a software-defined radio (SDR) setup. Note you will need to source these independently, as no kits are available for the SDR setup on [Blockstream Store](https://store.blockstream.com/product/blockstream-satellite-base-station/). To avoid misunderstandings, we recommend checking out the [hardware components](hardware-components.md) page with further details about the parts, especially the section about [SDR-specific components](hardware-components.md#specific-parts-for-the-sdr-setup).
+This section summarizes the items you need to purchase for a software-defined radio (SDR) setup. Note you will need to source these independently, as no kits are available for the SDR setup on [Blockstream Store](https://store.blockstream.com/products/blockstream-satellite-base-station/). To avoid misunderstandings, we recommend checking out the [hardware components](hardware-components.md) page with further details about the parts, especially the section about [SDR-specific components](hardware-components.md#specific-parts-for-the-sdr-setup).
 
 In the shopping lists below, we distinguish between the Ku and C bands and also between the Ku low and high bands. The low and high parts of the Ku band have different frequency ranges (see the [frequency guide](frequency.md#signal-bands)) that determine the appropriate SDR interface.
 

@@ -66,9 +66,9 @@ To start, make sure that your receiver is running. Depending on your type of rec
 
 - For the TBS 5927 or 5520SE USB receivers: `blocksat-cli usb launch`.
 
-- For the Novra S400 Standalone ([Pro Kit](https://store.blockstream.com/product/blockstream-satellite-pro-kit/)) receiver: `blocksat-cli standalone monitor` (see the [S400's instructions](s400.md#monitoring)).
+- For the Novra S400 Standalone ([Pro Kit](https://store.blockstream.com/products/blockstream-satellite-pro-kit/)) receiver: `blocksat-cli standalone monitor` (see the [S400's instructions](s400.md#monitoring)).
 
-- For the Sat-IP receiver ([Satellite Base Station](https://store.blockstream.com/product/blockstream-satellite-base-station/)): `blocksat-cli sat-ip`.
+- For the Sat-IP receiver ([Satellite Base Station](https://store.blockstream.com/products/blockstream-satellite-base-station/)): `blocksat-cli sat-ip`.
 
 - For the SDR receiver: `blocksat-cli sdr`.
 
