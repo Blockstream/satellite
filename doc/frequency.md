@@ -17,7 +17,7 @@ This page summarizes several frequencies of interest.
 
 ## Signal Bands
 
-Blockstream Satellite operates in Ku high band, Ku low band and C band, depending on region. Ku high band is used in North America and South America. Ku low band is used in Africa, Europe, and Asia. C band is used in the Asia-Pacific region.
+Blockstream Satellite operates in Ku high band, Ku low band and C band, depending on the region. Ku high band is used in North America and South America. Ku low band is used in Africa, Europe, and Asia. C band is used in the Asia-Pacific region.
 
 | Band         | Frequency Range   |
 | ------------ | ----------------- |
