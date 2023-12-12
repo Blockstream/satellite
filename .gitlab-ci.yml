@@ -19,6 +19,12 @@ stages:
       - web
       - tags
 
+.venv-install:
+  script:
+    - python3 -m venv .venv
+    - source .venv/bin/activate
+    - make && make install
+
 .docker_setup:
   stage: docker
   tags:
@@ -38,13 +44,14 @@ stages:
     - wget -O $DOCKER_PLUGINS_DIR/docker-buildx $BUILDX_URL
     - chmod +x $DOCKER_PLUGINS_DIR/docker-buildx
     - apk add make python3 py3-setuptools py3-pip help2man gcc musl-dev python3-dev
+    - !reference [.venv-install, script]
     - pip3 install shtab
     - docker buildx create --use
 
 .test:
   stage: test
   script:
-    - make && make install
+    - !reference [.venv-install, script]
     - python -m unittest discover -b
 
 unit-tests-py36:
@@ -74,10 +81,9 @@ unit-tests-py311:
 bash-completion:
   extends: .test
   image: python:3.11
-  before_script:
-    - pip3 install shtab
   script:
-    - make && make install
+    - !reference [.venv-install, script]
+    - pip3 install shtab
     - make completion
     - git diff --exit-code blocksat-cli.bash-completion
 
@@ -87,7 +93,7 @@ manpage:
   before_script:
     - apt update && apt install -y help2man
   script:
-    - make install
+    - !reference [.venv-install, script]
     - make manpage
 
 flake8-lint:
@@ -111,9 +117,11 @@ test-make-install-apt:
     - tags
     - web
   before_script:
-    - apt update -y && apt install -y make python3 python3-setuptools python3-pip
+    - |
+      apt update -y && apt install -y make \
+      python3 python3-setuptools python3-pip python3-venv
   script:
-    - make && make install
+    - !reference [.venv-install, script]
   parallel:
     matrix:
       - IMAGE:
@@ -130,7 +138,7 @@ test-make-install-fedora:
     - dnf update -y && dnf install -y make python3 python3-setuptools python3-pip
     - dnf install -y gcc python3-devel
   script:
-    - make && make install
+    - !reference [.venv-install, script]
   parallel:
     matrix:
       - IMAGE: ["fedora:38", "fedora:39"]
@@ -147,7 +155,7 @@ test-make-install-centos:
     - find /etc/yum.repos.d/ -type f -exec sed -i 's/mirror.centos.org/vault.centos.org/g' {} +
     - dnf update -y && dnf install -y epel-release make python3 python3-setuptools python3-pip gcc python3-devel
   script:
-    - make && make install
+    - !reference [.venv-install, script]
   parallel:
     matrix:
       - IMAGE: ["centos:8"]
@@ -155,6 +163,7 @@ test-make-install-centos:
 .test-dependencies:
   stage: test
   script:
+    - !reference [.venv-install, script]
     - python3 -m unittest blocksatcli/verify_deps_instal.py
 
 test-deb-dependencies:
@@ -164,8 +173,9 @@ test-deb-dependencies:
     - tags
     - web
   before_script:
-    - apt update -y && apt install -y make python3 python3-setuptools python3-pip
-    - make && make install
+    - |
+      apt update -y && apt install -y make \
+      python3 python3-setuptools python3-pip python3-venv
   parallel:
     matrix:
       - IMAGE:
@@ -180,7 +190,6 @@ test-fedora-dependencies:
   before_script:
     - dnf update -y && dnf install -y make python3 python3-setuptools python3-pip
     - dnf install -y gcc python3-devel
-    - make && make install
   parallel:
     matrix:
       - IMAGE: ["fedora:38", "fedora:39"]
@@ -201,7 +210,6 @@ docker-build:
   rules:
     - if: $DOCKER_BUILD
   script:
-    - make install
     - make docker-buildx
 
 docker-upload:
@@ -212,7 +220,6 @@ docker-upload:
   when: manual
   script:
     - echo $DOCKERHUB_PW | docker login -u $DOCKERHUB_USER --password-stdin
-    - make install
     - make docker-buildx
     - make docker-buildx-push
 
