@@ -23,6 +23,7 @@ stages:
   script:
     - python3 -m venv .venv
     - source .venv/bin/activate
+    - pip3 install setuptools
     - make && make install
 
 .docker_setup:
