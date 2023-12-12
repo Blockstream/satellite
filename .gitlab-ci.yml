@@ -117,13 +117,7 @@ test-make-install-apt:
   parallel:
     matrix:
       - IMAGE:
-          [
-            "ubuntu:bionic",
-            "ubuntu:focal",
-            "ubuntu:jammy",
-            "debian:buster",
-            "debian:bullseye",
-          ]
+          ["ubuntu:focal", "ubuntu:jammy", "debian:bullseye", "debian:bookworm"]
 
 # TODO Remove the gcc/python3-devel installation when zfec ships py3.11 wheels
 test-make-install-fedora:
@@ -139,7 +133,7 @@ test-make-install-fedora:
     - make && make install
   parallel:
     matrix:
-      - IMAGE: ["fedora:36", "fedora:37"]
+      - IMAGE: ["fedora:38", "fedora:39"]
 
 test-make-install-centos:
   image: $IMAGE
@@ -175,13 +169,7 @@ test-deb-dependencies:
   parallel:
     matrix:
       - IMAGE:
-          [
-            "ubuntu:bionic",
-            "ubuntu:focal",
-            "ubuntu:jammy",
-            "debian:buster",
-            "debian:bullseye",
-          ]
+          ["ubuntu:focal", "ubuntu:jammy", "debian:bullseye", "debian:bookworm"]
 
 test-fedora-dependencies:
   image: $IMAGE
@@ -195,7 +183,7 @@ test-fedora-dependencies:
     - make && make install
   parallel:
     matrix:
-      - IMAGE: ["fedora:36", "fedora:37"]
+      - IMAGE: ["fedora:38", "fedora:39"]
 
 pypi-upload:
   image: python
