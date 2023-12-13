@@ -175,19 +175,19 @@ class TestApiListener(TestCase):
     @mock.patch('subprocess.run')
     def test_gossip(self, mock_subproc_run):
         """Test Lightning gossip reception"""
-        filename = 'snapshot.gsp'
+        filename = 'snapshot1.gsp'
         gossip_opts = {'cli': 'historian-cli', 'dest': None}
         self.loopback_test(filename=filename, gossip_opts=gossip_opts)
         expected_cmd = [
             'historian-cli', 'snapshot', 'load',
             os.path.join(self.download_dir, filename)
         ]
-        self.assertTrue(mock_subproc_run.called_with(expected_cmd))
+        mock_subproc_run.assert_called_with(expected_cmd)
 
     @mock.patch('subprocess.run')
     def test_gossip_with_dest(self, mock_subproc_run):
         """Test Lightning gossip reception with a specified destination"""
-        filename = 'snapshot.gsp'
+        filename = 'snapshot2.gsp'
         dest = '127.0.0.1'
         gossip_opts = {'cli': 'historian-cli', 'dest': dest}
         self.loopback_test(filename=filename, gossip_opts=gossip_opts)
@@ -195,4 +195,4 @@ class TestApiListener(TestCase):
             'historian-cli', 'snapshot', 'load',
             os.path.join(self.download_dir, filename), dest
         ]
-        self.assertTrue(mock_subproc_run.called_with(expected_cmd))
+        mock_subproc_run.assert_called_with(expected_cmd)
