@@ -228,6 +228,11 @@ def _enable_pkg_repo(distro_id, interactive):
 
         cmds.append(cmd)
 
+        # On debian, it may be necessary to run add-apt-repository twice due to
+        # a bug in the tool (see on debian:12 Docker environment).
+        if distro_id == 'debian' and distro.version() == '12':
+            cmds.append(cmd)
+
         if distro_id in ["debian", "raspbian"]:
             cmd = [
                 "apt-key", "adv", "--keyserver", "keyserver.ubuntu.com",
