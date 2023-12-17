@@ -54,6 +54,8 @@ stages:
   script:
     - !reference [.venv-install, script]
     - python -m unittest discover -b
+    # Exercise all imports triggered when launching the CLI
+    - blocksat-cli --version
 
 unit-tests-py36:
   extends: .test

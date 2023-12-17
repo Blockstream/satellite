@@ -25,6 +25,8 @@ jobs:
     - name: Test with pytest
       run: |
         python -m pytest --cov=blocksatcli
+    - name: Check launching and imports
+      run: blocksat-cli --version
     - name: Check bash completion file is up to date
       run: |
         make completion
