@@ -16,6 +16,19 @@ Satellite receiver setup.
 
 """
 
+dependencies = [
+    'distro',
+    'packaging',
+    'pysnmp',
+    'python-gnupg>=0.4.7',
+    'qrcode',
+    'requests',
+]
+
+# FIXME: Remove this once a pysnmp version supporting Py3.12 becomes available
+if sys.version_info >= (3, 12):
+    dependencies.append('pyasyncore==1.0.2')
+
 setup(
     name="blocksat-cli",
     packages=find_packages(),
@@ -27,14 +40,7 @@ setup(
     author="Blockstream Corp",
     author_email="satellite@blockstream.com",
     url="https://github.com/Blockstream/satellite",
-    install_requires=[
-        'distro',
-        'packaging',
-        'pysnmp',
-        'python-gnupg>=0.4.7',
-        'qrcode',
-        'requests',
-    ],
+    install_requires=dependencies,
     extras_require={"fec": ['zfec>=1.5.4']},
     package_data={'blocksatcli': ['mib/*.mib', 'mib/*.txt', 'gpg/*.gpg']},
     classifiers=[
