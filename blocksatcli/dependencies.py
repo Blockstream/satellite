@@ -8,10 +8,10 @@ import sys
 import tempfile
 import textwrap
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
-from distutils.version import LooseVersion
 from shutil import which
 
 import distro
+from packaging.version import Version
 
 from . import config, defs, util
 
@@ -96,7 +96,7 @@ def _is_package_installed(package, required_version):
     if installed_version is None:
         return False
 
-    if (LooseVersion(installed_version) < LooseVersion(required_version)):
+    if (Version(installed_version) < Version(required_version)):
         return False
 
     return True
@@ -394,7 +394,7 @@ def _install_specific(cfg_dir, target, interactive=True, update=False):
     distro_id = distro.id()
     distro_ver = distro.version()
     fc36_or_higher = distro_id == 'fedora' and int(distro_ver) >= 36
-    ubuntu22_or_higher = distro_id == 'ubuntu' and LooseVersion(
+    ubuntu22_or_higher = distro_id == 'ubuntu' and Version(
         distro_ver) >= '22.04'
     if target == defs.sdr_setup_type and \
             (fc36_or_higher or ubuntu22_or_higher):
@@ -683,8 +683,7 @@ def drivers(args):
     # ov9650.ko undefined!": disable ov9650 from the build. The problem was
     # observed on kernel versions 5.3.7 and 5.7.7. Apply the workaround for any
     # version < 5.8.
-    if (distro_id == "fedora"
-            and LooseVersion(linux_release) < LooseVersion('5.8')):
+    if (distro_id == "fedora" and Version(linux_release) < Version('5.8')):
         disable_list.append("VIDEO_OV9650")
 
     # On Raspbian, disable the MN88436 drivers to avoid the
@@ -693,8 +692,7 @@ def drivers(args):
         disable_list.append("DVB_MN88436")
 
     # Disable RC/IR support
-    if (distro_id == "raspbian"
-            or LooseVersion(linux_release) >= LooseVersion('6.0')):
+    if (distro_id == "raspbian" or Version(linux_release) >= Version('6.0')):
         runner.run(
             ["sed", "-i", "-r", "s/(^CONFIG.*_RC.*=)./\1n/g", "v4l/.config"],
             cwd=media_build_dir)

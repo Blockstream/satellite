@@ -28,7 +28,12 @@ setup(
     author_email="satellite@blockstream.com",
     url="https://github.com/Blockstream/satellite",
     install_requires=[
-        'distro', 'requests', 'python-gnupg>=0.4.7', 'qrcode', 'pysnmp'
+        'distro',
+        'packaging',
+        'pysnmp',
+        'python-gnupg>=0.4.7',
+        'qrcode',
+        'requests',
     ],
     extras_require={"fec": ['zfec>=1.5.4']},
     package_data={'blocksatcli': ['mib/*.mib', 'mib/*.txt', 'gpg/*.gpg']},

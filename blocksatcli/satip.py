@@ -9,9 +9,10 @@ import threading
 import time
 import zipfile
 from argparse import ArgumentDefaultsHelpFormatter
-from distutils.version import StrictVersion
 from ipaddress import ip_address
 from urllib.parse import urlencode, quote
+
+from packaging.version import Version
 
 from . import config
 from . import defs
@@ -239,8 +240,8 @@ class SatIp():
             logger.error(str(e))
             return None
 
-        current_version = StrictVersion(r.text.strip('\n'))
-        if (current_version < StrictVersion(min_version)):
+        current_version = Version(r.text.strip('\n'))
+        if (current_version < Version(min_version)):
             logger.error("A firmware upgrade is required on the Sat-IP "
                          "receiver.")
             logger.info("The current firmware version is {}, but the minimum "
@@ -380,8 +381,8 @@ class SatIp():
         if ('thisver' not in update_info or 'newver' not in update_info):
             logger.error("Failed to parse the firmware update information")
             return False
-        this_sw_ver = StrictVersion(update_info['thisver']['sw_ver'])
-        new_sw_ver = StrictVersion(update_info['newver']['sw_ver'])
+        this_sw_ver = Version(update_info['thisver']['sw_ver'])
+        new_sw_ver = Version(update_info['newver']['sw_ver'])
 
         # Check if the download really contains a newer version
         if (this_sw_ver >= new_sw_ver):

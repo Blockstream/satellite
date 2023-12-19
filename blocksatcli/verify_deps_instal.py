@@ -2,9 +2,9 @@ import argparse
 import logging
 import unittest
 import os
-from distutils.version import LooseVersion
 
 import distro
+from packaging.version import Version
 
 from . import dependencies, util
 
@@ -46,7 +46,7 @@ class TestDependencies(unittest.TestCase):
         distro_id = distro.id()
         distro_ver = distro.version()
         fc36_or_higher = distro_id == 'fedora' and int(distro_ver) >= 36
-        ubuntu22_or_higher = distro_id == 'ubuntu' and LooseVersion(
+        ubuntu22_or_higher = distro_id == 'ubuntu' and Version(
             distro_ver) >= '22.04'
         if fc36_or_higher or ubuntu22_or_higher:
             self.assertTrue(dependencies.check_apps(["dvbs2-rx"]))

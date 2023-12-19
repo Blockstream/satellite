@@ -4,8 +4,9 @@ import os
 import subprocess
 import threading
 from datetime import datetime, timedelta
-from distutils.version import StrictVersion
 from shutil import which
+
+from packaging.version import Version
 
 from .cache import Cache
 
@@ -59,7 +60,7 @@ class UpdateCache(Cache):
             confirmed by "has_update". Otherwise, it will throw an exception.
 
         """
-        return StrictVersion(self.data['cli_update'][1])
+        return Version(self.data['cli_update'][1])
 
     def recommend_update(self):
         """Print information regarding the recommended update"""
@@ -152,7 +153,7 @@ def check_cli_updates(args, cli_version):
     # If the cache file says there is an update available, check whether the
     # current version is already the updated one. If not, recommend the update.
     if (update_cache.has_update()):
-        if (update_cache.new_version() > StrictVersion(cli_version)):
+        if (update_cache.new_version() > Version(cli_version)):
             # Not updated yet. Recommend it.
             update_cache.recommend_update()
         else:
