@@ -19,7 +19,7 @@ Satellite receiver setup.
 dependencies = [
     'distro',
     'packaging',
-    'pysnmp',
+    'pysnmplib',
     'python-gnupg>=0.4.7',
     'qrcode',
     'requests',
