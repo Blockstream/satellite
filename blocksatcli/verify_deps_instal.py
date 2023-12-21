@@ -47,7 +47,7 @@ class TestDependencies(unittest.TestCase):
         distro_ver = distro.version()
         fc36_or_higher = distro_id == 'fedora' and int(distro_ver) >= 36
         ubuntu22_or_higher = distro_id == 'ubuntu' and Version(
-            distro_ver) >= '22.04'
+            distro_ver) >= Version('22.04')
         if fc36_or_higher or ubuntu22_or_higher:
             self.assertTrue(dependencies.check_apps(["dvbs2-rx"]))
         else:

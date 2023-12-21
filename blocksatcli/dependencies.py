@@ -395,7 +395,7 @@ def _install_specific(cfg_dir, target, interactive=True, update=False):
     distro_ver = distro.version()
     fc36_or_higher = distro_id == 'fedora' and int(distro_ver) >= 36
     ubuntu22_or_higher = distro_id == 'ubuntu' and Version(
-        distro_ver) >= '22.04'
+        distro_ver) >= Version('22.04')
     if target == defs.sdr_setup_type and \
             (fc36_or_higher or ubuntu22_or_higher):
         _install_packages(['gr-dvbs2rx', 'gr-osmosdr'],
