@@ -554,6 +554,7 @@ def drivers(args):
     # Install pre-requisites
     distro_id = distro.id()
     linux_release = platform.release()
+    linux_release_version = linux_release.split('-')[0]  # x.y.z version only
     is_rpi_os = _detect_raspberry_pi_os()
     if is_rpi_os:
         linux_headers = "raspberrypi-kernel-headers"
@@ -706,7 +707,8 @@ def drivers(args):
     # ov9650.ko undefined!": disable ov9650 from the build. The problem was
     # observed on kernel versions 5.3.7 and 5.7.7. Apply the workaround for any
     # version < 5.8.
-    if (distro_id == "fedora" and Version(linux_release) < Version('5.8')):
+    if (distro_id == "fedora"
+            and Version(linux_release_version) < Version('5.8')):
         disable_list.append("VIDEO_OV9650")
 
     # On Raspbian, disable the MN88436 drivers to avoid the
@@ -715,7 +717,8 @@ def drivers(args):
         disable_list.append("DVB_MN88436")
 
     # Disable RC/IR support
-    if (distro_id == "raspbian" or Version(linux_release) >= Version('6.0')):
+    if (distro_id == "raspbian"
+            or Version(linux_release_version) >= Version('6.0')):
         runner.run(
             ["sed", "-i", "-r", "s/(^CONFIG.*_RC.*=)./\1n/g", "v4l/.config"],
             cwd=media_build_dir)
