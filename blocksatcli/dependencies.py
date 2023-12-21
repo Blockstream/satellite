@@ -130,6 +130,28 @@ def _check_distro(setup_type):
     raise ValueError("Unsupported Linux distribution")
 
 
+def _detect_raspberry_pi_os() -> bool:
+    """Detect if the current OS is Raspberry Pi OS
+
+    The Raspberry Pi OS is based on Debian. Thus, unless the distro ID returns
+    "raspbian", checking it is not enough to detect the RPi OS. Instead, check
+    if the CPU model is "Raspberry Pi".
+
+    """
+    if distro.id() == "raspbian":
+        return True
+    elif distro.id() == 'debian':
+        try:
+            with open('/proc/cpuinfo', 'r') as f:
+                for line in f.readlines():
+                    if (line.startswith('Model')
+                            and 'raspberry pi' in line.lower()):
+                        return True
+        except FileNotFoundError:
+            pass
+    return False
+
+
 def _get_apt_repo(distro_id):
     """Find the APT package repository for the given distro"""
     if distro_id == "ubuntu":
@@ -532,7 +554,8 @@ def drivers(args):
     # Install pre-requisites
     distro_id = distro.id()
     linux_release = platform.release()
-    if (distro_id == "raspbian"):
+    is_rpi_os = _detect_raspberry_pi_os()
+    if is_rpi_os:
         linux_headers = "raspberrypi-kernel-headers"
     else:
         linux_headers = "linux-headers-" + linux_release
@@ -612,9 +635,9 @@ def drivers(args):
                       interactive=interactive,
                       update=False)
 
-    # On Raspbian, check that the raspberrypi-kernel-headers version matches
-    # the actual kernel version
-    if (distro_id == "raspbian"):
+    # On Raspberry PI OS, check that the raspberrypi-kernel-headers version
+    # matches the actual kernel version
+    if is_rpi_os:
         rpi_header_contents = runner.run(
             ["dpkg", "-L", "raspberrypi-kernel-headers"],
             nodry=True,
