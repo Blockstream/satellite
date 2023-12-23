@@ -142,23 +142,6 @@ test-make-install-fedora:
     matrix:
       - IMAGE: ["fedora:38", "fedora:39"]
 
-test-make-install-centos:
-  image: $IMAGE
-  stage: test
-  only:
-    - tags
-    - web
-  before_script:
-    - find /etc/yum.repos.d/ -type f -exec sed -i 's/mirrorlist=/#mirrorlist=/g' {} +
-    - find /etc/yum.repos.d/ -type f -exec sed -i 's/#baseurl=/baseurl=/g' {} +
-    - find /etc/yum.repos.d/ -type f -exec sed -i 's/mirror.centos.org/vault.centos.org/g' {} +
-    - dnf update -y && dnf install -y epel-release make python3 python3-setuptools python3-pip gcc python3-devel
-  script:
-    - !reference [.venv-install, script]
-  parallel:
-    matrix:
-      - IMAGE: ["centos:8"]
-
 .test-dependencies:
   stage: test
   script:
