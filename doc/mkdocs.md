@@ -1,6 +1,6 @@
 # MkDocs
 
-An MkDocs setup is available for local development of docs and visualization
+A MkDocs setup is available for local development of docs and visualization
 before pushing to Github Pages. Please run it as follows from the root
 directory:
 

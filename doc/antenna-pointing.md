@@ -60,7 +60,7 @@ At this stage, you can leave the screws that control the azimuth angle slightly 
 
 Assuming that the receiver is configured correctly and connected, your next step is to find the satellite. You will adjust the antenna pointing until the receiver can lock to the Blockstream Satellite signal. Please note that this is likely the most time-consuming part of the setup process, especially when doing it for the first time. As mentioned earlier, a single degree shifted on the dish represents a change of thousands of kilometers over the geosynchronous orbit.
 
-The process will be easier with a laptop than can be watched while moving the antenna. If you cannot watch the computer, you’ll need two people: one to move the antenna and one to monitor the computer.
+The process will be easier with a laptop that can be watched while moving the antenna. If you cannot watch the computer, you’ll need two people: one to move the antenna and one to monitor the computer.
 
 To start, make sure that your receiver is running. Depending on your type of receiver, this step involves one of the following commands:
 
