@@ -144,7 +144,7 @@ class SatIp():
             src_port: Source port.
             interface: Network interface.
 
-        Retuns:
+        Returns:
             List with the discovered devices
 
         """
