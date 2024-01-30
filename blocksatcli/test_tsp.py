@@ -22,7 +22,7 @@ class TestTsp(TestCase):
 
     def test_non_prompting_opts(self):
         # If the prompting options are not provided, the tsp command should be
-        # generated succesfully every time
+        # generated successfully every time
         tsp_handler = tsp.Tsp()
         args = self.parser.parse_args(
             ['--ts-monitor-bitrate', '--ts-monitor-sequence'])
