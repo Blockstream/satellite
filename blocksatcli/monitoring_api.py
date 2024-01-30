@@ -545,7 +545,7 @@ class BsMonitoring():
         # - Sent over the API channel dedicated for authentication messages
         download_dir = None  # Don't save messages
         interface = config.get_net_if(self.user_info)
-        recv_queue = queue.Queue()  # save API donwloads on this queue
+        recv_queue = queue.Queue()  # save API downloads on this queue
         listen_loop = ApiListener(recv_queue=recv_queue)
         listen_thread = threading.Thread(target=listen_loop.run,
                                          daemon=True,
