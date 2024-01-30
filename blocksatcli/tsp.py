@@ -149,7 +149,7 @@ class Tsp():
             stdin : Stdin to attach to the tsp process.
 
         Rerturns:
-            Boolean indicating whether the process is running succesfully.
+            Boolean indicating whether the process is running successfully.
 
         """
         # Create a .tsduck.lastcheck file on the home directory to skip the

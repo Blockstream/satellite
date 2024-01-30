@@ -74,7 +74,7 @@ class Gpg():
                                             name_email=email,
                                             passphrase=self.passphrase)
         self.gpg.gen_key(key_params)
-        logger.info("Keys succesfully generated at {}".format(
+        logger.info("Keys successfully generated at {}".format(
             os.path.abspath(self.gpghome)))
 
     def prompt_passphrase(self, prompt=None):
