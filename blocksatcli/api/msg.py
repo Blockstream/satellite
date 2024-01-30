@@ -315,7 +315,7 @@ class ApiMsg:
         Detects whether the clearsigned plaintext messages comes from the
         specified signer. In the positive case, overwrite the "original" data
         container with the underlying data, excluding the signature. In other
-        words, if the verification is succesful, remove the signature and leave
+        words, if the verification is successful, remove the signature and leave
         the data only.
 
         Args:
@@ -617,7 +617,7 @@ def decode(data,
         gpg         : Gpg object.
 
     Returns:
-        ApiMsg if the message is succesfully decoded, None otherwise.
+        ApiMsg if the message is successfully decoded, None otherwise.
 
     """
     if ((not plaintext or sender) and gpg is None):
