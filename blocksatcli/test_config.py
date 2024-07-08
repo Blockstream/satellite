@@ -1,10 +1,9 @@
-import os
 import argparse
+import os
 from unittest import TestCase
 from unittest.mock import patch
 
-from . import config
-from . import defs
+from . import config, defs
 from .test_helpers import TestEnv
 
 
@@ -30,44 +29,80 @@ class TestConfigDir(TestEnv):
     def test_cfg_patching(self, mock_yes_or_no):
         mock_yes_or_no.return_value = False
 
-        change_map = {
-            'T11N AFR': {
-                'old_freq': 11480.7,
-                'new_freq': 11452.1,
-            },  # T11N AFR update on May 31st 2022
-            'T11N EU': {
-                'old_freq': 11484.3,
-                'new_freq': 11505.4
-            },  # T11N EU update on May 31st 2022:
-            'G18': {
-                'old_freq': 12016.4,
-                'new_freq': 11913.4
-            },  # G18 update on March 3, 2023
-            'T18V C': {
-                'old_freq': 4053.83,
-                'new_freq': 4057.4
-            },  # T18V C update on July 12, 2023
-        }
+        changes = [
+            (
+                # T11N AFR update on May 31st 2022
+                'T11N AFR',
+                {
+                    'old_freq': 11480.7,
+                    'new_freq': 11452.1,
+                },
+            ),
+            (
+                # T11N EU update on May 31st 2022:
+                'T11N EU',
+                {
+                    'old_freq': 11484.3,
+                    'new_freq': 11505.4
+                },
+            ),
+            (
+                # G18 update on March 3, 2023
+                'G18',
+                {
+                    'old_freq': 12016.4,
+                    'new_freq': 11913.4
+                },
+            ),
+            (
+                'T18V C',
+                {
+                    'old_freq': 4053.83,  # frequency pre July 12, 2023
+                    'new_freq': 4122.6,  # Update on July 9, 2024
+                    'old_pol': 'H',  # Pre July 9, 2024
+                    'new_pol': 'V'  # After July 9, 2024
+                },
+            ),
+            (
+                'T18V C',
+                {
+                    'old_freq': 4057.4,  # frequency after July 12, 2023
+                    'new_freq': 4122.6,  # Update on July 9, 2024
+                    'old_pol': 'H',  # Pre July 9, 2024
+                    'new_pol': 'V'  # After July 9, 2024
+                },
+            ),
+            (
+                # T18V Ku update on July 9, 2024
+                'T18V Ku',
+                {
+                    'old_freq': 11506.75,
+                    'new_freq': 11507.9
+                },
+            )
+        ]
 
-        for satellite in change_map.keys():
+        for satellite, change in changes:
             sat_def = defs.get_satellite_def(satellite)
-            sat_def['dl_freq'] = change_map[satellite]['old_freq']
+            sat_def['dl_freq'] = change['old_freq']
+            if 'old_pol' in change:
+                sat_def['pol'] = change['old_pol']
             band = sat_def['band']
             example_lnb = "Titanium C1-PLL" if band == 'C' else \
                 "GEOSATpro UL1PLL"
             lo_freq = 5150.0 if band == 'C' else (
                 9750.0 if sat_def['dl_freq'] < 11700.0 else 10600.0)
-            old_l_band = config._calc_if_freq(
-                change_map[satellite]['old_freq'], lo_freq, band)
-            new_l_band = config._calc_if_freq(
-                change_map[satellite]['new_freq'], lo_freq, band)
+            old_l_band = config._calc_if_freq(change['old_freq'], lo_freq,
+                                              band)
+            new_l_band = config._calc_if_freq(change['new_freq'], lo_freq,
+                                              band)
 
             # Original configuration
             chan_conf = config.get_chan_file_path(self.cfg_dir, self.cfg_name)
             old_info = {
                 "sat": sat_def,
                 "freqs": {
-                    "dl": change_map[satellite]['old_freq'],
+                    "dl": change['old_freq'],
                     "lo": lo_freq,
                     "l_band": old_l_band
                 },
@@ -80,7 +115,7 @@ class TestConfigDir(TestEnv):
             new_info = {
                 "sat": defs.get_satellite_def(satellite),
                 "freqs": {
-                    "dl": change_map[satellite]['new_freq'],
+                    "dl": change['new_freq'],
                     "lo": lo_freq,
                     "l_band": new_l_band
                 },
@@ -91,14 +126,20 @@ class TestConfigDir(TestEnv):
                 }
             }
             config.write_cfg_file(self.cfg_name, self.cfg_dir, old_info)
-            config.write_chan_conf(old_info, chan_conf)
+            config.write_chan_conf(old_info,
+                                   chan_conf,
+                                   yes=True,
+                                   regeneration=True)
 
             # Before patching, the channel conf file should be inferred invalid
-            config.verify_chan_conf(new_info)
+            self.assertFalse(config.verify_chan_conf(new_info))
 
             # Check patching
             user_info = config.read_cfg_file(self.cfg_name, self.cfg_dir)
             self.assertEqual(user_info, new_info)
+
+            # After patching, the channel conf file should be inferred valid
+            self.assertTrue(config.verify_chan_conf(new_info))
 
         # Configuration based on a satellite that is not patched
         test_info = {
@@ -687,9 +728,9 @@ class TestReceiversSetupConfig(TestEnv):
             "pol": "V"
         }
         self.expected_config["freqs"] = {
-            "dl": 4057.4,
+            "dl": 4122.6,
             "lo": 5150.0,
-            "l_band": 1092.6
+            "l_band": 1027.4
         }
 
         # Continue with invalid frequency range
@@ -731,9 +772,9 @@ class TestReceiversSetupConfig(TestEnv):
             "pol": "V"
         }
         self.expected_config["freqs"] = {
-            "dl": 4057.4,
+            "dl": 4122.6,
             "lo": 5150.0,
-            "l_band": 1092.6
+            "l_band": 1027.4
         }
 
         config.configure(self.args)

@@ -7,9 +7,9 @@ import textwrap
 from argparse import ArgumentDefaultsHelpFormatter, Namespace
 from decimal import Decimal, getcontext
 from ipaddress import IPv4Address
-from pprint import pprint, pformat
+from pprint import pformat, pprint
 
-from . import util, defs, gqrx
+from . import defs, gqrx, util
 
 logger = logging.getLogger(__name__)
 
@@ -676,18 +676,18 @@ def _patch_cfg_file(cfg_file, info):
     updated = False
     if 'sat' in info:
         new_dl_freq = None
-        if info['sat']['alias'] == "T11N AFR" and \
-                info['sat']['dl_freq'] == 11480.7:
-            new_dl_freq = 11452.1
-        if info['sat']['alias'] == "T11N EU" and \
-                info['sat']['dl_freq'] == 11484.3:
-            new_dl_freq = 11505.4
-        if info['sat']['alias'] == "G18" and \
-                info['sat']['dl_freq'] == 12016.4:
-            new_dl_freq = 11913.4
-        if info['sat']['alias'] == "T18V C" and \
-                info['sat']['dl_freq'] == 4053.83:
-            new_dl_freq = 4057.4
+        new_pol = None
+        for alias, sat_info in defs.satellites_as_dict.items():
+            if (info['sat']['alias'] != alias):
+                continue
+
+            # Downlink frequency
+            if (info['sat']['dl_freq'] != sat_info['dl_freq']):
+                new_dl_freq = sat_info['dl_freq']
+
+            # Polarization
+            if (info['sat']['pol'] != sat_info['pol']):
+                new_pol = sat_info['pol']
 
         if new_dl_freq is not None:
             logger.info(
@@ -698,6 +698,12 @@ def _patch_cfg_file(cfg_file, info):
             info['freqs']['l_band'] = _calc_if_freq(new_dl_freq,
                                                     info['freqs']['lo'],
                                                     info['sat']['band'])
+            updated = True
+
+        if new_pol is not None:
+            logger.info("Updating the {} polarization from {} to {}".format(
+                info['sat']['alias'], info['sat']['pol'], new_pol))
+            info['sat']['pol'] = new_pol
             updated = True
 
     if updated and 'setup' in info and info['setup'][

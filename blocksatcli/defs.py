@@ -55,18 +55,19 @@ satellites = [{
 }, {
     'name': "Telstar 18V C Band",
     'alias': "T18V C",
-    'dl_freq': 4057.4,
+    'dl_freq': 4122.6,
     'band': "C",
-    'pol': "H",
+    'pol': "V",
     'ip': "172.16.235.41"
 }, {
     'name': "Telstar 18V Ku Band",
     'alias': "T18V Ku",
-    'dl_freq': 11506.75,
+    'dl_freq': 11507.9,
     'band': "Ku",
     'pol': "H",
     'ip': "172.16.235.49"
 }]
+satellites_as_dict = {sat['alias']: sat for sat in satellites}
 
 linux_usb_setup_type = "Linux USB"
 sdr_setup_type = "Software-defined"
