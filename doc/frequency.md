@@ -27,16 +27,16 @@ Blockstream Satellite operates in Ku high band, Ku low band and C band, dependin
 
 ## Signal Frequencies
 
-The following table summarizes the transmission bands and frequencies of the signals that we broadcast in each coverage region:
+The following table summarizes the transmission bands, frequencies, and polarizations of the signals broadcast in each coverage region:
 
-| Satellite          | Band    | Frequency   |
-| ------------------ | ------- | ----------- |
-| Galaxy 18          | Ku High | 11913.4 MHz |
-| Eutelsat 113       | Ku High | 12066.9 MHz |
-| Telstar 11N Africa | Ku Low  | 11452.1 MHz |
-| Telstar 11N Europe | Ku Low  | 11505.4 MHz |
-| Telstar 18V Ku     | Ku Low  | 11507.9 MHz |
-| Telstar 18V C      | C       | 4122.6 MHz  |
+| Satellite          | Band    | Polarization | Frequency   |
+| ------------------ | ------- | ------------ | ----------- |
+| Galaxy 18          | Ku High | Horizontal   | 11913.4 MHz |
+| Eutelsat 113       | Ku High | Vertical     | 12066.9 MHz |
+| Telstar 11N Africa | Ku Low  | Horizontal   | 11452.1 MHz |
+| Telstar 11N Europe | Ku Low  | Vertical     | 11505.4 MHz |
+| Telstar 18V Ku     | Ku Low  | Horizontal   | 11507.9 MHz |
+| Telstar 18V C      | C       | Vertical     | 4122.6 MHz  |
 
 ## L-band Frequencies
 
