@@ -248,12 +248,11 @@ If you cannot lock to the signal, you should try further adjustments to the ante
 
 Furthermore, if you cannot find the signal on gqrx, you can search for satellite beacons instead. While the Blockstream Satellite signal is seen as a flat level spanning approximately 1 MHz, a [beacon](https://en.wikipedia.org/wiki/Radio_beacon#Space_and_satellite_radio_beacons) is a very narrow signal seen as a narrow pulse (or peak) on gqrx. All you need to do is change the frequency on gqrx to one of the beacon frequencies below:
 
-| Satellite    | Beacons                                                                                                |
-| ------------ | ------------------------------------------------------------------------------------------------------ |
-| Galaxy 18    | 11701 MHz (Horizontal), 12195 MHz (Vertical)                                                           |
-| Eutelsat 113 | 11701.5 MHz (Vertical), 12199 MHz (Horizontal)                                                         |
-| Telstar 11N  | 11199.25 MHz (Vertical), 11699.50 MHz (Vertical), 11198.25 MHz (Horizontal), 11698.50 MHz (Horizontal) |
-| Telstar 18V  | 3623 MHz (Vertical), 3625 MHz (Vertical), 4199 (Horizontal)                                            |
+| Satellite   | Beacons                                                                                                |
+| ----------- | ------------------------------------------------------------------------------------------------------ |
+| Galaxy 18   | 11701 MHz (Horizontal), 12195 MHz (Vertical)                                                           |
+| Telstar 11N | 11199.25 MHz (Vertical), 11699.50 MHz (Vertical), 11198.25 MHz (Horizontal), 11698.50 MHz (Horizontal) |
+| Telstar 18V | 3623 MHz (Vertical), 3625 MHz (Vertical), 4199 (Horizontal)                                            |
 
 Make sure to select a beacon whose polarization matches your target signal polarization, which you can check by running:
 
@@ -337,7 +336,7 @@ blocksat-cli cfg show
 Additionally, you will need to define:
 
 - Symbol rate: set it to "1000 kbaud" (or "1000000 baud", or "1 Mbaud", depending on the units adopted by your finder).
-- 22 kHz: enable only when using a Universal LNB and pointing to Galaxy 18 or Eutelsat 113 (i.e., when receiving in [Ku high band](frequency.md)). Otherwise, leave it disabled. See the [notes regarding Universal LNBs](hardware-components.md#universal-lnb).
+- 22 kHz: enable only when using a Universal LNB and pointing to Galaxy 18 (i.e., when receiving in [Ku high band](frequency.md)). Otherwise, leave it disabled. See the [notes regarding Universal LNBs](hardware-components.md#universal-lnb).
 
 After the configuration, the finder will typically present you with signal strength and (or) quality indicators. At this point, try aligning your antenna until you can maximize these levels.
 

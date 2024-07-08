@@ -7,7 +7,7 @@ nav_order: 2
 
 The Basic Kit includes the parts required for a receiver setup based on a Standalone DVB-S2 receiver. The kit is available on [Blockstream Store](https://store.blockstream.com/products/blockstream-satellite-pro-kit/), but please follow the information below if you prefer to purchase the parts independently.
 
-If you are covered by a Ku-band beam (G18, E113, T11N, or T18V Ku), please purchase the following items:
+If you are covered by a Ku-band beam (G18, T11N, or T18V Ku), please purchase the following items:
 
 1. [Novra S400 Professional DVB-S2 Receiver](https://novra.com/product/s400-pro-dvb-satellite-receiver).
 2. Ku-band satellite dish.

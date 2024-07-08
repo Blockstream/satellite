@@ -44,7 +44,7 @@ The following table summarizes the key differences between them:
 | Performance<sup>6</sup>               |      Limited       |     Excellent      |     Excellent      |     Excellent      |
 | Budget                                |    Low (< $150)    |       Medium       |   High (> $900)    |   Medium ($500)    |
 
-<sup>1</sup> A Universal LNB needs a 22 kHz signal to switch between Ku low and Ku high bands. This feature is required when using Universal LNBs and receiving from the Galaxy 18 or Eutelsat 113 satellites. The SDR receiver cannot generate such a tone to the LNB, so it is not natively compatible with Universal LNBs. All other receivers can generate the 22 kHz tone.
+<sup>1</sup> A Universal LNB needs a 22 kHz signal to switch between Ku low and Ku high bands. This feature is required when using Universal LNBs and receiving from the Galaxy 18 satellite. The SDR receiver cannot generate such a tone to the LNB, so it is not natively compatible with Universal LNBs. All other receivers can generate the 22 kHz tone.
 
 <sup>2</sup> A dual-satellite receiver is one capable of receiving from two satellites simultaneously in areas with overlapping coverage. This feature enables greater redundancy, higher bitrate, and faster blockchain sync times. Only the Pro Kit receiver can receive from two satellites simultaneously.
 

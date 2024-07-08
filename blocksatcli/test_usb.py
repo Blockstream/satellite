@@ -1,5 +1,6 @@
 import unittest
-from . import usb, defs
+
+from . import defs, usb
 
 
 class TestApi(unittest.TestCase):
@@ -37,15 +38,14 @@ Lock   (0x1f) Signal= -48.19dBm C/N= 10.50dB postBER= 0
 
         for satellite, lnb, expected_v4l_lnb in [
             ("G18", ("GEOSATpro", "UL1PLL"), "UNIVERSAL"),
-            ("E113", ("Selfsat", "Integrated LNB"), "UNIVERSAL"),
             ("T11N EU", ("Avenger", "PLL321S-2"), "UNIVERSAL"),
             ("T11N AFR", ("GEOSATpro", "UL1PLL"), "UNIVERSAL"),
             ("T18V Ku", ("Selfsat", "Integrated LNB"), "UNIVERSAL"),
             (
                 "G18", ("Maverick", "MK1-PLL"), "QPH031"
             ),  # QPH031 because it can change the pol voltage and G18 is H-pol
-            ("E113", ("Maverick", "MK1-PLL"),
-             "L10750"),  # L10750 can't change pol voltage but E113 is V-pol
+            ("T11N EU", ("Maverick", "MK1-PLL"),
+             "L10750"),  # L10750 can't change pol voltage but T11N EU is V-pol
             ("T18V C", ("Titanium", "C1-PLL"), "C-BAND")
         ]:
             info = {

@@ -141,20 +141,20 @@ class TestConfigDir(TestEnv):
             # After patching, the channel conf file should be inferred valid
             self.assertTrue(config.verify_chan_conf(new_info))
 
-        # Configuration based on a satellite that is not patched
+        # Configuration based on an up-to-date file
         test_info = {
             "sat": {
-                "name": "Eutelsat 113",
-                "alias": "E113",
-                "dl_freq": 12066.9,
+                "name": "Galaxy 18",
+                "alias": "G18",
+                "dl_freq": 11913.4,
                 "band": "Ku",
-                "pol": "V",
-                "ip": "172.16.235.9"
+                "pol": "H",
+                "ip": "172.16.235.1"
             },
             "freqs": {
-                "dl": 12066.9,
+                "dl": 11913.4,
                 "lo": 10600.0,
-                "l_band": 1466.9
+                "l_band": 1313.4
             }
         }
         config.write_cfg_file(self.cfg_name, self.cfg_dir, test_info)
@@ -702,7 +702,7 @@ class TestReceiversSetupConfig(TestEnv):
         """
         # User Input:
         mock_user_input.side_effect = [
-            4,  # Satellite: T18V C
+            3,  # Satellite: T18V C
             0,  # DVB-S2 receiver: Novra S400 (pro kit)
             0,  # Eth interface: lo
             'N',  # Manual IP: No
@@ -746,7 +746,7 @@ class TestReceiversSetupConfig(TestEnv):
         """
         # User Input:
         mock_user_input.side_effect = [
-            4,  # Satellite: T18V C
+            3,  # Satellite: T18V C
             0,  # DVB-S2 receiver: Novra S400 (pro kit)
             0,  # Eth interface: lo
             'N',  # Manual IP: No

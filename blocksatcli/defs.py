@@ -16,7 +16,6 @@ fecframe_size = 'normal'
 pilots = True
 sym_rate = {
     'G18': 1000000,
-    'E113': 1000000,
     'T11N AFR': 1000000,
     'T11N EU': 1000000,
     'T18V C': 1000000,
@@ -31,13 +30,6 @@ satellites = [{
     'band': "Ku",
     'pol': "H",
     'ip': "172.16.235.1"
-}, {
-    'name': "Eutelsat 113",
-    'alias': "E113",
-    'dl_freq': 12066.9,
-    'band': "Ku",
-    'pol': "V",
-    'ip': "172.16.235.9"
 }, {
     'name': "Telstar 11N Africa",
     'alias': "T11N AFR",

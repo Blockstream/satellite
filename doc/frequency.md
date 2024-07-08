@@ -32,7 +32,6 @@ The following table summarizes the transmission bands, frequencies, and polariza
 | Satellite          | Band    | Polarization | Frequency   |
 | ------------------ | ------- | ------------ | ----------- |
 | Galaxy 18          | Ku High | Horizontal   | 11913.4 MHz |
-| Eutelsat 113       | Ku High | Vertical     | 12066.9 MHz |
 | Telstar 11N Africa | Ku Low  | Horizontal   | 11452.1 MHz |
 | Telstar 11N Europe | Ku Low  | Vertical     | 11505.4 MHz |
 | Telstar 18V Ku     | Ku Low  | Horizontal   | 11507.9 MHz |
@@ -45,7 +44,6 @@ Next, the following table summarizes the L-band frequencies to be used in each r
 | LO Frequency        | 5150 MHz   | 9750 MHz   | 10600 MHz  | 10750 MHz  |
 | ------------------- | ---------- | ---------- | ---------- | ---------- |
 | Galaxy 18           |            |            | 1313.4 MHz | 1163.4 MHz |
-| Eutelsat 113        |            |            | 1466.9 MHz | 1316.9 MHz |
 | Telstar 11N Africa  |            | 1702.1 MHz |            |            |
 | Telstar 11N Europe  |            | 1755.4 MHz |            |            |
 | Telstar 18V Ku Band |            | 1757.9 MHz |            |            |

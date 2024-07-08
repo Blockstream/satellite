@@ -11,7 +11,7 @@ This section summarizes the items you need to purchase for a software-defined ra
 
 In the shopping lists below, we distinguish between the Ku and C bands and also between the Ku low and high bands. The low and high parts of the Ku band have different frequency ranges (see the [frequency guide](frequency.md#signal-bands)) that determine the appropriate SDR interface.
 
-If you are covered by a Ku high band beam (G18 and E113), consider purchasing the following items:
+If you are covered by a Ku high band beam (G18), consider purchasing the following items:
 
 1. [RTL-SDR model RTL2832U with R820T2 tuner](https://www.nooelec.com/store/sdr/sdr-receivers/nesdr-smartee-sdr.html).
 2. DIRECTV 21 Volt SWM Power Inserter.

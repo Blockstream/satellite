@@ -242,10 +242,10 @@ In general, the higher the number of extra (redundant) pieces of data sent over 
 
 By default, API messages are broadcast worldwide through the six satellite beams currently composing the Blockstream Satellite network. However, you can also explicitly select the regions for each transmission.
 
-For example, to send over regions 0 (G18) and 1 (E113) only, call the sender application as follows:
+For example, to send over regions 0 (G18) and 2 (T11N AFR) only, call the sender application as follows:
 
 ```
-blocksat-cli api send --regions 0 1
+blocksat-cli api send --regions 0 2
 ```
 
 The regions are numbered from 0 to 5 according to the following mapping:
@@ -253,7 +253,6 @@ The regions are numbered from 0 to 5 according to the following mapping:
 | Region | Satellite Beam                |
 | ------ | ----------------------------- |
 | 0      | Galaxy 18 (G18)               |
-| 1      | Eutelsat 113 (E113)           |
 | 2      | Telstar 11N Africa (T11N AFR) |
 | 3      | Telstar 11N Europe (T11N EU)  |
 | 4      | Telstar 18V C band (T18V C)   |

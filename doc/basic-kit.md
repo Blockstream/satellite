@@ -7,7 +7,7 @@ nav_order: 1
 
 The Basic Kit includes the parts required for a receiver setup based on a Linux USB receiver. This kit is no longer available on the Blockstream Store after being replaced by the Satellite Base Station. However, you can assemble it by purchasing the items described below.
 
-If you are covered by a Ku-band beam (G18, E113, T11N, or T18V Ku), please purchase the following items:
+If you are covered by a Ku-band beam (G18, T11N, or T18V Ku), please purchase the following items:
 
 1. [TBS 5927](https://www.tbsdtv.com/products/tbs5927-dvb-s2-tv-tuner-usb.html) or [TBS 5520SE](https://www.tbsdtv.com/products/tbs5520se_multi-standard_tv_tuner_usb_box.html) DVB-S2 receiver. See the notes below.
 2. Ku-band satellite dish.
