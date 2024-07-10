@@ -231,7 +231,7 @@ class TestConfigDir(TestEnv):
         self.assertFalse(config.verify_chan_conf(info))
 
     @patch('blocksatcli.util.ask_yes_or_no')
-    def test_cfg_reseting(self, mock_yes_or_no):
+    def test_cfg_resetting(self, mock_yes_or_no):
         # Create the config file
         test_info = {'test': 123}
         config.write_cfg_file(self.cfg_name, self.cfg_dir, test_info)

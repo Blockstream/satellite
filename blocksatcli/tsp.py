@@ -88,7 +88,7 @@ class Tsp():
         Args:
             in_plugin : List with input plugin command to be used by tsp.
 
-        Rerturns:
+        Returns:
             Boolean indicating whether a valid command was generated.
 
         """
@@ -148,8 +148,8 @@ class Tsp():
         Args:
             stdin : Stdin to attach to the tsp process.
 
-        Rerturns:
-            Boolean indicating whether the process is running succesfully.
+        Returns:
+            Boolean indicating whether the process is running successfully.
 
         """
         # Create a .tsduck.lastcheck file on the home directory to skip the

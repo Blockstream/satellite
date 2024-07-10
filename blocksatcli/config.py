@@ -770,7 +770,7 @@ def get_rx_model(user_info):
 
     Note: this function differs from _get_rx_marketing_name(). The latter
     includes the satellite kit name. In contrast, this function returns the raw
-    vendeor-model string.
+    vendor-model string.
 
     """
     return (user_info['setup']['vendor'] + " " +

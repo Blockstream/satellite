@@ -312,11 +312,11 @@ class ApiMsg:
     def verify(self, gpg, signer):
         """Verify signed (but non-encrypted) message from target signer
 
-        Detects whether the clearsigned plaintext messages comes from the
+        Detects whether the clear-signed plaintext messages comes from the
         specified signer. In the positive case, overwrite the "original" data
         container with the underlying data, excluding the signature. In other
-        words, if the verification is succesful, remove the signature and leave
-        the data only.
+        words, if the verification is successful, remove the signature and
+        leave the data only.
 
         Args:
             gpg    : Gpg object.
@@ -573,7 +573,7 @@ def generate(data,
         if (recipient is None):
             recipient = gpg.get_default_public_key()["fingerprint"]
             assert (recipient != defs.blocksat_pubkey), \
-                "Defaul public key is not the user's public key"
+                "Default public key is not the user's public key"
         else:
             # Make sure the key exists
             gpg.get_public_key(recipient)
@@ -617,7 +617,7 @@ def decode(data,
         gpg         : Gpg object.
 
     Returns:
-        ApiMsg if the message is succesfully decoded, None otherwise.
+        ApiMsg if the message is successfully decoded, None otherwise.
 
     """
     if ((not plaintext or sender) and gpg is None):
