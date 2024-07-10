@@ -58,7 +58,7 @@ The connections with the TBS 5927 and 5520SE receivers are illustrated below:
 
 The standalone receiver is also a hardware-based receiver, with the difference that it is entirely independent of the host PC. It connects to the PC through the network with an Ethernet cable and can feed multiple PCs concurrently. It is also expected to be a great option in terms of performance. Also, it is the only receiver supporting [dual-satellite reception](dual-satellite.md) with a single receiver device.
 
-The standalone receiver that is currently supported is the [Novra S400 PRO DVB satellite Receiver](https://novra.com/product/s400-pro-dvb-satellite-receiver). Other than the receiver itself, you only need an Ethernet Cable. The connections are as follows:
+The standalone receiver that is currently supported is the [Novra S400 PRO DVB satellite Receiver](https://www.novra.com/s400). Other than the receiver itself, you only need an Ethernet Cable. The connections are as follows:
 
 ![Standalone receiver connections](img/standalone_connections.png?raw=true "Standalone receiver connections")
 
