@@ -365,7 +365,7 @@ The satellite API has a [channel](#satellite-api-channels) dedicated to Lightnin
 blocksat-cli api listen --gossip
 ```
 
-When this argument is specified, the listener application tunes to the appropriate channel for gossip messages (channel 4). Furthermore, it automatically applies other required configurations to receive the gossip messages. For example, it automatically invokes the [`historian-cli` tool](https://github.com/lightningd/plugins/tree/master/historian) in order to load gossip snapshots downloaded via satellite.
+When this argument is specified, the listener application tunes to the appropriate channel for gossip messages (channel 4). Furthermore, it automatically applies other required configurations to receive the gossip messages. For example, it automatically invokes the `historian-cli`[ tool](https://github.com/lightningd/plugins/tree/master/archived/historian) to load gossip snapshots downloaded via satellite.
 
 ### Bitcoin Source Code Messages
 
