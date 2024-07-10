@@ -29,35 +29,40 @@ satellites = [{
     'dl_freq': 11913.4,
     'band': "Ku",
     'pol': "H",
-    'ip': "172.16.235.1"
+    'ip': "172.16.235.1",
+    'region': 0
 }, {
     'name': "Telstar 11N Africa",
     'alias': "T11N AFR",
     'dl_freq': 11452.1,
     'band': "Ku",
     'pol': "H",
-    'ip': "172.16.235.17"
+    'ip': "172.16.235.17",
+    'region': 2
 }, {
     'name': "Telstar 11N Europe",
     'alias': "T11N EU",
     'dl_freq': 11505.4,
     'band': "Ku",
     'pol': "V",
-    'ip': "172.16.235.25"
+    'ip': "172.16.235.25",
+    'region': 3
 }, {
     'name': "Telstar 18V C Band",
     'alias': "T18V C",
     'dl_freq': 4122.6,
     'band': "C",
     'pol': "V",
-    'ip': "172.16.235.41"
+    'ip': "172.16.235.41",
+    'region': 4
 }, {
     'name': "Telstar 18V Ku Band",
     'alias': "T18V Ku",
     'dl_freq': 11507.9,
     'band': "Ku",
     'pol': "H",
-    'ip': "172.16.235.49"
+    'ip': "172.16.235.49",
+    'region': 5
 }]
 satellites_as_dict = {sat['alias']: sat for sat in satellites}
 
