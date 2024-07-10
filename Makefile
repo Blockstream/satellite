@@ -1,7 +1,9 @@
 PY_FILES   = $(shell find . -type f -name '*.py')
 VERSION    = $(shell grep "__version__ =" blocksatcli/main.py | cut -d '"' -f2)
 SDIST      = dist/blocksat-cli-$(VERSION).tar.gz
+SDIST_UNDERSCORE = dist/blocksat_cli-$(VERSION).tar.gz
 WHEEL      = dist/blocksat-cli-$(VERSION)-py3-none-any.whl
+WHEEL_UNDERSCORE = dist/blocksat_cli-$(VERSION)-py3-none-any.whl
 DISTRO     = ubuntu:jammy
 DISTRO_ALT = $(subst :,-,$(DISTRO))
 PLATFORM   = linux/amd64,linux/arm64
@@ -26,11 +28,17 @@ clean-py:
 
 $(SDIST): $(PY_FILES)
 	python3 setup.py sdist
+	mv $(SDIST_UNDERSCORE) $(SDIST) || true
+
+# NOTE: depending on the setuptools version, the generated sdist and wheel file
+# names may have an underscore instead of a dash. Rename them to the expected
+# names with a dash.
 
 sdist: $(SDIST)
 
 $(WHEEL): $(PY_FILES)
 	python3 setup.py bdist_wheel
+	mv $(WHEEL_UNDERSCORE) $(WHEEL) || true
 
 wheel: $(WHEEL)
 
@@ -50,12 +58,12 @@ $(COMPLETION): $(PY_FILES)
 pypi: clean sdist wheel
 	python3 -m twine upload --repository pypi \
 		dist/blocksat-cli-$(VERSION).tar.gz \
-		dist/blocksat_cli-$(VERSION)-*.whl
+		dist/blocksat-cli-$(VERSION)-*.whl
 
 testpypi: clean sdist wheel
 	python3 -m twine upload --repository testpypi \
 		dist/blocksat-cli-$(VERSION).tar.gz \
-		dist/blocksat_cli-$(VERSION)-*.whl
+		dist/blocksat-cli-$(VERSION)-*.whl
 
 docker: $(SDIST) $(MANPAGE) $(COMPLETION)
 	docker build --build-arg distro=$(DISTRO) \
