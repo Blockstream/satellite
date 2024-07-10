@@ -135,7 +135,7 @@ make NOTELETEXT=1 NOSRT=1 NOPCSC=1 NODTAPI=1
 sudo make NOTELETEXT=1 NOSRT=1 NOPCSC=1 NODTAPI=1 install
 ```
 
-> Refer to [TSDuck's documentation](https://tsduck.io/doxy/building.html) for further information.
+> Refer to [TSDuck's documentation](https://tsduck.io/download/docs/tsduck-dev.html#chap-build) for further information.
 
 ---
 
