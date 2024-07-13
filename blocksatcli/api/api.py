@@ -422,16 +422,10 @@ def subparser(subparsers):  # pragma: no cover
     p2.add_argument(
         '--regions',
         nargs="+",
-        choices=[sat['region'] for sat in defs.satellites],
+        choices=defs.satellite_regions,
         type=int,
-        help="Satellites beams over which to send the message. Select "
-        "one or multiple beams by numbers from 0 to 5 according to the "
-        "following mapping: {}. Do not specify any region if the goal is "
-        "to broadcast the message worldwide through all beams.".format(
-            ", ".join([
-                "{} for {}".format(i, x['alias'])
-                for i, x in enumerate(defs.satellites)
-            ])))
+        help="Regions over which to send the message. If not set, "
+        "broadcasts the message worldwide through all satellite beams.")
     p2.add_argument(
         '-r',
         '--recipient',
@@ -636,7 +630,7 @@ def subparser(subparsers):  # pragma: no cover
         "argument --gossip is set).")
     p3.add_argument('-r',
                     '--region',
-                    choices=[sat['region'] for sat in defs.satellites],
+                    choices=defs.satellite_regions,
                     type=int,
                     help="Coverage region for Rx confirmations")
     p3.set_defaults(func=listen)
@@ -724,7 +718,7 @@ def subparser(subparsers):  # pragma: no cover
         '-r',
         '--regions',
         nargs="+",
-        choices=[sat['region'] for sat in defs.satellites],
+        choices=defs.satellite_regions,
         type=int,
         help="Coverage region of the demo receiver. Optionally define "
         "multiple arguments to simulate reception from multiple satellite "

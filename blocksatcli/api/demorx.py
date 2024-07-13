@@ -16,7 +16,6 @@ from .pkt import BlocksatPkt, BlocksatPktHandler
 
 logger = logging.getLogger(__name__)
 MAX_SEQ_NUM = 2**31  # Maximum transmission sequence number
-DEFAULT_REGIONS = list(range(0, len(defs.satellites)))
 
 
 class DemoRx():
@@ -63,7 +62,7 @@ class DemoRx():
         self.kbps = kbps
         self.tx_event = tx_event
         self.channel = channel
-        self.regions_list = DEFAULT_REGIONS if not regions else regions
+        self.regions_list = defs.satellite_regions if not regions else regions
         self.regions_set = set(self.regions_list)
         self.tls_cert = tls_cert
         self.tls_key = tls_key
