@@ -645,6 +645,24 @@ def verify_chan_conf(info):
     return new_chan_cfg == old_chan_cfg
 
 
+def verify_deprecation(info) -> bool:
+    """Check if the configuration file has deprecated configs
+
+    Returns:
+        bool: True if the configuration file has deprecated configs, False
+        otherwise.
+    """
+
+    # Decommissioned satellites
+    if 'sat' in info and 'alias' in info['sat']:
+        if info['sat']['alias'] in defs.decommissioned_satellites:
+            logger.error(f"The {info['sat']['alias']} satellite has been "
+                         "decommissioned. Please, choose another satellite.")
+            return True
+
+    return False
+
+
 def _cfg_file_name(cfg_name, directory):
     """Get the name of the configuration JSON file"""
     # Remove paths
@@ -755,6 +773,9 @@ def read_cfg_file(cfg_name, directory):
             return
 
         info = _read_cfg_file(cfg_file)
+
+    if verify_deprecation(info):
+        return
 
     return info
 

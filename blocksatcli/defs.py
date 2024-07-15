@@ -66,6 +66,7 @@ satellites = [{
 }]
 satellites_as_dict = {sat['alias']: sat for sat in satellites}
 satellite_regions = [sat['region'] for sat in satellites]
+decommissioned_satellites = ["E113"]
 
 linux_usb_setup_type = "Linux USB"
 sdr_setup_type = "Software-defined"
