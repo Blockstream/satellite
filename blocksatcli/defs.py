@@ -190,6 +190,14 @@ lnbs = [{
     'universal': False,
     'band': "Ku",
     'pol': "Dual"
+}, {
+    'vendor': " Mediastar",
+    'model': "A381",
+    'in_range': [3800.0, 4100.0],
+    "lo_freq": 5150.0,
+    'universal': False,
+    'band': "C",
+    'pol': "Dual"
 }]
 
 psus = [{
