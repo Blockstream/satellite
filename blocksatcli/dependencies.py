@@ -25,28 +25,6 @@ target_map = {
     "sat-ip": defs.sat_ip_setup_type
 }
 supported_distros = ["ubuntu", "debian", "raspbian", "fedora", "centos"]
-pkg_map = {
-    'sdr': {
-        'apt': ["gqrx-sdr", "rtl-sdr", "leandvb", "tsduck"],
-        'dnf': ["gqrx", "rtl-sdr", "leandvb", "tsduck"],
-        'yum': ["rtl-sdr", "leandvb", "tsduck"]
-    },
-    'usb': {
-        'apt': ["iproute2", "iptables", "dvb-apps", "dvb-tools"],
-        'dnf': ["iproute", "iptables", "dvb-apps", "v4l-utils"],
-        'yum': ["iproute", "iptables", "dvb-apps", "v4l-utils"]
-    },
-    'standalone': {
-        'apt': ["iproute2", "iptables"],
-        'dnf': ["iproute", "iptables"],
-        'yum': ["iproute", "iptables"]
-    },
-    'sat-ip': {
-        'apt': ["iproute2", "tsduck"],
-        'dnf': ["iproute", "tsduck"],
-        'yum': ["iproute", "tsduck"]
-    }
-}
 app_map = {
     'sdr': ["rtl_sdr", "leandvb", "ldpc_tool", "tsp"],
     'usb': ["dvbv5-zap", "dvbnet", "dvb-fe-tool", "ip", "iptables"],
@@ -54,6 +32,44 @@ app_map = {
     'sat-ip': ["tsp", "ip"]
 }
 supported_pkg_managers = ["apt", "dnf", "yum"]
+
+
+class PkgMap:
+
+    def __init__(self) -> None:
+        self._map = pkg_map = {
+            'sdr': {
+                'apt': ["gqrx-sdr", "rtl-sdr", "leandvb", "tsduck"],
+                'dnf': ["gqrx", "rtl-sdr", "leandvb", "tsduck"],
+                'yum': ["rtl-sdr", "leandvb", "tsduck"]
+            },
+            'usb': {
+                'apt': ["iproute2", "iptables", "dvb-apps", "dvb-tools"],
+                'dnf': ["iproute", "iptables", "dvb-apps", "v4l-utils"],
+                'yum': ["iproute", "iptables", "dvb-apps", "v4l-utils"]
+            },
+            'standalone': {
+                'apt': ["iproute2", "iptables"],
+                'dnf': ["iproute", "iptables"],
+                'yum': ["iproute", "iptables"]
+            },
+            'sat-ip': {
+                'apt': ["iproute2", "tsduck"],
+                'dnf': ["iproute", "tsduck"],
+                'yum': ["iproute", "tsduck"]
+            }
+        }
+
+        fc40_or_higher = distro.id() == 'fedora' and int(
+            distro.version()) >= 40
+        if fc40_or_higher:
+            # Starting at Fc40, the "dvb*" binaries previously within the
+            # "v4l-utils" package were moved to the "dvb-tools" package.
+            pkg_map['usb']['dnf'].remove("v4l-utils")
+            pkg_map["usb"]['dnf'].append("dvb-tools")
+
+    def get_packages(self, setup_type, pkg_manager):
+        return self._map[setup_type][pkg_manager]
 
 
 def _get_pkg_manager():
@@ -408,8 +424,10 @@ def _install_specific(cfg_dir, target, interactive=True, update=False):
     #   available on the latest mainstream fedora repositories.
 
     util.print_header("Installing {} Receiver Dependencies".format(target))
-    _install_packages(pkg_map[key]['apt'], pkg_map[key]['dnf'],
-                      pkg_map[key]['yum'], interactive, update)
+    pkg_map = PkgMap()
+    _install_packages(pkg_map.get_packages(key, 'apt'),
+                      pkg_map.get_packages(key, 'dnf'),
+                      pkg_map.get_packages(key, 'yum'), interactive, update)
 
     # On Fedora >= 36 or Ubuntu >= 22.04, both of which have GNU Radio 3.10
     # available on the main package repo, install gr-dvbs2rx:
@@ -774,21 +792,6 @@ def check_apps(apps):
             return False
     # All apps are installed
     return True
-
-
-def get_pkg_list(target):
-    """Get the list of package dependencies for a specific receiver and OS
-
-    Args:
-        target (str): DVB-S2 receiver ('sdr', 'usb', 'standalone' or 'sat-ip')
-
-    Returns:
-        pkg_list (list): Package list
-
-    """
-    assert (target in pkg_map.keys()), f"Unsupported target {target}"
-    manager = _get_pkg_manager()
-    return pkg_map[target][manager]
 
 
 def check_dependencies(target):
