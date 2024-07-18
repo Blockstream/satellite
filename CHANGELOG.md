@@ -1,6 +1,7 @@
 # Changelog
 
 ## Releases
+- [0.4.7](#047)
 - [0.4.6](#046)
 - [0.4.5](#045)
 - [0.4.4](#044)
@@ -11,6 +12,28 @@
 - [0.3.2](#032)
 - [0.3.1](#031)
 - [0.3.0](#030)
+
+## 0.4.7
+
+Release Date: 2024-07-18
+
+### Added
+- Support for the Mediastar A381 C-band LNB.
+
+### Changed
+- Telstar 18V C and Ku band downlink frequencies.
+- Telstar 18V C band polarization.
+- URL printing style on the instructions module.
+- PySNMP package from the no longer maintained `pysnmp` to `pysnmplib`.
+
+### Fixed
+- `add-apt-repository` command on Debian 12 when installing dependencies.
+- Usage of the deprecated `distutils.version` package.
+- SNMP dependence on the `asyncore` package no longer available in Python 3.12.
+- Installation of DVB apps formerly from the `v4l-utils` package on Fedora 40.
+
+### Removed
+- Support for the decommissioned Eutelsat 113 satellite.
 
 ## 0.4.6
 
