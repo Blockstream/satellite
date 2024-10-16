@@ -5,6 +5,7 @@ import sys
 import time
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 from ipaddress import ip_address
+from shutil import which
 
 from pysnmp.hlapi import SnmpEngine, ObjectType, ObjectIdentity, \
      getCmd, setCmd, nextCmd, CommunityData, ContextData, UdpTransportTarget
@@ -94,7 +95,8 @@ class SnmpClient():
 
         cli_dir = os.path.dirname(os.path.abspath(__file__))
         mib_path = os.path.join(cli_dir, "mib")
-        cmd = ["mibdump.py", "--mib-source={}".format(mib_path), self.mib]
+        mib_cmd = "mibdump.py" if which("mibdump.py") else "mibdump"
+        cmd = [mib_cmd, "--mib-source={}".format(mib_path), self.mib]
         runner.run(cmd)
 
     def _translate_to_snmpset_val_type(self, key, val):

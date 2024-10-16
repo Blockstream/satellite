@@ -21,6 +21,10 @@ Release Date: TBD
 ### Added
 - Graphical user interface (GUI) application (`blocksat-gui`).
 
+### Fixed
+- Compilation of SNMP MIB files when configuring or monitoring the Novra S400
+  receiver.
+
 ## 0.4.7
 
 Release Date: 2024-07-18
