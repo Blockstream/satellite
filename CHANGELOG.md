@@ -24,6 +24,7 @@ Release Date: TBD
 ### Fixed
 - Compilation of SNMP MIB files when configuring or monitoring the Novra S400
   receiver.
+- TBS driver installation failing due to disabling RC/IR support.
 
 ## 0.4.7
 

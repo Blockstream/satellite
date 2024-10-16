@@ -709,16 +709,6 @@ def drivers(args):
     if (distro_id == "raspbian"):
         disable_list.append("DVB_MN88436")
 
-    # Disable RC/IR support
-    if (distro_id == "raspbian"
-            or Version(linux_release_version) >= Version('6.0')):
-        runner.run(
-            ["sed", "-i", "-r", "s/(^CONFIG.*_RC.*=)./\1n/g", "v4l/.config"],
-            cwd=media_build_dir)
-        runner.run(
-            ["sed", "-i", "-r", "s/(^CONFIG.*_IR.*=)./\1n/g", "v4l/.config"],
-            cwd=media_build_dir)
-
     if args.disable is not None:
         disable_list.extend(args.disable)
 
