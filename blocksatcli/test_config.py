@@ -31,19 +31,35 @@ class TestConfigDir(TestEnv):
 
         changes = [
             (
-                # T11N AFR update on May 31st 2022
+                # T11N AFR frequency before May 31st 2022
                 'T11N AFR',
                 {
                     'old_freq': 11480.7,
-                    'new_freq': 11452.1,
+                    'new_freq': 11470.3,
                 },
             ),
             (
-                # T11N EU update on May 31st 2022:
+                # T11N AFR frequency before Dec 6, 2024
+                'T11N AFR',
+                {
+                    'old_freq': 11452.1,
+                    'new_freq': 11470.3,
+                },
+            ),
+            (
+                # T11N EU frequency before May 31st 2022
                 'T11N EU',
                 {
                     'old_freq': 11484.3,
-                    'new_freq': 11505.4
+                    'new_freq': 11494.51
+                },
+            ),
+            (
+                # T11N EU frequency before Dec 6, 2024
+                'T11N EU',
+                {
+                    'old_freq': 11505.4,
+                    'new_freq': 11494.51
                 },
             ),
             (

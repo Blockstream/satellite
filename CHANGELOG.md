@@ -21,6 +21,9 @@ Release Date: TBD
 ### Added
 - Graphical user interface (GUI) application (`blocksat-gui`).
 
+### Changed
+- Telstar 11N Africa and Europe downlink frequencies.
+
 ### Fixed
 - Compilation of SNMP MIB files when configuring or monitoring the Novra S400
   receiver.
