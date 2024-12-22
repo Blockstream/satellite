@@ -6,18 +6,16 @@ import queue
 import sys
 import threading
 import time
-from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
+from argparse import ArgumentDefaultsHelpFormatter, ArgumentParser
 
 import requests
 
-from . import util
-from . import defs
-from . import config
-from .cache import Cache
+from . import config, defs, util
 from .api import api
 from .api.gpg import Gpg, is_gpg_keyring_set
 from .api.listen import ApiListener
 from .api.order import ApiChannel
+from .cache import Cache
 
 logger = logging.getLogger(__name__)
 DEFAULT_SERVER_URL = "https://satellite.blockstream.space/monitoring"

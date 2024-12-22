@@ -12,7 +12,7 @@ from shutil import which
 
 import requests
 
-from . import config, defs, util, dependencies, monitoring, tsp
+from . import config, defs, dependencies, monitoring, tsp, util
 
 logger = logging.getLogger(__name__)
 runner = util.ProcessRunner(logger)

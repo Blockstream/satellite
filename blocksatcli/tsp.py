@@ -3,8 +3,7 @@ import os
 import subprocess
 from pathlib import Path
 
-from . import defs
-from . import util
+from . import defs, util
 
 logger = logging.getLogger(__name__)
 

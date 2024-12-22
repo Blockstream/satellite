@@ -1,7 +1,7 @@
-import os
 import hashlib
-import time
+import os
 import subprocess
+import time
 
 try:
     import dbus

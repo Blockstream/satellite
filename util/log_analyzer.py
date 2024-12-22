@@ -2,7 +2,7 @@
 import logging
 import os
 import re
-from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
+from argparse import ArgumentDefaultsHelpFormatter, ArgumentParser
 from datetime import datetime
 
 import matplotlib

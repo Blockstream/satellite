@@ -1,11 +1,10 @@
+import argparse
 import os
 import shutil
-import argparse
 import textwrap
 from unittest.mock import patch
 
-from . import config
-from . import gqrx
+from . import config, gqrx
 from .test_helpers import TestEnv
 
 

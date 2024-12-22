@@ -1,10 +1,10 @@
 import os
-from unittest.mock import patch, call
+from unittest.mock import call, patch
 
 from requests.exceptions import ConnectionError
 
 from . import monitoring
-from .test_helpers import create_test_setup, TestEnv
+from .test_helpers import TestEnv, create_test_setup
 
 
 class TestReceiverReporter(TestEnv):

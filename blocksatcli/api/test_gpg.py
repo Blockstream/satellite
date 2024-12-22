@@ -2,8 +2,8 @@ import os
 from unittest.mock import patch
 
 from ..defs import blocksat_pubkey
-from .gpg import Gpg, config_keyring
 from ..test_helpers import TestEnv
+from .gpg import Gpg, config_keyring
 
 
 class TestGpg(TestEnv):

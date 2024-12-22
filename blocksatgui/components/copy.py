@@ -1,6 +1,6 @@
 from .. import utils
-from ..qt import (QFrame, QPushButton, QPlainTextEdit, QVBoxLayout, QIcon,
-                  QTimer, QClipboard, Qt, QLabel)
+from ..qt import (QClipboard, QFrame, QIcon, QLabel, QPlainTextEdit,
+                  QPushButton, Qt, QTimer, QVBoxLayout)
 
 
 class CopiableText(QFrame):

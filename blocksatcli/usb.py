@@ -6,10 +6,10 @@ import signal
 import subprocess
 import sys
 import threading
-from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
+from argparse import ArgumentDefaultsHelpFormatter, ArgumentParser
 from pprint import pformat
 
-from . import config, util, defs, rp, firewall, ip, dependencies, monitoring
+from . import config, defs, dependencies, firewall, ip, monitoring, rp, util
 
 logger = logging.getLogger(__name__)
 runner = util.ProcessRunner(logger)

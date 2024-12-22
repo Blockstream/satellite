@@ -2,7 +2,7 @@ import logging
 import os
 import sys
 
-from blocksatcli import util, dependencies
+from blocksatcli import dependencies, util
 from blocksatcli.dependencies import (check_python_packages, install_packages,
                                       install_packages_pip)
 

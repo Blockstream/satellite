@@ -1,6 +1,6 @@
 from . import utils
 from .components import cards
-from .qt import QFrame, QHBoxLayout, Qt, QVBoxLayout, QWidget, QLabel
+from .qt import QFrame, QHBoxLayout, QLabel, Qt, QVBoxLayout, QWidget
 
 
 class OverviewPage(QWidget):

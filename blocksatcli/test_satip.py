@@ -5,8 +5,8 @@ from unittest import TestCase
 from unittest.mock import patch
 from urllib.error import URLError
 
-from .upnp import SSDPDevice
 from . import satip
+from .upnp import SSDPDevice
 
 
 def _gen_ssdp_dev(addr, friendly_name):

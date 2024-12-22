@@ -3,11 +3,11 @@ import logging
 import os
 import platform
 import time
-from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
+from argparse import ArgumentDefaultsHelpFormatter, ArgumentParser
 
-from . import __version__
-from . import config, util, instructions, gqrx, bitcoin, sdr, rp, \
-    firewall, standalone, usb, satip, dependencies, update, monitoring_api
+from . import (__version__, bitcoin, config, dependencies, firewall, gqrx,
+               instructions, monitoring_api, rp, satip, sdr, standalone,
+               update, usb, util)
 from .api import api
 
 

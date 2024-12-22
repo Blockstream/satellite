@@ -11,7 +11,7 @@ import requests
 
 from .. import defs
 from . import net
-from .order import ApiOrder, API_CHANNEL_SSE_NAME
+from .order import API_CHANNEL_SSE_NAME, ApiOrder
 from .pkt import BlocksatPkt, BlocksatPktHandler
 
 logger = logging.getLogger(__name__)

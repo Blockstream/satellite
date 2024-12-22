@@ -5,23 +5,21 @@ import os
 import shlex
 import subprocess
 import textwrap
-from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
+from argparse import ArgumentDefaultsHelpFormatter, ArgumentParser
 from shutil import which
 from typing import Optional
 
-from . import bidding, net
-from . import msg as api_msg
 from .. import config as blocksatcli_config
 from .. import defs
+from . import bidding
+from . import msg as api_msg
+from . import net
 from .demorx import DemoRx
 from .gpg import Gpg, config_keyring
 from .listen import ApiListener
-from .order import ApiOrder, ApiChannel, \
-    API_CHANNELS, \
-    SENDABLE_API_CHANNELS, \
-    PAID_API_CHANNELS, \
-    ORDER_STATUS, \
-    ORDER_QUEUES
+from .order import (API_CHANNELS, ORDER_QUEUES, ORDER_STATUS,
+                    PAID_API_CHANNELS, SENDABLE_API_CHANNELS, ApiChannel,
+                    ApiOrder)
 from .pkt import calc_ota_msg_len
 
 logger = logging.getLogger(__name__)

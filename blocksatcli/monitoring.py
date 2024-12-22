@@ -7,11 +7,11 @@ import sys
 import threading
 import time
 from enum import Enum
-from http.server import HTTPServer, BaseHTTPRequestHandler
+from http.server import BaseHTTPRequestHandler, HTTPServer
 
 import requests
 
-from . import defs, config, monitoring_api
+from . import config, defs, monitoring_api
 
 logger = logging.getLogger(__name__)
 

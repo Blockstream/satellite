@@ -115,6 +115,13 @@ yapf-format:
   script:
     - yapf --diff --recursive --verbose .
 
+isort:
+  image: python:3.10
+  before_script:
+    - pip3 install isort
+  script:
+    - isort --check-only .
+
 test-make-install-apt:
   image: $IMAGE
   stage: test

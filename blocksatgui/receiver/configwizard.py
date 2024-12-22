@@ -6,9 +6,9 @@ from blocksatcli import config, defs, dependencies, gqrx, util
 
 from .. import utils
 from ..components.defaultwizard import DefaultWizardPage
-from ..receiver.dependencies import DepsInstaller
 from ..qt import (QButtonGroup, QDoubleValidator, QIntValidator, QLabel,
                   QLineEdit, QRadioButton, Qt, QWizard, Signal, Slot)
+from ..receiver.dependencies import DepsInstaller
 
 
 class Pages(IntEnum):

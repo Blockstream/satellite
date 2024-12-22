@@ -3,14 +3,15 @@ import logging
 import os
 import sys
 import time
-from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
+from argparse import ArgumentDefaultsHelpFormatter, ArgumentParser
 from ipaddress import ip_address
 from shutil import which
 
-from pysnmp.hlapi import SnmpEngine, ObjectType, ObjectIdentity, \
-     getCmd, setCmd, nextCmd, CommunityData, ContextData, UdpTransportTarget
+from pysnmp.hlapi import (CommunityData, ContextData, ObjectIdentity,
+                          ObjectType, SnmpEngine, UdpTransportTarget, getCmd,
+                          nextCmd, setCmd)
 
-from . import rp, firewall, defs, config, dependencies, util, monitoring
+from . import config, defs, dependencies, firewall, monitoring, rp, util
 
 logger = logging.getLogger(__name__)
 runner = util.ProcessRunner(logger)

@@ -4,10 +4,9 @@ import random
 import string
 from unittest import skipIf
 
-from . import msg, pkt, fec
-from .gpg import Gpg
-
 from ..test_helpers import TestEnv
+from . import fec, msg, pkt
+from .gpg import Gpg
 
 
 class TestApi(TestEnv):

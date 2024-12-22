@@ -2,7 +2,7 @@ import argparse
 import os
 from unittest.mock import patch
 
-from . import bitcoin, defs, config
+from . import bitcoin, config, defs
 from .test_helpers import TestEnv
 
 

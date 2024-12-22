@@ -5,8 +5,7 @@ import sys
 
 import gnupg
 
-from .. import defs
-from .. import util
+from .. import defs, util
 
 logger = logging.getLogger(__name__)
 

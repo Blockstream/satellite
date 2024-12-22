@@ -6,14 +6,14 @@ import subprocess
 import sys
 import tempfile
 import textwrap
+from argparse import ArgumentParser
 from datetime import datetime
 from getpass import getpass
 from ipaddress import IPv4Address
 from urllib.error import HTTPError
 from urllib.request import urlretrieve
-from argparse import ArgumentParser
 
-from . import defs, daemon_client
+from . import daemon_client, defs
 
 
 def _input(*args):

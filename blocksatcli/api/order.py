@@ -1,9 +1,10 @@
-import os
 import json
 import logging
-import requests
+import os
 import time
 from enum import Enum
+
+import requests
 
 from ..cache import Cache
 from . import bidding, pkt

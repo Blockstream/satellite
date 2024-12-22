@@ -1,7 +1,6 @@
 import glob
 import logging
 import os
-import requests
 import shutil
 import signal
 import subprocess
@@ -11,16 +10,12 @@ import time
 import zipfile
 from argparse import ArgumentDefaultsHelpFormatter
 from ipaddress import ip_address
-from urllib.parse import urlencode, quote
+from urllib.parse import quote, urlencode
 
+import requests
 from packaging.version import Version
 
-from . import config
-from . import defs
-from . import dependencies
-from . import monitoring
-from . import tsp
-from . import util
+from . import config, defs, dependencies, monitoring, tsp, util
 from .upnp import UPnP
 
 logger = logging.getLogger(__name__)

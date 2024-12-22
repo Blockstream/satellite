@@ -10,12 +10,12 @@ import fcntl
 import logging
 import socket
 import struct
+import urllib.error
 import urllib.request
+import xml
+from functools import wraps
 from urllib.parse import urlparse
 from xml.dom import minidom
-from functools import wraps
-import urllib.error
-import xml
 
 SIOCGIFINDEX = 0x8933  # Get interface index
 logger = logging.getLogger(__name__)

@@ -3,8 +3,7 @@ import shutil
 import unittest
 import uuid
 
-from . import config
-from . import defs
+from . import config, defs
 from .api.gpg import Gpg, import_bs_pubkey
 
 

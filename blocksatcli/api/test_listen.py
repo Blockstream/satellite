@@ -3,17 +3,17 @@ import queue
 import random
 import string
 import time
-from unittest import TestCase, mock, skipIf
 from sys import platform
 from threading import Thread
+from unittest import TestCase, mock, skipIf
 
+from ..test_helpers import TestEnv
 from . import msg
 from .gpg import Gpg
 from .listen import ApiListener
 from .net import UdpSock
 from .order import ApiChannel
 from .pkt import BlocksatPktHandler
-from ..test_helpers import TestEnv
 
 gpgpassphrase = "test"
 test_env = TestEnv()

@@ -3,8 +3,8 @@ from packaging.version import Version
 from blocksatcli import update
 
 from . import __version__
-from .utils import get_default_cfg_dir
 from .components import messagebox
+from .utils import get_default_cfg_dir
 
 
 def show_available_updates(parent=None):

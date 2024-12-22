@@ -1,4 +1,4 @@
-from ..qt import QFrame, QStackedWidget, QSizePolicy, QHBoxLayout, QWidget, Qt
+from ..qt import QFrame, QHBoxLayout, QSizePolicy, QStackedWidget, Qt, QWidget
 
 
 class StackedPage(QFrame):

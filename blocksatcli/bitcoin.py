@@ -1,8 +1,9 @@
 """Bitcoin .conf generator"""
 import os
-from argparse import ArgumentDefaultsHelpFormatter
-from . import config, defs, util
 import textwrap
+from argparse import ArgumentDefaultsHelpFormatter
+
+from . import config, defs, util
 
 
 class Cfg:

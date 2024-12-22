@@ -1,8 +1,7 @@
 from unittest.mock import patch
 
-from . import monitoring_api
-from . import config
-from .test_helpers import create_test_setup, TestEnv
+from . import config, monitoring_api
+from .test_helpers import TestEnv, create_test_setup
 
 
 class TestMonitoringApi(TestEnv):

@@ -4,9 +4,9 @@ import shlex
 import subprocess
 import time
 
-from . import net
 from . import msg as api_msg
-from .order import ApiOrder, ApiChannel
+from . import net
+from .order import ApiChannel, ApiOrder
 from .pkt import BlocksatPkt, BlocksatPktHandler
 
 logger = logging.getLogger(__name__)
