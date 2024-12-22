@@ -45,13 +45,13 @@ class UpdateCache(Cache):
     def _check_and_update_format(self):
         """Update the format of the .update file if necessary
 
-        - Format before version 0.5.0:
+        - Format before version 2.5.0:
             {
                 "last_check": "timestamp",
                 "cli_update": ("current_version", "new_version")
             }
 
-        - Format introduced on version 0.5.0:
+        - Format introduced on version 2.5.0:
             {
                 "package_name_1": {
                     "last_check": "timestamp",
@@ -68,7 +68,7 @@ class UpdateCache(Cache):
 
         Note: The last two fields ("last_check" and "cli_update") are kept also
         out of the nested dictionaries for compatibility in case the old CLI
-        version (< 0.5.0) is executed with the same ~/.blocksat/.update file.
+        version (< 2.5.0) is executed with the same ~/.blocksat/.update file.
 
         """
         if not self.data:
@@ -106,7 +106,7 @@ class UpdateCache(Cache):
         self.set(self.pkg_name + '.last_check', last_check)
         self.set(self.pkg_name + '.update', pkg_update)
 
-        # Keep compatibility with the old .update format (used before v0.5.0)
+        # Keep compatibility with the old .update format (used before v2.5.0)
         if self.pkg_name in ['blocksat', 'blocksat-cli']:
             self.set('last_check', last_check)
             self.set('cli_update', pkg_update)

@@ -1,7 +1,7 @@
 # Changelog
 
 ## Releases
-- [0.5.0](#050)
+- [2.5.0](#250)
 - [0.4.7](#047)
 - [0.4.6](#046)
 - [0.4.5](#045)
@@ -14,7 +14,7 @@
 - [0.3.1](#031)
 - [0.3.0](#030)
 
-## 0.5.0
+## 2.5.0
 
 Release Date: TBD
 
@@ -23,6 +23,7 @@ Release Date: TBD
 
 ### Changed
 - Telstar 11N Africa and Europe downlink frequencies.
+- Major version number from 0 to 2 for aligning with the source control tags.
 
 ### Fixed
 - Compilation of SNMP MIB files when configuring or monitoring the Novra S400
