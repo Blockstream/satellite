@@ -4,7 +4,7 @@ nav_order: 9
 
 # Running on Docker
 
-<!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-refresh-toc -->
+<!-- markdown-toc start -->
 **Table of Contents**
 
 - [Standalone Receiver](#standalone-receiver)
@@ -16,8 +16,7 @@ nav_order: 9
 
 <!-- markdown-toc end -->
 
-
-A Docker image is available to be used as the *Blockstream Satellite host*, that is, the system with everything you need to interface with the supported satellite receivers. All you need to do is run the `blockstream/satellite` Docker image while providing the appropriate resources to the container. This process is explained next.
+A Docker image is available with everything you need to interface with the supported satellite receivers. All you need to do is run the `blockstream/satellite` Docker image while providing the appropriate resources to the container, as explained next.
 
 ## Standalone Receiver
 
@@ -29,13 +28,13 @@ docker run --rm -it \
     blockstream/satellite
 ```
 
-Note the `blocksat-cfg` named volume is meant to provide persistent storage for the configurations created by `blocksat-cli`.
+Note the `blocksat-cfg` named volume provides persistent storage for the configurations created by the GUI or CLI applications (`blocksat-gui` or `blocksat-cli`).
 
 ## USB Receiver
 
-First of all, there is an important limitation to running a Linux USB receiver inside a container. The USB receiver's drivers must be installed on the Docker host, not on the Docker container. Hence, the referred `blockstream/satellite` image does not contain the drivers. Instead, you will need to install the drivers on your Docker host. Please refer to the driver installation instructions on the [USB receiver guide](tbs.md#tbs-drivers).
+First of all, there is an essential limitation to running a Linux USB receiver inside a container. The USB receiver's drivers must be installed on the Docker host, not the container. Hence, the referred `blockstream/satellite` image does not contain the drivers. Instead, you will need to install the drivers on your Docker host. Please refer to the driver installation instructions on the [USB receiver guide](tbs.md#tbs-drivers).
 
-Next, after installing the drivers and connecting the USB receiver to your host, you can start the container. Just note that you will need to share the DVB network interface (visible on the Docker host) with the container. To do so, check the DVB interface at `/dev/dvb/` (typically named `adapter0`) and assign it to the container using option `--device` as follows:
+Next, after installing the drivers and connecting the USB receiver to your host, you can start the container. Just note you need to share the DVB network interface (visible on the Docker host) with the container. To do so, check the DVB interface at `/dev/dvb/` (typically named `adapter0`) and assign it to the container using option `--device` as follows:
 
 ```
 docker run --rm -it \
@@ -47,13 +46,13 @@ docker run --rm -it \
     blockstream/satellite
 ```
 
-After that, you can run the [USB configuration command](tbs.md#configure-the-host) inside the container:
+After that, you can start the receiver via the GUI or run the [USB configuration CLI command](tbs.md#configure-the-host) inside the container:
 
 ```
 blocksat-cli usb config
 ```
 
-The above step creates a network interface (typically named `dvb0_0`), configures the appropriate firewall rules, and assigns an IP address to the interface. Additionally, it configures the so-called reverse-path filtering rule for the interface. However, this particular configuration will not take effect when executed inside the container, as the container does not have permission to change the reverse-path filtering rules. Hence, to complete the configuration, run the following command directly from the host instead:
+The above step creates a network interface (typically named `dvb0_0`), configures the appropriate firewall rules, and assigns an IP address to the interface. Additionally, it configures the so-called reverse-path filtering rule for the interface. However, the latter will not take effect when executed inside the container, as the container does not have permission to change the reverse-path filtering rules. Hence, to complete the configuration, run the following CLI command directly on the container host:
 
 ```
 blocksat-cli rp -i dvb0_0
@@ -61,7 +60,7 @@ blocksat-cli rp -i dvb0_0
 
 > Note: If your network interface is named differently (not `dvb0_0`), you can find its name by running: `ip link show | grep dvb`.
 
-Finally, launch the receiver inside the container:
+Finally, if using the CLI, launch the receiver by running the following command inside the container:
 
 ```
 blocksat-cli usb launch
@@ -69,7 +68,7 @@ blocksat-cli usb launch
 
 ## SDR Receiver
 
-The important point for running the SDR receiver inside a container is that you need to share the RTL-SDR USB device (connected to the Docker host) with the container. To do so, run the container as follows:
+To run the SDR receiver inside a container, you must share the RTL-SDR USB device (connected to the Docker host) with the container. To do so, run the container as follows:
 
 ```
 docker run --rm -it \
@@ -79,7 +78,7 @@ docker run --rm -it \
     blockstream/satellite
 ```
 
-Note **privileged mode** is used to grant access to the RTL-SDR USB device. Furthermore, it is used to allow the execution of `sysctl`, which the SDR application uses for changing option `fs.pipe-max-size`.
+Note **privileged mode** is used to grant access to the RTL-SDR USB device. Furthermore, it allows the execution of `sysctl`, which the SDR application uses for changing option `fs.pipe-max-size`.
 
 > On a Mac OSX host, you will need to set up a [docker-machine](https://docs.docker.com/machine/) to share the SDR USB device. Once the docker-machine is active, you can share the USB device through the [machine driver's settings](https://github.com/machine-drivers). Then, run the above `docker run` command normally.
 
@@ -94,7 +93,7 @@ docker run --rm -it \
     blockstream/satellite
 ```
 
-Alternatively, if you know the IP address of the Sat-IP receiver, you can specify it directly using option `-a/--addr` when running the Sat-IP client. In this case, you don't need the `--network=host` option when launching the container.
+Alternatively, if you know the IP address of the Sat-IP receiver, you can specify it directly on the GUI or with option `-a/--addr` when running the Sat-IP client via the CLI. In this case, you don't need the `--network=host` option when launching the container.
 
 ## Bitcoin Satellite
 
@@ -111,15 +110,11 @@ docker run --rm -it \
 
 Then, inside the container, run `bitcoind` as usual.
 
-Also, if you have not generated your `bitcoin.conf` [configuration file](bitcoin.md#configuration) yet, you can run the following inside the container:
-
-```
-blocksat-cli btc
-```
+Also, if you have not generated your `bitcoin.conf` file yet, you can do so inside the container following the instructions in the [Bitcoin configuration section](bitcoin.md#configuration).
 
 ## Build the Docker Image Locally
 
-You can also build the Docker image locally, rather than pulling it from Docker Hub. To do so, run the following from the root directory of this repository:
+You can also build the Docker image locally rather than pulling it from Docker Hub. To do so, run the following from the root directory of this repository:
 
 ```
 make docker

@@ -4,10 +4,9 @@ nav_order: 12
 
 # Quick Reference Guide
 
-This page contains a quick reference guide for the Blockstream Satellite receiver setup and its general usage. Please refer to the [main guide](../index.md) for detailed explanations on all steps.
+This page contains a quick reference guide for the Blockstream Satellite receiver setup and its general usage via the command-line interface (CLI). Please refer to the [main guide](../index.md) for detailed explanations on all steps and instructions for the graphical user interface (GUI).
 
-<!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-refresh-toc -->
-
+<!-- markdown-toc start -->
 - [CLI Installation and Upgrade](#cli-installation-and-upgrade)
 - [Common Steps](#common-steps)
 - [Receiver-specific Configuration Steps](#receiver-specific-configuration-steps)
@@ -24,7 +23,6 @@ This page contains a quick reference guide for the Blockstream Satellite receive
 - [Satellite API](#satellite-api)
 
 <!-- markdown-toc end -->
-
 
 ## CLI Installation and Upgrade
 

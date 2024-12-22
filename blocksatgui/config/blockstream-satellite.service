@@ -1,0 +1,16 @@
+[Unit]
+After=network-online.target
+Description=Blockstream Satellite Daemon
+
+[Service]
+Type=dbus
+ExecStart=blocksatd
+BusName=com.blockstream.satellite.runner
+User=root
+Restart=on-failure
+SendSIGKILL=no
+StartLimitBurst=3
+SyslogIdentifier=blocksatd
+
+[Install]
+WantedBy=multi-user.target

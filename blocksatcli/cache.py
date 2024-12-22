@@ -17,6 +17,8 @@ class Cache():
             cfg_dir : Directory where the .update is located/created
 
         """
+        if not os.path.exists(cfg_dir):
+            os.makedirs(cfg_dir)
         self.path = os.path.join(cfg_dir, filename)
         self.data = {}
         self.load()

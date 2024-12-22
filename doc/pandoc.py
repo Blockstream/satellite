@@ -116,7 +116,7 @@ def main():
     root_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
     version = re.search(
         r'^__version__\s*=\s*"(.*)"',
-        open(os.path.join(root_dir, 'blocksatcli', 'main.py')).read(),
+        open(os.path.join(root_dir, 'blocksatcli', '__init__.py')).read(),
         re.M).group(1)
     docs = [
         "../index.md",

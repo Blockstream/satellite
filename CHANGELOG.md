@@ -1,6 +1,7 @@
 # Changelog
 
 ## Releases
+- [0.5.0](#050)
 - [0.4.7](#047)
 - [0.4.6](#046)
 - [0.4.5](#045)
@@ -12,6 +13,13 @@
 - [0.3.2](#032)
 - [0.3.1](#031)
 - [0.3.0](#030)
+
+## 0.5.0
+
+Release Date: TBD
+
+### Added
+- Graphical user interface (GUI) application (`blocksat-gui`).
 
 ## 0.4.7
 

@@ -172,6 +172,11 @@ class Tsp():
             self.dump_proc = subprocess.Popen(tsdump_cmd,
                                               stdin=self.ts_dump_pipe.r_fo)
 
+    def stop(self):
+        """Stop tsp"""
+        logger.debug("Stopping tsp")
+        self.proc.kill()
+
 
 def prints_to_stdout(args):
     """Check if tsp is configured to print to stdout"""

@@ -2,6 +2,7 @@ import logging
 import queue
 import shlex
 import subprocess
+import time
 
 from . import net
 from . import msg as api_msg
@@ -14,12 +15,13 @@ logger = logging.getLogger(__name__)
 class ApiListener():
     """Infinite loop for listening to API messages"""
 
-    def __init__(self, recv_once=False, recv_queue=None):
+    def __init__(self, recv_once=False, recv_queue=None, recv_timeout=None):
         """Constructor
 
         Args:
-            recv_once : Receive a single message and stop
-            recv_queue : Queue to mirror (store) the saved/serialized messages
+            recv_once : Receive a single message and stop.
+            recv_queue : Queue to mirror (store) the saved/serialized messages.
+            recv_timeout: Timeout for reception of UDP packets via the socket.
 
         Note:
             The constructor options are useful for testing but are not
@@ -30,6 +32,7 @@ class ApiListener():
         self.recv_once = recv_once
         assert (recv_queue is None or isinstance(recv_queue, queue.Queue))
         self.recv_queue = recv_queue
+        self.recv_timeout = recv_timeout
 
     def stop(self):
         logger.debug("Stopping API listener")
@@ -79,6 +82,7 @@ class ApiListener():
 
         # Open UDP socket
         sock = net.UdpSock(sock_addr, interface)
+        sock.sock.settimeout(self.recv_timeout)
 
         # Handler to collect groups of Blocksat packets that form an API
         # message
@@ -91,6 +95,9 @@ class ApiListener():
         while self.enabled:
             try:
                 udp_payload, addr = sock.recv()
+            except TimeoutError:
+                time.sleep(2)
+                continue
             except KeyboardInterrupt:
                 break
 

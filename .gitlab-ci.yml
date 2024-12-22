@@ -51,9 +51,15 @@ stages:
 
 .test:
   stage: test
+  variables:
+    QT_QPA_PLATFORM: offscreen
+  timeout: 2h
+  before_script:
+    - apt update && apt install -y xvfb libqt5gui5 libxcb-cursor0
   script:
     - !reference [.venv-install, script]
-    - python -m unittest discover -b
+    - pip3 install pytest pytest-qt pytest-xvfb
+    - python -m pytest
     # Exercise all imports triggered when launching the CLI
     - blocksat-cli --version
 
@@ -147,6 +153,7 @@ test-make-install-fedora:
   script:
     - !reference [.venv-install, script]
     - python3 -m unittest blocksatcli/verify_deps_instal.py
+    - python3 -m unittest blocksatgui/tests/verify_deps_install.py
 
 test-deb-dependencies:
   image: $IMAGE
@@ -274,5 +281,5 @@ check-markdown-links:
       - "**/*.md"
   script:
     - >
-      echo '{"ignorePatterns": [{"pattern": "^https://help.blockstream.com"}, {"pattern": "^http://localhost:8000"}]}' > config.json
+      echo '{"ignorePatterns": [{"pattern": "^https://help.blockstream.com"}, {"pattern": "^http://localhost:8000"}, {"pattern": "^https://novra.com/product/s400-pro-dvb-satellite-receiver"}]}' > config.json
     - find . -name \*.md | xargs -n1 /src/markdown-link-check -c config.json

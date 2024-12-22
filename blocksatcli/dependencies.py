@@ -7,7 +7,7 @@ import subprocess
 import sys
 import tempfile
 import textwrap
-from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
+from argparse import ArgumentDefaultsHelpFormatter
 from shutil import which
 
 import distro
@@ -72,7 +72,7 @@ class PkgMap:
         return self._map[setup_type][pkg_manager]
 
 
-def _get_pkg_manager():
+def get_pkg_manager():
     """Check the package manager installed on the system"""
     for manager in supported_pkg_managers:
         if which(manager):
@@ -81,41 +81,17 @@ def _get_pkg_manager():
     raise RuntimeError("Could not find a supported package manager")
 
 
-def _is_package_installed(package, required_version):
-    """Check if the package is installed and its version meets the minimum"""
-    distro_id = distro.id()
-
-    if distro_id == 'ubuntu':
-        cmd = ['apt', 'list', '--installed', package]
-    elif distro_id == 'fedora':
-        cmd = ['dnf', 'list', '--installed', package]
-    else:
-        raise ValueError('Unsupported distribution')
-
+def is_package_installed(package):
+    """Check if a package is installed using the package manager"""
+    manager = get_pkg_manager()
+    cmd = [manager, 'list', '--installed', package]
     res = runner.run(cmd, capture_output=True, nocheck=True)
-    if (res.returncode != 0):
+    if (res is None or res.returncode != 0):
         return False
-
-    lines = res.stdout.decode().splitlines()
-
-    installed_version = None
-    if distro_id == 'ubuntu':
-        for line in lines:
-            if package in line:
-                version_release = line.split(' ')[1]
-                installed_version = version_release.split('-')[0]
-                break
-    elif distro_id == 'fedora':
-        if len(lines) > 1:
-            installed_version = lines[1].split()[1].split('-')[0]
-
-    if installed_version is None:
-        return False
-
-    if (Version(installed_version) < Version(required_version)):
-        return False
-
-    return True
+    for line in res.stdout.decode().splitlines():
+        if package in line:
+            return True
+    return False
 
 
 def _create_cmd(cmd: list, interactive: bool):
@@ -191,7 +167,7 @@ def _check_pkg_repo(distro_id):
 
     """
     found = False
-    manager = _get_pkg_manager()
+    manager = get_pkg_manager()
     if (manager == 'apt'):
         apt_repo = _get_apt_repo(distro_id)
         grep_str = apt_repo.replace("ppa:", "")
@@ -229,7 +205,7 @@ def _enable_pkg_repo(distro_id, interactive):
 
     """
     cmds = list()
-    manager = _get_pkg_manager()
+    manager = get_pkg_manager()
     if (manager == 'apt'):
         apt_repo = _get_apt_repo(distro_id)
 
@@ -297,7 +273,7 @@ def _enable_pkg_repo(distro_id, interactive):
         runner.run(cmd, root=True)
 
 
-def _update_pkg_repo(interactive):
+def update_pkg_repo(interactive, stdout=None):
     """Update APT's package index
 
     NOTE: this function updates APT only. On dnf/yum, there is no need to run
@@ -305,7 +281,7 @@ def _update_pkg_repo(interactive):
     automatically when an install/upgrade command is called.
 
     """
-    manager = _get_pkg_manager()
+    manager = get_pkg_manager()
     if (manager != 'apt'):
         return
 
@@ -313,15 +289,15 @@ def _update_pkg_repo(interactive):
     if (not interactive):
         cmd.append("-y")
 
-    runner.run(cmd, root=True)
+    runner.run(cmd, root=True, stdout=stdout)
 
 
-def _install_packages(apt_list,
-                      dnf_list,
-                      yum_list,
-                      interactive=True,
-                      update=False,
-                      cwd=None):
+def install_packages(apt_list,
+                     dnf_list,
+                     yum_list,
+                     interactive=True,
+                     update=False,
+                     cwd=None):
     """Install binary packages
 
     Args:
@@ -333,7 +309,7 @@ def _install_packages(apt_list,
         cwd         : Directory from which to run the install command
 
     """
-    manager = _get_pkg_manager()
+    manager = get_pkg_manager()
     if (manager == 'apt'):
         cmd = ["apt", "install"]
         if (update):
@@ -362,6 +338,14 @@ def _install_packages(apt_list,
     runner.run(cmd, root=True, env=env, cwd=cwd)
 
 
+def install_packages_pip(pkg_list):
+    """Install python packages using pip"""
+    assert (isinstance(pkg_list, list))
+    cmd = [sys.executable, "-m", "pip", "install"]
+    cmd.extend(pkg_list)
+    runner.run(cmd)
+
+
 def _install_common(interactive=True, update=False, btc=False):
     """Install dependencies that are common to all setups"""
     util.print_header("Installing Common Dependencies")
@@ -383,8 +367,8 @@ def _install_common(interactive=True, update=False, btc=False):
         dnf_pkg_list.append("epel-release")
         yum_pkg_list.append("epel-release")
 
-    _install_packages(apt_pkg_list, dnf_pkg_list, yum_pkg_list, interactive,
-                      update)
+    install_packages(apt_pkg_list, dnf_pkg_list, yum_pkg_list, interactive,
+                     update)
 
     # Enable our binary package repository
     if runner.dry or (not _check_pkg_repo(distro_id)):
@@ -405,11 +389,11 @@ def _install_common(interactive=True, update=False, btc=False):
             # bitcoin-satellite-qt and assumed as installed. Hence, as a
             # workaround, install the two packages separately.
             for pkg in dnf_pkg_list:
-                _install_packages(apt_pkg_list, [pkg], [pkg], interactive,
-                                  update)
+                install_packages(apt_pkg_list, [pkg], [pkg], interactive,
+                                 update)
         else:
-            _install_packages(apt_pkg_list, [], yum_pkg_list, interactive,
-                              update)
+            install_packages(apt_pkg_list, [], yum_pkg_list, interactive,
+                             update)
 
 
 def _install_specific(cfg_dir, target, interactive=True, update=False):
@@ -425,9 +409,9 @@ def _install_specific(cfg_dir, target, interactive=True, update=False):
 
     util.print_header("Installing {} Receiver Dependencies".format(target))
     pkg_map = PkgMap()
-    _install_packages(pkg_map.get_packages(key, 'apt'),
-                      pkg_map.get_packages(key, 'dnf'),
-                      pkg_map.get_packages(key, 'yum'), interactive, update)
+    install_packages(pkg_map.get_packages(key, 'apt'),
+                     pkg_map.get_packages(key, 'dnf'),
+                     pkg_map.get_packages(key, 'yum'), interactive, update)
 
     # On Fedora >= 36 or Ubuntu >= 22.04, both of which have GNU Radio 3.10
     # available on the main package repo, install gr-dvbs2rx:
@@ -438,17 +422,8 @@ def _install_specific(cfg_dir, target, interactive=True, update=False):
         distro_ver) >= Version('22.04')
     if target == defs.sdr_setup_type and \
             (fc36_or_higher or ubuntu22_or_higher):
-        _install_packages(['gr-dvbs2rx', 'gr-osmosdr'],
-                          ['gr-dvbs2rx', 'gr-osmosdr'], [], interactive,
-                          update)
-
-
-def _print_help(args):
-    """Re-create argparse's help menu"""
-    parser = ArgumentParser()
-    subparsers = parser.add_subparsers(title='', help='')
-    parser = subparser(subparsers)
-    print(parser.format_help())
+        install_packages(['gr-dvbs2rx', 'gr-osmosdr'],
+                         ['gr-dvbs2rx', 'gr-osmosdr'], [], interactive, update)
 
 
 def subparser(subparsers):  # pragma: no cover
@@ -459,7 +434,7 @@ def subparser(subparsers):  # pragma: no cover
                               help='Manage dependencies',
                               formatter_class=ArgumentDefaultsHelpFormatter)
 
-    p.set_defaults(func=_print_help)
+    p.set_defaults(func=lambda args: util.print_help(subparser, args))
     p.add_argument("-y",
                    "--yes",
                    action='store_true',
@@ -543,7 +518,7 @@ def run(args):
         util.print_header("Dry Run Mode")
 
     # Update package index
-    _update_pkg_repo(interactive)
+    update_pkg_repo(interactive)
 
     # Common dependencies (regardless of setup)
     _install_common(interactive=interactive, update=args.update, btc=args.btc)
@@ -594,7 +569,7 @@ def drivers(args):
     # On dnf, not always the kernel-devel/headers package will be available for
     # the same version as the current kernel. Check:
     dnf_update_required = False
-    pkg_manager = _get_pkg_manager()
+    pkg_manager = get_pkg_manager()
     if (pkg_manager == 'dnf'):
         res_d = runner.run(["dnf", "list", kernel_devel],
                            stdout=subprocess.DEVNULL,
@@ -625,8 +600,8 @@ def drivers(args):
                          nocheck=True)
         kernel_update_available = (res.returncode == 0)
         if (kernel_update_available):
-            print("Kernel update required")
-            if (util.ask_yes_or_no("OK to run \"dnf update\"?")):
+            if (util.ask_yes_or_no(
+                    "Kernel update required. OK to run \"dnf update\"?")):
                 cmd = ["dnf", "update"]
                 if (not interactive):
                     cmd.append("-y")
@@ -647,12 +622,12 @@ def drivers(args):
             logger.error("Could not find an available kernel update")
             sys.exit(1)
 
-    _update_pkg_repo(interactive)
-    _install_packages(apt_pkg_list,
-                      dnf_pkg_list,
-                      yum_pkg_list,
-                      interactive=interactive,
-                      update=False)
+    update_pkg_repo(interactive)
+    install_packages(apt_pkg_list,
+                     dnf_pkg_list,
+                     yum_pkg_list,
+                     interactive=interactive,
+                     update=False)
 
     # On Raspberry PI OS, check that the raspberrypi-kernel-headers version
     # matches the actual kernel version
@@ -667,8 +642,8 @@ def drivers(args):
                 version_match = True
                 break
         if (not version_match):
-            print("Kernel update required")
-            if (util.ask_yes_or_no("OK to run \"apt full-upgrade\"?")):
+            if util.ask_yes_or_no(
+                    "Kernel update required. OK to run \"apt full-upgrade\"?"):
                 cmd = ["apt", "update"]
                 if (not interactive):
                     cmd.append("-y")
@@ -850,3 +825,20 @@ def check_drivers(model=None):
         kernel_modules = f.read()
 
     return module_map[model] in kernel_modules
+
+
+def check_python_packages(pkg_list):
+    """Check if required python packages are installed"""
+    assert (isinstance(pkg_list, list))
+    for pkg in pkg_list:
+        res = subprocess.run([sys.executable, "-m", "pip", "show", pkg],
+                             stdout=subprocess.DEVNULL,
+                             stderr=subprocess.DEVNULL)
+        found = (res.returncode == 0)
+
+        if (not found):
+            logger.debug(f"Could not find {pkg} installed via pip3")
+            return False
+
+    # All modules are installed
+    return True

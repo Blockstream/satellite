@@ -7,8 +7,7 @@ import subprocess
 import textwrap
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 from shutil import which
-
-import qrcode
+from typing import Optional
 
 from . import bidding, net
 from . import msg as api_msg
@@ -26,17 +25,13 @@ from .order import ApiOrder, ApiChannel, \
 from .pkt import calc_ota_msg_len
 
 logger = logging.getLogger(__name__)
-server_map = {
-    'main': "https://api.blockstream.space",
-    'test': "https://api.blockstream.space/testnet"
-}
 
 
-def _get_server_addr(net, server):
+def get_server_addr(net, server):
     if (net is None):
         return server
     else:
-        return server_map[net]
+        return defs.api_server_url[net]
 
 
 def config(args):
@@ -46,17 +41,18 @@ def config(args):
     config_keyring(gpg, log_if_configured=True)
 
 
-def send(args):
+def send(args, gpg: Optional[Gpg] = None, capture_error=False):
     """Send a message over satellite"""
     gnupghome = os.path.join(args.cfg_dir, args.gnupghome)
-    server_addr = _get_server_addr(args.net, args.server)
+    server_addr = get_server_addr(args.net, args.server)
 
     # Instantiate the GPG wrapper object if running with encryption or signing
-    if (not args.plaintext or args.sign):
-        gpg = Gpg(gnupghome, interactive=True)
-        config_keyring(gpg)
-    else:
-        gpg = None
+    if (gpg is None):
+        if (not args.plaintext or args.sign):
+            gpg = Gpg(gnupghome, interactive=True)
+            config_keyring(gpg)
+        else:
+            gpg = None
 
     # A passphrase is required if signing
     if (args.sign and (not args.no_password)):
@@ -103,22 +99,16 @@ def send(args):
         bid = None
 
     # API transmission order
-    order = ApiOrder(server_addr, tls_cert=args.tls_cert, tls_key=args.tls_key)
+    order = ApiOrder(server_addr,
+                     tls_cert=args.tls_cert,
+                     tls_key=args.tls_key,
+                     capture_error=capture_error)
     res = order.send(msg.get_data(), bid, args.regions, args.channel)
-    print()
 
     # Only the paid API channels return a Lightning invoice for the
     # transmission order
     if (args.channel in PAID_API_CHANNELS):
         payreq = res["lightning_invoice"]["payreq"]
-
-        # Print QR code
-        try:
-            qr = qrcode.QRCode()
-            qr.add_data(payreq)
-            qr.print_ascii()
-        except UnicodeError:
-            qr.print_tty()
 
         # Execute arbitrary command with the Lightning invoice
         if (args.invoice_exec):
@@ -126,10 +116,13 @@ def send(args):
             logger.debug("Execute:\n> {}".format(" ".join(cmd)))
             subprocess.run(cmd)
 
+    # Save the transmission record locally
+    order.record_tx_log(args.cfg_dir)
+
     # Wait until the transmission completes (after the ground station confirms
     # reception). Stop if it is canceled.
     if (args.no_wait):
-        return
+        return res
 
     try:
         target_state = ['sent', 'cancelled']
@@ -138,7 +131,9 @@ def send(args):
         pass
 
 
-def listen(args):
+def listen(args,
+           listen_loop: Optional[ApiListener] = None,
+           gpg: Optional[Gpg] = None):
     """Listen to API messages received over satellite"""
     gnupghome = os.path.join(args.cfg_dir, args.gnupghome)
 
@@ -166,7 +161,7 @@ def listen(args):
             logger.warning("Option {} overrides --channel".format(
                 "--gossip" if args.gossip else "--btc-src"))
 
-    server_addr = _get_server_addr(args.net, args.server)
+    server_addr = get_server_addr(args.net, args.server)
     historian_cli = os.path.join(args.historian_path, 'historian-cli') \
         if (args.historian_path) else 'historian-cli'
 
@@ -210,11 +205,12 @@ def listen(args):
                 base_exec_cmd))
 
     # GPG wrapper object
-    if (not args.plaintext or args.sender):
-        gpg = Gpg(gnupghome, interactive=True)
-        config_keyring(gpg)
-    else:
-        gpg = None
+    if (gpg is None):
+        if (not args.plaintext or args.sender):
+            gpg = Gpg(gnupghome, interactive=True)
+            config_keyring(gpg)
+        else:
+            gpg = None
 
     # Define the interface used to listen for messages
     if (args.interface):
@@ -233,7 +229,8 @@ def listen(args):
     # A passphrase is required for decryption (but not for signature
     # verification)
     if (not args.plaintext and not args.no_password):
-        gpg.prompt_passphrase('GPG keyring password for decryption: ')
+        if (gpg is not None and gpg.passphrase is None):
+            gpg.prompt_passphrase('GPG keyring password for decryption: ')
 
     if not api_msg.fec_supported:
         logger.warning("The FEC support is currently disabled. Some "
@@ -242,7 +239,8 @@ def listen(args):
                        "'blocksat-cli[fec]'.")
 
     # Listen continuously
-    listen_loop = ApiListener()
+    if (not listen_loop):
+        listen_loop = ApiListener()
     listen_loop.run(gpg,
                     download_dir,
                     args.sock_addr,
@@ -262,12 +260,15 @@ def listen(args):
                     region=args.region)
 
 
-def bump(args):
+def bump(args, capture_error=False):
     """Bump the bid of an API order"""
-    server_addr = _get_server_addr(args.net, args.server)
+    server_addr = get_server_addr(args.net, args.server)
 
     # Fetch the ApiOrder
-    order = ApiOrder(server_addr, tls_cert=args.tls_cert, tls_key=args.tls_key)
+    order = ApiOrder(server_addr,
+                     tls_cert=args.tls_cert,
+                     tls_key=args.tls_key,
+                     capture_error=capture_error)
     order.get(args.uuid, args.auth_token)
 
     # Bump bid
@@ -277,44 +278,57 @@ def bump(args):
         logger.error(e)
         return
 
-    # Print QR code
-    qr = qrcode.QRCode()
-    qr.add_data(res["lightning_invoice"]["payreq"])
-    qr.print_ascii()
+    # Save bump record locally
+    order.record_tx_bump_log(args.cfg_dir, res['lightning_invoice'])
+
+    return res
 
 
-def get(args):
+def get(args, verbose=True, capture_error=False):
     """Get an API order"""
-    server_addr = _get_server_addr(args.net, args.server)
+    server_addr = get_server_addr(args.net, args.server)
 
     # Fetch the ApiOrder
-    order = ApiOrder(server_addr, tls_cert=args.tls_cert, tls_key=args.tls_key)
+    order = ApiOrder(server_addr,
+                     tls_cert=args.tls_cert,
+                     tls_key=args.tls_key,
+                     capture_error=capture_error)
     order.get(args.uuid, args.auth_token)
-    print(json.dumps(order.order, indent=4))
+    if verbose:
+        print(json.dumps(order.order, indent=4))
+    return order.order
 
 
-def list_orders(args):
-    server_addr = _get_server_addr(args.net, args.server)
-    order = ApiOrder(server_addr, tls_cert=args.tls_cert, tls_key=args.tls_key)
+def list_orders(args, verbose=True, capture_error=False):
+    server_addr = get_server_addr(args.net, args.server)
+    order = ApiOrder(server_addr,
+                     tls_cert=args.tls_cert,
+                     tls_key=args.tls_key,
+                     capture_error=capture_error)
     res = order.get_orders(args.status, args.channel, args.queue, args.limit)
-    print(json.dumps(res, indent=4))
+    if verbose:
+        print(json.dumps(res, indent=4))
+    return res
 
 
-def delete(args):
+def delete(args, capture_error=False):
     """Cancel an API order"""
-    server_addr = _get_server_addr(args.net, args.server)
+    server_addr = get_server_addr(args.net, args.server)
 
     # Fetch the ApiOrder
-    order = ApiOrder(server_addr, tls_cert=args.tls_cert, tls_key=args.tls_key)
+    order = ApiOrder(server_addr,
+                     tls_cert=args.tls_cert,
+                     tls_key=args.tls_key,
+                     capture_error=capture_error)
     order.get(args.uuid, args.auth_token)
 
     # Delete it
-    order.delete()
+    return order.delete()
 
 
 def demo_rx(args):
     """Demo satellite receiver"""
-    server_addr = _get_server_addr(args.net, args.server)
+    server_addr = get_server_addr(args.net, args.server)
 
     # Open one socket for each interface:
     socks = list()
@@ -353,13 +367,13 @@ def subparser(subparsers):  # pragma: no cover
     server_addr = p.add_mutually_exclusive_group()
     server_addr.add_argument(
         '--net',
-        choices=server_map.keys(),
+        choices=defs.api_server_url.keys(),
         default=None,
         help="Choose between the Mainnet API server (main) or the Testnet API \
         server (test)")
     server_addr.add_argument('-s',
                              '--server',
-                             default=server_map['main'],
+                             default=defs.api_server_url['main'],
                              help="Satellite API server address")
     p.add_argument(
         '--tls-cert',
@@ -411,7 +425,7 @@ def subparser(subparsers):  # pragma: no cover
     p2.add_argument('--bid',
                     default=None,
                     type=int,
-                    help="Bid (in millisatoshis) for the message transmission")
+                    help="Bid (in millisatoshi) for the message transmission")
     p2.add_argument(
         '-c',
         '--channel',
@@ -645,7 +659,7 @@ def subparser(subparsers):  # pragma: no cover
         '--bid',
         default=None,
         type=int,
-        help="New bid (in millisatoshis) for the message transmission")
+        help="New bid (in millisatoshi) for the message transmission")
     p4.add_argument('-u',
                     '--uuid',
                     default=None,

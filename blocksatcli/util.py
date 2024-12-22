@@ -1,16 +1,19 @@
 """Utility functions"""
 import copy
 import os
-import subprocess
-import textwrap
-import tempfile
 import shutil
+import subprocess
 import sys
+import tempfile
+import textwrap
+from datetime import datetime
+from getpass import getpass
 from ipaddress import IPv4Address
-from urllib.request import urlretrieve
 from urllib.error import HTTPError
+from urllib.request import urlretrieve
+from argparse import ArgumentParser
 
-from . import defs
+from . import defs, daemon_client
 
 
 def _input(*args):
@@ -79,6 +82,14 @@ def string_input(msg, default=None, optional=False):
     return res
 
 
+def password_input(prompt: str = "Password: "):
+    try:
+        return getpass(prompt)
+    except KeyboardInterrupt:
+        print("\nAborting")
+        exit()
+
+
 def ask_yes_or_no(msg, default="y", help_msg=None):
     """Yes or no question
 
@@ -129,7 +140,7 @@ def ask_multiple_choice(vec,
     Args:
         vec         : Vector with elements to choose from
         msg         : Msg to prompt user for choice
-        label       : Description/label of what "vec" holdes
+        label       : Description/label of what "vec" holds
         to_str      : Function that prints information about elements
         help_msg    : Optional help message
         none_option : Whether to display a "none of the above" option
@@ -227,6 +238,8 @@ def get_home_dir():
 
 class ProcessRunner():
 
+    auth_manager = "sudo"
+
     def __init__(self, logger=None, dry=False):
         self.logger = logger
         self.dry = dry
@@ -265,10 +278,10 @@ class ProcessRunner():
         assert (isinstance(cmd, list))
 
         # Add sudo if necessary
-        if (root and not self.root and cmd[0] != "sudo"):
+        if (root and not self.root and cmd[0] != self.auth_manager):
             orig_cmd = cmd  # Keep the original list untouched
             cmd = orig_cmd.copy()
-            cmd.insert(0, "sudo")
+            cmd.insert(0, self.auth_manager)
 
         # Handle capture_output for backwards compatibility with py3.6
         if (capture_output):
@@ -286,6 +299,25 @@ class ProcessRunner():
 
         if (self.logger is not None):
             self.logger.debug(self._get_cmd_str(cmd, cwd))
+
+        if root and not self.root and self.auth_manager == "pkexec":
+            daemon = daemon_client.DaemonClient(user_home=get_home_dir(),
+                                                logger=self.logger)
+            if daemon.is_running():
+                # Remove the auth manager from the command before sending
+                # the request to blocksat daemon.
+                if cmd[0] == self.auth_manager:
+                    cmd = cmd[1:]
+                res = daemon.send(cmd,
+                                  cwd=cwd,
+                                  env=env,
+                                  stdout=stdout,
+                                  stderr=stderr,
+                                  check=(not nocheck))
+                if res is not None:
+                    return res
+                # If the response from the daemon is None, fall back to
+                # execute the command using the subprocess below.
 
         try:
             res = subprocess.run(cmd,
@@ -346,6 +378,12 @@ class ProcessRunner():
 
     def create_dir(self, new_dir, **kwargs):
         self.run(['mkdir', '-p', new_dir], **kwargs)
+
+    @staticmethod
+    def set_auth_manager(auth):
+        assert (auth in ["sudo", "pkexec"]), \
+            f"Unsupported authorization manager {auth}"
+        ProcessRunner.auth_manager = auth
 
 
 class Pipe():
@@ -444,3 +482,45 @@ def get_network_interfaces():
         devices = None
 
     return devices
+
+
+def gui_or_console_call(console_callback, gui_callback, *args, **kwargs):
+    """Call one of two given callbacks depending on the mode (GUI or console)
+
+    Args:
+        console_callback (function): Function called in console mode.
+        gui_callback (function): Function called in GUI mode.
+
+    Returns:
+        The result from the console_callback function when running in console
+        mode or None in GUI mode.
+
+    """
+    if gui_callback is not None:
+        gui_callback(*args, **kwargs)
+    else:
+        return console_callback(*args, **kwargs)
+
+
+def print_help(subparser, args):
+    """Re-create argparse's help menu"""
+    parser = ArgumentParser()
+    subparsers = parser.add_subparsers(title='', help='')
+    parser = subparser(subparsers)
+    print(parser.format_help())
+
+
+def format_timestamp(timestamp: str):
+    """Convert timestamp in ISO format to a human-readable format"""
+    return datetime.fromisoformat(timestamp).strftime("%Y-%m-%d %H:%M:%S")
+
+
+def format_sats(amount: float):
+    """Convert amount in satoshi to an amount+unit string"""
+    label = "sat"
+    if amount > 1.0:
+        label += "s"
+    if round(amount) == amount:
+        return f"{int(amount)} {label}"
+    else:
+        return f"{round(amount, 3)} {label}"

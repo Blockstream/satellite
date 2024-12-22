@@ -1,13 +1,11 @@
 #!/usr/bin/env python3
-
-__version__ = "0.4.7"
-
 import logging
 import os
 import platform
 import time
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 
+from . import __version__
 from . import config, util, instructions, gqrx, bitcoin, sdr, rp, \
     firewall, standalone, usb, satip, dependencies, update, monitoring_api
 from .api import api
@@ -81,7 +79,7 @@ def main():  # pragma: no cover
     logging.debug('[Debug Mode]')
 
     # Check CLI updates
-    update.check_cli_updates(args, __version__)
+    update.check_package_updates(args.cfg_dir, "blocksat-cli", __version__)
 
     if hasattr(args, 'func'):
         args.func(args)

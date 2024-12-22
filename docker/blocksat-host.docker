@@ -4,20 +4,25 @@ ARG distro
 ARG version
 MAINTAINER Blockstream Satellite
 ENV BLOCKSAT_NO_USB_DRIVERS_CHECK="true"
+# Set OpenGL to render indirect through the X server.
+ENV LIBGL_ALWAYS_INDIRECT 1
 
 SHELL ["/bin/bash", "-c"]
 RUN if [[ $distro == *"ubuntu"* ]]; then \
-	apt update && DEBIAN_FRONTEND=noninteractive apt install -y python3-pip bash-completion; \
+	apt update && DEBIAN_FRONTEND=noninteractive apt install -y python3-pip bash-completion \
+	libqt5gui5 libxcb-cursor0; \
 	elif [[ $distro == *"fedora"* ]]; then \
-	dnf update -y && dnf install -y python3-pip bash-completion; \
+	dnf update -y && dnf install -y python3-pip bash-completion \
+	qt5-qtbase-gui xcb-util-cursor; \
 	else \
 	yum update -y && yum install -y python3-pip bash-completion; \
 	fi
 
-# Install the local distribution of the CLI
-RUN mkdir -p ~/src/blocksat-cli/dist/
-COPY dist/* ~/src/blocksat-cli/dist/
-RUN pip3 install \~/src/blocksat-cli/dist/blocksat-cli-$version.tar.gz[fec]
+# Install the local distribution of the CLI and GUI
+RUN mkdir -p ~/src/blocksat/dist/
+COPY dist/* ~/src/blocksat/dist/
+RUN pip3 install \~/src/blocksat/dist/blocksat-cli-$version.tar.gz[fec]
+RUN pip3 install \~/src/blocksat/dist/blocksat-gui-$version.tar.gz
 
 # Install the manpage and bash completion files
 COPY blocksat-cli.1 /usr/share/man/man1/blocksat-cli.1

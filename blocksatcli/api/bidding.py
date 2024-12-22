@@ -19,7 +19,7 @@ def suggest_bid(data_size, prev_bid=None):
         prev_bid  : Previous bid, if any
 
     Returns:
-        Bid in millisatoshis
+        Bid in millisatoshi
 
     """
     assert (isinstance(data_size, int))
@@ -36,15 +36,15 @@ def validate_bid(bid, prev_bid=None):
     """Validate a given bid
 
     Args:
-        bid      : New bid in msats
-        prev_bid : Previous bid in msats, used if bumping
+        bid      : New bid in msat
+        prev_bid : Previous bid in msat, used if bumping
 
     Returns:
         Bool indicating whether the bid is valid.
 
     """
     if (bid <= 0):
-        print("Please provide a positive bid in millisatoshis")
+        print("Please provide a positive bid in millisatoshi")
         return False
 
     if (prev_bid is not None and bid <= prev_bid):
@@ -53,7 +53,7 @@ def validate_bid(bid, prev_bid=None):
 
     if (bid > MAX_BID):
         print("Bid too large. Are you sure you want to bid {:.2f} "
-              "sats (satoshis)?".format(bid / 1e3))
+              "sats (satoshi)?".format(bid / 1e3))
         return False
 
     return True
@@ -67,13 +67,13 @@ def ask_bid(data_size, prev_bid=None):
         prev_bid  : Previous bid, if any
 
     Returns:
-        Bid in millisatoshis
+        Bid in millisatoshi
 
     """
     suggested_bid = suggest_bid(data_size, prev_bid)
 
     print("")
-    msg = "Your {}bid to transmit {:d} bytes (in millisatoshis)".format(
+    msg = "Your {}bid to transmit {:d} bytes (in millisatoshi)".format(
         ("new total " if prev_bid is not None else ""), data_size)
 
     while (True):

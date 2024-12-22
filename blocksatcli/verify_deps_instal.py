@@ -1,17 +1,28 @@
 import argparse
 import logging
-import unittest
 import os
+import unittest
 
 import distro
 from packaging.version import Version
 
 from . import dependencies, util
 
+runner = util.ProcessRunner()
+
 
 class TestDependencies(unittest.TestCase):
 
-    def gen_args(self, target, btc=False):
+    def setUp(self):
+        # List of commands to execute after the test case
+        self.undo_cmd = []
+
+    def tearDown(self):
+        if self.undo_cmd:
+            for cmd in self.undo_cmd:
+                runner.run(cmd)
+
+    def gen_args(self, target=None, btc=False, gui=False):
         """Mock command-line argument"""
         logging.basicConfig(level=logging.DEBUG)
         default_cfg_dir = os.path.join(util.get_home_dir(), ".blocksat")
@@ -21,9 +32,15 @@ class TestDependencies(unittest.TestCase):
                             help="Directory to use for configuration files")
         subparsers = parser.add_subparsers()
         dependencies.subparser(subparsers)
-        args = ["deps", "-y", "install", "--target", target]
-        if (btc):
-            args.append("--btc")
+        args = ["deps", "-y"]
+
+        if target:
+            args.extend(["install", "--target", target])
+            if (btc):
+                args.append("--btc")
+        elif gui:
+            args.append("gui")
+
         return parser.parse_args(args)
 
     def test_usb_deps(self):

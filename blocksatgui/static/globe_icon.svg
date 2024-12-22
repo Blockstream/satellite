@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   version="1.1"
+   id="Layer_1"
+   x="0px"
+   y="0px"
+   width="200px"
+   height="200px"
+   viewBox="796 796 200 200"
+   enable-background="new 796 796 200 200"
+   xml:space="preserve"
+   sodipodi:docname="globe-svgrepo-com.svg"
+   inkscape:version="1.1.2 (0a00cf5339, 2022-02-04)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"><defs
+   id="defs7" /><sodipodi:namedview
+   id="namedview5"
+   pagecolor="#ffffff"
+   bordercolor="#666666"
+   borderopacity="1.0"
+   inkscape:pageshadow="2"
+   inkscape:pageopacity="0.0"
+   inkscape:pagecheckerboard="0"
+   showgrid="false"
+   inkscape:zoom="4.355"
+   inkscape:cx="100"
+   inkscape:cy="100.11481"
+   inkscape:window-width="2560"
+   inkscape:window-height="1043"
+   inkscape:window-x="1920"
+   inkscape:window-y="0"
+   inkscape:window-maximized="1"
+   inkscape:current-layer="Layer_1" />
+<path
+   d="M896,796c-55.14,0-100,44.86-100,100.001C796,951.141,840.859,996,896,996c55.141,0,100-44.859,100-99.999  C996,840.86,951.141,796,896,796z M981.65,916.271c-0.273,1.155-1.093,2.105-2.195,2.547c-1.103,0.442-2.352,0.321-3.348-0.325  l-8.389-5.442c-12.096-7.847-17.375-22.863-12.851-36.552l11.155-33.752c11.281,14.799,17.999,33.253,17.999,53.255  C984.022,902.977,983.195,909.761,981.65,916.271z M930.432,815.018c2.785,1.188,4.092,4.4,2.926,7.194l-3.604,8.634  c-0.52,1.244-1.703,2.082-3.049,2.157c-1.349,0.075-2.619-0.625-3.274-1.804l-12.146-21.865  C917.955,810.507,924.366,812.43,930.432,815.018z M896,807.978c2.016,0,3.873,1.102,4.839,2.871l15.739,28.813  c3.302,6.044,1.123,13.619-4.885,16.985l-37.656,21.099c-1.57,0.88-2.612,2.47-2.793,4.261s0.523,3.558,1.887,4.733l16.978,14.641  c2.194,1.891,4.995,2.932,7.892,2.932h14.3c2.713,0,5.345,0.913,7.477,2.589l20.533,16.167c2.691,2.118,4.356,5.28,4.582,8.697  c0.227,3.418-1.008,6.771-3.396,9.226l-33.545,34.466c-1.233,1.267-3.113,1.661-4.752,0.995c-1.639-0.667-2.711-2.259-2.711-4.027  v-20.552c0-3.422-1.179-6.741-3.336-9.398l-5.194-6.39c-1.126-1.387-1.741-3.118-1.741-4.904v-8.31c0-2.024-0.849-3.954-2.34-5.321  l-48.532-44.508c-3.646-3.346-5.724-8.067-5.724-13.017v-21.377c0-3.104,1.32-6.06,3.629-8.134  C852.843,816.51,873.442,807.978,896,807.978z"
+   id="path2"
+   style="fill:#ffffff" />
+</svg>

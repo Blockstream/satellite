@@ -17,7 +17,7 @@ class TestBidding(unittest.TestCase):
         bid = bidding.suggest_bid(data_size)
         self.assertEqual(bid, bidding.MIN_BID)
 
-        # It should always be an integer number of millisatoshis
+        # It should always be an integer number of millisatoshi
         bidding.MIN_BID_PER_BYTE = 1.0005  # set a fractional minimum bid/byte
         data_size = 1000
         expected_bid = 1001

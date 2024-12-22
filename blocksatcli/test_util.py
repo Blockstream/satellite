@@ -71,6 +71,7 @@ class TestRunner(TestCase):
     def test_process_runner_run_root_cmd(self, mock_subprocess):
         # Run process runner with sudo
         runner = util.ProcessRunner()
+        runner.set_auth_manager("sudo")  # Set sudo as auth manager
         runner.run(cmd=['echo', 'test'], root=True)
         mock_subprocess.assert_called_with(['sudo', 'echo', 'test'],
                                            cwd=None,
@@ -79,8 +80,20 @@ class TestRunner(TestCase):
                                            stderr=None,
                                            check=True)
 
+        # Run process runner with pkexec
+        runner = util.ProcessRunner()
+        runner.set_auth_manager("pkexec")  # Set pkexec as auth manager
+        runner.run(cmd=['echo', 'test'], root=True)
+        mock_subprocess.assert_called_with(['pkexec', 'echo', 'test'],
+                                           cwd=None,
+                                           env=None,
+                                           stdout=None,
+                                           stderr=None,
+                                           check=True)
+
         # Run process runner with sudo and capture the output
         runner = util.ProcessRunner()
+        runner.set_auth_manager("sudo")
         runner.run(cmd=['echo', 'test'], root=True, capture_output=True)
         mock_subprocess.assert_called_with(['sudo', 'echo', 'test'],
                                            cwd=None,

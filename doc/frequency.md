@@ -4,7 +4,7 @@ nav_order: 10
 
 # Frequency Guide
 
-<!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-generate-toc again -->
+<!-- markdown-toc start -->
 **Table of Contents**
 
 - [Signal Bands](#signal-bands)

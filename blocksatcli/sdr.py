@@ -1,6 +1,7 @@
 """SDR Receiver Wrapper"""
 import json
 import logging
+import signal
 import subprocess
 import sys
 import textwrap
@@ -514,7 +515,7 @@ def subparser(subparsers):  # pragma: no cover
     return p
 
 
-def run(args, monitor: monitoring.Monitor = None):
+def run(args, monitor: monitoring.Monitor = None, stderr=None):
     interactive = not args.yes
 
     info = config.read_cfg_file(args.cfg, args.cfg_dir)
@@ -587,7 +588,9 @@ def run(args, monitor: monitoring.Monitor = None):
             rtl_cmd = _get_rtl_sdr_cmd(args, l_band_freq, samp_rate)
             full_cmd = "> " + " ".join(rtl_cmd) + " | \\\n" + \
                 " ".join(ldvb_cmd_for_print)
-            rtl_proc = subprocess.Popen(rtl_cmd, stdout=subprocess.PIPE)
+            rtl_proc = subprocess.Popen(rtl_cmd,
+                                        stdout=subprocess.PIPE,
+                                        stderr=stderr)
             ldvb_proc = subprocess.Popen(ldvb_cmd,
                                          stdin=rtl_proc.stdout,
                                          stdout=ldvb_stdout,
@@ -600,6 +603,7 @@ def run(args, monitor: monitoring.Monitor = None):
                 'handler': ldvb_proc,
                 'wait': True
             }]
+
         else:
             full_cmd = "> " + " ".join(ldvb_cmd_for_print) + \
                 " < " + args.iq_file
@@ -644,6 +648,7 @@ def run(args, monitor: monitoring.Monitor = None):
             stdout = sys.stderr if args.no_tsp else None
         rx_proc = subprocess.Popen(dvbs2rx_cmd,
                                    stdout=stdout,
+                                   stderr=stderr,
                                    pass_fds=[out_pipe.w_fd])
         procs = [{'handler': rx_proc, 'wait': True}]
         tsp_in_fd = out_pipe.r_fd
@@ -670,17 +675,31 @@ def run(args, monitor: monitoring.Monitor = None):
 
     logger.debug(full_cmd)
 
+    # Set SIGINT/SIGTERM handler if running on the main thread
+    def signal_handler(signum, frame):
+        logger.debug('Stopping...')
+        monitor.disable_event.set()
+
+    if threading.current_thread() is threading.main_thread():
+        signal.signal(signal.SIGINT, signal_handler)
+        signal.signal(signal.SIGTERM, signal_handler)
+
     for this_proc in procs:
-        try:
-            if 'poll' in this_proc and this_proc['poll'] and \
-                    this_proc['handler'].poll() is not None:
-                for other_proc in procs:
-                    other_proc['handler'].kill()
-                break
-            if this_proc['wait']:
-                this_proc['handler'].wait()
-        except KeyboardInterrupt:
+        if 'poll' in this_proc and this_proc['poll'] and \
+                this_proc['handler'].poll() is not None:
             for other_proc in procs:
                 other_proc['handler'].kill()
+            break
+
+        if this_proc['wait']:
+            # Wait the process termination in a non-blocking mode while
+            # checking the disable_event flag.
+            while (this_proc['handler'].poll() is None
+                   and not monitor.disable_event.is_set()):
+                time.sleep(2)
+
+    if monitor.disable_event.is_set():
+        for other_proc in procs:
+            other_proc['handler'].kill()
 
     print()

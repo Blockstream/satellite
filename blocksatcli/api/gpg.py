@@ -1,4 +1,3 @@
-import getpass
 import logging
 import os
 import stat
@@ -83,7 +82,7 @@ class Gpg():
         if (prompt is None):
             prompt = 'Please enter a passphrase: '
         try:
-            self.set_passphrase(getpass.getpass(prompt=prompt))
+            self.set_passphrase(util.password_input(prompt=prompt))
         except KeyboardInterrupt:
             print("\nAborting")
             sys.exit(1)

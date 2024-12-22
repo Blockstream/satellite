@@ -5,26 +5,24 @@ nav_order: 4
 
 # SDR Receiver
 
-<!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-generate-toc again -->
+<!-- markdown-toc start -->
 **Table of Contents**
 
 - [Connections](#connections)
 - [Software Requirements](#software-requirements)
-- [Configuration](#configuration)
 - [Running](#running)
 - [Next Steps](#next-steps)
 - [Further Information](#further-information)
-  - [Software Updates](#software-updates)
   - [Docker](#docker)
   - [gr-dvbs2rx Receiver](#gr-dvbs2rx-receiver)
+  - [Gqrx Configuration](#gqrx-configuration)
   - [Manual Installation of SDR Software](#manual-installation-of-sdr-software)
   - [Manual Compilation of SDR Software](#manual-compilation-of-sdr-software)
-
 <!-- markdown-toc end -->
 
 ## Connections
 
-The SDR setup is connected as follows:
+The software-defined radio (SDR) setup is connected as follows:
 
 ![SDR connections](img/sdr_connections.png?raw=true "SDR connections")
 
@@ -36,45 +34,34 @@ The SDR setup is connected as follows:
 
 ## Software Requirements
 
-The SDR-based setup relies on the applications listed below:
+Next, ensure all software prerequisites are installed on your host. If using the GUI, in case some dependencies are missing, click on the "Install Dependencies" button on the Receiver tab, as shown below. If you cannot see the button, all dependencies are already installed correctly.
 
-- [leandvb](http://www.pabr.org/radio/leandvb/leandvb.en.html) or [gr-dvbs2rx](https://github.com/igorauad/gr-dvbs2rx): the software-based DVB-S2 receiver application.
-- [rtl_sdr](https://github.com/osmocom/rtl-sdr): reads samples taken by the RTL-SDR and feeds them into [leandvb](http://www.pabr.org/radio/leandvb/leandvb.en.html).
-- [TSDuck](https://tsduck.io/): unpacks the output of leandvb and produces IP packets to be fed to [Bitcoin Satellite](bitcoin.md).
-- [Gqrx](https://gqrx.dk): useful for spectrum visualization during antenna pointing.
+![GUI Receiver Missing Dependencies](img/gui_receiver_missing_deps.png?raw=true)
 
-To install them all at once, run the following:
+If using the CLI, run the following command to ensure all dependencies are installed:
 
 ```
 blocksat-cli deps install
 ```
 
-> Note: this command supports the two most recent releases of Ubuntu LTS, Fedora, CentOS, Debian, and Raspbian. In case you are using another Linux distribution or version, please refer to the [manual compilation and installation instructions](#manual-compilation-of-sdr-software).
-
-If you prefer to install all software components manually, please refer to the [manual installation section](#manual-installation-of-sdr-software). Also, if you would like to try the alternative receiver application based on the [GNU Radio](https://www.gnuradio.org) framework, see the [gr-dvbs2rx section](#gr-dvbs2rx-receiver).
-
-## Configuration
-
-After installing, you can generate the configurations that are needed for gqrx by running:
-
-```
-blocksat-cli gqrx-conf
-```
-
-> Note: this command assumes you are using an RTL-SDR dongle.
+> Note: this step works with the two most recent releases of Ubuntu LTS, Fedora, Debian, and Raspbian. In case you are using another Linux distribution or version, please refer to the [manual compilation and installation instructions](#manual-compilation-of-sdr-software).
 
 ## Running
 
-You should now be ready to launch the SDR receiver. You can run it by executing:
+You should now be ready to launch the SDR receiver. If using the GUI, click on the "Run Receiver" button on the Receiver tab, shown above. After that, you can monitor the receiver in real time as follows:
+
+![GUI SDR Receiver Monitoring](img/gui_sdr_rx.png?raw=true)
+
+If using the CLI, run the following command:
 
 ```
 blocksat-cli sdr
 ```
 
-More specifically, as thoroughly explained in the [antenna alignment section](antenna-pointing.md#sdr-based), you might want to run with specific gain and de-rotation parameters that are suitable to your setup, like so:
+More specifically, as thoroughly explained in the [antenna alignment section](antenna-pointing.md#sdr-based), you likely need to run with specific gain and de-rotation parameters suitable to your setup. With the GUI, you can set these in the Options panel. With the CLI, you use the `--gain` and `--derotate` command-line parameters, like so:
 
 ```
-blocksat-cli sdr -g [gain] --derotate [freq_offset]
+blocksat-cli sdr --gain [gain] --derotate [freq_offset]
 ```
 
 where `[gain]` and `[freq_offset]` should be substituted by the appropriate values.
@@ -85,37 +72,37 @@ At this point, if your antenna is already correctly pointed, you should be able 
 
 ## Further Information
 
-### Software Updates
-
-To update the SDR software to the most recent releases, run:
-
-```
-blocksat-cli deps update
-```
-
 ### Docker
 
 A Docker image is available for running the SDR host on a container. Please refer to the instructions in the [Docker guide](docker.md).
 
 ### gr-dvbs2rx Receiver
 
-An alternative software-defined DVB-S2 receiver implementation named gr-dvbs2rx is available on the CLI starting from version 0.4.5. This application is based on the [GNU Radio](https://www.gnuradio.org) framework for software-defined radio, and it is supported on Fedora 36 and Ubuntu 22.04 or later versions only.
+The software-defined DVB-S2 receiver implementation named gr-dvbs2rx is available on the CLI starting from version 0.4.5. This application is based on the [GNU Radio](https://www.gnuradio.org) framework for software-defined radio, and it is supported on Fedora 36 and Ubuntu 22.04 or later versions only.
 
-The CLI installs gr-dvbs2rx automatically when available. However, if you are running an existing setup configured with a CLI version preceding 0.4.5, please rerun the installation command:
+The CLI installs gr-dvbs2rx automatically when available. Meanwhile, in Linux distributions other than Fedora and Ubuntu, the [leandvb](http://www.pabr.org/radio/leandvb/leandvb.en.html) receiver application is used instead.
+
+If you are on a Fedora or Ubuntu release with gr-dvbs2rx available, but you are running an existing setup configured with a CLI version preceding 0.4.5, please rerun the installation command:
 
 ```
 blocksat-cli deps install
 ```
 
-Then, relaunch the SDR receiver with the regular command below. The CLI will choose the gr-dvbs2rx application by default when available. However, you can always toggle the implementation using option `--impl`.
+Then, relaunch the SDR receiver with the regular command below. The GUI and CLI will choose the gr-dvbs2rx application by default when available. With the CLI, you can always toggle the implementation using option `--impl`.
+
+### Gqrx Configuration
+
+The GUI and CLI generate a configuration file for Gqrx to facilitate its use during antenna pointing. The GUI generates the file automatically on the receiver configuration wizard. Similarly, the CLI generates the configuration file automatically, but you can regenerate it manually by running the following command:
 
 ```
-blocksat-cli sdr
+blocksat-cli gqrx-conf
 ```
+
+> Note: this command assumes you are using an RTL-SDR dongle.
 
 ### Manual Installation of SDR Software
 
-If you do not wish to rely on the automatic installation handled by command `blocksat-cli deps install`, you can install all applications manually.
+You can install all applications manually if you do not wish to rely on the automatic installation handled by the GUI or the CLI command `blocksat-cli deps install`.
 
 First, enable our repository for binary packages. On Ubuntu/Debian, run:
 
@@ -136,16 +123,16 @@ dnf copr enable blockstream/satellite
 Finally, install the applications:
 
 ```
-sudo apt install rtl-sdr leandvb tsduck gqrx-sdr
+sudo apt install rtl-sdr leandvb tsduck gqrx-sdr gr-dvbs2rx gr-osmosdr
 ```
 or
 ```
-sudo dnf install rtl-sdr leandvb tsduck gqrx
+sudo dnf install rtl-sdr leandvb tsduck gqrx gr-dvbs2rx gr-osmosdr
 ```
 
 ### Manual Compilation of SDR Software
 
-If `leandvb` and (or) `tsduck` are not available as binary packages in your distribution, you can build and install them from source.
+If one of the applications is not available as binary packages in your distribution, you can build and install it from source, as follows:
 
 #### Leandvb from source
 
@@ -176,6 +163,10 @@ make CXX=g++ ldpc_tool
 sudo install ldpc_tool /usr/bin
 ```
 
+#### gr-dvbs2rx from source
+
+Please refer to the project's [installation instructions](https://igorauad.github.io/gr-dvbs2rx/docs/installation.html).
+
 #### TSDuck from source
 
 To build and install TSDuck from source, run:
@@ -187,6 +178,8 @@ build/install-prerequisites.sh
 make NOTELETEXT=1 NOSRT=1 NOPCSC=1 NOCURL=1 NODTAPI=1
 sudo make NOTELETEXT=1 NOSRT=1 NOPCSC=1 NOCURL=1 NODTAPI=1 install
 ```
+
+> Refer to [TSDuck's documentation](https://tsduck.io/doxy/building.html) for further information.
 
 ---
 

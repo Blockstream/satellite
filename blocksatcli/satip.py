@@ -3,6 +3,7 @@ import logging
 import os
 import requests
 import shutil
+import signal
 import subprocess
 import sys
 import threading
@@ -824,9 +825,22 @@ def launch(args, monitor: monitoring.Monitor = None):
                              daemon=True)
         t.start()
 
-    try:
-        tsp_handler.proc.communicate()
-    except KeyboardInterrupt:
+    # Set SIGINT/SIGTERM handler if running on the main thread
+    def signal_handler(signum, frame):
+        tsp_handler.stop()
+
+    if threading.current_thread() is threading.main_thread():
+        signal.signal(signal.SIGINT, signal_handler)
+        signal.signal(signal.SIGTERM, signal_handler)
+
+    while (tsp_handler.proc.poll() is None
+           and not monitor.disable_event.is_set()):
+        try:
+            tsp_handler.proc.communicate(timeout=5)
+        except subprocess.TimeoutExpired:
+            continue
+
+    if monitor.disable_event.is_set():
         tsp_handler.proc.kill()
 
     print()

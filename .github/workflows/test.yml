@@ -17,17 +17,18 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install flake8 pytest pytest-cov yapf shtab setuptools
+        pip install flake8 pytest pytest-cov yapf shtab setuptools pytest-qt pytest-xvfb
+        sudo apt update -y && sudo apt install -y xvfb libqt5gui5 libxcb-cursor0
         make && make install
     - name: Lint with flake8
       run: |
         flake8 .
     - name: Check formatting
       run: |
-        yapf --diff --recursive --verbose blocksatcli/
+        yapf --diff --recursive --verbose blocksatcli/ blocksatgui/
     - name: Test with pytest
       run: |
-        python -m pytest --cov=blocksatcli
+        python -m pytest --cov=blocksatcli --cov=blocksatgui
     - name: Check launching and imports
       run: blocksat-cli --version
     - name: Check bash completion file is up to date

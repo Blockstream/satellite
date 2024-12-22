@@ -621,7 +621,7 @@ def _common(args):
     return user_info
 
 
-def verify(args) -> bool:
+def verify(args) -> dict:
     """Verify the configuration of the standalone receiver and host
 
     Returns:
@@ -700,7 +700,7 @@ def verify(args) -> bool:
     return res
 
 
-def configure(args):
+def configure(args, verify_res=None):
     """Configure the standalone receiver and the host
 
     Set all parameters required on the standalone receiver: signal, LNB, and
@@ -708,8 +708,15 @@ def configure(args):
     standalone DVB-S2 receiver by setting reverse-path filters and firewall
     configurations.
 
+    Args:
+        args : Parser arguments.
+        verify_res (dict): Configuration verified from a previous `verify()`
+            call.
+
     """
-    verify_res = verify(args)
+    if verify_res is None:
+        verify_res = verify(args)
+
     if all(verify_res['config'].values()):
         logger.info("Receiver already configured")
         return

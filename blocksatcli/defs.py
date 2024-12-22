@@ -22,6 +22,10 @@ sym_rate = {
     'T18V Ku': 1000000
 }
 default_standalone_ip_addr = "192.168.1.2"
+api_server_url = {
+    'main': "https://api.blockstream.space",
+    'test': "https://api.blockstream.space/testnet"
+}
 
 satellites = [{
     'name': "Galaxy 18",

@@ -1,8 +1,10 @@
 PY_FILES   = $(shell find . -type f -name '*.py')
-VERSION    = $(shell grep "__version__ =" blocksatcli/main.py | cut -d '"' -f2)
-SDIST      = dist/blocksat-cli-$(VERSION).tar.gz
-SDIST_UNDERSCORE = dist/blocksat_cli-$(VERSION).tar.gz
-WHEEL      = dist/blocksat_cli-$(VERSION)-py3-none-any.whl
+CLI_VERSION = $(shell grep "__version__ =" blocksatcli/__init__.py | cut -d '"' -f2)
+GUI_VERSION = $(shell grep "__version__ =" blocksatgui/__init__.py | cut -d '"' -f2)
+SDIST_CLI  = dist/blocksat-cli-$(CLI_VERSION).tar.gz
+SDIST_GUI  = dist/blocksat-gui-$(GUI_VERSION).tar.gz
+WHEEL_CLI  = dist/blocksat-cli-$(CLI_VERSION)-py3-none-any.whl
+WHEEL_GUI  = dist/blocksat-gui-$(GUI_VERSION)-py3-none-any.whl
 DISTRO     = ubuntu:jammy
 DISTRO_ALT = $(subst :,-,$(DISTRO))
 PLATFORM   = linux/amd64,linux/arm64
@@ -10,9 +12,15 @@ DOCKERHUB_REPO = blockstream
 MANPAGE    = blocksat-cli.1
 COMPLETION = blocksat-cli.bash-completion
 
-.PHONY: all clean clean-py sdist wheel install docker pypi testpypi manpage completion
+.PHONY: all clean clean-py sdist-cli sdist-gui sdist wheel-cli wheel-gui wheel install docker pypi testpypi manpage completion
 
 all: sdist
+
+check-version:
+ifneq ($(CLI_VERSION), $(GUI_VERSION))
+	@echo "CLI and GUI versions do not match"
+	@exit 1
+endif
 
 clean: clean-py
 
@@ -25,23 +33,49 @@ clean-py:
 	find . -name '*.egg-info' -exec rm -fr {} +
 	find . -name '*.egg' -exec rm -f {} +
 
-$(SDIST): $(PY_FILES)
-	python3 setup.py sdist
-	mv $(SDIST_UNDERSCORE) $(SDIST) || true
+# By default, setuptools includes both the setup_cli.py and setup.py files on
+# the source distribution archive. This causes a problem when installing the
+# CLI package via pip because the setup.py file will be used instead of
+# setup_cli.py. As a workaround, keep a single setup.py file on the CLI archive
+# with the contents from setup_cli.py.
+$(SDIST_CLI): $(PY_FILES)
+	python3 setup_cli.py sdist -k
+	mv blocksat_cli-${CLI_VERSION} blocksat-cli-${CLI_VERSION} || true
+	mv blocksat-cli-${CLI_VERSION}/setup_cli.py blocksat-cli-${CLI_VERSION}/setup.py
+	tar czf $(SDIST_CLI) blocksat-cli-${CLI_VERSION}
+	rm -fr blocksat-cli-${CLI_VERSION}/
 
 # NOTE: depending on the setuptools version, the generated sdist file name may
 # have blocksat_cli (with an underscore) instead of blocksat-cli (with a
 # hyphen). Rename it to blocksat-cli for consistency.
 
-sdist: $(SDIST)
+$(SDIST_GUI): $(PY_FILES)
+	python3 setup_gui.py sdist -k
+	mv blocksat_gui-${CLI_VERSION} blocksat-gui-${CLI_VERSION} || true
+	mv blocksat-gui-${GUI_VERSION}/setup_gui.py blocksat-gui-${GUI_VERSION}/setup.py
+	tar czf $(SDIST_GUI) blocksat-gui-${GUI_VERSION}
+	rm -fr blocksat-gui-${GUI_VERSION}/
 
-$(WHEEL): $(PY_FILES)
-	python3 setup.py bdist_wheel
+sdist-cli: $(SDIST_CLI)
 
-wheel: $(WHEEL)
+sdist-gui: $(SDIST_GUI)
 
-install: $(SDIST)
-	pip3 install $(SDIST)[fec]
+sdist: sdist-cli sdist-gui check-version
+
+$(WHEEL_CLI): $(PY_FILES)
+	python3 setup_cli.py bdist_wheel
+
+$(WHEEL_GUI): $(PY_FILES)
+	python3 setup_gui.py bdist_wheel
+
+wheel-cli: $(WHEEL_CLI)
+
+wheel-gui: $(WHEEL_GUI)
+
+wheel: wheel-cli wheel-gui
+
+install: sdist
+	pip3 install $(SDIST_CLI)[fec] $(SDIST_GUI)
 
 manpage: $(MANPAGE)
 
@@ -63,29 +97,29 @@ testpypi: clean sdist wheel
 		dist/blocksat-cli-$(VERSION).tar.gz \
 		dist/blocksat_cli-$(VERSION)-*.whl
 
-docker: $(SDIST) $(MANPAGE) $(COMPLETION)
+docker: sdist $(MANPAGE) $(COMPLETION)
 	docker build --build-arg distro=$(DISTRO) \
-	--build-arg version=$(VERSION) \
+	--build-arg version=$(CLI_VERSION) \
 	-t $(DOCKERHUB_REPO)/satellite \
 	-t $(DOCKERHUB_REPO)/satellite:$(DISTRO_ALT) \
-	-t $(DOCKERHUB_REPO)/satellite:$(VERSION) \
+	-t $(DOCKERHUB_REPO)/satellite:$(CLI_VERSION) \
 	-f docker/blocksat-host.docker .
 
 docker-push: docker
 	docker push $(DOCKERHUB_REPO)/satellite
 
-docker-buildx: $(SDIST) $(MANPAGE) $(COMPLETION)
+docker-buildx: sdist $(MANPAGE) $(COMPLETION)
 	docker buildx build --platform $(PLATFORM) \
 	--build-arg distro=$(DISTRO) \
-	--build-arg version=$(VERSION) \
+	--build-arg version=$(CLI_VERSION) \
 	-t $(DOCKERHUB_REPO)/satellite \
-	-t $(DOCKERHUB_REPO)/satellite:$(VERSION) \
+	-t $(DOCKERHUB_REPO)/satellite:$(CLI_VERSION) \
 	-f docker/blocksat-host.docker .
 
-docker-buildx-push: $(SDIST) $(MANPAGE) $(COMPLETION)
+docker-buildx-push: sdist $(MANPAGE) $(COMPLETION)
 	docker buildx build --platform $(PLATFORM) --push \
 	--build-arg distro=$(DISTRO) \
-	--build-arg version=$(VERSION) \
+	--build-arg version=$(CLI_VERSION) \
 	-t $(DOCKERHUB_REPO)/satellite \
-	-t $(DOCKERHUB_REPO)/satellite:$(VERSION) \
+	-t $(DOCKERHUB_REPO)/satellite:$(CLI_VERSION) \
 	-f docker/blocksat-host.docker .

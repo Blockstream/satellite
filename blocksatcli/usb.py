@@ -5,6 +5,7 @@ import os
 import signal
 import subprocess
 import sys
+import threading
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 from pprint import pformat
 
@@ -799,10 +800,18 @@ def verify(args) -> dict:
     return res
 
 
-def configure(args):
-    """Config the DVB interface(s) and the host"""
+def configure(args, verify_res=None):
+    """Config the DVB interface(s) and the host
 
-    verify_res = verify(args)
+    Args:
+        args : Parser arguments.
+        verify_res (dict): Configuration verified from a previous `verify()`
+            call.
+
+    """
+    if verify_res is None:
+        verify_res = verify(args)
+
     if all(verify_res['config'].values()):
         logger.info("Receiver already configured")
         return
@@ -983,14 +992,15 @@ def launch(args, monitor: monitoring.Monitor = None):
                  timeout=args.timeout,
                  monitor=args.monitor)
 
-    # Handler for SIGINT
+    # Set SIGINT/SIGTERM handler if running on the main thread
     def signal_handler(sig, frame):
         print('Stopping...')
         zap_ps.terminate()
         sys.exit(zap_ps.poll())
 
-    signal.signal(signal.SIGINT, signal_handler)
-    signal.signal(signal.SIGTERM, signal_handler)
+    if threading.current_thread() is threading.main_thread():
+        signal.signal(signal.SIGINT, signal_handler)
+        signal.signal(signal.SIGTERM, signal_handler)
 
     util.print_header("Receiver Monitoring")
     print()
@@ -1006,6 +1016,9 @@ def launch(args, monitor: monitoring.Monitor = None):
                 continue
             monitor.update(metrics)
     print()
+
+    if monitor.disable_event.is_set():
+        zap_ps.terminate()
     sys.exit(zap_ps.poll())
 
 

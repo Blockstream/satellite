@@ -1,11 +1,14 @@
+import os
 import json
 import logging
 import requests
-import textwrap
 import time
 from enum import Enum
 
+from ..cache import Cache
 from . import bidding, pkt
+from .error import log_error_and_exit, log_errors
+from .invoice import print_invoice
 
 logger = logging.getLogger(__name__)
 
@@ -50,10 +53,17 @@ class ApiOrder:
 
     """
 
-    def __init__(self, server, seq_num=None, tls_cert=None, tls_key=None):
+    def __init__(self,
+                 server,
+                 seq_num=None,
+                 tls_cert=None,
+                 tls_key=None,
+                 capture_error=False):
         self.uuid = None
         self.auth_token = None
+        self.ln_invoice = None
         self.order = {}
+        self.capture_error = capture_error
 
         # API server address
         self.server = server
@@ -65,35 +75,6 @@ class ApiOrder:
 
         # Transmission sequence number, if defined
         self.seq_num = seq_num
-
-    def _print_error(self, error):
-        """Print error returned by API server"""
-        h = ("-----------------------------------------"
-             "-----------------------------")
-        if (isinstance(error, dict)):
-            error_str = ""
-            if ("title" in error):
-                error_str += error["title"]
-            if ("code" in error):
-                error_str += " (code: {})".format(error["code"])
-            logger.error(h)
-            logger.error(textwrap.fill(error_str))
-            if ("detail" in error):
-                logger.error(textwrap.fill(error["detail"]))
-            logger.error(h)
-        else:
-            logger.error(error)
-
-    def _print_errors(self, r):
-        """Print all errors returned on JSON response"""
-        try:
-            if "errors" in r.json():
-                for error in r.json()["errors"]:
-                    self._print_error(error)
-            else:
-                logger.error(r.json())
-        except ValueError:
-            logger.error(r.text)
 
     def _prompt_for_uuid_token(self):
         """Ask user to provide the UUID and authentication token"""
@@ -118,7 +99,7 @@ class ApiOrder:
                          cert=(self.tls_cert, self.tls_key))
 
         if (r.status_code != requests.codes.ok):
-            self._print_errors(r)
+            log_error_and_exit(r, logger, sys_exit_out=self.capture_error)
 
         r.raise_for_status()
 
@@ -168,7 +149,7 @@ class ApiOrder:
                          cert=(self.tls_cert, self.tls_key))
 
         if (r.status_code != requests.codes.ok):
-            self._print_errors(r)
+            log_error_and_exit(r, logger, sys_exit_out=self.capture_error)
 
         r.raise_for_status()
 
@@ -189,7 +170,7 @@ class ApiOrder:
 
         Args:
             data : Data as bytes array to broadcast over satellite
-            bid  : Bid in msats
+            bid  : Bid in msat
             regions : List of regions over which to send the order.
 
         Returns:
@@ -216,7 +197,7 @@ class ApiOrder:
 
         # In case of failure, check the API error message
         if (r.status_code != requests.codes.ok):
-            self._print_errors(r)
+            log_error_and_exit(r, logger, sys_exit_out=self.capture_error)
 
         # Raise error if response status indicates failure
         r.raise_for_status()
@@ -235,10 +216,8 @@ class ApiOrder:
         print("--\nAuthentication Token:\n%s" % (res["auth_token"]))
 
         if ("lightning_invoice" in res):
-            print("--\nAmount Due:\n%s millisatoshis\n" %
-                  (res["lightning_invoice"]["msatoshi"]))
-            print("--\nLightning Invoice Number:\n%s" %
-                  (res["lightning_invoice"]["payreq"]))
+            self.ln_invoice = res["lightning_invoice"]
+            print_invoice(self.ln_invoice)
 
         return res
 
@@ -308,7 +287,8 @@ class ApiOrder:
         assert ([state in state_seen.keys() for state in target])
 
         s_time = time.time()
-        while (True):
+        self._stop_wait_state = False
+        while (self._stop_wait_state is False):
             self._fetch()
 
             if (self.order['status'] in state_seen
@@ -338,6 +318,10 @@ class ApiOrder:
 
         return ('status' in self.order and self.order['status'] in target)
 
+    def stop_wait_state(self):
+        """Stop waiting for the order to achieve a target state"""
+        self._stop_wait_state = True
+
     def confirm_tx(self, regions):
         """Confirm transmission of an API message
 
@@ -364,7 +348,7 @@ class ApiOrder:
             logger.error("Failed to confirm Tx of message {} "
                          "[status code {}]".format(self.seq_num,
                                                    r.status_code))
-            self._print_errors(r)
+            log_errors(logger, r)
         else:
             logger.info("Server response: " + r.json()['message'])
 
@@ -392,7 +376,7 @@ class ApiOrder:
             logger.error("Failed to confirm Rx of message {} "
                          "[status code {}]".format(self.seq_num,
                                                    r.status_code))
-            self._print_errors(r)
+            log_errors(logger, r)
         else:
             logger.info("Server response: " + r.json()['message'])
 
@@ -400,7 +384,7 @@ class ApiOrder:
         """Bump the order
 
         Args:
-            bid : New bid in msats. If not defined, prompt user.
+            bid : New bid in msat. If not defined, prompt user.
 
         Returns:
             Dictionary with order metadata
@@ -452,22 +436,19 @@ class ApiOrder:
                           cert=(self.tls_cert, self.tls_key))
 
         if (r.status_code != requests.codes.ok):
-            self._print_errors(r)
+            log_error_and_exit(r, logger, sys_exit_out=self.capture_error)
 
         r.raise_for_status()
 
         # Print the response
-        logger.info("Order bumped successfully\n")
-
-        print("--\nNew Lightning Invoice Number:\n%s\n" %
-              (r.json()["lightning_invoice"]["payreq"]))
-        print("--\nNew Amount Due:\n%s millisatoshis\n" %
-              (r.json()["lightning_invoice"]["msatoshi"]))
-
+        res = r.json()
         logger.debug("API Response:")
-        logger.debug(json.dumps(r.json(), indent=4, sort_keys=True))
+        logger.debug(json.dumps(res, indent=4, sort_keys=True))
 
-        return r.json()
+        logger.info("Order bumped successfully\n")
+        print_invoice(res["lightning_invoice"])
+
+        return res
 
     def delete(self):
         """Delete the order
@@ -486,7 +467,7 @@ class ApiOrder:
                             cert=(self.tls_cert, self.tls_key))
 
         if (r.status_code != requests.codes.ok):
-            self._print_errors(r)
+            log_error_and_exit(r, logger, sys_exit_out=self.capture_error)
 
         r.raise_for_status()
 
@@ -497,3 +478,28 @@ class ApiOrder:
         logger.debug(json.dumps(r.json(), indent=4, sort_keys=True))
 
         return r.json()
+
+    def record_tx_log(self, cfg_dir: str):
+        """Record the transmission information locally"""
+        if (self.auth_token is None or self.uuid is None):
+            logger.error("Cannot record tx log. Auth token or UUID not set")
+            return
+
+        cache = Cache(os.path.join(cfg_dir, "api"), filename="tx_log.json")
+        record = {'auth_token': self.auth_token}
+        if self.ln_invoice:
+            record['invoices'] = [self.ln_invoice]
+        cache.set(self.uuid, record)
+        cache.save()
+        return True
+
+    def record_tx_bump_log(self, cfg_dir: str, invoice: dict):
+        """Record the bump transaction information locally"""
+        cache = Cache(os.path.join(cfg_dir, "api"), filename="tx_log.json")
+        record = cache.get(self.uuid)
+        if record:
+            record['invoices'].append(invoice)
+            cache.set(self.uuid, record)
+            cache.save()
+            return True
+        return False

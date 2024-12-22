@@ -14,8 +14,16 @@ from . import defs, gqrx, util
 logger = logging.getLogger(__name__)
 
 
-def _cfg_satellite():
-    """Configure satellite covering the user"""
+def cfg_satellite(gui_callback=None):
+    """Configure the satellite covering the user
+
+    Args:
+        gui_callback (function, optional): Configuration callback function
+            called in GUI mode only. Defaults to None.
+
+    Returns:
+        dict: Information of the chosen satellite.
+    """
     os.system('clear')
     util.print_header("Satellite")
 
@@ -23,9 +31,13 @@ def _cfg_satellite():
                "https://blockstream.com/satellite/#satellite_network-coverage"
 
     question = "Which satellite below covers your location?"
-    sat = util.ask_multiple_choice(defs.satellites, question, "Satellite",
-                                   lambda sat: get_satellite_name(sat),
-                                   help_msg)
+    sat = util.gui_or_console_call(console_callback=util.ask_multiple_choice,
+                                   gui_callback=gui_callback,
+                                   vec=defs.satellites,
+                                   msg=question,
+                                   label="Satellite",
+                                   to_str=lambda sat: get_satellite_name(sat),
+                                   help_msg=help_msg)
     return sat
 
 
@@ -54,8 +66,17 @@ def _get_antenna_name(x):
     return s
 
 
-def _ask_antenna(sat):
-    """Configure antenna"""
+def ask_antenna(sat, gui_callback=None):
+    """Configure the antenna
+
+    Args:
+        sat (dict): Satellite information.
+        gui_callback (function, optional): Configuration callback function
+            called in GUI mode only. Defaults to None.
+
+    Returns:
+        dict: Information of the adopted antenna.
+    """
     os.system('clear')
     util.print_header("Antenna")
 
@@ -66,14 +87,17 @@ def _ask_antenna(sat):
         x for x in defs.antennas
         if not (sat["band"] == "C" and x["type"] in ["flat", "sat-ip"])
     ]
-    antenna = util.ask_multiple_choice(antenna_options,
-                                       question,
-                                       "Antenna",
-                                       _get_antenna_name,
-                                       none_option=True,
-                                       none_str="Other")
+    antenna = util.gui_or_console_call(
+        console_callback=util.ask_multiple_choice,
+        gui_callback=gui_callback,
+        vec=antenna_options,
+        msg=question,
+        label="Antenna",
+        to_str=_get_antenna_name,
+        none_option=True,
+        none_str="Other")
 
-    if (antenna is None):
+    if (antenna is None and gui_callback is None):
         size = util.typed_input("Enter size in cm",
                                 "Please enter an integer number in cm",
                                 in_type=int)
@@ -82,8 +106,17 @@ def _ask_antenna(sat):
     return antenna
 
 
-def _ask_demod(sat):
-    """Ask the receiver/demodulator model"""
+def ask_demod(sat, gui_callback=None):
+    """Ask the receiver/demodulator model
+
+    Args:
+        sat (dict): Satellite information.
+        gui_callback (function, optional): Configuration callback function
+            called in GUI mode only. Defaults to None.
+
+    Returns:
+        dict: Information of the receiver setup.
+    """
     question = "Select your DVB-S2 receiver:"
 
     rx_options = [
@@ -92,9 +125,13 @@ def _ask_demod(sat):
         if not (sat["band"] == "C" and rx["vendor"] == "Selfsat")
     ]
 
-    setup = util.ask_multiple_choice(
-        rx_options, question, "Receiver",
-        lambda x: '{} receiver'.format(_get_rx_marketing_name(x)))
+    setup = util.gui_or_console_call(
+        console_callback=util.ask_multiple_choice,
+        gui_callback=gui_callback,
+        vec=rx_options,
+        msg=question,
+        label="Receiver",
+        to_str=lambda x: '{} receiver'.format(_get_rx_marketing_name(x)))
 
     return setup
 
@@ -105,7 +142,7 @@ def _cfg_rx_setup(sat):
     util.print_header("Receiver")
 
     # The setup includes the demodulator info, the antenna, and extra fields
-    setup = _ask_demod(sat)
+    setup = ask_demod(sat)
 
     # Network interface connected to the standalone receiver
     if (setup['type'] == defs.standalone_setup_type):
@@ -154,7 +191,7 @@ def _cfg_rx_setup(sat):
         return setup
 
     # Antenna
-    setup['antenna'] = _ask_antenna(sat)
+    setup['antenna'] = ask_antenna(sat)
 
     return setup
 
@@ -274,7 +311,16 @@ def _ask_lnb_lo(single_lo=True):
     return lo_freq
 
 
-def _ask_lnb_polarization():
+def ask_lnb_polarization(gui_callback=None):
+    """Ask the LNB polarization specification
+
+    Args:
+        gui_callback (function, optional): Configuration callback function
+            called in GUI mode only. Defaults to None.
+
+    Returns:
+        dict: LNB polarization info.
+    """
     question = "Choose the LNB polarization:"
     options = [{
         'id': "Dual",
@@ -286,8 +332,13 @@ def _ask_lnb_polarization():
         'id': "V",
         'text': "Vertical"
     }]
-    return util.ask_multiple_choice(options, question, "Polarization",
-                                    lambda x: '{}'.format(x['text']))
+
+    return util.gui_or_console_call(console_callback=util.ask_multiple_choice,
+                                    gui_callback=gui_callback,
+                                    vec=options,
+                                    msg=question,
+                                    label="Polarization",
+                                    to_str=lambda x: '{}'.format(x['text']))
 
 
 def _cfg_custom_lnb(sat):
@@ -346,7 +397,7 @@ def _cfg_custom_lnb(sat):
         custom_lnb_lo_freq = _ask_lnb_lo()
 
     # Polarization
-    pol = _ask_lnb_polarization()
+    pol = ask_lnb_polarization()
 
     return {
         'vendor': "",
@@ -365,24 +416,35 @@ def _sat_freq_in_lnb_range(sat, lnb):
         sat['dl_freq'] < lnb['in_range'][1]
 
 
-def _ask_lnb(sat):
-    """Ask the user's LNB"""
+def ask_lnb(sat, gui_callback=None):
+    """Ask the user's LNB
+
+    Args:
+        sat (dict): Satellite information.
+        gui_callback (function, optional): Configuration callback function
+            called in GUI mode only. Defaults to None.
+
+    Returns:
+        dict: LNB information.
+    """
     question = "Please, inform your LNB model:"
     lnb_options = [
-        lnb for lnb in defs.lnbs
+        defs.get_lnb_def(lnb["vendor"], lnb["model"]) for lnb in defs.lnbs
         if _sat_freq_in_lnb_range(sat, lnb) and lnb['vendor'] != 'Selfsat'
     ]
-    lnb = util.ask_multiple_choice(
-        lnb_options,
-        question,
-        "LNB",
-        lambda x: "{} {} {}".format(
+    lnb = util.gui_or_console_call(
+        console_callback=util.ask_multiple_choice,
+        gui_callback=gui_callback,
+        vec=lnb_options,
+        msg=question,
+        label="LNB",
+        to_str=lambda x: "{} {} {}".format(
             x['vendor'], x['model'], "(Universal Ku band LNBF)"
             if x['universal'] else ""),
         none_option=True,
         none_str="Other")
 
-    if (lnb is None):
+    if (lnb is None and gui_callback is None):
         lnb = _cfg_custom_lnb(sat)
 
     return lnb
@@ -420,13 +482,14 @@ def _cfg_lnb(sat, setup):
     if (setup['antenna']['type'] in ['flat', 'sat-ip']):
         for lnb in defs.lnbs:
             if lnb['vendor'] == 'Selfsat':
-                lnb["v1_pointed"] = False
-                return lnb
+                select_lnb = defs.get_lnb_def(lnb["vendor"], lnb["model"])
+                select_lnb["v1_pointed"] = False
+                return select_lnb
 
     os.system('clear')
     util.print_header("LNB")
 
-    lnb = _ask_lnb(sat)
+    lnb = ask_lnb(sat)
 
     if (not _sat_freq_in_lnb_range(sat, lnb)):
         logging.warning("Your LNB's input frequency range does not cover the "
@@ -914,7 +977,7 @@ def configure(args):
         return
 
     try:
-        user_sat = _cfg_satellite()
+        user_sat = cfg_satellite()
         user_setup = _cfg_rx_setup(user_sat)
         user_lnb = _cfg_lnb(user_sat, user_setup)
         user_freqs = _cfg_frequencies(user_sat, user_lnb, user_setup)

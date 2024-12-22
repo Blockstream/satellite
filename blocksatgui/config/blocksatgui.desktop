@@ -1,0 +1,8 @@
+[Desktop Entry]
+Version=1.0
+Terminal=false
+Type=Application
+Name=Blockstream Satellite GUI
+Comment=Graphical user interface for the Blockstream Satellite receiver setup
+Icon=blocksaticon
+Exec=sh -c "blocksat-gui"

@@ -9,12 +9,11 @@ The TBS 5927 and TBS 5520SE devices are USB-based DVB-S2 receivers. They receive
 
 The instructions that follow prepare the host for driving the TBS receiver.
 
-<!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-generate-toc again -->
+<!-- markdown-toc start -->
 **Table of Contents**
 
 - [Hardware Connections](#hardware-connections)
 - [TBS Drivers](#tbs-drivers)
-- [Setup Configuration Helper](#setup-configuration-helper)
 - [Software Requirements](#software-requirements)
 - [Configure the Host](#configure-the-host)
 - [Launch](#launch)
@@ -26,70 +25,70 @@ The instructions that follow prepare the host for driving the TBS receiver.
   - [Building dvb-apps from Source](#building-dvb-apps-from-source)
 
 <!-- markdown-toc end -->
-
 ## Hardware Connections
 
 The TBS 5927/5520SE should be connected as follows:
 
 ![TBS5927 connections](img/usb_connections.png?raw=true "TBS5927 connections")
 
-- Connect the LNB directly to "LNB IN" interface of the TBS 5927/5520SE using a coaxial cable (an RG6 cable is recommended).
-- Connect the TBS's USB2.0 interface to your computer.
+- Connect the LNB directly to "LNB IN" interface of the TBS 5927/5520SE using a coaxial cable (preferably an RG6 cable).
+- Connect the TBS's USB 2.0 interface to your computer.
 - Power up the TBS device. For the TBS 5927 model, connect the 12V DC power supply. For the TBS 5520SE, connect both male connectors of the dual-male USB Y cable to your host.
 
 
 ## TBS Drivers
 
-Next, you will need to install specific device drivers to use the TBS 5927 or 5520SE receivers. These are installed by rebuilding and rewriting the Linux Media drivers. Hence, if you are not setting up a dedicated machine to host the TBS receiver, it would be safer and **recommended** to use a virtual machine (VM) as the receiver host so that the drivers can be installed directly on the VM instead of your main machine.
+Next, install the device drivers required to use the TBS 5927 or 5520SE receiver. The installation rebuilds and rewrites the Linux Media drivers. Hence, unless you are setting up a dedicated machine to host the TBS receiver, using a virtual machine (VM) would be safer and **recommended**. By doing, the drivers will be installed directly on the VM instead of your main machine.
 
-To install the drivers, run the following command:
+When using the GUI, the driver installation starts automatically after clicking the "Install Dependencies" button on the Receiver tab, as shown below:
+
+![GUI Receiver Missing Dependencies](img/gui_receiver_missing_deps.png?raw=true)
+
+If using the CLI, run the following command on the host machine (or VM) to install the drivers:
 
 ```
 blocksat-cli deps tbs-drivers
 ```
 
-Once the script completes the installation, reboot the virtual machine.
-
-## Setup Configuration Helper
-
-Some configurations depend on your specific setup. To obtain detailed instructions, please run the configuration helper and the instructions menu as follows:
-
-```
-blocksat-cli cfg
-blocksat-cli instructions
-```
+Once the script completes the installation, reboot the host.
 
 ## Software Requirements
 
-Now, install all software pre-requisites (in the virtual machine) by running:
+Next, ensure all software prerequisites are installed on your host (or the virtual machine). If using the GUI, in case some dependencies are still missing, click on the "Install Dependencies" button on the Receiver tab, shown above. If you cannot see the button, all dependencies are already installed correctly.
+
+If using the CLI, run the following command to ensure all dependencies are installed:
 
 ```
 blocksat-cli deps install
 ```
 
-> Note: this command supports the `apt`, `dnf` and `yum` package managers. For other package managers, refer to the [manual installation instructions](#install-binary-packages-manually) and adapt package names accordingly.
+> Note: the installation supports the `apt`, `dnf` and `yum` package managers.
 
 ## Configure the Host
 
-Next, you need to create and configure a network interface to output the IP traffic received via the TBS 5927/5520SE unit. You can do so by running the following command:
+Next, create and configure a network interface to output the IP traffic received via the TBS 5927/5520SE unit. With the GUI, this is done automatically after clicking on the "Run Receiver" button on the Receiver tab, shown above.
+
+With the CLI, you can do so by running the following command:
 
 ```
 blocksat-cli usb config
 ```
 
-If you would like to review the changes before applying them, first run the command in dry-run mode:
+> If you would like to review the changes before applying them, append option `--dry-run` to the command.
 
-```
-blocksat-cli usb config --dry-run
-```
+Note the GUI and CLI steps above will define an arbitrary IP address to the interface. However, you could also set a specific IP address, for example, to avoid address conflicts.
 
-Note this command will define an arbitrary IP address to the interface. If you would like to set a specific IP address instead, for example, to avoid address conflicts, use the command-line argument `--ip`.
+On the GUI, you can set the specific IP address directly on the Receiver tab before running the receiver. With the CLI, you can define the IP address using option `--ip` on the `usb config` command.
 
-Furthermore, note that this configuration is not persistent across reboots. After a reboot, you need to run `blocksat-cli usb config` again.
+Furthermore, note the configuration is not persistent across reboots. After a reboot, you need to run `blocksat-cli usb config` again. With the GUI, simply start the receiver again after a reboot, and the GUI will repeat the configuration.
 
 ## Launch
 
-Finally, start the receiver by running:
+At this point, if using the GUI, the receiver will be started already. Then, you can monitor its status in real time on the Receiver tab, as shown below:
+
+![GUI TBS Receiver Monitoring](img/gui_tbs_rx.png?raw=true)
+
+If using the CLI, you need to manually start the receiver by running the following command:
 
 ```
 blocksat-cli usb launch
