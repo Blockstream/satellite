@@ -63,10 +63,6 @@ stages:
     # Exercise all imports triggered when launching the CLI
     - blocksat-cli --version
 
-unit-tests-py38:
-  extends: .test
-  image: python:3.8
-
 unit-tests-py39:
   extends: .test
   image: python:3.9
