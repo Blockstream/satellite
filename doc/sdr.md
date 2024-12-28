@@ -68,7 +68,7 @@ where `[gain]` and `[freq_offset]` should be substituted by the appropriate valu
 
 ## Next Steps
 
-At this point, if your antenna is already correctly pointed, you should be able to start receiving data on Bitcoin Satellite. Please follow the instructions for [Bitcoin Satellite configuration](bitcoin.md). If your antenna is not aligned yet, refer to the [antenna alignment guide](antenna-pointing.md).
+At this point, if your antenna is already correctly pointed, you should be able to start receiving data on Bitcoin Satellite. Please follow the [Bitcoin Satellite configuration instructions](bitcoin.md). If your antenna is not aligned yet, refer to the [antenna alignment guide](antenna-pointing.md).
 
 ## Further Information
 
@@ -80,15 +80,7 @@ A Docker image is available for running the SDR host on a container. Please refe
 
 The software-defined DVB-S2 receiver implementation named gr-dvbs2rx is available on the CLI starting from version 0.4.5. This application is based on the [GNU Radio](https://www.gnuradio.org) framework for software-defined radio, and it is supported on Fedora 36 and Ubuntu 22.04 or later versions only.
 
-The CLI installs gr-dvbs2rx automatically when available. Meanwhile, in Linux distributions other than Fedora and Ubuntu, the [leandvb](http://www.pabr.org/radio/leandvb/leandvb.en.html) receiver application is used instead.
-
-If you are on a Fedora or Ubuntu release with gr-dvbs2rx available, but you are running an existing setup configured with a CLI version preceding 0.4.5, please rerun the installation command:
-
-```
-blocksat-cli deps install
-```
-
-Then, relaunch the SDR receiver with the regular command below. The GUI and CLI will choose the gr-dvbs2rx application by default when available. With the CLI, you can always toggle the implementation using option `--impl`.
+The GUI and CLI install gr-dvbs2rx automatically when available. Meanwhile, in Linux distributions other than Fedora and Ubuntu, the [leandvb](http://www.pabr.org/radio/leandvb/leandvb.en.html) receiver application is used instead. You can always toggle the implementation using CLI option `--impl` or the implementation field on the GUI.
 
 ### Gqrx Configuration
 
@@ -102,9 +94,9 @@ blocksat-cli gqrx-conf
 
 ### Manual Installation of SDR Software
 
-You can install all applications manually if you do not wish to rely on the automatic installation handled by the GUI or the CLI command `blocksat-cli deps install`.
+You can install all applications manually if you do not wish to rely on the automatic installation handled by the GUI or the CLI.
 
-First, enable our repository for binary packages. On Ubuntu/Debian, run:
+First, enable Blockstream Satellite's binary package repository. On Ubuntu/Debian, run:
 
 ```
 add-apt-repository ppa:blockstream/satellite

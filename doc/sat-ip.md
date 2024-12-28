@@ -59,11 +59,11 @@ If using the CLI, run the following command to launch the Sat-IP client:
 blocksat-cli sat-ip
 ```
 
-> Note: the Sat-IP client discovers the Sat-IP antenna (the server) via [UPnP](https://en.wikipedia.org/wiki/Universal_Plug_and_Play). If your network blocks this traffic type, you can specify the Sat-IP antenna's IP address directly using option `-a/--addr`. Alternatively, see the [troubleshooting section](#troubleshooting-the-server-discovery).
+> Note: the Sat-IP client discovers the Sat-IP antenna (the server) via [UPnP](https://en.wikipedia.org/wiki/Universal_Plug_and_Play). If your network blocks this traffic type, you can specify the Sat-IP antenna's IP address directly using option `-a/--addr` on the CLI or the IP address field on the GUI. Alternatively, see the [troubleshooting section](#troubleshooting-the-server-discovery).
 
 ## Next Steps
 
-At this point, if your antenna is already correctly pointed, you should be able to start receiving data on Bitcoin Satellite. Please follow the instructions for [Bitcoin Satellite configuration](bitcoin.md). If your antenna is not aligned yet, refer to the [antenna alignment guide](antenna-pointing.md).
+At this point, if your antenna is already correctly pointed, you should be able to start receiving data on Bitcoin Satellite. Please follow the [Bitcoin Satellite configuration instructions](bitcoin.md). If your antenna is not aligned yet, refer to the [antenna alignment guide](antenna-pointing.md).
 
 ## Further Information
 
@@ -99,7 +99,7 @@ More generally, if you are running another Linux distribution or firewall manage
 
 ### Direct Connection to the Base Station
 
-A typical use case for the base station is connecting it to a switch or router and accessing it from hosts within the same network. However, note it is also possible to connect the host directly to the base station without intermediate switches or routers. In this case, you need to pay attention to two aspects:
+A typical use case for the base station is connecting it to a switch or router and accessing it from hosts within the same network. However, it is also possible to connect the host directly to the base station without intermediate switches or routers. In this case, you need to pay attention to two aspects:
 
 1. The network interface that the host shall use when attempting to discover the Sat-IP server automatically.
 2. The IP address of the chosen interface.
@@ -124,7 +124,7 @@ A Docker image is available for running the Sat-IP client on a container. Please
 
 ### Compilation from Source
 
-The Sat-IP setup relies on the [TSDuck](https://tsduck.io/) application. To build and install it from source, run:
+The Sat-IP setup relies on the [TSDuck](https://tsduck.io/) application, which is installed by the GUI or CLI as part of the software dependencies. However, if you would like to compile TSDuck from source and install it manually, you can do so by following the instructions below.
 
 ```
 git clone https://github.com/tsduck/tsduck.git

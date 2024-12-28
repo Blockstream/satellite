@@ -62,7 +62,7 @@ Assuming that the receiver is configured correctly and connected, your next step
 
 The process will be easier with a laptop that can be watched while moving the antenna. If you cannot watch the computer, you’ll need two people: one to move the antenna and one to monitor the computer.
 
-To start, make sure that your receiver is running. Depending on your type of receiver, this step involves one of the following commands:
+To start, make sure your receiver is running. Depending on your receiver type, this step involves one of the following CLI commands:
 
 - For the TBS 5927 or 5520SE USB receivers: `blocksat-cli usb launch`.
 
@@ -72,7 +72,9 @@ To start, make sure that your receiver is running. Depending on your type of rec
 
 - For the SDR receiver: `blocksat-cli sdr`.
 
-Next, you should monitor the receiver logs printed on the console. Initially, while the antenna is not pointed correctly, the receiver will be unlocked. In this case, the application will print logs like the following:
+Alternatively, if using the GUI, you can start the receiver by clicking the "Run Receiver" button on the Receiver tab.
+
+Next, you should monitor the receiver logs printed to the console (CLI) or shown on the GUI. Initially, while the antenna is not pointed correctly, the receiver will be unlocked. In this case, the CLI will print logs like the following:
 
 ```
 2020-10-23 14:26:14  Lock = False;
@@ -80,15 +82,9 @@ Next, you should monitor the receiver logs printed on the console. Initially, wh
 
 In this case, you should try to make adjustments to the antenna pointing. For example, keep the elevation angle fixed and slowly move the antenna side to side (vary the azimuth angle). Alternatively, keep the azimuth fixed and gradually change the elevation. Every time you adjust an angle, wait a few seconds and check if the receiver has found the signal in this position. If not, try another adjustment and so on.
 
-Once the receiver finds the signal, it will lock and print a line with `Lock = True` like the following:
+Once the receiver finds the signal, it will lock and the CLI/GUI will show `Lock = True`. From this point on, the application should remain locked.
 
-```
-2020-10-23 14:32:25  Lock = True; Level = -47.98dBm; SNR = 11.30dB; BER = 0.00e+00;
-```
-
-From this point on, the application should remain locked.
-
-You should pay special attention to the signal-to-noise ratio (SNR) parameter printed on the console. The higher the SNR, the better. Given that the receiver is already locked, you can infer that the antenna pointing is close to the optimal position. Hence, at this point, you should experiment with gentle adjustments to the pointing angles until you can maximize the SNR. The next section discusses the target SNR levels.
+You should pay special attention to the signal-to-noise ratio (SNR) parameter printed to the console (CLI) or shown on the GUI. The higher the SNR, the better. Given that the receiver is already locked, you can infer that the antenna pointing is close to the optimal position. Hence, at this point, you should experiment with gentle adjustments to the pointing angles until you can maximize the SNR. The next section discusses the target SNR levels.
 
 > Note: the Sat-IP receiver will print a *Signal Quality* metric instead of the SNR. Again, higher is better.
 
@@ -167,7 +163,7 @@ If you cannot see the signal on gqrx, you should try to make adjustments to the 
 >
 > Furthermore, please note that, in some cases, there can be similar signal bands among different (but nearby) satellites. In this case, you need to adjust the pointing until you get a lock.
 
-Once you finally find the signal in gqrx, you can proceed to run the actual SDR receiver application. As explained in the [SDR guide](sdr.md#running), you can start it with:
+Once you finally find the signal in gqrx, you can proceed to run the actual SDR receiver application. As explained in the [SDR guide](sdr.md#running), you can start it via the CLI with the following command:
 
 ```
 blocksat-cli sdr
@@ -179,13 +175,21 @@ For pointing, however, it is helpful to run it in GUI mode, as follows:
 blocksat-cli sdr --gui
 ```
 
-At this point, before proceeding, we recommend inspecting whether the gain is well configured. Check the preprocessed (iq) plot. If it looks like the one below, with strongly scattered points around the two dimensions, the gain is likely too high. In this case, you can run with a lower gain specified using option `-g`, like so:
+If you are using the GUI, you can start the receiver by clicking the "Run Receiver" button on the Receiver tab. Select the "GUI Mode" option to run the receiver with the GUI enabled, as shown below:
+
+![GUI SDR Receiver in GUI Mode](img/gui_sdr_gui_mode.png?raw=true)
+
+At this point, before proceeding, we recommend inspecting whether the gain is well configured. Check the preprocessed (iq) plot. If it looks like the one below, with strongly scattered points around the two dimensions, the gain is likely too high.
+
+![Pre-processed IQ samples](img/leandvb-pre-processed-iq.png?raw=true "Pre-processed IQ samples")
+
+In this case, you can run with a lower gain specified on the CLI using option `-g`, like so:
 
 ```
 blocksat-cli sdr -g [gain]
 ```
 
-![Pre-processed IQ samples](img/leandvb-pre-processed-iq.png?raw=true "Pre-processed IQ samples")
+If using the GUI, set the gain field on the Receiver tab shown above.
 
 The default gain is 40, and you can then experiment with lower values.
 
@@ -201,13 +205,15 @@ Next, observe the spectrum plots. The spectrum plot shows the limits of the cent
 
 > NOTE: each LNB introduces a unique frequency offset, which also varies over time. The above value of -300 kHz was specific to the example setup. Your frequency offset will be different.
 
-To correct the known offset, you can run with option `--derotate`, as follows:
+To correct the known offset, you can run the CLI with option `--derotate`, as follows:
 
 ```
 blocksat-cli sdr -g [gain] --derotate [freq_offset]
 ```
 
 where `freq_offset` represents the offset in kHz that you want to correct.
+
+If using the GUI, you can set the frequency correction field on the Receiver tab.
 
 With that, the preprocessed spectrum plot should be centered, as follows:
 
@@ -219,7 +225,7 @@ At this point, if the antenna pointing is already reasonably good, you might see
 
 This plot indicates that the receiver application is locked to the Blockstream Satellite signal. Note that the more compact the four clouds of points are in this plot (around the white `+` marker), the better the signal quality.
 
-If you cannot see the "PLS cstln" plot, it means you are not locked to the signal yet. You can troubleshoot further in debug mode by running like so (with argument `-d`):
+If you cannot see the "PLS cstln" plot, it means you are not locked to the signal yet. You can troubleshoot further in debug mode by running the CLI like so (with argument `-d`):
 
 ```
 blocksat-cli sdr -g [gain] --derotate [freq_offset] --gui -d
@@ -254,11 +260,15 @@ Furthermore, if you cannot find the signal on gqrx, you can search for satellite
 | Telstar 11N | 11199.25 MHz (Vertical), 11699.50 MHz (Vertical), 11198.25 MHz (Horizontal), 11698.50 MHz (Horizontal) |
 | Telstar 18V | 3623 MHz (Vertical), 3625 MHz (Vertical), 4199 (Horizontal)                                            |
 
-Make sure to select a beacon whose polarization matches your target signal polarization, which you can check by running:
+Make sure to select a beacon whose polarization matches your target signal polarization, which you can check using the CLI by running:
 
 ```
 blocksat-cli cfg show
 ```
+
+If using the GUI, go to the Receiver tab and check the parameters on the Settings sub-tab, as shown below:
+
+![GUI Receiver Settings](img/gui_rx_settings.png?raw=true)
 
 Once you find the beacon signal, make gentle adjustments to the pointing until you can maximize the observed signal level. Then, change the frequency on gqrx back to the original downlink frequency of interest (also printed by the above command). You should be able to visualize the Blockstream Satellite signal now.
 
@@ -332,6 +342,8 @@ You can check the appropriate values by running:
 ```
 blocksat-cli cfg show
 ```
+
+If using the GUI, you can find these parameters on the Settings sub-tab of the Receiver tab.
 
 Additionally, you will need to define:
 

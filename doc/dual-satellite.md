@@ -33,7 +33,7 @@ You also need two receivers for a dual-satellite setup, each connected to an LNB
 
 Once you have the required hardware parts, the next step is to configure the receivers using the host computer. To do so, regardless of the adopted hardware, you must create separate configuration files for each receiver. Then, you can execute commands independently (for each receiver) by switching the configuration file.
 
-With the GUI, you can do so by opening two GUI instances and creating or loading distinct configurations on the Settings tab, as shown below:
+With the GUI, you can do so by opening two GUI instances and creating or loading distinct configurations on the Settings sub-tab of the Receiver tab, as shown below:
 
 ![GUI Create or Load Configuration](img/gui_create_load_config.png?raw=true)
 
@@ -49,7 +49,7 @@ After that, for every CLI command intended for the second receiver, you should s
 
 With the Novra S400, you need to configure the two RF interfaces of the device. Each interface will be connected to a different antenna, receiving from a different satellite.
 
-If using the GUI, you need two instances of the GUI, one configured for Demodulator 1 (RF1) and the other for Demodulator 2 (RF2). You can do so by configuring the option highlighted below:
+If using the GUI, you need two instances of the GUI, one configured for Demodulator 1 (RF1) and the other for Demodulator 2 (RF2). You can do so by configuring the option highlighted below on the Receiver tab:
 
 ![GUI S400 Demodulator Option](img/gui_s400_demod_option.png?raw=true)
 
@@ -150,9 +150,7 @@ With the GUI, you can do so by concatenating the generated `bitcoin.conf` files.
 
 ![GUI Bitcoin Satellite Installation](img/gui_btc_sat_install.png?raw=true)
 
-Next, do the same on the second GUI instance (associated with the second receiver). The GUI should identify that a `bitcoin.conf` file already exists. Then, select "Concatenate" on the window that pops up, as shown below:
-
-![GUI Concatenate Bitcoin Configuration File](img/gui_btc_concat.png?raw=true)
+Next, do the same on the second GUI instance (associated with the second receiver). The GUI should identify that a `bitcoin.conf` file already exists. Then, select "Concatenate" on the window that pops up.
 
 With the CLI, you can concatenate the configuration for the second receiver by running:
 

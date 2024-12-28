@@ -38,7 +38,7 @@ The TBS 5927/5520SE should be connected as follows:
 
 ## TBS Drivers
 
-Next, install the device drivers required to use the TBS 5927 or 5520SE receiver. The installation rebuilds and rewrites the Linux Media drivers. Hence, unless you are setting up a dedicated machine to host the TBS receiver, using a virtual machine (VM) would be safer and **recommended**. By doing, the drivers will be installed directly on the VM instead of your main machine.
+Next, install the device drivers required to use the TBS 5927 or 5520SE receiver. The installation rebuilds and rewrites the Linux Media drivers. Hence, unless you are setting up a dedicated machine to host the TBS receiver, using a virtual machine (VM) would be safer and **recommended**. By doing so, the drivers will be installed on the VM instead of your main machine.
 
 When using the GUI, the driver installation starts automatically after clicking the "Install Dependencies" button on the Receiver tab, as shown below:
 
@@ -54,7 +54,7 @@ Once the script completes the installation, reboot the host.
 
 ## Software Requirements
 
-Next, ensure all software prerequisites are installed on your host (or the virtual machine). If using the GUI, in case some dependencies are still missing, click on the "Install Dependencies" button on the Receiver tab, shown above. If you cannot see the button, all dependencies are already installed correctly.
+Next, ensure all software prerequisites are installed on the host. If using the GUI, in case some dependencies are still missing, click on the "Install Dependencies" button on the Receiver tab, shown above. If you cannot see the button, all dependencies are already installed correctly.
 
 If using the CLI, run the following command to ensure all dependencies are installed:
 
@@ -76,7 +76,7 @@ blocksat-cli usb config
 
 > If you would like to review the changes before applying them, append option `--dry-run` to the command.
 
-Note the GUI and CLI steps above will define an arbitrary IP address to the interface. However, you could also set a specific IP address, for example, to avoid address conflicts.
+Note the GUI and CLI steps above will define an arbitrary IP address to the interface. However, you could also set a specific IP address if needed.
 
 On the GUI, you can set the specific IP address directly on the Receiver tab before running the receiver. With the CLI, you can define the IP address using option `--ip` on the `usb config` command.
 
@@ -96,7 +96,7 @@ blocksat-cli usb launch
 
 ## Next Steps
 
-At this point, if your antenna is already correctly pointed, you should be able to start receiving data on Bitcoin Satellite. Please follow the instructions for [Bitcoin Satellite configuration](bitcoin.md). If your antenna is not pointed yet, refer to the [antenna alignment guide](antenna-pointing.md).
+At this point, if your antenna is already correctly pointed, you should be able to start receiving data on Bitcoin Satellite. Please follow the [Bitcoin Satellite configuration instructions](bitcoin.md). If your antenna is not pointed yet, refer to the [antenna alignment guide](antenna-pointing.md).
 
 ## Further Information
 
