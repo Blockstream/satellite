@@ -32,7 +32,7 @@ Lastly, if you are covered by a C-band beam (T18V C), please consider the follow
 5. C Band LNB mounting bracket.
 6. RG6 coaxial cable.
 
-When choosing between the TBS 5927 and the TBS 5520SE, the general advice is to go for the TBS 5520SE due to its lower price point. Both offer similar performance. The TBS 5927 requires a dedicated power supply that comes with the product. The TBS 5520SE uses two USB connections, one for data and the other for power, so please make sure your computer has two available USB ports.
+When choosing between the TBS 5927 and the TBS 5520SE, the general advice is to go for the TBS 5520SE due to its lower price point. Both offer similar performance. The TBS 5927 uses a dedicated power supply that comes with the product and a single USB connection to the host. In contrast, the TBS 5520SE uses two USB connections, one for data and the other for power, so please make sure your computer has two available USB ports if you choose the TBS 5520SE.
 
 ---
 

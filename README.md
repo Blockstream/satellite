@@ -8,7 +8,7 @@ In summary, the process requires the five steps below:
 
 1. Check your coverage at our [Coverage Map](https://blockstream.com/satellite/#satellite_network-coverage).
 2. Get the required hardware, such as a ready-to-use [Satellite Kit](https://store.blockstream.com/product-category/satellite_kits/).
-3. Use the Blockstream Satellite command-line interface (CLI) to handle all the required software installations and configurations.
+3. Use the Blockstream Satellite graphical user interface (GUI) or the command-line interface (CLI) to handle all the required software installations and configurations.
 4. Align your satellite dish appropriately to receive the Blockstream Satellite signal.
 5. Run the [Bitcoin Satellite](https://github.com/Blockstream/bitcoinsatellite/) and [Satellite API](https://blockstream.github.io/satellite/doc/api.html) applications.
 

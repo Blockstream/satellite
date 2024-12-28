@@ -15,7 +15,7 @@ If you would like to purchase the parts on your own, you can acquire the followi
 2. Ethernet Cat5e cable.
 3. Power over Ethernet (PoE) injector.
 
-The PoE injector is only necessary if the Ethernet port you plan to connect to the Base Station does not support [Power over Ethernet (PoE)](https://en.wikipedia.org/wiki/Power_over_Ethernet).
+The PoE injector is only necessary if the Ethernet port you plan to connect to the Base Station does not support [Power over Ethernet (PoE)](https://en.wikipedia.org/wiki/Power_over_Ethernet) natively.
 
 ---
 

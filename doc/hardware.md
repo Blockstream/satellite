@@ -9,7 +9,7 @@ has_toc: false
 
 This section introduces the hardware required to set up a Blockstream Satellite receiver.
 
-There are three alternatives to collecting the required hardware. The first and quickest option is to purchase a ready-to-use [Satellite Kit](#satellite-kits). For that, please check the kits available on the [Blockstream Store](https://store.blockstream.com/product-category/satellite_kits/). The second alternative is to buy the [Satellite Kit Components](#purchasing-the-kit-components) on your own. Lastly, the third alternative is to pick a combination of compatible parts on your own, not necessarily following any kit recipe. To do so, you will need to understand the [hardware components](hardware-components.md) in detail.
+There are three alternatives to collecting the required hardware. The first and quickest option is to purchase a ready-to-use [Satellite Kit](#satellite-kits). For that, please check the kits available on the [Blockstream Store](https://store.blockstream.com/product-category/satellite_kits/). The second alternative is to buy the [Satellite Kit Components](#purchasing-the-kit-components) on your own. Lastly, the third alternative is to pick a combination of compatible parts, not necessarily following any kit recipe. To do so, you will need to understand the [hardware components](hardware-components.md) in detail.
 
 In the sequel, we briefly discuss the differences between the kits so that you can make an informed decision.
 
@@ -48,7 +48,7 @@ The following table summarizes the key differences between them:
 
 <sup>2</sup> A dual-satellite receiver is one capable of receiving from two satellites simultaneously in areas with overlapping coverage. This feature enables greater redundancy, higher bitrate, and faster blockchain sync times. Only the Pro Kit receiver can receive from two satellites simultaneously.
 
-<sup>3</sup> The SDR receiver is implemented in software and runs on the host computer. Hence, it uses the underlying CPU significantly. The Basic Kit receiver uses a dedicated receiver chip and only minimal resources from the host CPU. The Pro Kit and Base Station receivers are entirely standalone.
+<sup>3</sup> The SDR receiver is implemented in software and runs on the host computer, using significant CPU resources. The Basic Kit receiver uses a dedicated receiver chip and only minimal resources from the host CPU. The Pro Kit and Base Station receivers are entirely standalone.
 
 <sup>4</sup> A multi-host receiver is one capable of feeding the received data to multiple hosts simultaneously on the local network. Only the Pro Kit and Base Station receivers can do so. In contrast, the SDR and Basic Kit receivers connect over USB to a single host and feed received data to this host only.
 
@@ -79,14 +79,13 @@ Meanwhile, the SDR setup is the most affordable option. Generally, an SDR setup 
 
 Also, we recommend the SDR setup for tech-savvy individuals or anyone interested in understanding more about satellite communications or experimenting with SDR technology. The SDR setup has the most flexibility and room for experimentation. Also, it offers the broadest range of inspection tools and graphical user interfaces (GUIs) to monitor the received signal and many low-level parameters. For instance, such visualizations can be very handy when pointing the antenna for the first time. If that appeals to you, please refer to the [SDR setup](sdr-setup.md) parts list.
 
-
 ## Purchasing the Kit Components
 
 After reading the above description, you may be inclined to purchase the kit components on your own instead of ordering a kit from Blockstream Store. If that is your case, please refer to the parts list for your selected setup:
 
+- [Basic USB Kit](basic-kit.md).
 - [Standalone Pro Kit](pro-kit.md).
 - [Satellite Base Station](base-station.md).
-- [Basic USB Kit](basic-kit.md).
 - [SDR Setup](sdr-setup.md).
 
 Lastly, if you would like to mix and match various supported parts, please proceed to the in-depth coverage of the [hardware components](hardware-components.md).
