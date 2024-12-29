@@ -80,8 +80,6 @@ docker run --rm -it \
 
 Note **privileged mode** is used to grant access to the RTL-SDR USB device. Furthermore, it allows the execution of `sysctl`, which the SDR application uses for changing option `fs.pipe-max-size`.
 
-> On a Mac OSX host, you will need to set up a [docker-machine](https://docs.docker.com/machine/) to share the SDR USB device. Once the docker-machine is active, you can share the USB device through the [machine driver's settings](https://github.com/machine-drivers). Then, run the above `docker run` command normally.
-
 ## Sat-IP Receiver
 
 The essential point for running the Sat-IP client inside a container concerns the network configuration. By default, the Sat-IP client discovers the Sat-IP server via [UPnP](https://en.wikipedia.org/wiki/Universal_Plug_and_Play). However, the discovery mechanism does not work if the container runs on an isolated network. To solve the problem, you need to launch the container using option `--network=host` as follows:
