@@ -20,6 +20,7 @@ Release Date: TBD
 
 ### Added
 - Graphical user interface (GUI) application (`blocksat-gui`).
+- Option to disable Linux media build backport on TBS driver installation.
 
 ### Changed
 - Telstar 11N Africa and Europe downlink frequencies.

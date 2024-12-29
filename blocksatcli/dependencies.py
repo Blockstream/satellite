@@ -486,6 +486,9 @@ def subparser(subparsers):  # pragma: no cover
     p3.add_argument("--disable",
                     nargs='+',
                     help="Linux media module to disable on compilation")
+    p3.add_argument("--backport-disable",
+                    nargs='+',
+                    help="Backports to disable on compilation")
     p3.set_defaults(func=drivers)
 
     return p
@@ -686,7 +689,19 @@ def drivers(args):
     nproc = int(subprocess.check_output(["nproc"]).decode().rstrip())
     nproc_arg = "-j" + str(nproc)
 
-    if (args.clean):
+    backport_disable_list = []
+    if args.backport_disable is not None:
+        backport_disable_list.extend(args.backport_disable)
+
+    for patch in backport_disable_list:
+        logger.info("Disabling backport {}".format(patch))
+        runner.run([
+            "sed", "-i", f"/add {patch}/d",
+            os.path.join(media_build_dir, "backports", "backports.txt")
+        ],
+                   cwd=media_build_dir)
+
+    if (args.clean or len(backport_disable_list) > 0):
         runner.run(["make", "cleanall"], cwd=media_build_dir)
 
     runner.run(["make", "dir", "DIR=../media"], cwd=media_build_dir)
@@ -713,7 +728,7 @@ def drivers(args):
         disable_list.extend(args.disable)
 
     for module in disable_list:
-        logger.debug("Disabling module {}".format(module))
+        logger.info("Disabling module {}".format(module))
         runner.run([
             "sed", "-i", "s/CONFIG_{0}=m/CONFIG_{0}=n/g".format(module),
             "v4l/.config"
