@@ -277,7 +277,7 @@ pandoc-upload:
 
 check-markdown-links:
   image:
-    name: ghcr.io/tcort/markdown-link-check:stable
+    name: ghcr.io/tcort/markdown-link-check:3.11.2
     entrypoint: [""]
   only:
     changes:
