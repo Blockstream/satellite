@@ -149,7 +149,7 @@ test-make-install-fedora:
     - !reference [.venv-install, script]
   parallel:
     matrix:
-      - IMAGE: ["fedora:39", "fedora:40"]
+      - IMAGE: ["fedora:39", "fedora:40", "fedora:41"]
 
 .test-dependencies:
   stage: test
@@ -184,7 +184,7 @@ test-fedora-dependencies:
     - dnf install -y gcc python3-devel
   parallel:
     matrix:
-      - IMAGE: ["fedora:39", "fedora:40"]
+      - IMAGE: ["fedora:39", "fedora:40", "fedora:41"]
 
 pypi-upload:
   image: python
