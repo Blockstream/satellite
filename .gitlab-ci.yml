@@ -79,6 +79,10 @@ unit-tests-py312:
   extends: .test
   image: python:3.12
 
+unit-tests-py313:
+  extends: .test
+  image: python:3.13
+
 bash-completion:
   extends: .test
   image: python:3.11

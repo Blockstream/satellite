@@ -18,12 +18,17 @@ a Blockstream Satellite receiver setup.
 dependencies = [
     'distro',
     'packaging',
-    'pyside6==6.7.3',
     'pysnmplib',
     'python-gnupg>=0.4.7',
     'qrcode',
     'requests',
 ]
+
+if sys.version_info >= (3, 13):
+    # Version 6.7.3 is not available for Python 3.13
+    dependencies.append('pyside6>=6.8.1')
+else:
+    dependencies.append('pyside6==6.7.3')
 
 # FIXME: Remove this once a pysnmp version supporting Py3.12 becomes available
 if sys.version_info >= (3, 12):
