@@ -26,6 +26,13 @@ stages:
     - pip3 install setuptools
     - make && make install
 
+.venv-install-cli:
+  script:
+    - python3 -m venv .venv
+    - source .venv/bin/activate
+    - pip3 install setuptools
+    - make && make install-cli
+
 .docker_setup:
   stage: docker
   tags:
@@ -45,7 +52,7 @@ stages:
     - wget -O $DOCKER_PLUGINS_DIR/docker-buildx $BUILDX_URL
     - chmod +x $DOCKER_PLUGINS_DIR/docker-buildx
     - apk add make python3 py3-setuptools py3-pip help2man gcc musl-dev python3-dev
-    - !reference [.venv-install, script]
+    - !reference [.venv-install-cli, script]
     - pip3 install shtab
     - docker buildx create --use
 

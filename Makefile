@@ -74,8 +74,13 @@ wheel-gui: $(WHEEL_GUI)
 
 wheel: wheel-cli wheel-gui
 
-install: sdist
-	pip3 install $(SDIST_CLI)[fec] $(SDIST_GUI)
+install-cli: sdist
+	pip3 install $(SDIST_CLI)[fec]
+
+install-gui: sdist
+	pip3 install $(SDIST_GUI)
+
+install: install-cli install-gui
 
 manpage: $(MANPAGE)
 
