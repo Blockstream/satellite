@@ -30,6 +30,7 @@ Release Date: TBD
 - Compilation of SNMP MIB files when configuring or monitoring the Novra S400
   receiver.
 - TBS driver installation failing due to disabling RC/IR support.
+- Installation of copr dependencies with dnf5 on Fedora 41.
 
 ## 0.4.7
 

@@ -81,6 +81,14 @@ def get_pkg_manager():
     raise RuntimeError("Could not find a supported package manager")
 
 
+def is_dnf5():
+    """Check if the installed package manager is dnf >= 5"""
+    res = runner.run(["dnf", "--version"], capture_output=True)
+    if (res is None or res.returncode != 0):
+        return None
+    return "dnf5" in res.stdout.decode().splitlines()[0]
+
+
 def is_package_installed(package):
     """Check if a package is installed using the package manager"""
     manager = get_pkg_manager()
@@ -178,9 +186,11 @@ def _check_pkg_repo(distro_id):
         res = runner.run(cmd, stdout=subprocess.DEVNULL, nocheck=True)
         found = (res.returncode == 0)
     elif (manager == 'dnf'):
-        res = runner.run(["dnf", "copr", "list", "--enabled"],
-                         root=True,
-                         capture_output=True)
+        if is_dnf5():
+            cmd = ["dnf", "copr", "list"]
+        else:
+            cmd = ["dnf", "copr", "list", "--enabled"]
+        res = runner.run(cmd, root=True, capture_output=True)
         pkgs = res.stdout.decode().splitlines()
         found = ("copr.fedorainfracloud.org/blockstream/satellite" in pkgs)
     elif (manager == 'yum'):
