@@ -94,19 +94,19 @@ $(COMPLETION): $(PY_FILES)
 
 pypi: clean sdist wheel
 	python3 -m twine upload --repository pypi \
-		dist/blocksat-cli-$(VERSION).tar.gz \
-		dist/blocksat_cli-$(VERSION)-*.whl
+		dist/blocksat-cli-$(CLI_VERSION).tar.gz \
+		dist/blocksat_cli-$(CLI_VERSION)-*.whl
 	python3 -m twine upload --repository pypi \
-		dist/blocksat-gui-$(VERSION).tar.gz \
-		dist/blocksat_gui-$(VERSION)-*.whl
+		dist/blocksat-gui-$(GUI_VERSION).tar.gz \
+		dist/blocksat_gui-$(GUI_VERSION)-*.whl
 
 testpypi: clean sdist wheel
 	python3 -m twine upload --repository testpypi \
-		dist/blocksat-cli-$(VERSION).tar.gz \
-		dist/blocksat_cli-$(VERSION)-*.whl
+		dist/blocksat-cli-$(CLI_VERSION).tar.gz \
+		dist/blocksat_cli-$(CLI_VERSION)-*.whl
 	python3 -m twine upload --repository testpypi \
-		dist/blocksat-gui-$(VERSION).tar.gz \
-		dist/blocksat_gui-$(VERSION)-*.whl
+		dist/blocksat-gui-$(GUI_VERSION).tar.gz \
+		dist/blocksat_gui-$(GUI_VERSION)-*.whl
 
 docker: sdist $(MANPAGE) $(COMPLETION)
 	docker build --build-arg distro=$(DISTRO) \
