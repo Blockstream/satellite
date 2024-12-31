@@ -205,7 +205,7 @@ pypi-upload:
       - tags
   when: manual
   script:
-    - pip3 install twine
+    - pip3 install twine setuptools
     - make pypi
 
 docker-build:
