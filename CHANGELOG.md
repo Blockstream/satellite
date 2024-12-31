@@ -16,7 +16,7 @@
 
 ## 2.5.0
 
-Release Date: 2024-12-30
+Release Date: 2024-12-31
 
 ### Added
 - Graphical user interface (GUI) application (`blocksat-gui`).
