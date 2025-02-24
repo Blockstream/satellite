@@ -1,5 +1,6 @@
 """Utility functions"""
 import copy
+import logging
 import os
 import shutil
 import subprocess
@@ -14,6 +15,8 @@ from urllib.error import HTTPError
 from urllib.request import urlretrieve
 
 from . import daemon_client, defs
+
+util_logger = logging.getLogger(__name__)
 
 
 def _input(*args):
@@ -238,6 +241,10 @@ def get_user():
     """
     sudo_user = os.environ.get('SUDO_USER')
     user = sudo_user if sudo_user is not None else os.environ.get('USER')
+    if user is None:
+        user = os.environ.get('LOGNAME')
+    if user is None:
+        util_logger.warning("Unable to determine the current user")
     return user
 
 
