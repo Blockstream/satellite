@@ -229,6 +229,18 @@ def prompt_for_enter():
     os.system('clear')
 
 
+def get_user():
+    """Get the current user
+
+    If running with sudo, return the user that invoked sudo. Otherwise, return
+    the current user.
+
+    """
+    sudo_user = os.environ.get('SUDO_USER')
+    user = sudo_user if sudo_user is not None else os.environ.get('USER')
+    return user
+
+
 def get_home_dir():
     """Get the user's home directory even if running with sudo"""
     sudo_user = os.environ.get('SUDO_USER')
@@ -384,6 +396,20 @@ class ProcessRunner():
         assert (auth in ["sudo", "pkexec"]), \
             f"Unsupported authorization manager {auth}"
         ProcessRunner.auth_manager = auth
+
+
+def add_user_to_group(runner: ProcessRunner, group: str):
+    """Add user to a group"""
+    user = get_user()
+    runner.run(["usermod", "-aG", group, user], root=True)
+
+
+def check_user_in_group(runner: ProcessRunner, group: str):
+    """Check if user is in a group"""
+    user = get_user()
+    res = runner.run(["groups", user], capture_output=True)
+    groups = res.stdout.decode().strip().split()
+    return group in groups
 
 
 class Pipe():

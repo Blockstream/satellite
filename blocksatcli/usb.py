@@ -726,7 +726,8 @@ def verify(args) -> dict:
         },
         'user_info': None,
         'adapter': None,
-        'frontend': None
+        'frontend': None,
+        'video_group': None
     }
 
     logger.info("Checking current configuration")
@@ -747,6 +748,9 @@ def verify(args) -> dict:
 
     # Configure the subprocess runner
     runner.set_dry(args.dry_run)
+
+    # Check if the user is already in the video group
+    res['video_group'] = util.check_user_in_group(runner, "video")
 
     # Confirm the drivers are installed
     if not args.dry_run and not dependencies.check_drivers(
@@ -821,6 +825,10 @@ def configure(args, verify_res=None):
 
     # Configure the subprocess runner
     runner.set_dry(args.dry_run)
+
+    # Add user to video group if necessary
+    if not verify_res['video_group']:
+        util.add_user_to_group(runner, "video")
 
     if args.ip is None:
         ips = ip.compute_rx_ips(user_info['sat']['ip'], len(args.pid))
