@@ -153,7 +153,12 @@ class Tsp():
         """
         # Create a .tsduck.lastcheck file on the home directory to skip the
         # TSDuck version check.
-        Path(os.path.join(util.get_home_dir(), ".tsduck.lastcheck")).touch()
+        try:
+            Path(os.path.join(util.get_home_dir(),
+                              ".tsduck.lastcheck")).touch()
+        except Exception as e:
+            logger.warning(
+                "Failed to create .tsduck.lastcheck file: {}".format(e))
 
         # When tsdump is enabled, hook tsp and tspdump through a pipe file (tsp
         # on the write side and tsdump on the read side)
