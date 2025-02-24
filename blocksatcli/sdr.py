@@ -40,14 +40,18 @@ def _verify_max_pipe_size(pipesize):
     return current_max < pipesize, current_max
 
 
-def _tune_max_pipe_size(pipesize, interactive=True):
+def _tune_max_pipe_size(pipesize, interactive=True) -> bool:
     """Tune the maximum size of pipes"""
     if (not which("sysctl")):
         logging.error("Couldn't tune max-pipe-size. Please check how to tune "
                       "it in your OS.")
         return False
 
-    insufficient_pipe_size, current_max = _verify_max_pipe_size(pipesize)
+    res = _verify_max_pipe_size(pipesize)
+    if res is False:
+        return False
+
+    insufficient_pipe_size, current_max = res
 
     if insufficient_pipe_size:
         cmd = ["sysctl", "-w", "fs.pipe-max-size=" + str(pipesize)]
@@ -342,7 +346,11 @@ def verify(args):
 
     logger.info("Checking SDR host configuration")
     pipe_size_bytes = int(args.pipe_size * MBYTES)
-    insufficient_pipe_size, _ = _verify_max_pipe_size(pipe_size_bytes)
+    res = _verify_max_pipe_size(pipe_size_bytes)
+    if res is False:
+        return False
+
+    insufficient_pipe_size, _ = res
 
     return not insufficient_pipe_size
 
