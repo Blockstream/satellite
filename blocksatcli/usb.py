@@ -726,9 +726,19 @@ def verify(args) -> dict:
         },
         'user_info': None,
         'adapter': None,
-        'frontend': None,
-        'video_group': None
+        'frontend': None
     }
+
+    # Ensure the user has permissions to list the dvbnet interfaces before
+    # anything else. Add the user to the video group if necessary.
+    if not util.check_user_in_group(runner, "video"):
+        logger.info("Adding user to video group to access DVB devices")
+        util.add_user_to_group(runner, "video")
+        logger.info("Please log out and log back in for the changes to take "
+                    "effect. Alternatively, run the following command: ")
+        logger.info("  newgrp video")
+        logger.info("Then, run the receiver configuration command again.")
+        sys.exit(1)
 
     logger.info("Checking current configuration")
     common_params = _common(args)
@@ -748,9 +758,6 @@ def verify(args) -> dict:
 
     # Configure the subprocess runner
     runner.set_dry(args.dry_run)
-
-    # Check if the user is already in the video group
-    res['video_group'] = util.check_user_in_group(runner, "video")
 
     # Confirm the drivers are installed
     if not args.dry_run and not dependencies.check_drivers(
@@ -825,10 +832,6 @@ def configure(args, verify_res=None):
 
     # Configure the subprocess runner
     runner.set_dry(args.dry_run)
-
-    # Add user to video group if necessary
-    if not verify_res['video_group']:
-        util.add_user_to_group(runner, "video")
 
     if args.ip is None:
         ips = ip.compute_rx_ips(user_info['sat']['ip'], len(args.pid))
