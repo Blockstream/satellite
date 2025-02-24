@@ -239,8 +239,7 @@ def get_user():
     the current user.
 
     """
-    sudo_user = os.environ.get('SUDO_USER')
-    user = sudo_user if sudo_user is not None else os.environ.get('USER')
+    user = os.environ.get('USER')
     if user is None:
         user = os.environ.get('LOGNAME')
     if user is None:
