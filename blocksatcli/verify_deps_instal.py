@@ -65,7 +65,9 @@ class TestDependencies(unittest.TestCase):
         fc36_or_higher = distro_id == 'fedora' and int(distro_ver) >= 36
         ubuntu22_or_higher = distro_id == 'ubuntu' and Version(
             distro_ver) >= Version('22.04')
-        if fc36_or_higher or ubuntu22_or_higher:
+        debian_bookworm_or_higher = distro_id == 'debian' and Version(
+            distro_ver) >= Version('12')
+        if fc36_or_higher or ubuntu22_or_higher or debian_bookworm_or_higher:
             self.assertTrue(dependencies.check_apps(["dvbs2-rx"]))
         else:
             self.assertFalse(dependencies.check_apps(["dvbs2-rx"]))
