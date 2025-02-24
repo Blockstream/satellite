@@ -1,6 +1,7 @@
 # Changelog
 
 ## Releases
+- [2.5.1](#251)
 - [2.5.0](#250)
 - [0.4.7](#047)
 - [0.4.6](#046)
@@ -13,6 +14,18 @@
 - [0.3.2](#032)
 - [0.3.1](#031)
 - [0.3.0](#030)
+
+## 2.5.1
+
+Release Date: TBD
+
+### Added
+- Installation of gr-dvbs2rx on Debian Bookworm (12).
+- User addition to video group when configuring a TBS USB receiver.
+
+### Fixed
+- Handling of pipe size verification with an SDR receiver using leandvb.
+- Handling of TSDuck .lastcheck file creation failure.
 
 ## 2.5.0
 
