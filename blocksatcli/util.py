@@ -410,6 +410,9 @@ class ProcessRunner():
 def add_user_to_group(runner: ProcessRunner, group: str):
     """Add user to a group"""
     user = get_user()
+    if user == "root":
+        util_logger.warning("User is root, skipping group addition")
+        return
     runner.run(["usermod", "-aG", group, user], root=True)
 
 

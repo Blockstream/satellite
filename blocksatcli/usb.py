@@ -731,7 +731,8 @@ def verify(args) -> dict:
 
     # Ensure the user has permissions to list the dvbnet interfaces before
     # anything else. Add the user to the video group if necessary.
-    if not util.check_user_in_group(runner, "video"):
+    if util.get_user() != "root" and not util.check_user_in_group(
+            runner, "video"):
         logger.info("Adding user to video group to access DVB devices")
         util.add_user_to_group(runner, "video")
         logger.info("Please log out and log back in for the changes to take "
