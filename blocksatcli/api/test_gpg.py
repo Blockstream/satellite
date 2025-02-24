@@ -31,7 +31,7 @@ class TestGpg(TestEnv):
         # The passphrase should be saved internally
         self.assertIsNotNone(gpg.passphrase)
 
-    @patch('blocksatcli.util.getpass')
+    @patch('blocksatcli.util.getpass.getpass')
     @patch('builtins.input')
     def test_keyring_config(self, mock_user_input, mock_getpass):
         """Test keyring configuration"""
@@ -60,7 +60,7 @@ class TestGpg(TestEnv):
         created_uid = gpg.get_default_priv_key()['uids'][0]
         self.assertEqual(created_uid, expected_uid)
 
-    @patch('blocksatcli.util.getpass')
+    @patch('blocksatcli.util.getpass.getpass')
     @patch('builtins.input')
     def test_keyring_config_empty_passphrase(self, mock_user_input,
                                              mock_getpass):

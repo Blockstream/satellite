@@ -1,5 +1,6 @@
 """Utility functions"""
 import copy
+import getpass
 import logging
 import os
 import shutil
@@ -9,7 +10,6 @@ import tempfile
 import textwrap
 from argparse import ArgumentParser
 from datetime import datetime
-from getpass import getpass
 from ipaddress import IPv4Address
 from urllib.error import HTTPError
 from urllib.request import urlretrieve
@@ -87,7 +87,7 @@ def string_input(msg, default=None, optional=False):
 
 def password_input(prompt: str = "Password: "):
     try:
-        return getpass(prompt)
+        return getpass.getpass(prompt)
     except KeyboardInterrupt:
         print("\nAborting")
         exit()
@@ -243,6 +243,8 @@ def get_user():
     user = sudo_user if sudo_user is not None else os.environ.get('USER')
     if user is None:
         user = os.environ.get('LOGNAME')
+    if user is None:
+        user = getpass.getuser()
     if user is None:
         util_logger.warning("Unable to determine the current user")
     return user
