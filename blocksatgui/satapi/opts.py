@@ -1,8 +1,6 @@
 import copy
 from typing import Dict, Optional, Type, TypedDict, Union
 
-from typing_extensions import NotRequired
-
 from blocksatcli import defs
 from blocksatcli.api.order import ApiChannel
 
@@ -13,8 +11,8 @@ class WidgetOptions(TypedDict):
     widget: Type[qt.QWidget]
     label: str
     tip: str
-    default: NotRequired[bool]
-    placeholder: NotRequired[str]
+    default: Optional[bool] = None
+    placeholder: Optional[str] = None
 
 
 GroupOptions = Dict[Union[str, int], WidgetOptions]
@@ -190,11 +188,13 @@ def get_opt_widget(opts: WidgetOptions,
 
     if obj_name is not None:
         widget.setObjectName(obj_name)
-    if 'placeholder' in opts and opts['widget'] == qt.QComboBox:
+    if 'placeholder' in opts and opts['placeholder'] is not None and opts[
+            'widget'] == qt.QComboBox:
         widget.setPlaceholderText(opts['placeholder'])
     if 'tip' in opts:
         widget.setToolTip(opts['tip'])
-    if opts['widget'] in [qt.QCheckBox, qt.QRadioButton] and 'default' in opts:
+    if (opts['widget'] in [qt.QCheckBox, qt.QRadioButton] and 'default' in opts
+            and opts['default'] is not None):
         widget.setChecked(opts['default'])
 
     opts['widget'] = widget  # Save reference to the widget

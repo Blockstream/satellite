@@ -17,7 +17,6 @@ Blockstream Satellite receiver setup.
 
 dependencies = [
     'blocksat-cli==' + __version__,  # matching version
-    'typing_extensions>=4.12.2',
 ]
 
 if sys.version_info >= (3, 13):
