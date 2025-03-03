@@ -122,7 +122,7 @@ opts_listen: AdvancedOptions = {
         "save_raw":
         WidgetOptions(
             widget=qt.QCheckBox,
-            label="Encapsulated: ",
+            label="Raw format: ",
             tip=("Save the raw decrypted data while ignoring the existence "
                  "of a data encapsulation structure."),
             default=False),
