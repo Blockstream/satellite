@@ -90,8 +90,7 @@ class TestSapApiSendPage:
         qtbot.addWidget(send_page.view)
 
         send_page.view.message.setPlainText("message")
-        plaintext = send_page.view.advanced_opts['format']['plaintext'][
-            'widget']
+        plaintext = send_page.view.advanced_opts['format']['plaintext'].widget
         plaintext.setChecked(True)
         send_page.send_message()
 
@@ -153,7 +152,7 @@ class TestSapApiSendPage:
 
         # Remove a region by unchecking it
         regions_box = send_page.view.advanced_opts['regions']
-        region_widget = regions_box[region]['widget']
+        region_widget = regions_box[region].widget
         region_widget.setChecked(False)
         expected_opt.remove(region)
         regions_opt = send_page.view.get_advanced_opts()['regions']
@@ -171,7 +170,7 @@ class TestSapApiSendPage:
                 self.expected_opts[option])
 
         # Select it
-        widget = format_box[option]['widget']
+        widget = format_box[option].widget
         widget.setChecked(True)
         assert (send_page.view.get_advanced_opts()[option] is True)
 
@@ -187,7 +186,7 @@ class TestSapApiSendPage:
                     self.expected_opts[opt])
 
             # Select it
-            widget = gpg_box[opt]['widget']
+            widget = gpg_box[opt].widget
             widget.setChecked(True)
             assert (send_page.view.get_advanced_opts()[opt] is True), opt
 
@@ -199,7 +198,7 @@ class TestSapApiSendPage:
             'uids': 'uid2',
             'fingerprint': 'priv-fp2'
         }])
-        sign_key = gpg_box['sign_key']['widget']
+        sign_key = gpg_box['sign_key'].widget
         assert (sign_key.count() == 2)
         sign_key.setCurrentIndex(0)  # Select first key
         assert (send_page.view.get_advanced_opts()['sign_key'] == 'priv-fp1')
@@ -212,7 +211,7 @@ class TestSapApiSendPage:
             'uids': 'uid2',
             'fingerprint': 'pub-fp2'
         }])
-        recipient = gpg_box['recipient']['widget']
+        recipient = gpg_box['recipient'].widget
         assert (recipient.count() == 2)
         recipient.setCurrentIndex(1)  # Select second key
         assert (send_page.view.get_advanced_opts()['recipient'] == 'pub-fp2')
@@ -277,13 +276,13 @@ class TestSapApiListenPage:
         qtbot.addWidget(listen_page.view)
 
         # Default options: User channel
-        user_channel = listen_page.view.advanced_opts['channels'][1]['widget']
+        user_channel = listen_page.view.advanced_opts['channels'][1].widget
         assert (user_channel.isChecked() is True)
         assert (listen_page.view.get_advanced_options()['channel'] ==
                 self.expected_opts['channel'])
 
         # Select another channel
-        widget = listen_page.view.advanced_opts['channels'][channel]['widget']
+        widget = listen_page.view.advanced_opts['channels'][channel].widget
         widget.setChecked(True)
         assert (listen_page.view.get_advanced_options()['channel'] == channel)
 
@@ -304,7 +303,7 @@ class TestSapApiListenPage:
                     self.expected_opts[opt])
 
             # Select it
-            widget = format_box[opt]['widget']
+            widget = format_box[opt].widget
             widget.setChecked(True)
             assert (listen_page.view.get_advanced_options()[opt] is True)
 
@@ -319,7 +318,7 @@ class TestSapApiListenPage:
                 self.expected_opts['no_save'])
 
         # Select: No save
-        no_save = save_box['no_save']['widget']
+        no_save = save_box['no_save'].widget
         no_save.setChecked(True)
         assert (listen_page.view.get_advanced_options()['no_save'] is True)
 
@@ -332,7 +331,7 @@ class TestSapApiListenPage:
         # Select: No password
         assert (listen_page.view.get_advanced_options()['no_password'] ==
                 self.expected_opts['no_password'])
-        no_password = gpg_box['no_password']['widget']
+        no_password = gpg_box['no_password'].widget
         no_password.setChecked(True)
         assert (listen_page.view.get_advanced_options()['no_password'] is True)
 
@@ -344,7 +343,7 @@ class TestSapApiListenPage:
             'uids': 'uid2',
             'fingerprint': 'pub-fp2'
         }])
-        sender = gpg_box['sender']['widget']
+        sender = gpg_box['sender'].widget
         assert (sender.count() == 2)
         sender.setCurrentIndex(1)  # Select second key
         assert (listen_page.view.get_advanced_options()['sender'] == 'pub-fp2')

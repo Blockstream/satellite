@@ -182,7 +182,7 @@ class SendView(page.Page):
 
     def set_recipients(self, recipients):
         self._recipients = {}
-        widget = self.advanced_opts['gpg']['recipient']['widget']
+        widget = self.advanced_opts['gpg']['recipient'].widget
         widget.clear()
         for i, r in enumerate(recipients):
             text = f"{r['uids']} ({r['fingerprint']})"
@@ -191,7 +191,7 @@ class SendView(page.Page):
 
     def set_sign_keys(self, keys):
         self._sign_keys = {}
-        widget = self.advanced_opts['gpg']['sign_key']['widget']
+        widget = self.advanced_opts['gpg']['sign_key'].widget
         widget.clear()
         for i, k in enumerate(keys):
             text = f"{k['uids']} ({k['fingerprint']})"

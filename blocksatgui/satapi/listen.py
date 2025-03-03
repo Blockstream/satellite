@@ -122,7 +122,7 @@ class ListenView(page.Page):
         self.advanced_options_box.setHidden(not show)
 
     def set_network_interfaces(self, interfaces, default='lo'):
-        widget = self.advanced_opts['network']['interface']['widget']
+        widget = self.advanced_opts['network']['interface'].widget
         widget.clear()  # Clear previous items
         widget.addItems(interfaces)
         if default is not None:
@@ -142,7 +142,7 @@ class ListenView(page.Page):
 
     def set_senders(self, senders: list):
         self._senders = {}
-        widget = self.advanced_opts['gpg']['sender']['widget']
+        widget = self.advanced_opts['gpg']['sender'].widget
         widget.clear()
         for i, r in enumerate(senders):
             text = f"{r['uids']} ({r['fingerprint']})"
