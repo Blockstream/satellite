@@ -70,14 +70,11 @@ class SystemTray(QSystemTrayIcon):
 
     def enable(self):
         """Enable system tray icon"""
-
         if self.is_available:
-            self.app.setQuitOnLastWindowClosed(False)
             self.show()
 
     def disable(self):
         """Disable system tray icon"""
-        self.app.setQuitOnLastWindowClosed(True)
         self.hide()
 
     def set_tray(self):
