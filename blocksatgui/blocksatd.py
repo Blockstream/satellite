@@ -245,7 +245,9 @@ class Runner(dbus.service.Object):
         logger.debug(f"[PID {pid}] Stdout: {stdout}")
 
         if res != 0:
-            logger.error(f"[PID {pid}] Command failed: {ps.args} - {stderr}")
+            cmd_str = " ".join(ps.args)
+            logger.error(
+                f"[PID {pid}] Command failed: {cmd_str} - Error: {stderr}")
 
         # Remove process from requests list
         self.clean_request(pid)
