@@ -172,8 +172,9 @@ class Runner(dbus.service.Object):
 
         """
         cmd = self._convert_type(cmd)
+        cmd_str = " ".join(cmd) if isinstance(cmd, list) else cmd
+        logger.info(f"Command: {cmd_str}")
         if not isinstance(cmd, list) or cmd[0] not in allowed_cmds:
-            cmd_str = " ".join(cmd) if isinstance(cmd, list) else cmd
             logger.error(f"Command not allowed: {cmd_str}")
             return -1
 
