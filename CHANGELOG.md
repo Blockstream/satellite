@@ -26,6 +26,7 @@ Release Date: TBD
 ### Fixed
 - Handling of pipe size verification with an SDR receiver using leandvb.
 - Handling of TSDuck .lastcheck file creation failure.
+- Blocksatd commands whitelist not including the `make` command.
 
 ## 2.5.0
 

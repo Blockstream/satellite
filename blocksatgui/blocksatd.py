@@ -52,7 +52,7 @@ allowed_cmds = [
     "grep",
     "dpkg",
     "git",
-    "make"
+    "make",
     "sed",
     "tar",
     "iptables",
