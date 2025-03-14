@@ -1,4 +1,4 @@
-from distro import distro
+import distro
 
 from blocksatcli import defs
 
