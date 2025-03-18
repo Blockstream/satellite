@@ -2,7 +2,6 @@ import os
 import queue
 import random
 import string
-import time
 from sys import platform
 from threading import Thread
 from unittest import TestCase, mock, skipIf
@@ -120,13 +119,15 @@ class TestApiListener(TestCase):
                    args=args,
                    kwargs=kwargs)
         t.start()
-        time.sleep(0.2)  # wait for the loop initialization
+
+        # Wait for the loop initialization before sending the packets
+        self.listen_loop.recv_loop_ready.wait()
 
         # Send the packets through the loopback interface
         send_pkts(self.sock, pkts)
 
         # The listener exits after successfully receiving a single message
-        t.join(timeout=1)
+        t.join(timeout=10)
         self.assertFalse(t.is_alive())
 
         # Confirm the message was decoded correctly

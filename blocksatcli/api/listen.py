@@ -3,6 +3,7 @@ import queue
 import shlex
 import subprocess
 import time
+from threading import Event
 
 from . import msg as api_msg
 from . import net
@@ -33,6 +34,7 @@ class ApiListener():
         assert (recv_queue is None or isinstance(recv_queue, queue.Queue))
         self.recv_queue = recv_queue
         self.recv_timeout = recv_timeout
+        self.recv_loop_ready = Event()
 
     def stop(self):
         logger.debug("Stopping API listener")
@@ -92,7 +94,12 @@ class ApiListener():
         decoded_msgs = set()
 
         logger.info("Waiting for data...")
+        ready_flagged = False
         while self.enabled:
+            if not ready_flagged:
+                self.recv_loop_ready.set()
+                ready_flagged = True
+
             try:
                 udp_payload, addr = sock.recv()
             except TimeoutError:
