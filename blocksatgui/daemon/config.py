@@ -154,6 +154,18 @@ class DaemonInstaller():
         dependencies.install(args)
         self.logger.info("Dbus module installed.")
 
+    def _check_blocksatd_service(self):
+        """Check if blocksatd service exists"""
+        blocksat_systemd_unit = CONFIG_FILES["systemd"]["filename"]
+        exists = self.runner.run(
+            ["systemctl", "status", blocksat_systemd_unit],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            nocheck=True,
+        )
+        # status code 4 means the service does not exist
+        return exists is not None and exists.returncode != 4
+
     def _start_blocksatd_service(self, enable=False):
         # Enable service
         blocksat_systemd_unit = CONFIG_FILES["systemd"]["filename"]
@@ -230,6 +242,14 @@ class DaemonInstaller():
             self._run_blocksatd_standalone()
             return True
 
+        # Start the blocksatd service if already installed
+        if self._check_blocksatd_service():
+            self._start_blocksatd_service()
+            return True
+
+        self.logger.info("Blocksatd service not found.")
+
+        # Ask user how to proceed
         if self.interactive:
             choice = self.viewer.ask_multiple_choice(
                 vec=['Install', 'Run once', 'Cancel'],
@@ -395,9 +415,7 @@ class DaemonInstallerGUI(QObject):
         """Run blocksatd"""
 
         def _run_thread(self):
-            standalone = (True
-                          if not helper.is_blocksatd_installed_with_root() else
-                          False)
+            standalone = not helper.is_blocksatd_installed_with_root()
             helper.interactive = False if standalone else True
             start_job(func=helper.run_blocksatd,
                       args=(standalone, ),
