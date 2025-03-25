@@ -29,9 +29,9 @@ CONFIG_FILES = {
     },
     "systemd": {
         "name": "Systemd unit file",
-        "filename": "blockstream-satellite.service",
+        "filename": "blocksatd.service",
         "path": "/usr/lib/systemd/system/",
-    }
+    },
 }
 
 BLOCKSATD = {

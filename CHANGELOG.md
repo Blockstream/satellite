@@ -23,6 +23,9 @@ Release Date: TBD
 - Installation of gr-dvbs2rx on Debian Bookworm (12).
 - User addition to video group when configuring a TBS USB receiver.
 
+### Changed
+- Renamed `blockstream-satellite` systemd service to `blocksatd`.
+
 ### Fixed
 - Handling of pipe size verification with an SDR receiver using leandvb.
 - Handling of TSDuck .lastcheck file creation failure.
