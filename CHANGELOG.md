@@ -25,6 +25,7 @@ Release Date: TBD
 
 ### Changed
 - Renamed `blockstream-satellite` systemd service to `blocksatd`.
+- Add Lightning invoice payment status to GUI payment dialog.
 
 ### Fixed
 - Handling of pipe size verification with an SDR receiver using leandvb.

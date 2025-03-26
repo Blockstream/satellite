@@ -251,6 +251,7 @@ class LNInvoiceDialog(QDialog):
         title = QLabel("Pay Lightning Invoice")
         title.setProperty("qssClass", "title")
 
+        self.status = QLabel("Status: Waiting for payment")
         amount = QLabel("Due amount: {}".format(
             util.format_sats(int(self.due_amount) / 1e3)))
 
@@ -271,6 +272,7 @@ class LNInvoiceDialog(QDialog):
         wrapper_r = QFrame(self)
         layout_r = QVBoxLayout(wrapper_r)
         layout_r.addWidget(title)
+        layout_r.addWidget(self.status)
         layout_r.addWidget(amount)
         layout_r.addWidget(invoice_msg)
 
@@ -286,6 +288,10 @@ class LNInvoiceDialog(QDialog):
         box_layout.addWidget(wrapper_l)
 
         return box
+
+    def set_payment_confirmed(self):
+        self.status.setText("Status: Payment confirmed")
+        self.status.setStyleSheet("color: green")
 
     def exec_(self):
         self.sig_wait_payment.emit()

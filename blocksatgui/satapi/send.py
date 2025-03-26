@@ -344,12 +344,12 @@ class Send(qt.QObject):
             info = OrderInfoDialog(gui=self.view, uuid=uuid, auth_token=token)
             info.exec_()
 
-            def _wait_tx_payment(api, uuid, token, dialog):
+            def _wait_tx_payment(api, uuid, token, ln_dialog):
                 """Wait for invoice payment and then close the dialog"""
 
                 def _on_payment_confirmed(worker):
                     if worker.error is None and worker.result:
-                        dialog.accept()
+                        ln_dialog.set_payment_confirmed()
 
                 api.wait_tx_payment(uuid,
                                     token,
