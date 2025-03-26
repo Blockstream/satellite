@@ -298,11 +298,11 @@ class SatApi(QObject):
 
         In the current implementation, there is no way to check for the invoice
         status. Therefore, this method checks for the transmission state. If
-        the transmission is in the 'sent' or 'confirmed' state means that the
-        payment has been received.
+        the transmission is in the 'paid' or posterior state, it is assumed
+        that the payment has been received.
 
         """
-        target_state = ['sent']
+        target_state = ['paid']
         server = get_server_addr(self.bitcoin_net, self.server)
         order = ApiOrder(server)
         order.uuid = uuid
