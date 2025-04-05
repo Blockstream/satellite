@@ -7,7 +7,8 @@ nav_order: 12
 This page contains a quick reference guide for the Blockstream Satellite receiver setup and its general usage via the command-line interface (CLI). Please refer to the [main guide](../index.md) for detailed explanations on all steps and instructions for the graphical user interface (GUI).
 
 <!-- markdown-toc start -->
-- [CLI Installation and Upgrade](#cli-installation-and-upgrade)
+- [Installation and Upgrade](#installation-and-upgrade)
+- [Installation and Upgrade as a Python Package](#installation-and-upgrade-as-a-python-package)
 - [Common Steps](#common-steps)
 - [Receiver-specific Configuration Steps](#receiver-specific-configuration-steps)
   - [Novra S400 standalone receiver](#novra-s400-standalone-receiver)
@@ -24,24 +25,62 @@ This page contains a quick reference guide for the Blockstream Satellite receive
 
 <!-- markdown-toc end -->
 
-## CLI Installation and Upgrade
+## Installation and Upgrade
 
-Install the command-line interface (CLI):
+**Ubuntu:**
+
+```bash
+add-apt-repository ppa:blockstream/satellite
+apt update && apt install blockstream-satellite
+```
+
+**Fedora:**
+
+```bash
+dnf copr enable blockstream/satellite
+dnf install blockstream-satellite
+```
+
+**Debian:**
+
+```bash
+add-apt-repository https://aptly.blockstream.com/satellite/debian/
+apt-key adv --keyserver keyserver.ubuntu.com \
+    --recv-keys 87D07253F69E4CD8629B0A21A94A007EC9D4458C
+apt update && apt install blockstream-satellite
+```
+
+**Raspberry Pi OS (formerly Raspbian):**
+
+```bash
+add-apt-repository https://aptly.blockstream.com/satellite/raspbian/
+apt-key adv --keyserver keyserver.ubuntu.com \
+    --recv-keys 87D07253F69E4CD8629B0A21A94A007EC9D4458C
+apt update && apt install blockstream-satellite
+```
+
+## Installation and Upgrade as a Python Package
+
+**Note:** Consider this method only if not using the above instructions for installing and upgrading directly with the Linux package manager.
+
+Install the command-line interface (CLI) and the graphical user interface (GUI) packages:
 
 ```
-sudo pip3 install blocksat-cli
+sudo pip3 install blocksat-cli blocksat-gui
 ```
 
-Alternatively, to upgrade a previous installation of the CLI, run:
+Alternatively, upgrade the existing installation:
 
 ```
 sudo pip3 install blocksat-cli --upgrade
+sudo pip3 install blocksat-gui --upgrade
 ```
 
 To check your current version, run:
 
 ```
 blocksat-cli -v
+blocksat-gui -v
 ```
 
 ## Common Steps

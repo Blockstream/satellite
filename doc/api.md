@@ -12,7 +12,7 @@ As illustrated in the diagram below, the process starts with a sender applicatio
 
 The `blocksat-cli` command-line interface (CLI) provides a range of commands for the interaction with the Satellite API. This guide clarifies these commands.
 
-> To install the CLI, please refer to the [installation instructions](quick-reference.md#cli-installation-and-upgrade).
+> To install the CLI, please refer to the [installation instructions](quick-reference.md#installation-and-upgrade).
 
 > As of the current version, the GUI does not include the support for Satellite API commands. Please use the CLI for such interactions.
 
@@ -229,7 +229,7 @@ To send an API message using FEC encoding, run:
 blocksat-cli api send --fec
 ```
 
-> NOTE: the FEC feature requires the `zfec` dependency. You can enable it by installing the CLI with `sudo pip3 install blocksat-cli[fec]` or by installing the `zfec` package via pip3 directly.
+> NOTE: the FEC feature requires the `zfec` dependency. You can enable it by installing the `python3-zfec` package via your system's package manager (`apt` or  `dnf`). Alternatively, you can install the `zfec` Python package by running `pip3 install zfec`.
 
 The `api listen` command detects and decodes FEC-encoded messages automatically.
 
