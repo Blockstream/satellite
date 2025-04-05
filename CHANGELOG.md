@@ -31,6 +31,7 @@ Release Date: TBD
 - Handling of pipe size verification with an SDR receiver using leandvb.
 - Handling of TSDuck .lastcheck file creation failure.
 - Blocksatd commands whitelist not including the `make` command.
+- Implied state detection on API message transmission order.
 - Lightning invoice paid state detection on GUI dialog.
 
 ## 2.5.0

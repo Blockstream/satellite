@@ -246,7 +246,7 @@ class ApiOrder:
             timeout : Timeout in seconds.
 
         Returns:
-            (bool) Whether the state was successfully reached.
+            (bool) Whether any of the target states was successfully reached.
 
         """
         assert (isinstance(target, str) or isinstance(target, list))
@@ -289,6 +289,7 @@ class ApiOrder:
 
         s_time = time.time()
         self._stop_wait_state = False
+        target_detected = False
         while (self._stop_wait_state is False):
             self._fetch()
 
@@ -308,6 +309,7 @@ class ApiOrder:
                 print(msg[self.order['status']])
 
             if (any([state_seen[x] for x in target])):
+                target_detected = True
                 break
 
             c_time = time.time()
@@ -317,7 +319,7 @@ class ApiOrder:
 
             time.sleep(0.5)
 
-        return ('status' in self.order and self.order['status'] in target)
+        return target_detected
 
     def stop_wait_state(self):
         """Stop waiting for the order to achieve a target state"""

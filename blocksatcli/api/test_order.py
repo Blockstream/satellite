@@ -96,6 +96,13 @@ class TestOrder(unittest.TestCase):
                                                   status='paid')
         self.assertTrue(self.order.wait_state("paid", timeout=2))
 
+        # Wait for paid state and assume it is true implicitly due to the
+        # actual state being "sent", which implies paid
+        mock_get.return_value = mock_get_api_resp(bid,
+                                                  len(data),
+                                                  status='sent')
+        self.assertTrue(self.order.wait_state("paid", timeout=2))
+
     @patch('blocksatcli.api.order.requests.get')
     @patch('blocksatcli.api.order.requests.post')
     def test_bumping(self, mock_post, mock_get):
