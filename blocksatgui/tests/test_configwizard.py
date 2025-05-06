@@ -449,7 +449,7 @@ class TestReceiversSetupConfig:
 
         error = get_error_message(wizard_widget, obj_name="freq_range_error")
         assert error == ("Please, choose a frequency range covering the "
-                         "Telstar 18V C Band downlink frequency of 4122.6 MHz")
+                         "Telstar 18V C Band downlink frequency of 4140.0 MHz")
 
         # Invalid LNB freq range
         input_text(wizard_widget, "4800", obj_name="freq_range_lowest")
@@ -482,8 +482,8 @@ class TestReceiversSetupConfig:
             "pol": "V"
         }
         expected_config["freqs"] = {
-            "dl": 4122.6,
+            "dl": 4140.0,
             "lo": 5150.0,
-            "l_band": 1027.4
+            "l_band": 1010.0
         }
         assert (cfg_wizard.config_options == expected_config)

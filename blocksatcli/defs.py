@@ -54,7 +54,7 @@ satellites = [{
 }, {
     'name': "Telstar 18V C Band",
     'alias': "T18V C",
-    'dl_freq': 4122.6,
+    'dl_freq': 4140.0,
     'band': "C",
     'pol': "V",
     'ip': "172.16.235.41",

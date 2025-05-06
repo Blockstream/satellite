@@ -74,7 +74,7 @@ class TestConfigDir(TestEnv):
                 'T18V C',
                 {
                     'old_freq': 4053.83,  # frequency pre July 12, 2023
-                    'new_freq': 4122.6,  # Update on July 9, 2024
+                    'new_freq': 4140.0,  # Update on May 9, 2025
                     'old_pol': 'H',  # Pre July 9, 2024
                     'new_pol': 'V'  # After July 9, 2024
                 },
@@ -83,7 +83,16 @@ class TestConfigDir(TestEnv):
                 'T18V C',
                 {
                     'old_freq': 4057.4,  # frequency after July 12, 2023
-                    'new_freq': 4122.6,  # Update on July 9, 2024
+                    'new_freq': 4140.0,  # Update on May 9, 2025
+                    'old_pol': 'H',  # Pre July 9, 2024
+                    'new_pol': 'V'  # After July 9, 2024
+                },
+            ),
+            (
+                'T18V C',
+                {
+                    'old_freq': 4122.6,  # frequency after July 9, 2024
+                    'new_freq': 4140.0,  # Update on May 9, 2025
                     'old_pol': 'H',  # Pre July 9, 2024
                     'new_pol': 'V'  # After July 9, 2024
                 },
@@ -744,9 +753,9 @@ class TestReceiversSetupConfig(TestEnv):
             "pol": "V"
         }
         self.expected_config["freqs"] = {
-            "dl": 4122.6,
+            "dl": 4140.0,
             "lo": 5150.0,
-            "l_band": 1027.4
+            "l_band": 1010.0
         }
 
         # Continue with invalid frequency range
@@ -788,9 +797,9 @@ class TestReceiversSetupConfig(TestEnv):
             "pol": "V"
         }
         self.expected_config["freqs"] = {
-            "dl": 4122.6,
+            "dl": 4140.0,
             "lo": 5150.0,
-            "l_band": 1027.4
+            "l_band": 1010.0
         }
 
         config.configure(self.args)

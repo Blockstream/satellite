@@ -17,13 +17,14 @@
 
 ## 2.5.1
 
-Release Date: TBD
+Release Date: 2025-05-08
 
 ### Added
 - Installation of gr-dvbs2rx on Debian Bookworm (12).
 - User addition to video group when configuring a TBS USB receiver.
 
 ### Changed
+- Telstar 18V C-band downlink frequency.
 - Renamed `blockstream-satellite` systemd service to `blocksatd`.
 - Add Lightning invoice payment status to GUI payment dialog.
 

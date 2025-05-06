@@ -35,7 +35,7 @@ The following table summarizes the transmission bands, frequencies, and polariza
 | Telstar 11N Africa | Ku Low  | Horizontal   | 11470.3 MHz  |
 | Telstar 11N Europe | Ku Low  | Vertical     | 11494.51 MHz |
 | Telstar 18V Ku     | Ku Low  | Horizontal   | 11507.9 MHz  |
-| Telstar 18V C      | C       | Vertical     | 4122.6 MHz   |
+| Telstar 18V C      | C       | Vertical     | 4140.0 MHz   |
 
 ## L-band Frequencies
 
@@ -47,5 +47,5 @@ Next, the following table summarizes the L-band frequencies to be used in each r
 | Telstar 11N Africa  |            | 1720.3 MHz  |            |            |
 | Telstar 11N Europe  |            | 1744.51 MHz |            |            |
 | Telstar 18V Ku Band |            | 1757.9 MHz  |            |            |
-| Telstar 18V C Band  | 1027.4 MHz |             |            |            |
+| Telstar 18V C Band  | 1010.0 MHz |             |            |            |
 
